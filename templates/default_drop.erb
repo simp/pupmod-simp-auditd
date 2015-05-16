@@ -1,0 +1,9 @@
+
+## Get rid of all anonymous and daemon junk.  It clogs up the logs and doesn't
+# do anyone # any good.
+-a exit,never -F auid=-1
+
+# Ignore system services. In most guides this is tagged onto every rule but
+# that just makes for more processing time.
+-a exit,never -F auid!=0 -F auid<<%= @uid_min %>
+
