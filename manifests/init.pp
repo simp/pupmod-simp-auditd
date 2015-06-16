@@ -158,20 +158,20 @@ class auditd (
   }
 
   file { '/etc/audit/audit.rules':
-    owner     => 'root',
-    group     => 'root',
-    mode      => '0600',
-    audit     => content,
-    require   => Package['audit'],
-    notify    => Service['auditd']
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0600',
+    audit   => content,
+    require => Package['audit'],
+    notify  => Service['auditd']
   }
 
   file { '/etc/audit/auditd.conf':
-    owner    => 'root',
-    group    => 'root',
-    mode     => '0600',
-    notify   => Service['auditd'],
-    content  => template('auditd/auditd.conf.erb')
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0600',
+    notify  => Service['auditd'],
+    content => template('auditd/auditd.conf.erb')
   }
 
   file { '/var/log/audit':
