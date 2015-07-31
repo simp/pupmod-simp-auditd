@@ -1,7 +1,7 @@
 Summary: Auditd Puppet Module
 Name: pupmod-auditd
 Version: 4.1.0
-Release: 11
+Release: 12
 License: Apache License, Version 2.0
 Group: Applications/System
 Source: %{name}-%{version}-%{release}.tar.gz
@@ -58,6 +58,9 @@ fi
 # Post uninstall stuff
 
 %changelog
+* Fri Jul 21 2015 Kendall Moore <kmoore@keywcorp.com> - 4.1.0-12
+- Updated to use the new rsyslog module.
+
 * Thu Feb 19 2015 Trevor Vaughan <tvaughan@onyxpoint.com> - 4.1.0-11
 - Migrated to the new 'simp' environment.
 

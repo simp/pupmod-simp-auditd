@@ -27,14 +27,12 @@ class auditd::to_syslog (
   $log_servers = hiera('log_servers',[])
 ) {
   if !empty($log_servers) {
-    include 'rsyslog'
+    include '::rsyslog'
 
     # Note: This only happens if you are offloading your logs.
     # Otherwise, just go look at the audit files.
-    rsyslog::add_conf { 'audispd':
-      content   => 'if $programname == \'audispd\' then',
-      dest      => $log_servers,
-      dest_type => 'tcp'
+    rsyslog::rule::drop { 'audispd':
+      rule   => 'if $programname == \'audispd\''
     }
   }
 
