@@ -23,8 +23,8 @@ describe 'auditd::to_syslog' do
     it { should compile.with_all_deps }
     it { should create_class('rsyslog') }
     it {
-      should create_rsyslog__add_conf('audispd').with({
-        :content => "if \$programname == 'audispd' then"
+      should create_rsyslog__rule__drop('audispd').with({
+        :rule => "if \$programname == 'audispd'"
       })
     }
   end
