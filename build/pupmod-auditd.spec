@@ -1,7 +1,7 @@
 Summary: Auditd Puppet Module
 Name: pupmod-auditd
 Version: 4.1.0
-Release: 12
+Release: 13
 License: Apache License, Version 2.0
 Group: Applications/System
 Source: %{name}-%{version}-%{release}.tar.gz
@@ -58,7 +58,10 @@ fi
 # Post uninstall stuff
 
 %changelog
-* Fri Jul 21 2015 Kendall Moore <kmoore@keywcorp.com> - 4.1.0-12
+* Mon Sep 07 2015 Chris Tessmer <chris.tessmer@onyxpoint.com> - 4.1.0-13
+- Updated facts from $::lsbmajdistrelease to $::operatingsystemmajrelease.
+
+* Tue Jul 21 2015 Kendall Moore <kmoore@keywcorp.com> - 4.1.0-12
 - Updated to use the new rsyslog module.
 
 * Thu Feb 19 2015 Trevor Vaughan <tvaughan@onyxpoint.com> - 4.1.0-11
@@ -71,7 +74,7 @@ fi
 - Updated auditd::to_syslog to support multiple log servers and
   support for native TLS.
 
-* Tue Sep 06 2014 Trevor Vaughan <tvaughan@onyxpoint.com> - 4.1.0-8
+* Sat Sep 06 2014 Trevor Vaughan <tvaughan@onyxpoint.com> - 4.1.0-8
 - Fixed a missing rule for RHEL<7 that did not properly drop all of
   the useless audit data.
 
@@ -95,7 +98,7 @@ fi
 - Added the ability to put rules before the default rule body in audit.rules.
 - Added validation to add_rules.pp.
 
-* Wed Mar 28 2014 Trevor Vaughan <tvaughan@onyxpoint.com> - 4.1.0-3
+* Fri Mar 28 2014 Trevor Vaughan <tvaughan@onyxpoint.com> - 4.1.0-3
 - The template for auditing the rotated audit logs had a one-off error
   preventing the audit of the last rotated log.
 - Spec tests were added.
@@ -106,7 +109,7 @@ fi
 * Thu Feb 13 2014 Kendall Moore <kmoore@keywcorp.com> - 4.1.0-1
 - Converted all string booleans to native booleans.
 
-* Fri Nov 04 2013 Trevor Vaughan <tvaughan@onyxpoint.com> - 4.1.0-0
+* Mon Nov 04 2013 Trevor Vaughan <tvaughan@onyxpoint.com> - 4.1.0-0
 - Added support for audispd based on patches provided by Raymond Page
   <raymond.page@icat.us>.
 - Removed the old rsyslog file tap on audit.log.

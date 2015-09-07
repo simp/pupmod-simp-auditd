@@ -5,7 +5,7 @@ describe 'auditd::add_rules' do
     :fqdn => 'test.host.net',
     :hardwaremodel => 'x86_64',
     :operatingsystem => 'RedHat',
-    :lsbmajdistrelease => '6',
+    :operatingsystemmajrelease => '6',
     :apache_version => '2.4',
     :grub_version => '0.9',
     :uid_min => '500'
