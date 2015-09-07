@@ -58,7 +58,7 @@ define auditd::add_rules (
     $fragname = "75.${name}.rules.${suffix}"
   }
 
-  if $::operatingsystem in ['RedHat','CentOS'] and $::lsbmajdistrelease < '7' {
+  if $::operatingsystem in ['RedHat','CentOS'] and $::operatingsystemmajrelease < '7' {
     concat_fragment { "auditd+${fragname}":
       content => template('auditd/rule.erb')
     }

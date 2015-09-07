@@ -102,7 +102,7 @@ class auditd (
     content => template('auditd/rotated_audit_logs.erb')
   }
 
-  if $::operatingsystem in ['RedHat','CentOS'] and $::lsbmajdistrelease < '7' {
+  if $::operatingsystem in ['RedHat','CentOS'] and $::operatingsystemmajrelease < '7' {
     concat_build { 'auditd':
       order   => ['head', '*.rules.pre', 'default_drop', 'base', '*.rules.post', 'tail'],
       target  => '/etc/audit/audit.rules',
