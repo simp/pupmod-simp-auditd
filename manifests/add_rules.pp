@@ -40,33 +40,24 @@ define auditd::add_rules (
   validate_bool($prepend)
 
   if $prepend {
-    $suffix = 'pre'
+    $rule_id = "00.${name}.rules"
   }
   else {
-    $suffix = 'post'
-  }
-
-  if $first {
-    if $absolute {
-      $fragname = "01.${name}.rules.${suffix}"
+    if $first {
+      if $absolute {
+        $rule_id = "01.${name}.rules"
+      }
+      else {
+        $rule_id = "10.${name}.rules"
+      }
     }
     else {
-      $fragname = "10.${name}.rules.${suffix}"
+      $rule_id = "75.${name}.rules"
     }
-  }
-  else {
-    $fragname = "75.${name}.rules.${suffix}"
   }
 
-  if $::operatingsystem in ['RedHat','CentOS'] and $::operatingsystemmajrelease < '7' {
-    concat_fragment { "auditd+${fragname}":
-      content => template('auditd/rule.erb')
-    }
-  }
-  else {
-    file { "/etc/audit/rules.d/${fragname}":
-      content => template('auditd/rule.erb'),
-      notify  => Service['auditd']
-    }
+  file { "/etc/audit/rules.d/${rule_id}":
+    content => template('auditd/rule.erb'),
+    notify  => Class['::auditd::service']
   }
 }

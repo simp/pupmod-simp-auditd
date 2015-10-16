@@ -1,0 +1,37 @@
+{
+  "name":    "simp-auditd",
+  "version": "5.0.0-0",
+  "author":  "simp",
+  "summary": "A SIMP puppet module for managing auditd and audispd",
+  "license": "Apache-2.0",
+  "source":  "https://github.com/simp/pupmod-simp-auditd",
+  "project_page": "https://github.com/simp/pupmod-simp-auditd",
+  "issues_url":   "https://simp-project.atlassian.net",
+  "tags": [ "simp" ],
+  "dependencies": [
+    {
+      "name": "puppetlabs-stdlib",
+      "version_requirement": ">= 4.1.0"
+    },
+    {
+      "name": "simp-common",
+      "version_requirement": ">= 4.1.0"
+    }
+  ],
+  "operatingsystem_support": [
+    {
+      "operatingsystem": "CentOS",
+      "operatingsystemrelease": [
+        "6",
+        "7"
+      ]
+    },
+    {
+      "operatingsystem": "RedHat",
+      "operatingsystemrelease": [
+        "6",
+        "7"
+      ]
+    }
+  ]
+}
