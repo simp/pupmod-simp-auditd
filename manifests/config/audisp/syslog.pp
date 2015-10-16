@@ -1,6 +1,6 @@
-# == Class auditd::to_syslog
+# == Class auditd::config::audisp::syslog
 #
-# Activating this define utilizes rsyslog to send all audit records to syslog.
+# This class utilizes rsyslog to send all audit records to syslog.
 # This will definitely increase the volume of log messages passing out of your
 # system and you should probably ensure that they are encrypted using the
 # stunnel module.
@@ -19,16 +19,12 @@
 # [*encrypted_port*]
 #   The port to which to send the logs on localhost.
 #
-# == Authors
-#
-# Trevor Vaughan <tvaughan@onyxpoint.com>
-#
-class auditd::to_syslog (
+class auditd::config::audisp::syslog (
   $log_servers = hiera('log_servers',[])
 ) {
-  if !empty($log_servers) {
-    include '::rsyslog'
+  validate_array($log_servers)
 
+  if !empty($log_servers) {
     # Note: This only happens if you are offloading your logs.
     # Otherwise, just go look at the audit files.
     rsyslog::rule::drop { 'audispd':
@@ -46,5 +42,4 @@ args = LOG_INFO
 format = string
 "
   }
-  validate_array($log_servers)
 }
