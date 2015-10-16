@@ -1,4 +1,4 @@
-# == Class: auditd::audisp
+# == Class: auditd::config::audisp
 #
 # This class configures the audit dispatcher primarily for sending audit logs
 # directly to syslog without intervention.
@@ -12,7 +12,7 @@
 #
 # Trevor Vaughan <tvaugan@onyxpoint.com>
 #
-class auditd::audisp (
+class auditd::config::audisp (
   $q_depth = '160',
   $overflow_action = 'syslog',
   $priority_boost = '4',
@@ -20,6 +20,11 @@ class auditd::audisp (
   $name_format = 'user',
   $specific_name = $::fqdn
 ) {
+  validate_integer($q_depth)
+  validate_array_member($overflow_action,['ignore','syslog','suspend','single','halt'],'i')
+  validate_integer($priority_boost)
+  validate_integer($max_restarts)
+  validate_array_member($name_format,['none','hostname','fqd','numeric','user'],'i')
 
   file { '/etc/audisp/audispd.conf':
     owner   => 'root',
@@ -32,14 +37,6 @@ priority_boost  = $priority_boost
 max_restarts    = $max_restarts
 name_format     = $name_format
 name            = $specific_name
-",
-    notify  => Service['auditd'],
-    require => Package['audit']
+"
   }
-
-  validate_integer($q_depth)
-  validate_array_member($overflow_action,['ignore','syslog','suspend','single','halt'],'i')
-  validate_integer($priority_boost)
-  validate_integer($max_restarts)
-  validate_array_member($name_format,['none','hostname','fqd','numeric','user'],'i')
 }

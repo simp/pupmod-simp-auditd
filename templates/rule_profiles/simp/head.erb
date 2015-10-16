@@ -22,7 +22,7 @@
 ## Feel free to increase this if the machine panic's
 # Default: 8192
 <%
-  ll_buffer_size = case
+  _buffer_size = case
     when ( @root_audit_level =~ /agg.*/ and @buffer_size.to_i < 32788 ) then
       "32788"
     when ( @root_audit_level =~ /in.*/ and @buffer_size.to_i < 65576 ) then
@@ -31,9 +31,9 @@
       @buffer_size
    end
 -%>
--b <%= ll_buffer_size %>
+-b <%= _buffer_size %>
 
-## Set failure mode to panic
+## Set failure mode
 # Default: 2
 -f <%= @failure_mode %>
 
