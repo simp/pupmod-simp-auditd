@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9ab29df4_4f69a38a",
+        "filename": "LICENSE",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1005143
+      },
+      "writtenOn": "2015-10-21T02:54:40Z",
+      "side": 1,
+      "message": "I doubt this is the dummy module.",
+      "revId": "a2cd26d1218406d16fa8188e1d9b48874d35fa89",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ab29df4_6f0587c1",
+        "filename": "README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1005143
+      },
+      "writtenOn": "2015-10-21T02:54:40Z",
+      "side": 1,
+      "message": "I remain skeptical.",
+      "range": {
+        "startLine": 10,
+        "startChar": 45,
+        "endLine": 10,
+        "endChar": 50
+      },
+      "revId": "a2cd26d1218406d16fa8188e1d9b48874d35fa89",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ab29df4_cf14d3f7",
+        "filename": "spec/acceptance/class_spec.rb",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1005143
+      },
+      "writtenOn": "2015-10-21T02:54:40Z",
+      "side": 1,
+      "message": "WHTSPC ERR @ LINE 24",
+      "revId": "a2cd26d1218406d16fa8188e1d9b48874d35fa89",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ab29df4_0ff6cbd7",
+        "filename": "spec/classes/config_spec.rb",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1005143
+      },
+      "writtenOn": "2015-10-21T02:54:40Z",
+      "side": 1,
+      "message": "WHTSPC ERROR agin!",
+      "revId": "a2cd26d1218406d16fa8188e1d9b48874d35fa89",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
