@@ -20,8 +20,8 @@ This module manages the Audit daemon, kernel parameters, and related subsystems.
 
 ### OS Compatibility
 This module has been tested against:
-  * Red Hat Enterprise Linux >= 6.6
-  * CentOS >= 6.6
+  * Red Hat Enterprise Linux >= 6.7
+  * CentOS >= 6.7
   * Red Hat Enterprise Linux >= 7.1
   * CentOS >= 7.0
 

@@ -18,7 +18,7 @@ class auditd::service {
       }
 
       # This is needed just in case the audit dispatcher fails at some point.
-      exec { "Restart Audispd":
+      exec { 'Restart Audispd':
         command => '/bin/true',
         unless  => "/usr/bin/pgrep -f $::auditd::dispatcher",
         notify  => Service[$::auditd::service_name]

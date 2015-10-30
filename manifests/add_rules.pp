@@ -39,6 +39,8 @@ define auditd::add_rules (
   validate_bool($absolute)
   validate_bool($prepend)
 
+  include 'auditd'
+
   if $prepend {
     $rule_id = "00.${name}.rules"
   }
