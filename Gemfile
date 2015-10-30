@@ -11,10 +11,12 @@ group :test do
   gem "rake"
   gem 'puppet', puppetversion
   gem "rspec", '< 3.2.0'
-  gem "rspec-puppet", :git => 'https://github.com/rodjek/rspec-puppet.git'
+  gem "rspec-puppet"
   gem "puppetlabs_spec_helper"
   gem "metadata-json-lint"
   gem "simp-rspec-puppet-facts"
+  # A bug the broke .ignore_paths was fixed on 30 Oct 2015:
+  gem "puppet-lint", :git => 'https://github.com/rodjek/puppet-lint.git'
 
   # simp-rake-helpers does not suport puppet 2.7.X
   if "#{ENV['PUPPET_VERSION']}".scan(/\d+/).first != '2' &&

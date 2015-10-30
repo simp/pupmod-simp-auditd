@@ -10,40 +10,17 @@ begin
 rescue LoadError
 end
 
-
-# FIXME: move all this lint logic into simp-rake-helpers
-Rake::Task[:lint].clear
-
 # Lint Material
-begin
-  require 'puppet-lint/tasks/puppet-lint'
-
-  PuppetLint.configuration.send("disable_80chars")
-  PuppetLint.configuration.send("disable_variables_not_enclosed")
-  PuppetLint.configuration.send("disable_class_parameter_defaults")
-
-  PuppetLint.configuration.relative = true
-  PuppetLint.configuration.log_format = "%{path}:%{linenumber}:%{check}:%{KIND}:%{message}"
-  #PuppetLint.configuration.fail_on_warnings = true
-
-  # Forsake support for Puppet 2.6.2 for the benefit of cleaner code.
-  # http://puppet-lint.com/checks/class_parameter_defaults/
-  PuppetLint.configuration.send('disable_class_parameter_defaults')
-  # http://puppet-lint.com/checks/class_inherits_from_params_class/
-  PuppetLint.configuration.send('disable_class_inherits_from_params_class')
-
-  exclude_paths = [
-    "bundle/**/*",
-    "pkg/**/*",
-    "dist/**/*",
-    "vendor/**/*",
-    "spec/**/*",
-  ]
-  PuppetLint.configuration.ignore_paths = exclude_paths
-  PuppetSyntax.exclude_paths = exclude_paths
-rescue LoadError
-  puts "== WARNING: Gem puppet-lint not found, lint tests cannot be run! =="
-end
+require 'puppet-lint/tasks/puppet-lint'
+exclude_paths = [
+  "bundle/**/*",
+  "pkg/**/*",
+  "dist/**/*",
+  "vendor/**/*",
+  "spec/**/*",
+]
+PuppetLint.configuration.ignore_paths = exclude_paths
+PuppetSyntax.exclude_paths = exclude_paths
 
 begin
   require 'simp/rake/pkg'

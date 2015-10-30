@@ -71,9 +71,9 @@ class auditd::config (
   }
 
   file { '/etc/audit/audit.rules':
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0600'
+    owner => 'root',
+    group => 'root',
+    mode  => '0600'
   }
 
   file { '/etc/audit/auditd.conf':
