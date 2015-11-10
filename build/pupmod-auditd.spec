@@ -1,15 +1,16 @@
 Summary: Auditd Puppet Module
 Name: pupmod-auditd
 Version: 5.0.0
-Release: 0
+Release: 1
 License: Apache License, Version 2.0
 Group: Applications/System
 Source: %{name}-%{version}-%{release}.tar.gz
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Requires: pupmod-augeasproviders_grub
 Requires: pupmod-common >= 4.2.0-7
+Requires: pupmod-simplib >= 1.0.0-0
 Requires: pupmod-rsyslog >= 4.1.0-10
-Requires: pupmod-concat >= 2.0.0-0
+Requires: pupmod-simpcat >= 2.0.0-0
 Requires: puppet >= 3.3.0
 Buildarch: noarch
 Requires: simp-bootstrap >= 4.2.0
@@ -58,6 +59,9 @@ fi
 # Post uninstall stuff
 
 %changelog
+* Mon Nov 09 2015 Chris Tessmer <chris.tessmer@onypoint.com> - 5.0.0-1
+- migration to simplib and simpcat (lib/ only)
+
 * Tue Oct 20 2015 Trevor Vaughan <tvaughan@onyxpoint.com> - 5.0.0-0
 - Module refactor to the new SIMP standard
 - Fixes for the audit dispatcher and syslog connections
