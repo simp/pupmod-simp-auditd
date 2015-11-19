@@ -43,7 +43,7 @@ class auditd::config::audit_profiles::simp (
 ) inherits ::auditd {
   # Move validation here from init.pp when the module is refactored
 
-  $_profile_template_path = "$module_name/rule_profiles/simp"
+  $_profile_template_path = "${module_name}/rule_profiles/simp"
 
   auditd::add_rules { 'init.d_auditd':
     content => '-w /etc/rc.d/init.d/auditd -p wa -k auditd
@@ -51,22 +51,22 @@ class auditd::config::audit_profiles::simp (
   }
 
   auditd::add_rules { 'rotated_audit_logs':
-    content => template("$_profile_template_path/rotated_audit_logs.erb")
+    content => template("${_profile_template_path}/rotated_audit_logs.erb")
   }
 
   file { '/etc/audit/rules.d/00_head.rules':
-    content => template("$_profile_template_path/head.erb")
+    content => template("${_profile_template_path}/head.erb")
   }
 
   file { '/etc/audit/rules.d/05_default_drop.rules':
-    content => template("$_profile_template_path/default_drop.erb")
+    content => template("${_profile_template_path}/default_drop.erb")
   }
 
   file { '/etc/audit/rules.d/50_base.rules':
-    content => template("$_profile_template_path/base.erb")
+    content => template("${_profile_template_path}/base.erb")
   }
 
   file { '/etc/audit/rules.d/99_tail.rules':
-    content => template("$_profile_template_path/tail.erb")
+    content => template("${_profile_template_path}/tail.erb")
   }
 }

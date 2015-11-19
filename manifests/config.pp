@@ -58,7 +58,7 @@ class auditd::config (
     else {
       $_audit_profile = $default_audit_profile
     }
-    contain "::auditd::config::audit_profiles::$_audit_profile"
+    contain "::auditd::config::audit_profiles::${_audit_profile}"
   }
 
   file { '/etc/audit/rules.d':
@@ -80,7 +80,7 @@ class auditd::config (
     owner   => 'root',
     group   => 'root',
     mode    => '0600',
-    content => template("$module_name/etc/audit/auditd.conf.erb")
+    content => template("${module_name}/etc/audit/auditd.conf.erb")
   }
 
   file { '/var/log/audit':

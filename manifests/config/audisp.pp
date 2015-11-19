@@ -31,12 +31,12 @@ class auditd::config::audisp (
     group   => 'root',
     mode    => '0640',
     content => "# This file managed by Puppet
-q_depth         = $q_depth
-overflow_action = $overflow_action
-priority_boost  = $priority_boost
-max_restarts    = $max_restarts
-name_format     = $name_format
-name            = $specific_name
+q_depth         = ${q_depth}
+overflow_action = ${overflow_action}
+priority_boost  = ${priority_boost}
+max_restarts    = ${max_restarts}
+name_format     = ${name_format}
+name            = ${specific_name}
 "
   }
 }

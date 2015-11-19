@@ -2,6 +2,7 @@ require 'puppetlabs_spec_helper/rake_tasks'
 require 'puppet/version'
 require 'puppet/vendor/semantic/lib/semantic' unless Puppet.version.to_f < 3.6
 require 'puppet-syntax/tasks/puppet-syntax'
+require 'puppet-lint/tasks/puppet-lint'
 
 # These gems aren't always present, for instance
 # on Travis with --without development
@@ -10,8 +11,8 @@ begin
 rescue LoadError
 end
 
-# Lint Material
-require 'puppet-lint/tasks/puppet-lint'
+
+# Lint & Syntax exclusions
 exclude_paths = [
   "bundle/**/*",
   "pkg/**/*",
@@ -19,8 +20,14 @@ exclude_paths = [
   "vendor/**/*",
   "spec/**/*",
 ]
-PuppetLint.configuration.ignore_paths = exclude_paths
 PuppetSyntax.exclude_paths = exclude_paths
+
+# See: https://github.com/rodjek/puppet-lint/pull/397
+Rake::Task[:lint].clear
+PuppetLint.configuration.ignore_paths = exclude_paths
+PuppetLint::RakeTask.new :lint do |config|
+  config.ignore_paths = PuppetLint.configuration.ignore_paths
+end
 
 begin
   require 'simp/rake/pkg'
