@@ -1,20 +1,21 @@
 ---
 language: ruby
+sudo: false
 cache: bundler
+before_script:
+  - bundle
 bundler_args: --without development system_tests
 before_install: rm Gemfile.lock || true
+script:
+  - bundle exec rake test
+notifications:
+  email: false
 rvm:
   - 1.8.7
   - 1.9.3
   - 2.0.0
   - 2.1.0
   - 2.2.1
-script:
-    - 'bundle exec rake validate'
-    - 'bundle exec rake lint'
-    - 'bundle exec rake spec'
-    - 'bundle exec rake metadata'
-
 env:
   global:
     - STRICT_VARIABLES=yes

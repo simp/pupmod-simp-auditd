@@ -10,11 +10,15 @@
   "tags": [ "simp" ],
   "dependencies": [
     {
-      "name": "puppetlabs-stdlib",
+      "name": "herculesteam/augeasproviders_grub",
+      "version_requirement": ">= 2.0.1"
+    },
+    {
+      "name": "puppetlabs/stdlib",
       "version_requirement": ">= 4.1.0"
     },
     {
-      "name": "simp-simplib",
+      "name": "simp/simplib",
       "version_requirement": ">= 1.0.0"
     }
   ],
