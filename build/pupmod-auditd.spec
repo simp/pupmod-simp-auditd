@@ -1,7 +1,7 @@
 Summary: Auditd Puppet Module
 Name: pupmod-auditd
 Version: 5.0.0
-Release: 2
+Release: 3
 License: Apache License, Version 2.0
 Group: Applications/System
 Source: %{name}-%{version}-%{release}.tar.gz
@@ -13,9 +13,9 @@ Requires: pupmod-simpcat >= 2.0.0-0
 Requires: puppet >= 3.3.0
 Buildarch: noarch
 Requires: simp-bootstrap >= 4.2.0
-Obsoletes: pupmod-auditd-test
+Obsoletes: pupmod-auditd-test >= 0.0.1
 
-Prefix: /etc/puppet/environments/simp/modules
+Prefix: %{_sysconfdir}/puppet/environments/simp/modules
 
 %description
 This Puppet module provides the capability to configure auditd and rules
@@ -35,8 +35,6 @@ dirs='files lib manifests templates'
 for dir in $dirs; do
   test -d $dir && cp -r $dir %{buildroot}/%{prefix}/auditd
 done
-
-mkdir -p %{buildroot}/usr/share/simp/tests/modules/auditd
 
 %clean
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
@@ -58,6 +56,10 @@ fi
 # Post uninstall stuff
 
 %changelog
+* Thu Dec 24 2015 Trevor Vaughan <tvaughan@onyxpoint.com> - 5.0.0-3
+- Ensure that the ::auditd::add_rules define does not run if
+  $::auditd::enable_auditing is false.
+
 * Thu Nov 19 2015 Chris Tessmer <chris.tessmer@onyxpoint.com> - 5.0.0-2
 - Full migration to `simplib`, removed `common` and `functions`.
 
