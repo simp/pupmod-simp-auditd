@@ -41,25 +41,30 @@ define auditd::add_rules (
 
   include 'auditd'
 
-  if $prepend {
-    $rule_id = "00.${name}.rules"
-  }
-  else {
-    if $first {
-      if $absolute {
-        $rule_id = "01.${name}.rules"
-      }
-      else {
-        $rule_id = "10.${name}.rules"
-      }
+  if $::auditd::enable_auditing {
+    if $prepend {
+      $rule_id = "00.${name}.rules"
     }
     else {
-      $rule_id = "75.${name}.rules"
+      if $first {
+        if $absolute {
+          $rule_id = "01.${name}.rules"
+        }
+        else {
+          $rule_id = "10.${name}.rules"
+        }
+      }
+      else {
+        $rule_id = "75.${name}.rules"
+      }
+    }
+
+    file { "/etc/audit/rules.d/${rule_id}":
+      content => template('auditd/rule.erb'),
+      notify  => Class['::auditd::service']
     }
   }
-
-  file { "/etc/audit/rules.d/${rule_id}":
-    content => template('auditd/rule.erb'),
-    notify  => Class['::auditd::service']
+  else {
+    debug("Auditd is disabled, not activating auditd::add_rules::#{name}")
   }
 }
