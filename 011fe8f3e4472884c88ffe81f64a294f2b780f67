@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa81d914_909b6a71",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1005143
+      },
+      "writtenOn": "2016-02-01T21:49:23Z",
+      "side": 1,
+      "message": "The first line of a commit message should be 50 characters or less (example at https://simp-project.atlassian.net/wiki/display/SD/Contributing+to+SIMP)",
+      "range": {
+        "startLine": 7,
+        "startChar": 72,
+        "endLine": 7,
+        "endChar": 83
+      },
+      "revId": "011fe8f3e4472884c88ffe81f64a294f2b780f67",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa81d914_d0ba42bf",
+        "filename": "manifests/init.pp",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 1005143
+      },
+      "writtenOn": "2016-02-01T21:49:23Z",
+      "side": 1,
+      "message": "What module provides this function?",
+      "range": {
+        "startLine": 165,
+        "startChar": 2,
+        "endLine": 165,
+        "endChar": 18
+      },
+      "revId": "011fe8f3e4472884c88ffe81f64a294f2b780f67",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
