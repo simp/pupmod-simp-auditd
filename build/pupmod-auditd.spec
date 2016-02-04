@@ -14,6 +14,7 @@ Requires: puppet >= 3.3.0
 Buildarch: noarch
 Requires: simp-bootstrap >= 4.2.0
 Obsoletes: pupmod-auditd-test >= 0.0.1
+Requires: pupmod-onyxpoint-compliance_markup
 
 Prefix: %{_sysconfdir}/puppet/environments/simp/modules
 
@@ -56,7 +57,7 @@ fi
 # Post uninstall stuff
 
 %changelog
-* Thu Feb 01 2016 Ralph Wright <ralph.wright@onyxpoint.com> - 5.0.0-4
+* Thu Feb 18 2016 Ralph Wright <ralph.wright@onyxpoint.com> - 5.0.0-4
 - Added compliance function to the auditd module
 
 * Thu Dec 24 2015 Trevor Vaughan <tvaughan@onyxpoint.com> - 5.0.0-3
