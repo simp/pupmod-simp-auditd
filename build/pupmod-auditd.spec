@@ -1,7 +1,7 @@
 Summary: Auditd Puppet Module
 Name: pupmod-auditd
 Version: 5.0.0
-Release: 3
+Release: 4
 License: Apache License, Version 2.0
 Group: Applications/System
 Source: %{name}-%{version}-%{release}.tar.gz
@@ -14,6 +14,7 @@ Requires: puppet >= 3.3.0
 Buildarch: noarch
 Requires: simp-bootstrap >= 4.2.0
 Obsoletes: pupmod-auditd-test >= 0.0.1
+Requires: pupmod-onyxpoint-compliance_markup
 
 Prefix: %{_sysconfdir}/puppet/environments/simp/modules
 
@@ -56,6 +57,9 @@ fi
 # Post uninstall stuff
 
 %changelog
+* Thu Feb 18 2016 Ralph Wright <ralph.wright@onyxpoint.com> - 5.0.0-4
+- Added compliance function support
+
 * Thu Dec 24 2015 Trevor Vaughan <tvaughan@onyxpoint.com> - 5.0.0-3
 - Ensure that the ::auditd::add_rules define does not run if
   $::auditd::enable_auditing is false.
