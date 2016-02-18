@@ -162,6 +162,8 @@ class auditd (
   validate_bool($enable_auditing)
   #validate_bool($enable_logging)
 
+  compliance_map()
+
   # This is done here so that theh kernel option can be properly removed if
   # auditing is to be disabled on the system.
   if $enable_auditing {
