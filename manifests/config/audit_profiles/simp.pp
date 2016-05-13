@@ -31,6 +31,7 @@
 #     using auditd::add_rule.
 #
 class auditd::config::audit_profiles::simp (
+  $log_file = $::auditd::log_file,
   # CCE-27522-2
   $num_logs = '5',
   $ignore_failures = $::auditd::ignore_failures,
@@ -46,8 +47,8 @@ class auditd::config::audit_profiles::simp (
   $_profile_template_path = "${module_name}/rule_profiles/simp"
 
   auditd::add_rules { 'init.d_auditd':
-    content => '-w /etc/rc.d/init.d/auditd -p wa -k auditd
-                -w /var/log/audit.log -p wa -k audit-logs'
+    content => "-w /etc/rc.d/init.d/auditd -p wa -k auditd
+                -w $log_file -p wa -k audit-logs"
   }
 
   auditd::add_rules { 'rotated_audit_logs':
