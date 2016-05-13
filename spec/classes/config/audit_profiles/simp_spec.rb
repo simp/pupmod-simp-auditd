@@ -42,7 +42,7 @@ describe 'auditd::config::audit_profiles::simp' do
           it { is_expected.to contain_auditd__add_rules('init.d_auditd') }
           it {
             is_expected.to contain_auditd__add_rules('rotated_audit_logs').with_content(
-              %r(-w /var/log/audit.log.5 -p rwa -k audit-logs)
+              %r(-w /var/log/audit/audit.log.5 -p rwa -k audit-logs)
             )
           }
 

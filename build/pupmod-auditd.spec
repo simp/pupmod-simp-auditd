@@ -1,7 +1,7 @@
 Summary: Auditd Puppet Module
 Name: pupmod-auditd
-Version: 5.0.0
-Release: 4
+Version: 5.0.1
+Release: 0
 License: Apache License, Version 2.0
 Group: Applications/System
 Source: %{name}-%{version}-%{release}.tar.gz
@@ -57,6 +57,10 @@ fi
 # Post uninstall stuff
 
 %changelog
+* Thu May 19 2016 nicholasmhughes <nicholasmhughes@gmail.com> - 5.0.1-0
+- Change `btmp` and `wtmp` locations to `/var/log`
+- Support dynamic audit log locations
+
 * Thu Feb 18 2016 Ralph Wright <ralph.wright@onyxpoint.com> - 5.0.0-4
 - Added compliance function support
 
