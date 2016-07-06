@@ -2,11 +2,11 @@
 # CCE-26712-0
 # CCE-26651-0
 <% if @hardwaremodel.eql?("x86_64") then -%>
--a always,exit -F arch=b64 -S creat -S mkdir -S mknod -S link -S symlink -S mkdirat -S mknodat -S linkat -S symlinkat -S openat -S open -S close -S rename -S truncate -S ftruncate -S rmdir -S unlink -S unlinkat -F exit=-EACCES -k access
--a always,exit -F arch=b64 -S creat -S mkdir -S mknod -S link -S symlink -S mkdirat -S mknodat -S linkat -S symlinkat -S openat -S open -S close -S rename -S truncate -S ftruncate -S rmdir -S unlink -S unlinkat -F exit=-EPERM -k access
+-a always,exit -F arch=b64 -S creat -S mkdir -S mknod -S link -S symlink -S mkdirat -S mknodat -S linkat -S symlinkat -S openat -S open -S close -S rename -S renameat -S truncate -S ftruncate -S rmdir -S unlink -S unlinkat -F exit=-EACCES -k access
+-a always,exit -F arch=b64 -S creat -S mkdir -S mknod -S link -S symlink -S mkdirat -S mknodat -S linkat -S symlinkat -S openat -S open -S close -S rename -S renameat -S truncate -S ftruncate -S rmdir -S unlink -S unlinkat -F exit=-EPERM -k access
 <% end -%>
--a always,exit -F arch=b32 -S creat -S mkdir -S mknod -S link -S symlink -S mkdirat -S mknodat -S linkat -S symlinkat -S openat -S open -S close -S rename -S truncate -S ftruncate -S rmdir -S unlink -S unlinkat -F exit=-EACCES -k access
--a always,exit -F arch=b32 -S creat -S mkdir -S mknod -S link -S symlink -S mkdirat -S mknodat -S linkat -S symlinkat -S openat -S open -S close -S rename -S truncate -S ftruncate -S rmdir -S unlink -S unlinkat -F exit=-EPERM -k access
+-a always,exit -F arch=b32 -S creat -S mkdir -S mknod -S link -S symlink -S mkdirat -S mknodat -S linkat -S symlinkat -S openat -S open -S close -S rename -S renameat -S truncate -S ftruncate -S rmdir -S unlink -S unlinkat -F exit=-EACCES -k access
+-a always,exit -F arch=b32 -S creat -S mkdir -S mknod -S link -S symlink -S mkdirat -S mknodat -S linkat -S symlinkat -S openat -S open -S close -S rename -S renameat -S truncate -S ftruncate -S rmdir -S unlink -S unlinkat -F exit=-EPERM -k access
 
 -a always,exit -F perm=a -F exit=-EACCES -k access
 -a always,exit -F perm=a -F exit=-EPERM -k access

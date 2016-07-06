@@ -1,6 +1,6 @@
 Summary: Auditd Puppet Module
 Name: pupmod-auditd
-Version: 5.0.1
+Version: 5.0.2
 Release: 0
 License: Apache License, Version 2.0
 Group: Applications/System
@@ -57,6 +57,9 @@ fi
 # Post uninstall stuff
 
 %changelog
+* Wed Jul 06 2016 Nick Markowski <nmarkowski@keywcorp.com> - 5.0.2-0
+- Added a default audit rule for 'renameat', per CCE-26651-0.
+
 * Thu May 19 2016 nicholasmhughes <nicholasmhughes@gmail.com> - 5.0.1-0
 - Change `btmp` and `wtmp` locations to `/var/log`
 - Support dynamic audit log locations
