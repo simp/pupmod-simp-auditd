@@ -141,13 +141,27 @@ class auditd (
   validate_absolute_path($dispatcher)
   validate_array_member($name_format,['NONE','HOSTNAME','FQD','NUMERIC','USER'],'i')
   validate_integer($max_log_file)
-  validate_array_member($max_log_file_action,['IGNORE','SYSLOG','SUSPEND','ROTATE','KEEP_LOGS'],'i')
   validate_integer($space_left)
-  validate_array_member($space_left_action,['IGNORE','SYSLOG','EMAIL','EXEC','SUSPEND','SINGLE','HALT'],'i')
+  if (versioncmp($::auditd_version,'2.4.1') >= 0) {
+    validate_array_member($space_left_action,['IGNORE','SYSLOG','ROTATE','EMAIL','EXEC','SUSPEND','SINGLE','HALT'],'i')
+  }
+  else {
+    validate_array_member($space_left_action,['IGNORE','SYSLOG','EMAIL','EXEC','SUSPEND','SINGLE','HALT'],'i')
+  }
   validate_integer($admin_space_left)
-  validate_array_member($admin_space_left_action,['IGNORE','SYSLOG','EMAIL','EXEC','SUSPEND','SINGLE','HALT'],'i')
-  validate_array_member($disk_full_action,['IGNORE','SYSLOG','EMAIL','EXEC','SUSPEND','SINGLE','HALT'],'i')
-  validate_array_member($disk_error_action,['IGNORE','SYSLOG','EMAIL','EXEC','SUSPEND','SINGLE','HALT'],'i')
+  if (versioncmp($::auditd_version,'2.4.1') >= 0) {
+    validate_array_member($admin_space_left_action,['IGNORE','SYSLOG','ROTATE','EMAIL','EXEC','SUSPEND','SINGLE','HALT'],'i')
+  }
+  else {
+    validate_array_member($admin_space_left_action,['IGNORE','SYSLOG','EMAIL','EXEC','SUSPEND','SINGLE','HALT'],'i')
+  }
+  if (versioncmp($::auditd_version, '2.4.1') >= 0) {
+    validate_array_member($disk_full_action,['IGNORE','SYSLOG','ROTATE','EXEC','SUSPEND','SINGLE','HALT'],'i')
+  }
+  else {
+    validate_array_member($disk_full_action,['IGNORE','SYSLOG','EXEC','SUSPEND','SINGLE','HALT'],'i')
+  }
+  validate_array_member($disk_error_action,['IGNORE','SYSLOG','EXEC','SUSPEND','SINGLE','HALT'],'i')
   validate_integer($buffer_size)
   validate_integer($failure_mode)
   validate_integer($rate)

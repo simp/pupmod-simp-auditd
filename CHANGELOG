@@ -1,3 +1,27 @@
+* Wed Jul 06 2016 Nick Markowski <nmarkowski@keywcorp.com> - 5.0.2-0
+- Added a default audit rule for 'renameat', per CCE-26651-0.
+- Added an auditd_version fact.
+- Updated validation for *_action lists to differentiate between
+  auditd versions.
+- Updated module to use new rake helper to auto-gen .spec file.
+
+* Thu May 19 2016 nicholasmhughes <nicholasmhughes@gmail.com> - 5.0.1-0
+- Change `btmp` and `wtmp` locations to `/var/log`
+- Support dynamic audit log locations
+
+* Thu Feb 18 2016 Ralph Wright <ralph.wright@onyxpoint.com> - 5.0.0-4
+- Added compliance function support
+
+* Thu Dec 24 2015 Trevor Vaughan <tvaughan@onyxpoint.com> - 5.0.0-3
+- Ensure that the ::auditd::add_rules define does not run if
+  $::auditd::enable_auditing is false.
+
+* Thu Nov 19 2015 Chris Tessmer <chris.tessmer@onyxpoint.com> - 5.0.0-2
+- Full migration to `simplib`, removed `common` and `functions`.
+
+* Mon Nov 09 2015 Chris Tessmer <chris.tessmer@onypoint.com> - 5.0.0-1
+- migration to simplib and simpcat (lib/ only)
+
 * Tue Oct 20 2015 Trevor Vaughan <tvaughan@onyxpoint.com> - 5.0.0-0
 - Module refactor to the new SIMP standard
 - Fixes for the audit dispatcher and syslog connections
