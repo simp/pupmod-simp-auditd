@@ -1,8 +1,5 @@
-Requires: pupmod-augeasproviders_grub
-Requires: pupmod-simplib >= 1.0.0-0
-Requires: pupmod-rsyslog >= 4.1.0-10
-Requires: pupmod-simpcat >= 2.0.0-0
-Requires: puppet >= 3.3.0
-Requires: simp-bootstrap >= 4.2.0
-Requires: pupmod-onyxpoint-compliance_markup
+Requires: pupmod-herculesteam-augeasproviders_grub
+Requires: pupmod-simp-compliance_markup
+Requires: pupmod-simp-rsyslog >= 4.1.0-10
+Requires: pupmod-simp-simpcat >= 2.0.0-0
 Obsoletes: pupmod-auditd-test >= 0.0.1
