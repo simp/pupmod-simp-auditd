@@ -1,14 +1,20 @@
 ---
 fixtures:
   repositories:
-    augeasproviders_core: "git://github.com/simp/augeasproviders_core"
-    augeasproviders_grub: "git://github.com/simp/augeasproviders_grub"
-    simplib: "git://github.com/simp/pupmod-simp-simplib"
-    simpcat: "git://github.com/simp/pupmod-simp-concat"
-    logrotate: "git://github.com/simp/pupmod-simp-logrotate"
-    pki: "git://github.com/simp/pupmod-simp-pki"
-    rsyslog: "git://github.com/simp/pupmod-simp-rsyslog"
-    stdlib: "git://github.com/simp/puppetlabs-stdlib"
-    compliance: "https://github.com/trevor-vaughan/pupmod-compliance"
+    augeasproviders_core: 
+      repo: "https://github.com/simp/augeasproviders_core"
+      branch: "simp-master"
+    augeasproviders_grub: 
+      repo: "https://github.com/simp/augeasproviders_grub"
+      branch: "simp-master"
+    compliance_markup: "https://github.com/simp/pupmod-simp-compliance_markup"
+    logrotate: "https://github.com/simp/pupmod-simp-logrotate"
+    pki: "https://github.com/simp/pupmod-simp-pki"
+    rsyslog: "https://github.com/simp/pupmod-simp-rsyslog"
+    simplib: "https://github.com/simp/pupmod-simp-simplib"
+    simpcat: "https://github.com/simp/pupmod-simp-simpcat"
+    stdlib: 
+      repo: "https://github.com/simp/puppetlabs-stdlib"
+      branch: "simp-master"
   symlinks:
     auditd: "#{source_dir}"
