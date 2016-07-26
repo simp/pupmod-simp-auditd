@@ -142,24 +142,15 @@ class auditd (
   validate_array_member($name_format,['NONE','HOSTNAME','FQD','NUMERIC','USER'],'i')
   validate_integer($max_log_file)
   validate_integer($space_left)
-  if (versioncmp($::auditd_version,'2.4.1') >= 0) {
-    validate_array_member($space_left_action,['IGNORE','SYSLOG','ROTATE','EMAIL','EXEC','SUSPEND','SINGLE','HALT'],'i')
-  }
-  else {
-    validate_array_member($space_left_action,['IGNORE','SYSLOG','EMAIL','EXEC','SUSPEND','SINGLE','HALT'],'i')
-  }
   validate_integer($admin_space_left)
-  if (versioncmp($::auditd_version,'2.4.1') >= 0) {
-    validate_array_member($admin_space_left_action,['IGNORE','SYSLOG','ROTATE','EMAIL','EXEC','SUSPEND','SINGLE','HALT'],'i')
-  }
-  else {
-    validate_array_member($admin_space_left_action,['IGNORE','SYSLOG','EMAIL','EXEC','SUSPEND','SINGLE','HALT'],'i')
-  }
-  if (versioncmp($::auditd_version, '2.4.1') >= 0) {
-    validate_array_member($disk_full_action,['IGNORE','SYSLOG','ROTATE','EXEC','SUSPEND','SINGLE','HALT'],'i')
-  }
-  else {
-    validate_array_member($disk_full_action,['IGNORE','SYSLOG','EXEC','SUSPEND','SINGLE','HALT'],'i')
+  if defined('$::auditd_version') and (versioncmp($::auditd_version,'2.4.1') >= 0) {
+    validate_array_member($space_left_action, ['IGNORE','SYSLOG','ROTATE','EMAIL','EXEC','SUSPEND','SINGLE','HALT'],'i')
+    validate_array_member($admin_space_left_action, ['IGNORE','SYSLOG','ROTATE','EMAIL','EXEC','SUSPEND','SINGLE','HALT'],'i')
+    validate_array_member($disk_full_action, ['IGNORE','SYSLOG','ROTATE','EXEC','SUSPEND','SINGLE','HALT'],'i')
+  } else {
+    validate_array_member($space_left_action, ['IGNORE','SYSLOG','EMAIL','EXEC','SUSPEND','SINGLE','HALT'],'i')
+    validate_array_member($admin_space_left_action, ['IGNORE','SYSLOG','EMAIL','EXEC','SUSPEND','SINGLE','HALT'],'i')
+    validate_array_member($disk_full_action, ['IGNORE','SYSLOG','EXEC','SUSPEND','SINGLE','HALT'],'i')
   }
   validate_array_member($disk_error_action,['IGNORE','SYSLOG','EXEC','SUSPEND','SINGLE','HALT'],'i')
   validate_integer($buffer_size)
