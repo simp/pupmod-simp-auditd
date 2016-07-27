@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_aedfcb0b",
+        "filename": "manifests/init.pp",
+        "patchSetId": 1
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2016-07-27T23:45:13Z",
+      "side": 1,
+      "message": "Needs to be if defined(\u0027$::auditd_version\u0027) and \u003cthe rest of it\u003e",
+      "revId": "02a55151c2b2f8b6b87afedeeac5bc92375be46b",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
