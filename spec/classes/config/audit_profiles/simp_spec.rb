@@ -96,6 +96,16 @@ describe 'auditd::config::audit_profiles::simp' do
           }
 
           it {
+            # Should be well formed
+            base_rules = catalogue.resource('File[/etc/audit/rules.d/50_base.rules]')[:content].split("\n")
+
+            rules_with_tags = base_rules.select{|x| x =~ / -k / }
+            rules_with_tags.delete_if{|x| x =~ / -k \S+/}
+
+            expect(rules_with_tags).to be_empty
+          }
+
+          it {
             # Check that we have the expected audit line
             is_expected.to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
               %r(-a always,exit -F arch=b\d\d -F auid!=0 -F uid=0 (-S .*)+ -k su-root-activity)

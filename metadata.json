@@ -1,13 +1,17 @@
 {
   "name": "simp-auditd",
-  "version": "5.0.3",
+  "version": "5.0.4",
   "author": "simp",
   "summary": "A SIMP puppet module for managing auditd and audispd",
   "license": "Apache-2.0",
   "source": "https://github.com/simp/pupmod-simp-auditd",
   "project_page": "https://github.com/simp/pupmod-simp-auditd",
   "issues_url": "https://simp-project.atlassian.net",
-  "tags": [ "simp", "auditd", "audispd" ],
+  "tags": [
+    "simp",
+    "auditd",
+    "audispd"
+  ],
   "dependencies": [
     {
       "name": "herculesteam/augeasproviders_grub",

@@ -1,19 +1,36 @@
 HOSTS:
-  centos7:
+  el7:
     roles:
       - default
-      - server
-    platform: el-7-x86_64
-    box: puppetlabs/centos-7.0-64-nocm
-    box_url: https://vagrantcloud.com/puppetlabs/boxes/centos-7.0-64-nocm
+      - el7
+    platform:   el-7-x86_64
+    box:        centos/7
     hypervisor: vagrant
-  centos66:
+    yum_repos:
+      epel:
+        mirrorlist: 'https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch'
+        gpgkeys:
+          - https://getfedora.org/static/352C64E5.txt
+      simp:
+        baseurl: https://dl.bintray.com/simp/5.1.X
+        gpgcheck: 0
+
+  el6:
     roles:
-      - server
-    platform: el-6-x86_64
-    box: puppetlabs/centos-6.6-64-nocm
-    box_url: https://vagrantcloud.com/puppetlabs/boxes/centos-6.6-64-nocm
+      - el6
+    platform:   el-6-x86_64
+    box:        centos/6
     hypervisor: vagrant
+    yum_repos:
+      epel:
+        mirrorlist: 'https://mirrors.fedoraproject.org/metalink?repo=epel-6&arch=$basearch'
+        gpgkeys:
+          - https://getfedora.org/static/0608B895.txt
+      simp:
+        baseurl: https://dl.bintray.com/simp/4.2.X
+        gpgcheck: 0
+
 CONFIG:
   log_level: verbose
-  type: foss
+  type:      foss
+  vagrant_memsize: 256

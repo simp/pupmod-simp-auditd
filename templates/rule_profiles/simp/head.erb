@@ -1,16 +1,18 @@
 ## For audit 1.6.5 and higher
 ##
 
+<% if @ignore_errors -%>
 # Ignore errors
 # This may sound counterintuitive, but we'd rather skip bad rules and load the
 # rest than miss half the file.  Warnings are still logged in the daemon
 # restart output.
 -i
+<% end -%>
 
 ## Remove any existing rules
 -D
 
-<% if @ignore_failures then -%>
+<% if @ignore_failures -%>
 ## Continue loading rules on failure.
 # Particularly with the automatically generated nature of these rules in
 # Puppet, it is possible that one or more may fail to load. We want to continue
@@ -23,9 +25,9 @@
 # Default: 8192
 <%
   _buffer_size = case
-    when ( @root_audit_level =~ /agg.*/ and @buffer_size.to_i < 32788 ) then
+    when ( @root_audit_level =~ /agg.*/ and @buffer_size.to_i < 32788 )
       "32788"
-    when ( @root_audit_level =~ /in.*/ and @buffer_size.to_i < 65576 ) then
+    when ( @root_audit_level =~ /in.*/ and @buffer_size.to_i < 65576 )
       "65576"
     else
       @buffer_size

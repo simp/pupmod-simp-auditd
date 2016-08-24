@@ -103,7 +103,7 @@ Please see the [SIMP Contribution Guidelines](https://simp-project.atlassian.net
 To run the system tests, you need [Vagrant](https://www.vagrantup.com/) installed. Then, run:
 
 ```shell
-bundle exec rake acceptance
+bundle exec rake beaker:suites
 ```
 
 Some environment variables may be useful:
