@@ -1,3 +1,4 @@
+<% if @unsuccessful_file_operations.eql?(true) then -%>
 ## unsuccessful file operations
 # CCE-26712-0
 # CCE-26651-0
@@ -10,7 +11,9 @@
 
 -a always,exit -F perm=a -F exit=-EACCES -k access
 -a always,exit -F perm=a -F exit=-EPERM -k access
+<% end -%>
 
+<% if @permissions_auditing.eql?(true) then -%>
 # Permissions auditing
 # CCE-26280-8
 # CCE-27173-4
@@ -29,6 +32,7 @@
 -a always,exit -F arch=b64 -S chown -S fchmod -S fchmodat -S fchown -S fchownat -S lchown -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -k perm_mod
 <% end -%>
 -a always,exit -F arch=b32 -S chown -S fchmod -S fchmodat -S fchown -S fchownat -S lchown -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -k perm_mod
+<% end -%>
 
 # Audit useful items that someone does when su'ing to root.
 # Had to add an entry at the top for getting rid of anonymous records.  They
@@ -54,13 +58,16 @@
 -a always,exit -F arch=b32 -F auid!=0 -F uid=0 <%= ll_su_rules %> -k su-root-activity
 <% end -%>
 
+<% if @suid_sgid.eql?(true) then -%>
 # Audit the execution of suid and sgid binaries.
 # CCE-26457-2
 <% if @hardwaremodel.eql?("x86_64") then -%>
 -a always,exit -F arch=b64 -F euid=0 -F uid!=0 -S execve -k suid-root-exec
 <% end -%>
 -a always,exit -F arch=b32 -F euid=0 -F uid!=0 -S execve -k suid-root-exec
+<% end -%>
 
+<% if @kernel_modules.eql?(true) then -%>
 ## Audit the loading and unloading of kernel modules.
 # CCE-26611-4
 -w /sbin/insmod -p x -k modules
@@ -72,7 +79,9 @@
 <% else -%>
 -a always,exit -S init_module -S delete_module -k modules
 <% end -%>
+<% end -%>
 
+<% if @time.eql?(true) then -%>
 ## Things that could affect time
 # CCE-27172-6
 # CCE-27203-9
@@ -87,7 +96,9 @@
 
 # CCE-27172-6
 -w /etc/localtime -p wa -k audit_time_rules
+<% end -%>
 
+<% if @locale.eql?(true) then -%>
 ## Things that could affect system locale
 # CCE-26648-6
 <% if @hardwaremodel.eql?("x86_64") then -%>
@@ -100,7 +111,9 @@
 -w /etc/issue.net -p wa -k audit_network_modifications
 -w /etc/hosts -p wa -k audit_network_modifications
 -w /etc/sysconfig/network -p wa -k audit_network_modifications
+<% end -%>
 
+<% if @mount.eql?(true) then -%>
 # Mount options.
 # CCE-26573-6
 <% if @hardwaremodel.eql?("x86_64") then -%>
@@ -109,11 +122,15 @@
 <% else -%>
 -a always,exit -S mount -S umount -S umount2 -k mount
 <% end -%>
+<% end -%>
 
+<% if @umask.eql?(true) then -%>
 # audit umask changes.
 # This is uselessly noisy.
-# -a exit,always -S umask -k umask
+-a exit,always -S umask -k umask
+<% end -%>
 
+<% if @local_account.eql?(true) then -%>
 # CCE-26664-3
 -w /etc/group -p wa -k audit_account_changes
 -w /etc/group- -p wa -k audit_account_changes
@@ -123,41 +140,40 @@
 -w /etc/shadow -p wa -k audit_account_changes
 -w /etc/shadow- -p wa -k audit_account_changes
 -w /etc/security/opasswd -p wa -k audit_account_changes
+<% end -%>
 
+<% if @selinux_policy.eql?(true) then -%>
 # CCE-26657-7
 -w /etc/selinux/ -p wa -k MAC-policy
+<% end -%>
 
+<% if @login_files.eql?(true) then -%>
 # CCE-26691-6
 -w /var/log/faillog -p wa -k logins
 -w /var/log/lastlog -p wa -k logins
+<% end -%>
 
+<% if @session_files.eql?(true) then -%>
 # CCE-26610-6
 -w /var/run/utmp -p wa -k session
 -w /var/log/btmp -p wa -k session
 -w /var/log/wtmp -p wa -k session
+<% end -%>
 
+<% if @sudoers.eql?(true) then -%>
 # CCE-26662-7
 -w /etc/sudoers -p wa -k CFG_sys
+<% end -%>
 
 # Generally good things to audit.
+<% if @grub.eql?(true) then -%>
 <% if scope.function_versioncmp([@grub_version,'2']) < 0 then -%>
 -w /boot/grub/grub.conf -p wa -k CFG_grub
 <% else -%>
 -w /etc/grub.d
 <% end -%>
--w /etc/aliases -p wa -k CFG_sys
--w /etc/anacrontab -p wa -k CFG_cron
--w /etc/at.deny -p wa -k CFG_sys
--w /etc/bashrc -p wa -k CFG_shell
--w /etc/cron.d -p wa -k CFG_cron
--w /etc/cron.daily -p wa -k CFG_cron
--w /etc/cron.deny -p wa -k CFG_cron
--w /etc/cron.hourly -p wa -k CFG_cron
--w /etc/cron.monthly -p wa -k CFG_cron
--w /etc/cron.weekly -p wa -k CFG_cron
--w /etc/crontab -p wa -k CFG_cron
--w /etc/csh.cshrc -p wa -k CFG_shell
--w /etc/csh.login -p wa -k CFG_shell
+<% end -%>
+<% if @cfg_sys.eql?(true) then -%>
 -w /etc/default -p wa -k CFG_sys
 -w /etc/exports -p wa -k CFG_sys
 -w /etc/fstab -p wa -k CFG_sys
@@ -175,36 +191,68 @@
 -w /etc/modprobe.conf.d -p wa -k CFG_sys
 -w /etc/modprobe.d/00_simp_blacklist.conf -p wa -k CFG_sys
 -w /etc/nsswitch.conf -p wa -k CFG_sys
--w /etc/pam.d -p wa -k CFG_pam
--w /etc/pam_smb.conf -p wa -k CFG_pam
--w /etc/profile -p wa -k CFG_shell
+-w /etc/aliases -p wa -k CFG_sys
+-w /etc/at.deny -p wa -k CFG_sys
 -w /etc/rc.d/init.d -p wa -k CFG_sys
 -w /etc/rc.local -p wa -k CFG_sys
 -w /etc/rc.sysinit -p wa -k CFG_sys
 -w /etc/resolv.conf -p wa -k CFG_sys
 -w /etc/securetty -p wa -k CFG_sys
--w /etc/security -p wa -k CFG_security
--w /etc/services -p wa -k CFG_services
--w /etc/shells -p wa -k CFG_shell
 -w /etc/snmp/snmpd.conf -p wa -k CFG_sys
 -w /etc/ssh/sshd_config -p wa -k CFG_sys
 -w /etc/sysconfig -p wa -k CFG_sys
 -w /etc/sysctl.conf -p wa -k CFG_sys
--w /etc/xinetd.conf -p wa -k CFG_xinetd
--w /etc/xinetd.d -p wa -k CFG_sys
--w /etc/yum.conf -p wa -k yum-config
--w /etc/yum.repos.d -p wa -k yum-config
 -w /lib/firmware/microcode.dat -p wa -k CFG_sys
 -w /var/spool/at -p wa -k CFG_sys
+<% end -%>
+<% if @cfg_cron.eql?(true) then -%>
+-w /etc/cron.d -p wa -k CFG_cron
+-w /etc/anacrontab -p wa -k CFG_cron
+-w /etc/cron.daily -p wa -k CFG_cron
+-w /etc/cron.deny -p wa -k CFG_cron
+-w /etc/cron.hourly -p wa -k CFG_cron
+-w /etc/cron.monthly -p wa -k CFG_cron
+-w /etc/cron.weekly -p wa -k CFG_cron
+-w /etc/crontab -p wa -k CFG_cron
+<% end -%>
+<% if @cfg_shell.eql?(true) then -%>
+-w /etc/csh.cshrc -p wa -k CFG_shell
+-w /etc/bashrc -p wa -k CFG_shell
+-w /etc/csh.login -p wa -k CFG_shell
+-w /etc/profile -p wa -k CFG_shell
+-w /etc/shells -p wa -k CFG_shell
+<% end -%>
+<% if @cfg_pam.eql?(true) then -%>
+-w /etc/pam.d -p wa -k CFG_pam
+-w /etc/pam_smb.conf -p wa -k CFG_pam
+<% end -%>
+<% if @cfg_security.eql?(true) then -%>
+-w /etc/security -p wa -k CFG_security
+<% end -%>
+<% if @cfg_services.eql?(true) then -%>
+-w /etc/services -p wa -k CFG_services
+<% end -%>
+<% if @cfg_xinetd.eql?(true) then -%>
+-w /etc/xinetd.conf -p wa -k CFG_xinetd
+-w /etc/xinetd.d -p wa -k CFG_xinetd
+<% end -%>
+<% if @yum.eql?(true) then -%>
+-w /etc/yum.conf -p wa -k yum-config
+-w /etc/yum.repos.d -p wa -k yum-config
+<% end -%>
+<% if @ptrace.eql?(true) then -%>
 <% if @hardwaremodel.eql?("x86_64") then -%>
 -a exit,always -F arch=b32 -S ptrace -k paranoid
 -a exit,always -F arch=b64 -S ptrace -k paranoid
 <% else -%>
 -a exit,always -S ptrace -k paranoid
 <% end -%>
+<% end -%>
+<% if @personality.eql?(true) then -%>
 <% if @hardwaremodel.eql?("x86_64") then -%>
 -a always,exit -F arch=b32 -S personality -k paranoid
 -a always,exit -F arch=b64 -S personality -k paranoid
 <% else -%>
 -a always,exit -S personality -k paranoid
+<% end -%>
 <% end -%>

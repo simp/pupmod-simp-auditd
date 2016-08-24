@@ -41,7 +41,34 @@ class auditd::config::audit_profiles::simp (
   $immutable = $::auditd::immutable,
   $root_audit_level = $::auditd::root_audit_level,
   $uid_min = $::auditd::uid_min,
+  # These are booleans to toggle sections of audit rules
+  $unsuccessful_file_operations = true,
+  $permissions_auditing = true,
+  $suid_sgid = true,
+  $kernel_modules = true,
+  $time = true,
+  $locale = true,
+  $umask = false,
+  $mount = true,
+  $local_account = true,
+  $selinux_policy = true,
+  $login_files = true,
+  $session_files = true,
+  $sudoers = true,
+  $cfg_sys = true,
+  $cfg_cron = true,
+  $cfg_shell = true,
+  $cfg_pam = true,
+  $cfg_security = true,
+  $cfg_services = true,
+  $cfg_xinetd = true,
+  $yum = true,
+  $ptrace = true,
+  $personality = true,
+  $grub = true,
 ) inherits ::auditd {
+
+  compliance_map()
   # Move validation here from init.pp when the module is refactored
 
   $_profile_template_path = "${module_name}/rule_profiles/simp"
