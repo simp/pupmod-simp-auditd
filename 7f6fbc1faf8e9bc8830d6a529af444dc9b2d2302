@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_d115a09b",
+        "filename": "spec/acceptance/nodesets/centos-66-x64.yml",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1005143
+      },
+      "writtenOn": "2016-09-01T06:03:20Z",
+      "side": 1,
+      "message": "We should maintain a centos-6-x64.yml for individual testing.",
+      "revId": "7f6fbc1faf8e9bc8830d6a529af444dc9b2d2302",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_f110a4ad",
+        "filename": "spec/acceptance/nodesets/centos-7-x64.yml",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1005143
+      },
+      "writtenOn": "2016-09-01T06:03:20Z",
+      "side": 1,
+      "message": "We should maintain a centos-7-x64.yml for individual testing.",
+      "revId": "7f6fbc1faf8e9bc8830d6a529af444dc9b2d2302",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_b10a1c78",
+        "filename": "spec/classes/config/audit_profiles/simp_spec.rb",
+        "patchSetId": 2
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1005143
+      },
+      "writtenOn": "2016-09-01T06:03:20Z",
+      "side": 1,
+      "message": "\"-\"",
+      "range": {
+        "startLine": 99,
+        "startChar": 28,
+        "endLine": 99,
+        "endChar": 29
+      },
+      "revId": "7f6fbc1faf8e9bc8830d6a529af444dc9b2d2302",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_910f1888",
+        "filename": "templates/rule_profiles/simp/head.erb",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1005143
+      },
+      "writtenOn": "2016-09-01T06:03:20Z",
+      "side": 1,
+      "message": "(thumbsup)",
+      "revId": "7f6fbc1faf8e9bc8830d6a529af444dc9b2d2302",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
