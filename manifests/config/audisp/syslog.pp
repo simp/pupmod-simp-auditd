@@ -19,10 +19,36 @@
 # [*encrypted_port*]
 #   The port to which to send the logs on localhost.
 #
+# [*priority*]
+#   Type:  String
+#   Default:  LOG_INFO
+#     The syslog priority for all audit record messages.
+#     This value is used in the /etc/audisp/plugins.d/syslog.conf file.
+#
+# [*facility*]
+#   Type:  String
+#   Default:  ''
+#     The syslog facility for all audit record messages. This value is
+#     used in the /etc/audisp/plugins.d/syslog.conf file.  For the older
+#     auditd versions used by CentOS6 and CentOS7, must be an empty string,
+#     LOG_LOCAL0, LOG_LOCAL1, LOG_LOCAL2, LOG_LOCAL3, LOG_LOCAL4, LOG_LOCAL5,
+#     LOG_LOCAL6, or LOG_LOCAL7. An empty string results in LOG_USER and
+#     is the ONLY mechanism to specify that facility. No other facilities
+#     are allowed.
+#
 class auditd::config::audisp::syslog (
-  $log_servers = hiera('log_servers',[])
+  $log_servers = hiera('log_servers',[]),
+  $priority = "LOG_INFO",
+  $facility = ""
 ) {
   validate_array($log_servers)
+  validate_array_member($priority, ['LOG_DEBUG', 'LOG_INFO',
+    'LOG_NOTICE', 'LOG_WARNING', 'LOG_ERR', 'LOG_CRIT', 'LOG_ALERT',
+    'LOG_EMERG'])
+
+  validate_array_member($facility, ['', 'LOG_LOCAL0', 'LOG_LOCAL1',
+    'LOG_LOCAL2', 'LOG_LOCAL3', 'LOG_LOCAL4', 'LOG_LOCAL5', 'LOG_LOCAL6',
+    'LOG_LOCAL7'])
 
   if !empty($log_servers) {
     # Note: This only happens if you are offloading your logs.
@@ -38,7 +64,7 @@ active = yes
 direction = out
 path = builtin_syslog
 type = builtin
-args = LOG_INFO
+args = ${priority} ${facility}
 format = string
 "
   }
