@@ -16,25 +16,81 @@ describe 'auditd::config::audisp::syslog' do
           facts
         end
 
-        it { is_expected.to compile.with_all_deps }
 
         context "without any parameters" do
           let(:params) {{ }}
+          let(:expected_content) {
+<<EOM
+active = yes
+direction = out
+path = builtin_syslog
+type = builtin
+args = LOG_INFO 
+format = string
+EOM
+          }
+
+          it { is_expected.to compile.with_all_deps }
           it {
-            is_expected.to contain_file('/etc/audisp/plugins.d/syslog.conf').with_content(%r(active = yes))
+            is_expected.to contain_file('/etc/audisp/plugins.d/syslog.conf').with_content(expected_content)
+          }
+          it {
+            is_expected.to contain_rsyslog__rule__drop('audispd').with_rule(%r(if \$programname == 'audispd'))
+          }
+        end
+
+        context "when setting syslog priority and facility" do
+          let(:params) {{
+            :facility => 'LOG_LOCAL6',
+            :priority => 'LOG_NOTICE'
+          }}
+          let(:expected_content) {
+<<EOM
+active = yes
+direction = out
+path = builtin_syslog
+type = builtin
+args = LOG_NOTICE LOG_LOCAL6
+format = string
+EOM
+          }
+
+          it { is_expected.to compile.with_all_deps }
+          it {
+            is_expected.to contain_file('/etc/audisp/plugins.d/syslog.conf').with_content(expected_content)
+          }
+          it {
+            is_expected.to contain_rsyslog__rule__drop('audispd').with_rule(%r(if \$programname == 'audispd'))
+          }
+        end
+
+        context "when allow audit messages" do
+          let(:params) {{
+            :drop_audit_logs => false
+          }}
+
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_file('/etc/audisp/plugins.d/syslog.conf').with_content(%r(active = yes))
           }
           it { is_expected.to_not contain_rsyslog__rule__drop('audispd') }
         end
 
-        context "when setting log servers" do
+        context "when syslog priority is invalid" do
+          # correct level is LOG_NOTICE
           let(:params) {{
-            :log_servers => ['1.2.3.4']
+            :priority => 'LOG_NOTIFY'
           }}
-          it {
-            is_expected.to contain_file('/etc/audisp/plugins.d/syslog.conf').with_content(%r(active = yes))
-          }
-          it { is_expected.to contain_rsyslog__rule__drop('audispd').with_rule(%r(if \$programname == 'audispd')) }
+          it { is_expected.to_not compile.with_all_deps }
         end
+
+        context "when syslog facility is invalid" do
+          # appropriate for /usr/bin/logger, but not audisp
+          let(:params) {{
+            :facility => 'local6'
+          }}
+          it { is_expected.to_not compile.with_all_deps }
+        end
+
       end
     end
   end
