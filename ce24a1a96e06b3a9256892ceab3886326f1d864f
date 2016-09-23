@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_d2d7934d",
+        "filename": "manifests/config/audisp/syslog.pp",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1008746
+      },
+      "writtenOn": "2016-09-23T12:14:15Z",
+      "side": 1,
+      "message": "It may be helpful to indicate the only allowed values are LOG_LOCAL0, LOG_LOCAL1, ...LOG_LOCAL7",
+      "revId": "ce24a1a96e06b3a9256892ceab3886326f1d864f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_32f23f07",
+        "filename": "manifests/config/audisp/syslog.pp",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1008746
+      },
+      "writtenOn": "2016-09-23T12:14:15Z",
+      "side": 1,
+      "message": "Need to set this to the empty string to get the default behavior.  Otherwise, LOG_USER will be rejected by audisp.",
+      "revId": "ce24a1a96e06b3a9256892ceab3886326f1d864f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_12f5fbeb",
+        "filename": "manifests/config/audisp/syslog.pp",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1008746
+      },
+      "writtenOn": "2016-09-23T12:14:15Z",
+      "side": 1,
+      "message": "The versions of the syslog plugin for audisp only accept LOG_LOCAL0....LOG_LOCAL7.  So, it may make sense to remove the other log levels from the validation.",
+      "range": {
+        "startLine": 43,
+        "startChar": 36,
+        "endLine": 43,
+        "endChar": 37
+      },
+      "revId": "ce24a1a96e06b3a9256892ceab3886326f1d864f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
