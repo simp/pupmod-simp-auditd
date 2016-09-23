@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "baa041b7_f3ca9a4e",
+        "filename": "manifests/config/audisp/syslog.pp",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1005143
+      },
+      "writtenOn": "2016-09-23T22:07:10Z",
+      "side": 1,
+      "message": "trailing whitespaces \u0026 a weird place for a line break",
+      "range": {
+        "startLine": 24,
+        "startChar": 28,
+        "endLine": 24,
+        "endChar": 30
+      },
+      "revId": "ce24a1a96e06b3a9256892ceab3886326f1d864f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "baa041b7_d2d7934d",
         "filename": "manifests/config/audisp/syslog.pp",
         "patchSetId": 2
