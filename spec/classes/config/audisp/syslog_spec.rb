@@ -16,7 +16,6 @@ describe 'auditd::config::audisp::syslog' do
           facts
         end
 
-        it { is_expected.to compile.with_all_deps }
 
         context "without any parameters" do
           let(:params) {{ }}
@@ -35,7 +34,9 @@ EOM
           it {
             is_expected.to contain_file('/etc/audisp/plugins.d/syslog.conf').with_content(expected_content)
           }
-          it { is_expected.to_not contain_rsyslog__rule__drop('audispd') }
+          it {
+            is_expected.to contain_rsyslog__rule__drop('audispd').with_rule(%r(if \$programname == 'audispd'))
+          }
         end
 
         context "when setting syslog priority and facility" do
@@ -58,19 +59,21 @@ EOM
           it {
             is_expected.to contain_file('/etc/audisp/plugins.d/syslog.conf').with_content(expected_content)
           }
-          it { is_expected.to_not contain_rsyslog__rule__drop('audispd') }
+          it {
+            is_expected.to contain_rsyslog__rule__drop('audispd').with_rule(%r(if \$programname == 'audispd'))
+          }
         end
 
-        context "when setting log servers" do
+        context "when allow audit messages" do
           let(:params) {{
-            :log_servers => ['1.2.3.4']
+            :drop_audit_logs => false
           }}
 
           it { is_expected.to compile.with_all_deps }
           it {
             is_expected.to contain_file('/etc/audisp/plugins.d/syslog.conf').with_content(%r(active = yes))
           }
-          it { is_expected.to contain_rsyslog__rule__drop('audispd').with_rule(%r(if \$programname == 'audispd')) }
+          it { is_expected.to_not contain_rsyslog__rule__drop('audispd') }
         end
 
         context "when syslog priority is invalid" do
