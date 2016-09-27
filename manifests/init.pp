@@ -80,8 +80,7 @@
 # [*enable_auditing*]
 #   Type: Boolean
 #   Default: +true+
-#     If true, enable auditing. In this case, this will turn the auditd class
-#     into a NOOP.
+#     If true, enable auditing. 
 #
 class auditd (
   $ignore_failures = true,
@@ -169,7 +168,7 @@ class auditd (
 
   compliance_map()
 
-  # This is done here so that theh kernel option can be properly removed if
+  # This is done here so that the kernel option can be properly removed if
   # auditing is to be disabled on the system.
   if $enable_auditing {
     if $at_boot {
