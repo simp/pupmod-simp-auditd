@@ -1,5 +1,12 @@
-Requires: pupmod-herculesteam-augeasproviders_grub
-Requires: pupmod-simp-compliance_markup
-Requires: pupmod-simp-rsyslog >= 4.1.0-10
-Requires: pupmod-simp-simpcat >= 2.0.0-0
 Obsoletes: pupmod-auditd-test >= 0.0.1
+Requires: pupmod-herculesteam-augeasproviders_grub < 3.0.0-0
+Requires: pupmod-herculesteam-augeasproviders_grub >= 2.3.1-0
+Requires: pupmod-puppetlabs-stdlib < 5.0.0-0
+Requires: pupmod-puppetlabs-stdlib >= 4.9.0-0
+Requires: pupmod-simp-compliance_markup < 2.0.0-0
+Requires: pupmod-simp-compliance_markup >= 1.0.1-0
+Requires: pupmod-simp-rsyslog < 6.0.0-0
+Requires: pupmod-simp-rsyslog >= 5.1.0-0
+Requires: pupmod-simp-simpcat >= 2.0.0-0
+Requires: pupmod-simp-simplib < 2.0.0-0
+Requires: pupmod-simp-simplib >= 1.3.1-0
