@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_33e33b36",
+        "filename": "build/rpm_metadata/requires",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2016-10-05T21:13:27Z",
+      "side": 0,
+      "message": "Upper bound?",
+      "revId": "3c7bde2d2153d3cafc9940387f76c2aad876514a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_53da3f79",
+        "filename": "build/rpm_metadata/requires",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2016-10-05T21:13:27Z",
+      "side": 0,
+      "message": "No",
+      "revId": "3c7bde2d2153d3cafc9940387f76c2aad876514a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_13e03725",
+        "filename": "metadata.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2016-10-05T21:13:27Z",
+      "side": 0,
+      "message": "rsyslog needed",
+      "revId": "3c7bde2d2153d3cafc9940387f76c2aad876514a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
