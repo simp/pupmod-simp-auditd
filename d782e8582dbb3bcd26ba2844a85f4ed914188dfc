@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_f35a6481",
+        "filename": "CHANGELOG",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1007363
+      },
+      "writtenOn": "2016-10-10T19:15:04Z",
+      "side": 1,
+      "message": "Is there a reason this doesn\u0027t bump the version number?",
+      "range": {
+        "startLine": 4,
+        "startChar": 0,
+        "endLine": 5,
+        "endChar": 48
+      },
+      "revId": "d782e8582dbb3bcd26ba2844a85f4ed914188dfc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_73289497",
+        "filename": "spec/acceptance/suites/default/00_base_spec.rb",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 1007363
+      },
+      "writtenOn": "2016-10-10T19:15:04Z",
+      "side": 1,
+      "message": "This is the only other question I have.  I can set disable the drop on my client and it removes the drop file.  On my puppet server, it does not remove the drop file so audit logs never go to syslog.  This might have always been a problem.  I\u0027ll test it on another client but if you know the reason I\u0027ll stop looking into it.",
+      "range": {
+        "startLine": 91,
+        "startChar": 10,
+        "endLine": 94,
+        "endChar": 76
+      },
+      "revId": "d782e8582dbb3bcd26ba2844a85f4ed914188dfc",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
