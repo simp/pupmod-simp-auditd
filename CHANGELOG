@@ -3,6 +3,8 @@
   messages.
 - Allow user to enable/disable audit record syslog messaging independent
   of the presence of forwarding logging servers.
+- Added an file resource to detect and fix incorrect permissions on the
+  /var/log/audit/audit.log file.
 
 * Mon Aug 29 2016 Ralph Wright <ralph.wright@onyxpoint.com> - 5.0.4-0
 - Added booleans to toggle sections of audit rules.

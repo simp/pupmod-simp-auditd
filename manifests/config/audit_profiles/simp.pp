@@ -97,7 +97,6 @@ class auditd::config::audit_profiles::simp (
   $audit_personality_tag = 'paranoid',
 ) inherits ::auditd {
 
-  compliance_map()
   # Move validation here from init.pp when the module is refactored
 
   validate_bool($ignore_errors)
