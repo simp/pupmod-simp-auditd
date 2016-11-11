@@ -89,4 +89,10 @@ class auditd::config (
     group  => 'root',
     mode   => 'o-rwx'
   }
+
+  file { $log_file:
+    owner => 'root',
+    group => 'root',
+    mode  => '0600'
+  }
 }
