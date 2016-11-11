@@ -207,4 +207,11 @@ class auditd (
       Class['::auditd::service']
     }
   }
+
+  # Added to detect and fix when the audit logs have improper permissions
+  exec {'fix_audit_log_permissions':
+    path    => [ '/bin', '/usr/bin'],
+    onlyif  => "/usr/bin/test -z `/bin/find ${log_file} -perm 0600`",
+    command => "chmod 600 ${log_file}"
+  }
 }
