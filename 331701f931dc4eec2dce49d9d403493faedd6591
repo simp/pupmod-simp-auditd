@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_105e4279",
+        "filename": "manifests/init.pp",
+        "patchSetId": 2
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 1005194
+      },
+      "writtenOn": "2016-11-15T15:07:43Z",
+      "side": 1,
+      "message": "this should be $log_file",
+      "range": {
+        "startLine": 215,
+        "startChar": 26,
+        "endLine": 215,
+        "endChar": 50
+      },
+      "revId": "331701f931dc4eec2dce49d9d403493faedd6591",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
