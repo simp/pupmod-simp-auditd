@@ -57,6 +57,14 @@ describe 'auditd::config' do
               :mode   => 'o-rwx'
             })
           }
+
+          it {
+            is_expected.to contain_file('/var/log/audit/audit.log').with({
+              :owner  => 'root',
+              :group  => 'root',
+              :mode   => '0600'
+            })
+          }
         end
       end
     end

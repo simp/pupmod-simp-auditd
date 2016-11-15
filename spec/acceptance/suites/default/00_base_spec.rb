@@ -81,6 +81,13 @@ describe 'auditd class' do
           on(host,'puppet resource service crond ensure=running')
           on(host, %(grep -qe 'audispd:.*msg=audit' /var/log/messages), :acceptable_exit_codes => [1])
         end
+
+        it 'should fix incorrect permissions' do
+          on(host, 'chmod 400 /var/log/audit/audit.log')
+          apply_manifest_on(host, manifest, :catch_failures => true)
+          result = on(host, "/bin/find /var/log/audit/audit.log -perm 0600")
+          expect(result.output).to include('/var/log/audit/audit.log')
+        end
       end
 
       context 'allowing audit messages' do
