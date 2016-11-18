@@ -1,3 +1,6 @@
+* Tue Nov 22 2016 Chris Tessmer <chris.tessmer@onyxpoint.com> - 5.1.2-0
+- Minor cleanup
+
 * Mon Sep 26 2016 Jeanne Greulich, Liz Nemsick - 5.1.0-0
 - Allow user to specify syslog facility and priority for audit record
   messages.
