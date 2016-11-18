@@ -6,9 +6,9 @@ describe 'auditd' do
     it { is_expected.to create_class('auditd') }
     it { is_expected.to contain_class('auditd') }
     it { is_expected.to contain_class('auditd::params') }
-    it { is_expected.to contain_class('auditd::install').that_comes_before('auditd::config') }
+    it { is_expected.to contain_class('auditd::install').that_comes_before('Class[auditd::config]') }
     it { is_expected.to contain_class('auditd::config') }
-    it { is_expected.to contain_class('auditd::service').that_subscribes_to('auditd::config') }
+    it { is_expected.to contain_class('auditd::service').that_subscribes_to('Class[auditd::config]') }
   end
 
   context 'supported operating systems' do
@@ -47,7 +47,7 @@ describe 'auditd' do
             :enable_auditing => true
           }}
 
-          it { is_expected.to contain_class('auditd::install').that_comes_before('auditd::config::grub') }
+          it { is_expected.to contain_class('auditd::install').that_comes_before('Class[auditd::config::grub]') }
         end
 
         context "auditd with auditing disabled" do
@@ -66,7 +66,7 @@ describe 'auditd' do
             :to_syslog => true
           }}
           it { is_expected.to contain_class('auditd::config::logging') }
-          it { is_expected.to contain_class('auditd::config::logging').that_notifies('auditd::service') }
+          it { is_expected.to contain_class('auditd::config::logging').that_notifies('Class[auditd::service]') }
         end
       end
     end
