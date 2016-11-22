@@ -80,7 +80,7 @@
 # [*enable_auditing*]
 #   Type: Boolean
 #   Default: +true+
-#     If true, enable auditing. 
+#     If true, enable auditing.
 #
 class auditd (
   $ignore_failures = true,

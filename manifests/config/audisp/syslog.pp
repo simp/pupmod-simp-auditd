@@ -48,8 +48,8 @@
 #
 class auditd::config::audisp::syslog (
   $drop_audit_logs = true,
-  $priority = "LOG_INFO",
-  $facility = ""
+  $priority = 'LOG_INFO',
+  $facility = ''
 ) {
   validate_bool($drop_audit_logs)
   validate_array_member($priority, ['LOG_DEBUG', 'LOG_INFO',
