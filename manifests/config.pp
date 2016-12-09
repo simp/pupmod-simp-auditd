@@ -21,33 +21,33 @@
 #
 #     If false, no built-in audit profile is used.
 class auditd::config (
-  $log_file = $::auditd::log_file,
-  $log_format = $::auditd::log_format,
-  $log_group = $::auditd::log_group,
-  $priority_boost = $::auditd::priority_boost,
-  $flush = $::auditd::flush,
-  $freq = $::auditd::freq,
+  Stdlib::Absolutepath $log_file = $::auditd::log_file,
+  Pattern[/(?i:RAW|NOLOG)/] $log_format = $::auditd::log_format,
+  String $log_group = $::auditd::log_group,
+  Stdlib::Compat::Integer $priority_boost = $::auditd::priority_boost,
+  Pattern[/(?i:NONE|INCREMENTAL|DATA|SYNC)/] $flush = $::auditd::flush,
+  Stdlib::Compat::Integer $freq = $::auditd::freq,
   # CCE-27522-2
-  $num_logs = $::auditd::num_logs,
-  $disp_qos = $::auditd::disp_qos,
-  $dispatcher = $::auditd::dispatcher,
-  $name_format = $::auditd::name_format,
-  $lname = $::auditd::lname,
+  Stdlib::Compat::Integer $num_logs = $::auditd::num_logs,
+  Enum['lossy','lossless'] $disp_qos = $::auditd::disp_qos,
+  Stdlib::Absolutepath $dispatcher = $::auditd::dispatcher,
+  Pattern[/(?i:NONE|HOSTNAME|FQD|NUMERIC|USER)/] $name_format = $::auditd::name_format,
+  String $lname = $::auditd::lname,
   # CCE-27550-3
-  $max_log_file = $::auditd::max_log_file,
+  Stdlib::Compat::Integer $max_log_file = $::auditd::max_log_file,
   # CCE-27237-7
-  $max_log_file_action = $::auditd::max_log_file_action,
-  $space_left = $::auditd::space_left,
+  Pattern[/(?i:IGNORE|SYSLOG|SUSPEND|ROTATE|KEEP_LOGS)/] $max_log_file_action = $::auditd::max_log_file_action,
+  Stdlib::Compat::Integer $space_left = $::auditd::space_left,
   # CCE-27238-5 : No guarantee of e-mail server so sending to syslog.
-  $space_left_action = $::auditd::space_left_action,
+  Pattern[/(?i:IGNORE|SYSLOG|ROTATE|EMAIL|EXEC|SUSPEND|SINGLE|HALT)/] $space_left_action = $::auditd::space_left_action,
   # CCE-27241-9
-  $action_mail_acct = $::auditd::action_mail_acct,
-  $admin_space_left = $::auditd::admin_space_left,
+  String $action_mail_acct = $::auditd::action_mail_acct,
+  Stdlib::Compat::Integer $admin_space_left = $::auditd::admin_space_left,
   # CCE-27239-3 : No guarantee of e-mail server so sending to syslog.
-  $admin_space_left_action = $::auditd::admin_space_left_action,
-  $disk_full_action = $::auditd::disk_full_action,
-  $disk_error_action = $::auditd::disk_error_action,
-  $default_audit_profile = $::auditd::default_audit_profile
+  Pattern[/(?i:IGNORE|SYSLOG|ROTATE|EMAIL|EXEC|SUSPEND|SINGLE|HALT)/] $admin_space_left_action = $::auditd::admin_space_left_action,
+  Pattern[/(?i:IGNORE|SYSLOG|ROTATE|EXEC|SUSPEND|SINGLE|HALT)/] $disk_full_action = $::auditd::disk_full_action,
+  Pattern[/(?i:IGNORE|SYSLOG|EXEC|SUSPEND|SINGLE|HALT)/] $disk_error_action = $::auditd::disk_error_action,
+  Variant[Enum['simp'],Boolean] $default_audit_profile = $::auditd::default_audit_profile
 ) inherits ::auditd {
   # Move validation here from init.pp when the module is refactored
 

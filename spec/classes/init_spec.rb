@@ -15,18 +15,10 @@ describe 'auditd' do
     on_supported_os.each do |os, facts|
       context "on #{os}" do
         let(:facts) do
-          if ['RedHat','CentOS'].include?(facts[:operatingsystem]) && facts[:operatingsystemmajrelease].to_s < '7'
-            facts[:apache_version] = '2.2'
-            facts[:grub_version] = '0.9'
-          else
-            facts[:apache_version] = '2.4'
-            facts[:grub_version] = '2.0~beta'
-          end
-
           facts
         end
 
-        context "auditd without any parameters" do
+        context "auditd without default parameters" do
           let(:params) {{ }}
           it_behaves_like "a structured module"
           it {
@@ -40,30 +32,24 @@ describe 'auditd' do
               :provider => 'redhat'
             })
           }
-        end
-
-        context "auditd with auditing enabled" do
-          let(:params) {{
-            :enable_auditing => true
-          }}
-
           it { is_expected.to contain_class('auditd::install').that_comes_before('Class[auditd::config::grub]') }
+          it { is_expected.to contain_class('auditd::config::grub').with_enable(true) }
         end
 
         context "auditd with auditing disabled" do
           let(:params) {{
-            :enable_auditing => false
+            :enable => false
           }}
 
           it { is_expected.to contain_class('auditd::config::grub').with_enable(false) }
-          it { is_expected.not_to contain_class('auditd::install') }
+          it { is_expected.to_not contain_class('auditd::install') }
+          it { is_expected.to_not contain_class('auditd::config') }
+          it { is_expected.to_not contain_class('auditd::service') }
         end
 
         context "auditd with logging enabled" do
           let(:params) {{
-            # Change to this after the refactor
-            # :enable_logging => true
-            :to_syslog => true
+            :syslog => true
           }}
           it { is_expected.to contain_class('auditd::config::logging') }
           it { is_expected.to contain_class('auditd::config::logging').that_notifies('Class[auditd::service]') }

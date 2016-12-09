@@ -47,18 +47,10 @@
 #     are allowed.
 #
 class auditd::config::audisp::syslog (
-  $drop_audit_logs = true,
-  $priority = 'LOG_INFO',
-  $facility = ''
+  Boolean $drop_audit_logs = true,
+  Enum['LOG_DEBUG', 'LOG_INFO', 'LOG_NOTICE', 'LOG_WARNING', 'LOG_ERR', 'LOG_CRIT', 'LOG_ALERT', 'LOG_EMERG'] $priority = 'LOG_INFO',
+  Enum['', 'LOG_LOCAL0', 'LOG_LOCAL1', 'LOG_LOCAL2', 'LOG_LOCAL3', 'LOG_LOCAL4', 'LOG_LOCAL5', 'LOG_LOCAL6', 'LOG_LOCAL7'] $facility = ''
 ) {
-  validate_bool($drop_audit_logs)
-  validate_array_member($priority, ['LOG_DEBUG', 'LOG_INFO',
-    'LOG_NOTICE', 'LOG_WARNING', 'LOG_ERR', 'LOG_CRIT', 'LOG_ALERT',
-    'LOG_EMERG'])
-
-  validate_array_member($facility, ['', 'LOG_LOCAL0', 'LOG_LOCAL1',
-    'LOG_LOCAL2', 'LOG_LOCAL3', 'LOG_LOCAL4', 'LOG_LOCAL5', 'LOG_LOCAL6',
-    'LOG_LOCAL7'])
 
   if $drop_audit_logs {
     # This will prevent audit records from being forwarded to remote

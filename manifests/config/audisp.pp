@@ -13,18 +13,13 @@
 # Trevor Vaughan <tvaugan@onyxpoint.com>
 #
 class auditd::config::audisp (
-  $q_depth = '160',
-  $overflow_action = 'syslog',
-  $priority_boost = '4',
-  $max_restarts = '10',
-  $name_format = 'user',
-  $specific_name = $::fqdn
+  Stdlib::Compat::Integer $q_depth = '160',
+  Pattern[/(?i:ignore|syslog|suspend|single|halt)/] $overflow_action = 'syslog',
+  Stdlib::Compat::Integer $priority_boost = '4',
+  Stdlib::Compat::Integer $max_restarts = '10',
+  Pattern[/(?i:none|hostname|fqdn|numeric|user)/] $name_format = 'user',
+  String $specific_name = $::fqdn
 ) {
-  validate_integer($q_depth)
-  validate_array_member($overflow_action,['ignore','syslog','suspend','single','halt'],'i')
-  validate_integer($priority_boost)
-  validate_integer($max_restarts)
-  validate_array_member($name_format,['none','hostname','fqd','numeric','user'],'i')
 
   file { '/etc/audisp/audispd.conf':
     owner   => 'root',

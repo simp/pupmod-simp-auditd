@@ -13,7 +13,7 @@
 #
 # * If used independently, all SIMP-managed security subsystems are disabled by
 #   default, and must be explicitly opted into by administrators.  Please review
-#   the +client_nets+ and +$enable_*+ parameters for details.
+#   the simp_options parameters.
 #
 # == Parameters
 #
@@ -53,9 +53,9 @@
 #     If true, modify the Grub settings to enable auditing at boot time.
 #     Meets CCE-26785-6
 #
-# [*to_syslog*]
+# [*syslog*]
 #   Type: Boolean
-#   Default: true
+#   Default: false
 #     If true, set up audispd to send logs to syslog.
 #     Meets CCE-26933-2
 #
@@ -77,115 +77,67 @@
 #   Default:  +$::auditd::params::package_name+
 #     The name of the auditd package.
 #
-# [*enable_auditing*]
+# [*enable*]
 #   Type: Boolean
 #   Default: +true+
 #     If true, enable auditing.
 #
 class auditd (
-  $ignore_failures = true,
-  $log_file = '/var/log/audit/audit.log',
-  $log_format = 'RAW',
-  $log_group = 'root',
-  $priority_boost = '3',
-  $flush = 'INCREMENTAL',
-  $freq = '20',
+  Boolean $ignore_failures = true,
+  Stdlib::Absolutepath $log_file = '/var/log/audit/audit.log',
+  Pattern[/(?i:RAW|NOLOG)/] $log_format = 'RAW',
+  String $log_group = 'root',
+  Stdlib::Compat::Integer $priority_boost = '3',
+  Pattern[/(?i:NONE|INCREMENTAL|DATA|SYNC)/] $flush = 'INCREMENTAL',
+  Stdlib::Compat::Integer $freq = '20',
   # CCE-27522-2
-  $num_logs = '5',
-  $disp_qos = 'lossy',
-  $dispatcher = '/sbin/audispd',
-  $name_format = 'USER',
-  $lname = $::fqdn,
+  Stdlib::Compat::Integer $num_logs = '5',
+  Enum['lossy','lossless'] $disp_qos = 'lossy',
+  Stdlib::Absolutepath $dispatcher = '/sbin/audispd',
+  Pattern[/(?i:NONE|HOSTNAME|FQD|NUMERIC|USER)/] $name_format = 'USER',
+  String $lname = $::fqdn,
   # CCE-27550-3
-  $max_log_file = '24',
+  Stdlib::Compat::Integer $max_log_file = '24',
   # CCE-27237-7
-  $max_log_file_action = 'ROTATE',
-  $space_left = '75',
+  Pattern[/(?i:IGNORE|SYSLOG|SUSPEND|ROTATE|KEEP_LOGS)/] $max_log_file_action = 'ROTATE',
+  Stdlib::Compat::Integer $space_left = '75',
   # CCE-27238-5 : No guarantee of e-mail server so sending to syslog.
-  $space_left_action = 'SYSLOG',
+  Pattern[/(?i:IGNORE|SYSLOG|ROTATE|EMAIL|EXEC|SUSPEND|SINGLE|HALT)/] $space_left_action = 'SYSLOG',
   # CCE-27241-9
-  $action_mail_acct = 'root',
-  $admin_space_left = '50',
+  String $action_mail_acct = 'root',
+  Stdlib::Compat::Integer $admin_space_left = '50',
   # CCE-27239-3 : No guarantee of e-mail server so sending to syslog.
-  $admin_space_left_action = 'SUSPEND',
-  $disk_full_action = 'SUSPEND',
-  $disk_error_action = 'SUSPEND',
-  $buffer_size = '16384',
-  $failure_mode = '2',
-  $rate = '0',
-  $immutable = false,
-  $root_audit_level = 'basic',
-  $uid_min = $::uid_min,
+  Pattern[/(?i:IGNORE|SYSLOG|ROTATE|EMAIL|EXEC|SUSPEND|SINGLE|HALT)/] $admin_space_left_action = 'SUSPEND',
+  Pattern[/(?i:IGNORE|SYSLOG|ROTATE|EXEC|SUSPEND|SINGLE|HALT)/] $disk_full_action = 'SUSPEND',
+  Pattern[/(?i:IGNORE|SYSLOG|EXEC|SUSPEND|SINGLE|HALT)/] $disk_error_action = 'SUSPEND',
+  Stdlib::Compat::Integer $buffer_size = '16384',
+  Stdlib::Compat::Integer $failure_mode = '2',
+  Stdlib::Compat::Integer $rate = '0',
+  Boolean $immutable = false,
+  Enum['basic','aggressive','insane'] $root_audit_level = 'basic',
+  Stdlib::Compat::Integer $uid_min = $::uid_min,
   # CCE-26785-6
-  $at_boot = true,
+  Boolean $at_boot = true,
   # CCE-26933-2
-  $to_syslog = defined('$::enable_logging')  ? { true => $::enable_logging,  default => hiera('enable_logging',true) },
-  $default_audit_profile = 'simp',
-  $service_name    = $::auditd::params::service_name,
-  $package_name    = $::auditd::params::package_name,
-  $package_ensure  = 'latest',
-  $enable_auditing = defined('$::enable_auditing') ? { true => $::enable_auditing, default => hiera('enable_auditing',true) },
-  # This should be enabled during the refactor when 'to_syslog' is removed
-  #$enable_logging  = defined('$::enable_logging')  ? { true => $::enable_logging,  default => hiera('enable_logging',true) }
+  Boolean $syslog = simplib::lookup('simp_options::syslog', {'default_value' => false }),
+  Variant[Enum['simp'],Boolean] $default_audit_profile = 'simp',
+  String $service_name    = $::auditd::params::service_name,
+  String $package_name    = $::auditd::params::package_name,
+  String $package_ensure  = 'latest',
+  Boolean $enable = true,
 ) inherits ::auditd::params {
 
-  validate_bool($ignore_failures)
-  validate_absolute_path($log_file)
-  validate_array_member($log_format,['RAW','NOLOG'],'i')
-  validate_integer($priority_boost)
-  validate_array_member($flush,['NONE','INCREMENTAL','DATA','SYNC'],'i')
-  validate_integer($freq)
-  validate_integer($num_logs)
-  validate_array_member($disp_qos,['lossy','lossless'])
-  validate_absolute_path($dispatcher)
-  validate_array_member($name_format,['NONE','HOSTNAME','FQD','NUMERIC','USER'],'i')
-  validate_integer($max_log_file)
-  validate_integer($space_left)
-  validate_integer($admin_space_left)
-  if defined('$::auditd_version') and (versioncmp($::auditd_version,'2.4.1') >= 0) {
-    validate_array_member($space_left_action, ['IGNORE','SYSLOG','ROTATE','EMAIL','EXEC','SUSPEND','SINGLE','HALT'],'i')
-    validate_array_member($admin_space_left_action, ['IGNORE','SYSLOG','ROTATE','EMAIL','EXEC','SUSPEND','SINGLE','HALT'],'i')
-    validate_array_member($disk_full_action, ['IGNORE','SYSLOG','ROTATE','EXEC','SUSPEND','SINGLE','HALT'],'i')
-  } else {
-    validate_array_member($space_left_action, ['IGNORE','SYSLOG','EMAIL','EXEC','SUSPEND','SINGLE','HALT'],'i')
-    validate_array_member($admin_space_left_action, ['IGNORE','SYSLOG','EMAIL','EXEC','SUSPEND','SINGLE','HALT'],'i')
-    validate_array_member($disk_full_action, ['IGNORE','SYSLOG','EXEC','SUSPEND','SINGLE','HALT'],'i')
-  }
-  validate_array_member($disk_error_action,['IGNORE','SYSLOG','EXEC','SUSPEND','SINGLE','HALT'],'i')
-  validate_integer($buffer_size)
-  validate_integer($failure_mode)
-  validate_integer($rate)
-  validate_bool_simp($immutable)
-  validate_array_member($root_audit_level,['basic','aggressive','insane'])
-  validate_integer($uid_min)
-  validate_bool($at_boot)
-  validate_bool($to_syslog)
-  validate_array_member($default_audit_profile,['simp',false,true])
-  validate_string($service_name)
-  validate_string($package_name)
-  validate_bool($enable_auditing)
-  #validate_bool($enable_logging)
+  if $enable {
 
-  # This is done here so that the kernel option can be properly removed if
-  # auditing is to be disabled on the system.
-  if $enable_auditing {
+    # This is done here so that the kernel option can be properly removed if
+    # auditing is to be disabled on the system.
     if $at_boot {
       $_grub_enable = true
     }
     else {
       $_grub_enable = false
     }
-  }
-  else {
-    $_grub_enable = false
-  }
-  # This is done deliberately so that you cannot conflict a direct call to
-  # auditd::config::grub with an include somewhere else. auditd::config::grub
-  # would normally be a private class but may be used independently if
-  # necessary.
-  class { '::auditd::config::grub': enable => $_grub_enable }
 
-  if $enable_auditing {
     include '::auditd::install'
     include '::auditd::config'
     include '::auditd::service'
@@ -197,13 +149,20 @@ class auditd (
 
     Class['::auditd::install'] -> Class['::auditd::config::grub']
 
-    # Change to $enable_logging after the refactor
-    if $to_syslog {
+    if $syslog {
       include '::auditd::config::logging'
 
       Class['::auditd::config::logging'] ~>
       Class['::auditd::service']
     }
   }
+  else {
+    $_grub_enable = false
+  }
 
+  # This is done deliberately so that you cannot conflict a direct call to
+  # auditd::config::grub with an include somewhere else. auditd::config::grub
+  # would normally be a private class but may be used independently if
+  # necessary.
+  class { '::auditd::config::grub': enable => $_grub_enable }
 }

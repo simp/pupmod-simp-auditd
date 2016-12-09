@@ -29,19 +29,15 @@
 # Chris Tessmer  <chris.tessmer@onyxpoint.com>
 #
 define auditd::add_rules (
-  $content,
-  $first    = false,
-  $absolute = false,
-  $prepend  = false
+  String $content,
+  Boolean $first    = false,
+  Boolean $absolute = false,
+  Boolean $prepend  = false
 ) {
-  validate_string($content)
-  validate_bool($first)
-  validate_bool($absolute)
-  validate_bool($prepend)
-
   include 'auditd'
 
-  if $::auditd::enable_auditing {
+  if $::auditd::enable {
+
     if $prepend {
       $rule_id = "00.${name}.rules"
     }
