@@ -1,5 +1,6 @@
-* Tue Nov 22 2016 Liz Nemsick <lnemsick.simp@gmail.com> - 6.0.0-0
+* Mon Dec 12 2016 Liz Nemsick <lnemsick.simp@gmail.com> - 6.0.0-0
 - Update version to reflect SIMP6 dependencies
+- Changed default log facility to local5.
 
 * Tue Nov 22 2016 Chris Tessmer <chris.tessmer@onyxpoint.com> - 5.1.2-0
 - Minor cleanup
