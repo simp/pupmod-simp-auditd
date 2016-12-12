@@ -39,7 +39,7 @@
 class auditd::config::audisp::syslog (
   Boolean             $drop_audit_logs = true,
   Auditd::LogPriority $priority        = 'LOG_INFO',
-  Auditd::LogFacility $facility        = ''
+  Auditd::LogFacility $facility        = 'LOG_LOCAL5'
 ) {
 
   if $drop_audit_logs {

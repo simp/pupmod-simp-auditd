@@ -25,7 +25,7 @@ active = yes
 direction = out
 path = builtin_syslog
 type = builtin
-args = LOG_INFO 
+args = LOG_INFO LOG_LOCAL5
 format = string
 EOM
           }
