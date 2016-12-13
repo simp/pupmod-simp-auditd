@@ -78,6 +78,13 @@ describe 'auditd::config::audit_profiles::simp' do
               %r(^-a\s+exit,never\s+-F\s+auid=-1$)
             )
           }
+          
+          it {
+            # Dropping Logs from crond
+            is_expected.to contain_file('/etc/audit/rules.d/05_default_drop.rules').with_content(
+              %r(^-a\s+never,user\s+-F\s+subj_type=crond_t$)
+            )
+          }
 
           if ['RedHat','CentOS'].include?(facts[:operatingsystem]) &&
              (facts[:operatingsystemmajrelease].to_s < '7')
