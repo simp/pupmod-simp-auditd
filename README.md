@@ -37,7 +37,7 @@ Please read our [Contribution Guide](https://simp-project.atlassian.net/wiki/dis
 
 This module is optimally designed for use within a larger SIMP ecosystem, but it can be used independently:
 * When included within the SIMP ecosystem, security compliance settings will be managed from the Puppet server.
-* In the future, all SIMP-managed security subsystems will be disabled by default and must be explicitly opted into by administrators.  Please review the `client_nets` and `$enable_*` parameters in `manifests/init.pp` for details.
+* In the future, all SIMP-managed security subsystems will be disabled by default and must be explicitly opted into by administrators.  Please review simp_options for details.
 
 
 ## Module Description

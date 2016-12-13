@@ -1,19 +1,11 @@
-# == Class: auditd::config::grub
-#
 # Enables/disables auditing at boot time.
 #
-# == Parameters
-#
-# [*enable*]
-# Type: Boolean
-# Default: true
+# @param enable
 #   Enable auditing in the kernel at boot time.
 #
 class auditd::config::grub (
-  $enable = true
+  Boolean $enable = true
 ) {
-
-  validate_bool($enable)
 
   if $enable {
     $_enable = '1'

@@ -1,5 +1,3 @@
-# == Class auditd::service
-#
 # This class is meant to be called from auditd.
 # It ensure the service is running.
 #

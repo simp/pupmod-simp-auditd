@@ -1,47 +1,35 @@
-# == Define: auditd::add_rules
-#
 # This define allows you to add rules to the auditd.rules file.  These rules
 # should be uniquely named.  See auditctl(8) for more information on how to
 # write the content for these rules.
 #
-# == Parameters
-#
-# [*name*]
+# @param name
 #   A unique identifier for the audit rules.
 #
-# [*content*]
+# @param content
 #   The content of the rules that should be added.
 #
-# [*first*]
-#   Boolean:
+# @param first
 #   Set this to 'true' if you want to prepend your custom rules.
 #     Default: false
 #
-# [*absolute*]
-#   Boolean:
+# @param absolute
 #   Set this to 'true' if you want the added rules to be absolutely first or
 #   last depending on the setting of $first.
 #     Default: false
 #
-# == Authors
-#
-# Trevor Vaughan <tvaughan@onyxpoint.com>
-# Chris Tessmer  <chris.tessmer@onyxpoint.com>
+# @author Trevor Vaughan <tvaughan@onyxpoint.com>
+# @author Chris Tessmer  <chris.tessmer@onyxpoint.com>
 #
 define auditd::add_rules (
-  $content,
-  $first    = false,
-  $absolute = false,
-  $prepend  = false
+  String  $content,
+  Boolean $first    = false,
+  Boolean $absolute = false,
+  Boolean $prepend  = false
 ) {
-  validate_string($content)
-  validate_bool($first)
-  validate_bool($absolute)
-  validate_bool($prepend)
-
   include 'auditd'
 
-  if $::auditd::enable_auditing {
+  if $::auditd::enable {
+
     if $prepend {
       $rule_id = "00.${name}.rules"
     }

@@ -1,5 +1,3 @@
-# == Class auditd::config::audisp::syslog
-#
 # This class utilizes rsyslog to send all audit records to syslog.
 #
 # This capability is most useful for forwarding audit records to
@@ -20,24 +18,16 @@
 # encrypted using the stunnel module, due to the nature of the
 # information carried by these messages.
 #
-# == Parameters
-#
-# [*drop_audit_logs*]
-#   Type:  Boolean
-#   Default:  true
+# @param drop_audit_logs
 #     When set to false, auditd records will be forwarded to remote
 #     servers and/or written to local syslog files, as directed by the
 #     site rsyslog configuration.
 #
-# [*priority*]
-#   Type:  String
-#   Default:  LOG_INFO
+# @param priority
 #     The syslog priority for all audit record messages.
 #     This value is used in the /etc/audisp/plugins.d/syslog.conf file.
 #
-# [*facility*]
-#   Type:  String
-#   Default:  ''
+# @param facility
 #     The syslog facility for all audit record messages. This value is
 #     used in the /etc/audisp/plugins.d/syslog.conf file.  For the older
 #     auditd versions used by CentOS6 and CentOS7, must be an empty string,
@@ -47,18 +37,10 @@
 #     are allowed.
 #
 class auditd::config::audisp::syslog (
-  $drop_audit_logs = true,
-  $priority = 'LOG_INFO',
-  $facility = ''
+  Boolean             $drop_audit_logs = true,
+  Auditd::LogPriority $priority        = 'LOG_INFO',
+  Auditd::LogFacility $facility        = ''
 ) {
-  validate_bool($drop_audit_logs)
-  validate_array_member($priority, ['LOG_DEBUG', 'LOG_INFO',
-    'LOG_NOTICE', 'LOG_WARNING', 'LOG_ERR', 'LOG_CRIT', 'LOG_ALERT',
-    'LOG_EMERG'])
-
-  validate_array_member($facility, ['', 'LOG_LOCAL0', 'LOG_LOCAL1',
-    'LOG_LOCAL2', 'LOG_LOCAL3', 'LOG_LOCAL4', 'LOG_LOCAL5', 'LOG_LOCAL6',
-    'LOG_LOCAL7'])
 
   if $drop_audit_logs {
     # This will prevent audit records from being forwarded to remote
