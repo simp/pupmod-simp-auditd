@@ -1,5 +1,3 @@
-# == Class auditd::params
-#
 # This class is meant to be called from auditd.
 # It sets variables according to platform.
 #

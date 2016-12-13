@@ -1,12 +1,6 @@
-# == Class: auditd::config::grub
-#
 # Enables/disables auditing at boot time.
 #
-# == Parameters
-#
-# [*enable*]
-# Type: Boolean
-# Default: true
+# @param enable
 #   Enable auditing in the kernel at boot time.
 #
 class auditd::config::grub (

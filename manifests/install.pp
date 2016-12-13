@@ -1,5 +1,3 @@
-# == Class auditd::install
-#
 # This class is called from auditd for install.
 #
 class auditd::install {

@@ -1,5 +1,3 @@
-# == Class auditd::config::logging
-#
 # This class is meant to be called from auditd.
 # It ensures that logging rules are defined.
 #
