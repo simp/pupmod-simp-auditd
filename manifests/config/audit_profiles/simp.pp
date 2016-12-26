@@ -37,6 +37,7 @@ class auditd::config::audit_profiles::simp (
   Boolean  $ignore_errors                          = true,
   Boolean  $ignore_anonymous                       = true,
   Boolean  $ignore_system_services                 = true,
+  Boolean  $ignore_crond                           = true,
   Boolean  $audit_unsuccessful_file_operations     = true,
   String   $audit_unsuccessful_file_operations_tag = 'access',
   Boolean  $audit_permissions                      = true,
