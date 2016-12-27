@@ -2,11 +2,11 @@
 # It sets variables according to platform.
 #
 class auditd::params {
-  if $::operatingsystem in ['RedHat','CentOS'] {
+  if $facts['os']['name'] in ['RedHat','CentOS'] {
     $package_name = 'audit'
     $service_name = 'auditd'
   }
   else {
-    fail("${::operatingsystem} not supported")
+    fail("${facts['os']['name']} not supported")
   }
 }

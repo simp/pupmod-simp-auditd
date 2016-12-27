@@ -41,13 +41,14 @@ class auditd::config::audisp::syslog (
   Auditd::LogPriority $priority        = 'LOG_INFO',
   Auditd::LogFacility $facility        = 'LOG_LOCAL5'
 ) {
+  include '::rsyslog'
 
   if $drop_audit_logs {
     # This will prevent audit records from being forwarded to remote
     # servers and/or written to local syslog files, but you still have
     # access to the records in the local audit log files.
     rsyslog::rule::drop { 'audispd':
-      rule   => 'if $programname == \'audispd\''
+      rule   => '$programname == \'audispd\''
     }
   }
 

@@ -11,11 +11,11 @@ describe 'auditd::config::audit_profiles::simp' do
 
             facts[:apache_version] = '2.2'
             facts[:grub_version] = '0.9'
-            facts[:uid_min] = '500'
+            facts[:uid_min] = 500
           else
             facts[:apache_version] = '2.4'
             facts[:grub_version] = '2.0~beta'
-            facts[:uid_min] = '1000'
+            facts[:uid_min] = 1000
           end
 
           facts
@@ -82,9 +82,9 @@ describe 'auditd::config::audit_profiles::simp' do
           if ['RedHat','CentOS'].include?(facts[:operatingsystem]) &&
              (facts[:operatingsystemmajrelease].to_s < '7')
 
-            _uid = '500'
+            _uid = 500
           else
-            _uid = '1000'
+            _uid = 1000
           end
 
           it {

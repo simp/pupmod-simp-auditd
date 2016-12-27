@@ -4,7 +4,7 @@
 class auditd::service {
   assert_private()
 
-  case $::operatingsystem {
+  case $facts['os']['name'] {
     'RedHat','CentOS' : {
       # CCE-27058-7
       service { $::auditd::service_name:
@@ -23,7 +23,7 @@ class auditd::service {
       }
     }
     default : {
-      fail("Error: ${::operatingsystem} is not yet supported by module '${module_name}'")
+      fail("Error: ${facts['os']['name']} is not yet supported by module '${module_name}'")
     }
   }
 }

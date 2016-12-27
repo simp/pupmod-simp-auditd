@@ -3,8 +3,9 @@ require 'spec_helper_acceptance'
 test_name 'auditd class'
 
 describe 'auditd class' do
-  let(:pki_hieradata) {
+  let(:hieradata) {
     {
+      'simp_options::syslog'    => true,
       'pki::cacerts_sources'    => ['file:///etc/pki/simp-testing/pki/cacerts'] ,
       'pki::private_key_source' => "file:///etc/pki/simp-testing/pki/private/%{fqdn}.pem",
       'pki::public_key_source'  => "file:///etc/pki/simp-testing/pki/public/%{fqdn}.pub"
@@ -14,14 +15,14 @@ describe 'auditd class' do
   let(:disable_hieradata) {
     {
       'auditd::at_boot' => false
-    }.merge(pki_hieradata)
+    }.merge(hieradata)
   }
 
   let(:enable_audit_messages) {
     {
       'auditd::config::audisp::syslog::drop_audit_logs' => false,
       'auditd::config::audisp::syslog::syslog_priority' => 'LOG_NOTICE'
-    }.merge(pki_hieradata)
+    }.merge(hieradata)
   }
 
   let(:manifest) {
@@ -30,13 +31,12 @@ describe 'auditd class' do
     EOS
   }
 
-
   hosts.each do |host|
     context "on #{host}" do
       context 'default parameters' do
         # Using puppet_apply as a helper
         it 'should work with no errors' do
-          set_hieradata_on(host, pki_hieradata)
+          set_hieradata_on(host, hieradata)
           apply_manifest_on(host, manifest, :catch_failures => true)
         end
 
@@ -74,14 +74,14 @@ describe 'auditd class' do
 
         it 'should not send audit logs to syslog' do
           # log rotate so any audit messages present before the apply turned off
-          # audit record logging are no longer in /var/log/messages
+          # audit record logging are no longer in /var/log/secure
           on(host, 'logrotate --force /etc/logrotate.d/syslog')
           # cause an auditable events
           on(host,'puppet resource service crond ensure=stopped')
           on(host,'puppet resource service crond ensure=running')
-          on(host, %(grep -qe 'audispd:.*msg=audit' /var/log/messages), :acceptable_exit_codes => [1])
+          on(host, %(grep -qe 'audispd:.*msg=audit' /var/log/secure), :acceptable_exit_codes => [1,2])
         end
-  
+
         it 'should fix incorrect permissions' do
           on(host, 'chmod 400 /var/log/audit/audit.log')
           apply_manifest_on(host, manifest, :catch_failures => true)
@@ -94,21 +94,13 @@ describe 'auditd class' do
         it 'should work with no errors' do
           set_hieradata_on(host, enable_audit_messages)
           apply_manifest_on(host, manifest, :catch_failures => true)
-
-          # TODO Undo this workaround when rsyslog module is fixed.
-          # To work around a rsyslog module bug whereby the drop file is
-          # not purged when it is no longer managed, manually remove that
-          # file and then restart rsyslog to pick up the configuration change.
-          on(host,'rm -f /etc/rsyslog.simp.d/07_simp_drop_rules/audispd.conf')
-          on(host,'puppet resource service rsyslog ensure=stopped')
-          on(host,'puppet resource service rsyslog ensure=running')
         end
 
         it 'should send audit logs to syslog' do
           # cause auditable events
           on(host,'puppet resource service crond ensure=stopped')
           on(host,'puppet resource service crond ensure=running')
-          on(host, %(grep -qe 'audispd:.*msg=audit' /var/log/messages))
+          on(host, %(grep -qe 'audispd:.*msg=audit' /var/log/secure))
         end
       end
 

@@ -6,7 +6,6 @@
 class auditd::config::grub (
   Boolean $enable = true
 ) {
-
   if $enable {
     $_enable = '1'
   }
