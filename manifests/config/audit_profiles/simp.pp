@@ -148,7 +148,7 @@ class auditd::config::audit_profiles::simp (
   Boolean                             $audit_ptrace                           = true,
   String                              $audit_ptrace_tag                       = 'paranoid',
   Boolean                             $audit_personality                      = true,
-  String                              $audit_personality_tag                  = 'paranoid',
+  String                              $audit_personality_tag                  = 'paranoid'
 ) inherits ::auditd {
 
   $_profile_template_path = "${module_name}/rule_profiles/simp"

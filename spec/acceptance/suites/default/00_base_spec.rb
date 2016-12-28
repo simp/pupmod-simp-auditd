@@ -8,7 +8,8 @@ describe 'auditd class' do
       'simp_options::syslog'    => true,
       'pki::cacerts_sources'    => ['file:///etc/pki/simp-testing/pki/cacerts'] ,
       'pki::private_key_source' => "file:///etc/pki/simp-testing/pki/private/%{fqdn}.pem",
-      'pki::public_key_source'  => "file:///etc/pki/simp-testing/pki/public/%{fqdn}.pub"
+      'pki::public_key_source'  => "file:///etc/pki/simp-testing/pki/public/%{fqdn}.pub",
+      'simp_options::syslog'    => true
     }
   }
 

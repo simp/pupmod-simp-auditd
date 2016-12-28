@@ -3,6 +3,11 @@
 - Refactor to work in Puppet 4 Changes
 - Updated acceptance tests
 
+* Fri Dec 09 2016 Nick Markowski <nmarkowski@keywcorp.com> - 7.0.0-0
+- Updated global catalysts
+- Added a drop rule for crond events
+
+
 * Mon Dec 12 2016 Liz Nemsick <lnemsick.simp@gmail.com> - 7.0.0-0
 - Update version to reflect SIMP6 dependencies
 
