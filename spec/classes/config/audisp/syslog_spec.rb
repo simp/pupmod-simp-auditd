@@ -35,7 +35,7 @@ EOM
             is_expected.to contain_file('/etc/audisp/plugins.d/syslog.conf').with_content(expected_content)
           }
           it {
-            is_expected.to contain_rsyslog__rule__drop('audispd').with_rule(%r(if \$programname == 'audispd'))
+            is_expected.to contain_rsyslog__rule__drop('audispd').with_rule(%r(\$programname == 'audispd'))
           }
         end
 
@@ -60,7 +60,7 @@ EOM
             is_expected.to contain_file('/etc/audisp/plugins.d/syslog.conf').with_content(expected_content)
           }
           it {
-            is_expected.to contain_rsyslog__rule__drop('audispd').with_rule(%r(if \$programname == 'audispd'))
+            is_expected.to contain_rsyslog__rule__drop('audispd').with_rule(%r(\$programname == 'audispd'))
           }
         end
 

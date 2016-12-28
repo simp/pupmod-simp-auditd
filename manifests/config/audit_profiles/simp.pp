@@ -32,6 +32,7 @@
 #     users below this number will be ignored unless set to absolute first when
 #     using auditd::add_rule.
 #
+# @param ignore_crond
 # @param ignore_errors
 # @param ignore_anonymous
 # @param ignore_system_services
@@ -96,6 +97,7 @@ class auditd::config::audit_profiles::simp (
   Boolean                             $immutable                              = $::auditd::immutable,
   Enum['basic','aggressive','insane'] $root_audit_level                       = $::auditd::root_audit_level,
   Integer                             $uid_min                                = $::auditd::uid_min,
+  Boolean                             $ignore_crond                           = true,
   Boolean                             $ignore_errors                          = true,
   Boolean                             $ignore_anonymous                       = true,
   Boolean                             $ignore_system_services                 = true,
