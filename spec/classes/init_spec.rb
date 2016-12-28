@@ -12,10 +12,10 @@ describe 'auditd' do
   end
 
   context 'supported operating systems' do
-    on_supported_os.each do |os, facts|
+    on_supported_os.each do |os, os_facts|
       context "on #{os}" do
         let(:facts) do
-          facts
+          os_facts
         end
 
         context "auditd without default parameters" do
@@ -60,12 +60,15 @@ describe 'auditd' do
 
   context 'unsupported operating system' do
     describe 'auditd without any parameters on Solaris/Nexenta' do
-      let(:facts) {{
-        :osfamily        => 'Solaris',
-        :operatingsystem => 'Nexenta',
-      }}
+      let(:facts) {
+        os_facts = {}
+        os_facts[:os]         = {}
+        os_facts[:os]['name'] = 'Solaris'
 
-      it { expect { is_expected.to contain_package('auditd') }.to raise_error(Puppet::Error, /Nexenta not supported/) }
+        os_facts
+      }
+
+      it { expect { is_expected.to contain_package('auditd') }.to raise_error(Puppet::Error, /Solaris not supported/) }
     end
   end
 end

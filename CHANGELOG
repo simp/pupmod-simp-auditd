@@ -1,9 +1,18 @@
+* Mon Dec 26 2016 Ralph Wright <rwright@onyxpoint.com> - 7.0.0-0
+* Mon Dec 26 2016 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.0.0-0
+- Refactor to work in Puppet 4 Changes
+- Updated acceptance tests
+
 * Fri Dec 09 2016 Nick Markowski <nmarkowski@keywcorp.com> - 7.0.0-0
 - Updated global catalysts
 - Added a drop rule for crond events
 
-* Tue Nov 22 2016 Liz Nemsick <lnemsick.simp@gmail.com> - 6.0.0-0
+* Mon Dec 12 2016 Liz Nemsick <lnemsick.simp@gmail.com> - 7.0.0-0
 - Update version to reflect SIMP6 dependencies
+
+* Fri Dec 09 2016 Nick Markowski <nmarkowski@keywcorp.com> - 7.0.0-0
+- Updated global catalysts
+- Changed default log facility to local5.
 
 * Tue Nov 22 2016 Chris Tessmer <chris.tessmer@onyxpoint.com> - 5.1.2-0
 - Minor cleanup

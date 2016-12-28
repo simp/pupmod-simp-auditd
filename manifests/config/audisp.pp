@@ -7,12 +7,12 @@
 # @author Trevor Vaughan <tvaugan@onyxpoint.com>
 #
 class auditd::config::audisp (
-  Stdlib::Compat::Integer $q_depth         = '160',
-  Auditd::OverflowAction  $overflow_action = 'SYSLOG',
-  Stdlib::Compat::Integer $priority_boost  = '4',
-  Stdlib::Compat::Integer $max_restarts    = '10',
-  Auditd::NameFormat      $name_format     = 'USER',
-  String                  $specific_name   = $facts['fqdn']
+  Integer                $q_depth         = 160,
+  Auditd::OverflowAction $overflow_action = 'SYSLOG',
+  Integer                $priority_boost  = 4,
+  Integer                $max_restarts    = 10,
+  Auditd::NameFormat     $name_format     = 'USER',
+  String                 $specific_name   = $facts['fqdn']
 ) {
 
   file { '/etc/audisp/audispd.conf':

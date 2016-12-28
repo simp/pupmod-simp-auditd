@@ -16,9 +16,12 @@
 # Any variable that is not described here can be found in auditd.conf(5) and
 # auditctl(8).
 #
+# @see auditd.conf(5)
+# @see auditctl(8)
+#
 # @param lname
-#   An alias for the 'name' variable in the configuration file. This is used
-#   since $name is a reserved keyword in Puppet.
+#   An alias for the ``name`` variable in the configuration file. This is used
+#   since ``$name`` is a reserved keyword in Puppet.
 #
 # @param immutable
 #   Whether or not to make the configuration immutable. Be aware that, should
@@ -67,29 +70,29 @@ class auditd (
   Stdlib::Absolutepath                $log_file                = '/var/log/audit/audit.log',
   Enum['RAW','NOLOG']                 $log_format              = 'RAW',
   String                              $log_group               = 'root',
-  Stdlib::Compat::Integer             $priority_boost          = '3',
+  Integer[0]                          $priority_boost          = 3,
   Auditd::Flush                       $flush                   = 'INCREMENTAL',
-  Stdlib::Compat::Integer             $freq                    = '20',
-  Stdlib::Compat::Integer             $num_logs                = '5', # CCE-27522-2
+  Integer[0]                          $freq                    = 20,
+  Integer[0]                          $num_logs                = 5, # CCE-27522-2
   Enum['lossy','lossless']            $disp_qos                = 'lossy',
   Stdlib::Absolutepath                $dispatcher              = '/sbin/audispd',
   Auditd::NameFormat                  $name_format             = 'USER',
   String                              $lname                   = $facts['fqdn'],
-  Stdlib::Compat::Integer             $max_log_file            = '24', # CCE-27550-3
+  Integer[0]                          $max_log_file            = 24, # CCE-27550-3
   Auditd::MaxLogFileAction            $max_log_file_action     = 'ROTATE',# CCE-27237-7
-  Stdlib::Compat::Integer             $space_left              = '75',
+  Integer[0]                          $space_left              = 75,
   Auditd::SpaceLeftAction             $space_left_action       = 'SYSLOG', # CCE-27238-5 : No guarantee of e-mail server so sending to syslog.
   String                              $action_mail_acct        = 'root',# CCE-27241-9
-  Stdlib::Compat::Integer             $admin_space_left        = '50',
+  Integer[0]                          $admin_space_left        = 50,
   Auditd::SpaceLeftAction             $admin_space_left_action = 'SUSPEND', # CCE-27239-3 : No guarantee of e-mail server so sending to syslog.
   Auditd::DiskFullAction              $disk_full_action        = 'SUSPEND',
   Auditd::DiskErrorAction             $disk_error_action       = 'SUSPEND',
-  Stdlib::Compat::Integer             $buffer_size             = '16384',
-  Stdlib::Compat::Integer             $failure_mode            = '2',
-  Stdlib::Compat::Integer             $rate                    = '0',
+  Integer[0]                          $buffer_size             = 16384,
+  Integer[0]                          $failure_mode            = 2,
+  Integer[0]                          $rate                    = 0,
   Boolean                             $immutable               = false,
   Enum['basic','aggressive','insane'] $root_audit_level        = 'basic',
-  Stdlib::Compat::Integer             $uid_min                 = $facts['uid_min'],
+  Integer[0]                          $uid_min                 = to_integer($facts['uid_min']),
   Boolean                             $at_boot                 = true, # CCE-26785-6
   Boolean                             $syslog                  = simplib::lookup('simp_options::syslog', {'default_value' => false }),  # CCE-26933-2
   Variant[Enum['simp'],Boolean]       $default_audit_profile   = 'simp',
