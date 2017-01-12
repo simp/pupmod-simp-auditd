@@ -29,9 +29,9 @@
 # CCE-27184-1
 # CCE-27185-8
 <%   if @hardwaremodel.eql?("x86_64") -%>
--a always,exit -F arch=b64 -S chown -S fchmod -S fchmodat -S fchown -S fchownat -S lchown -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -k <%= @audit_permissions_tag %>
+-a always,exit -F arch=b64 -S chown -S chmod -S fchmod -S fchmodat -S fchown -S fchownat -S lchown -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -k <%= @audit_permissions_tag %>
 <%   end -%>
--a always,exit -F arch=b32 -S chown -S fchmod -S fchmodat -S fchown -S fchownat -S lchown -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -k <%= @audit_permissions_tag %>
+-a always,exit -F arch=b32 -S chown -S chmod -S fchmod -S fchmodat -S fchown -S fchownat -S lchown -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -k <%= @audit_permissions_tag %>
 <% end -%>
 
 <% if @audit_su_root_activity -%>
@@ -72,6 +72,8 @@
 <% if @audit_kernel_modules -%>
 ## Audit the loading and unloading of kernel modules.
 # CCE-26611-4
+-w /usr/sbin/insmod -p x -k modules
+-w /bin/kmod -p x -k modules
 -w /sbin/insmod -p x -k modules
 -w /sbin/rmmod -p x -k modules
 -w /sbin/modprobe -p x -k modules
