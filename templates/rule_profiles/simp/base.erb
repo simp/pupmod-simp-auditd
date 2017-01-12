@@ -3,11 +3,11 @@
 # CCE-26712-0
 # CCE-26651-0
 <%   if @hardwaremodel.eql?("x86_64") -%>
--a always,exit -F arch=b64 -S creat -S mkdir -S mknod -S link -S symlink -S mkdirat -S mknodat -S linkat -S symlinkat -S openat -S open -S close -S rename -S renameat -S truncate -S ftruncate -S rmdir -S unlink -S unlinkat -F exit=-EACCES -k <%= @audit_unsuccessful_file_operations_tag %>
--a always,exit -F arch=b64 -S creat -S mkdir -S mknod -S link -S symlink -S mkdirat -S mknodat -S linkat -S symlinkat -S openat -S open -S close -S rename -S renameat -S truncate -S ftruncate -S rmdir -S unlink -S unlinkat -F exit=-EPERM -k <%= @audit_unsuccessful_file_operations_tag %>
+-a always,exit -F arch=b64 -S creat -S mkdir -S mknod -S link -S symlink -S mkdirat -S mknodat -S linkat -S symlinkat -S openat -S open_by_handle_at -S open -S close -S rename -S renameat -S truncate -S ftruncate -S rmdir -S unlink -S unlinkat -F exit=-EACCES -k <%= @audit_unsuccessful_file_operations_tag %>
+-a always,exit -F arch=b64 -S creat -S mkdir -S mknod -S link -S symlink -S mkdirat -S mknodat -S linkat -S symlinkat -S openat -S open_by_handle_at -S open -S close -S rename -S renameat -S truncate -S ftruncate -S rmdir -S unlink -S unlinkat -F exit=-EPERM -k <%= @audit_unsuccessful_file_operations_tag %>
 <%   end -%>
--a always,exit -F arch=b32 -S creat -S mkdir -S mknod -S link -S symlink -S mkdirat -S mknodat -S linkat -S symlinkat -S openat -S open -S close -S rename -S renameat -S truncate -S ftruncate -S rmdir -S unlink -S unlinkat -F exit=-EACCES -k <%= @audit_unsuccessful_file_operations_tag %>
--a always,exit -F arch=b32 -S creat -S mkdir -S mknod -S link -S symlink -S mkdirat -S mknodat -S linkat -S symlinkat -S openat -S open -S close -S rename -S renameat -S truncate -S ftruncate -S rmdir -S unlink -S unlinkat -F exit=-EPERM -k <%= @audit_unsuccessful_file_operations_tag %>
+-a always,exit -F arch=b32 -S creat -S mkdir -S mknod -S link -S symlink -S mkdirat -S mknodat -S linkat -S symlinkat -S openat -S open_by_handle_at -S open -S close -S rename -S renameat -S truncate -S ftruncate -S rmdir -S unlink -S unlinkat -F exit=-EACCES -k <%= @audit_unsuccessful_file_operations_tag %>
+-a always,exit -F arch=b32 -S creat -S mkdir -S mknod -S link -S symlink -S mkdirat -S mknodat -S linkat -S symlinkat -S openat -S open_by_handle_at -S open -S close -S rename -S renameat -S truncate -S ftruncate -S rmdir -S unlink -S unlinkat -F exit=-EPERM -k <%= @audit_unsuccessful_file_operations_tag %>
 
 -a always,exit -F perm=a -F exit=-EACCES -k <%= @audit_unsuccessful_file_operations_tag %>
 -a always,exit -F perm=a -F exit=-EPERM -k <%= @audit_unsuccessful_file_operations_tag %>
@@ -160,6 +160,8 @@
 -w /var/run/utmp -p wa -k <%= @audit_session_files_tag %>
 -w /var/log/btmp -p wa -k <%= @audit_session_files_tag %>
 -w /var/log/wtmp -p wa -k <%= @audit_session_files_tag %>
+-w /var/log/faillock -p wa -k <%= @audit_session_files_tag %>
+-w /var/log/tallylock -p wa -k <%= @audit_session_files_tag %>
 <% end -%>
 
 <% if @audit_sudoers -%>

@@ -1,3 +1,8 @@
+* Tue Jan 12 2017 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.0.0-0
+- In response to the DISA STIG Requirements
+  - Added 'open_by_handle_at' to the 'access' key
+  - Added watches for /varlog/faillock and /var/log/tallylock
+
 * Mon Dec 26 2016 Ralph Wright <rwright@onyxpoint.com> - 7.0.0-0
 * Mon Dec 26 2016 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.0.0-0
 - Refactor to work in Puppet 4 Changes
