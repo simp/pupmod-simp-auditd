@@ -42,6 +42,7 @@ class auditd::config::audisp::syslog (
   Auditd::LogFacility $facility        = 'LOG_LOCAL5'
 ) {
   include '::rsyslog'
+  include '::auditd::config::audisp_service'
 
   if $drop_audit_logs {
     # This will prevent audit records from being forwarded to remote
