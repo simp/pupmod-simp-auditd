@@ -39,9 +39,9 @@ describe 'auditd::config::audit_profiles::simp' do
 
         context "without any parameters" do
           let(:params) {{ }}
-          it { is_expected.to contain_auditd__add_rules('init.d_auditd') }
+          it { is_expected.to contain_auditd__rule('init.d_auditd') }
           it {
-            is_expected.to contain_auditd__add_rules('rotated_audit_logs').with_content(
+            is_expected.to contain_auditd__rule('rotated_audit_logs').with_content(
               %r(-w /var/log/audit/audit.log.5 -p rwa -k audit-logs)
             )
           }

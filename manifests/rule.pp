@@ -20,7 +20,7 @@
 # @author Trevor Vaughan <tvaughan@onyxpoint.com>
 # @author Chris Tessmer  <chris.tessmer@onyxpoint.com>
 #
-define auditd::add_rules (
+define auditd::rule (
   String  $content,
   Boolean $first    = false,
   Boolean $absolute = false,
@@ -53,6 +53,6 @@ define auditd::add_rules (
     }
   }
   else {
-    debug("Auditd is disabled, not activating auditd::add_rules::${name}")
+    debug("Auditd is disabled, not activating auditd::rule::${name}")
   }
 }

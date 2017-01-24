@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'auditd::add_rules' do
+describe 'auditd::rule' do
   context 'supported operating systems' do
     on_supported_os.each do |os, facts|
       context "on #{os}" do
