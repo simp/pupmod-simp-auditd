@@ -155,12 +155,12 @@ class auditd::config::audit_profiles::simp (
 
   $_profile_template_path = "${module_name}/rule_profiles/simp"
 
-  auditd::add_rules { 'init.d_auditd':
+  auditd::rule { 'init.d_auditd':
     content => "-w /etc/rc.d/init.d/auditd -p wa -k auditd
                 -w ${log_file} -p wa -k audit-logs"
   }
 
-  auditd::add_rules { 'rotated_audit_logs':
+  auditd::rule { 'rotated_audit_logs':
     content => template("${_profile_template_path}/rotated_audit_logs.erb")
   }
 
