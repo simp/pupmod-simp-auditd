@@ -13,8 +13,7 @@
 -a always,exit -F perm=a -F exit=-EPERM -k <%= @audit_unsuccessful_file_operations_tag %>
 <% end -%>
 
-<% if @audit_permissions -%>
-# Permissions auditing
+# Permissions auditing separated by chown, chmod, and attr
 # CCE-26280-8
 # CCE-27173-4
 # CCE-27174-2
@@ -29,9 +28,24 @@
 # CCE-27184-1
 # CCE-27185-8
 <%   if @hardwaremodel.eql?("x86_64") -%>
--a always,exit -F arch=b64 -S chown -S chmod -S fchmod -S fchmodat -S fchown -S fchownat -S lchown -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -k <%= @audit_permissions_tag %>
+<% if @audit_chown -%>
+-a always,exit -F arch=b64 -S chown -S fchown -S fchownat -S lchown -k <%= @audit_chown_tag %>
 <%   end -%>
--a always,exit -F arch=b32 -S chown -S chmod -S fchmod -S fchmodat -S fchown -S fchownat -S lchown -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -k <%= @audit_permissions_tag %>
+<% if @audit_chmod -%>
+-a always,exit -F arch=b64 -S chmod -S fchmod -S fchmodat -k <%= @audit_chmod_tag %>
+<%   end -%>
+<% if @audit_attr -%>
+-a always,exit -F arch=b64 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -k <%= @audit_attr_tag %>
+<%   end -%>
+<%   end -%>
+<% if @audit_chown -%>
+-a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -k <%= @audit_chown_tag %>
+<%   end -%>
+<% if @audit_chmod -%>
+-a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -k <%= @audit_chmod_tag %>
+<%   end -%>
+<% if @audit_attr -%>
+-a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -k <%= @audit_attr_tag %>
 <% end -%>
 
 <% if @audit_su_root_activity -%>

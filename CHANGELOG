@@ -5,6 +5,8 @@
   - Added watches on /usr/sbin/insmod and /bin/kmod
   - Added permissions modification notification for 'chmod'
 - Renamed auditd::add_rules to auditd::rule
+- Split the audit permissions rules into separate lines
+- Disabled chmod auditing by default
 
 * Mon Dec 26 2016 Ralph Wright <rwright@onyxpoint.com> - 7.0.0-0
 * Mon Dec 26 2016 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.0.0-0

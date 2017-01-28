@@ -38,8 +38,10 @@
 # @param ignore_system_services
 # @param audit_unsuccessful_file_operations
 # @param audit_unsuccessful_file_operations_tag
-# @param audit_permissions
-# @param audit_permissions_tag
+# @param audit_chown
+# @param audit_chown_tag
+# @param audit_chmod
+# @param audit_chmod_tag
 # @param audit_su_root_activity
 # @param audit_su_root_activity_tag
 # @param audit_suid_sgid
@@ -103,8 +105,12 @@ class auditd::config::audit_profiles::simp (
   Boolean                             $ignore_system_services                 = true,
   Boolean                             $audit_unsuccessful_file_operations     = true,
   String                              $audit_unsuccessful_file_operations_tag = 'access',
-  Boolean                             $audit_permissions                      = true,
-  String                              $audit_permissions_tag                  = 'perm_mod',
+  Boolean                             $audit_chown                            = true,
+  String                              $audit_chown_tag                        = 'chown',
+  Boolean                             $audit_chmod                            = false,
+  String                              $audit_chmod_tag                        = 'chmod',
+  Boolean                             $audit_attr                             = true,
+  String                              $audit_attr_tag                         = 'attr',
   Boolean                             $audit_su_root_activity                 = true,
   String                              $audit_su_root_activity_tag             = 'su-root-activity',
   Boolean                             $audit_suid_sgid                        = true,
