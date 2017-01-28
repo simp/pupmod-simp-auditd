@@ -3,23 +3,9 @@ require 'spec_helper'
 describe 'auditd::config::audit_profiles::simp' do
   context 'supported operating systems' do
 
-    on_supported_os.each do |os, facts|
+    on_supported_os.each do |os, os_facts|
       context "on #{os}" do
-        let(:facts) do
-          if ['RedHat','CentOS'].include?(facts[:operatingsystem]) &&
-             (facts[:operatingsystemmajrelease].to_s < '7')
-
-            facts[:apache_version] = '2.2'
-            facts[:grub_version] = '0.9'
-            facts[:uid_min] = 500
-          else
-            facts[:apache_version] = '2.4'
-            facts[:grub_version] = '2.0~beta'
-            facts[:uid_min] = 1000
-          end
-
-          facts
-        end
+        let(:facts) { os_facts }
 
         let(:base_audit_syscalls) do
           [
@@ -78,7 +64,7 @@ describe 'auditd::config::audit_profiles::simp' do
               %r(^-a\s+exit,never\s+-F\s+auid=-1$)
             )
           }
-          
+
           it {
             # Dropping Logs from crond
             is_expected.to contain_file('/etc/audit/rules.d/05_default_drop.rules').with_content(
@@ -86,19 +72,11 @@ describe 'auditd::config::audit_profiles::simp' do
             )
           }
 
-          if ['RedHat','CentOS'].include?(facts[:operatingsystem]) &&
-             (facts[:operatingsystemmajrelease].to_s < '7')
-
-            _uid = 500
-          else
-            _uid = 1000
-          end
-
           it {
             # Dropping system services
             # Optimized form, drop early to reduce system load.
             is_expected.to contain_file('/etc/audit/rules.d/05_default_drop.rules').with_content(
-              %r(^-a\s+exit,never\s+-F\s+auid!=0\s+-F\s+auid<#{_uid}$)
+              %r(^-a\s+exit,never\s+-F\s+auid!=0\s+-F\s+auid<#{facts[:uid_min]}$)
             )
           }
 
@@ -145,9 +123,7 @@ describe 'auditd::config::audit_profiles::simp' do
             ]
           end
 
-          let(:params) {{
-            :root_audit_level => 'aggressive'
-          }}
+          let(:params) {{ :root_audit_level => 'aggressive' }}
 
           it {
             # Setting the Buffer Size
@@ -198,9 +174,7 @@ describe 'auditd::config::audit_profiles::simp' do
             ]
           end
 
-          let(:params) {{
-            :root_audit_level => 'insane'
-          }}
+          let(:params) {{ :root_audit_level => 'insane' }}
 
           it {
             # Setting the Buffer Size
@@ -225,6 +199,16 @@ describe 'auditd::config::audit_profiles::simp' do
             end
           }
         end
+
+        context "setting :audit_chown to false" do
+          let(:params) {{ :audit_chown => false, }}
+          it{
+            is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
+              %r(-a always,exit -F arch=b64 -S chown -S fchown -S fchownat -S lchown -k chown)
+            )
+          }
+        end
+
       end
     end
   end
