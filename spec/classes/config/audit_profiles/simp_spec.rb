@@ -104,6 +104,13 @@ describe 'auditd::config::audit_profiles::simp' do
               expect(_syscalls - base_audit_syscalls).to be_empty
             end
           }
+
+          # chmod is disabled by default (SIMP-2250)
+          it{
+            is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
+              %r(^-a always,exit -F arch=b\d\d( -S \w*chmod\w*?)+ -k chmod$)
+            )
+          }
         end
 
         context "setting the root audit level to aggressive" do
@@ -200,15 +207,31 @@ describe 'auditd::config::audit_profiles::simp' do
           }
         end
 
-        context "setting :audit_chown to false" do
-          let(:params) {{ :audit_chown => false, }}
+        context "setting permissions auditing separated by chown, chmod, and attr" do
+          let(:params) {{
+            :audit_chown => false,
+            :audit_chmod => true,
+            :audit_attr_tag => 'fhqwhgads'
+          }}
+
           it{
             is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
-              %r(-a always,exit -F arch=b64 -S chown -S fchown -S fchownat -S lchown -k chown)
+              %r(^-a always,exit -F arch=b\d\d( -S \w*chown\w*?)+ -k chown$)
+            )
+          }
+
+          it{
+            is_expected.to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
+              %r(^-a always,exit -F arch=b\d\d( -S \w*chmod\w*?)+ -k chmod$)
+            )
+          }
+
+          it{
+            is_expected.to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
+              %r(^-a always,exit -F arch=b\d\d( -S \w*attr\w*?)+ -k fhqwhgads$)
             )
           }
         end
-
       end
     end
   end
