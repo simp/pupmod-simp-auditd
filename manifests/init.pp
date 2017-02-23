@@ -88,7 +88,7 @@ class auditd (
   Auditd::DiskFullAction              $disk_full_action        = 'SUSPEND',
   Auditd::DiskErrorAction             $disk_error_action       = 'SUSPEND',
   Integer[0]                          $buffer_size             = 16384,
-  Integer[0]                          $failure_mode            = 2,
+  Integer[0]                          $failure_mode            = 1,
   Integer[0]                          $rate                    = 0,
   Boolean                             $immutable               = false,
   Enum['basic','aggressive','insane'] $root_audit_level        = 'basic',
