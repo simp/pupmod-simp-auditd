@@ -47,7 +47,7 @@ describe 'auditd::config::audit_profiles::simp' do
           it {
             # Setting the failure mode
             is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(
-              %r(^-f\s+2$)
+              %r(^-f\s+1$)
             )
           }
 
