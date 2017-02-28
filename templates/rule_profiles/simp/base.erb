@@ -106,10 +106,10 @@
 # CCE-27169-2
 # CCE-27170-0
 <%   if @hardwaremodel.eql?("x86_64") -%>
--a exit,always -F arch=b32 -S adjtimex -S stime -S clock_settime -S settimeofday -k <%= @audit_time_tag %>
--a exit,always -F arch=b64 -S adjtimex -S clock_settime -S settimeofday -k <%= @audit_time_tag %>
+-a always,exit -F arch=b32 -S adjtimex -S stime -S clock_settime -S settimeofday -k <%= @audit_time_tag %>
+-a always,exit -F arch=b64 -S adjtimex -S clock_settime -S settimeofday -k <%= @audit_time_tag %>
 <%   else -%>
--a exit,always -S adjtimex -S stime -S clock_settime -S settimeofday -k <%= @audit_time_tag %>
+-a always,exit -S adjtimex -S stime -S clock_settime -S settimeofday -k <%= @audit_time_tag %>
 <%   end -%>
 
 # CCE-27172-6
@@ -145,7 +145,7 @@
 <% if @audit_umask -%>
 # audit umask changes.
 # This is uselessly noisy.
--a exit,always -S umask -k <%= @audit_umask_tag %>
+-a always,exit -S umask -k <%= @audit_umask_tag %>
 <% end -%>
 
 <% if @audit_local_account -%>
@@ -264,10 +264,10 @@
 <% end -%>
 <% if @audit_ptrace -%>
 <%   if @hardwaremodel.eql?("x86_64") -%>
--a exit,always -F arch=b32 -S ptrace -k <%= @audit_ptrace_tag %>
--a exit,always -F arch=b64 -S ptrace -k <%= @audit_ptrace_tag %>
+-a always,exit -F arch=b32 -S ptrace -k <%= @audit_ptrace_tag %>
+-a always,exit -F arch=b64 -S ptrace -k <%= @audit_ptrace_tag %>
 <%   else -%>
--a exit,always -S ptrace -k <%= @audit_ptrace_tag %>
+-a always,exit -S ptrace -k <%= @audit_ptrace_tag %>
 <%   end -%>
 <% end -%>
 <% if @audit_personality -%>

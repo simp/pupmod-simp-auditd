@@ -2,6 +2,7 @@
 - Changed auditd::failure_mode to '1' by default since the compliant audit
   rules were causing routine system restarts. The new value will default to
   sending printk messages when the buffer is full.
+- Changed all rules that were exit,always to be always,exit
 
 * Tue Jan 12 2017 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.0.0-0
 - In response to the DISA STIG Requirements
