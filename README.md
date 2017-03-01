@@ -71,15 +71,15 @@ auditd::at_boot : false
 # include new values for the keys at the time that the classes are declared:
 
 class { '::auditd':
-  ignore_failures => true
-  log_group       => 'root'
+  ignore_failures => true,
+  log_group       => 'root',
   flush           => 'INCREMENTAL'
 }
 
 # or, for a subclass:
 
 class { '::auditd::config::audisp': 
-  max_restarts => 10
+  max_restarts => 10,
   name_format  => 'USER'
 }
 ```
@@ -561,7 +561,7 @@ The `auditd::config::audit_profiles::simp` class is a set of audit rules that ar
 
   The content of the rule to be added
   * Valid Options: String
-  * Default: N/A
+  * Default: undef
 
 ##### `first`:
 
