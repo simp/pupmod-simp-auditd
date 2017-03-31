@@ -117,18 +117,18 @@ class auditd (
     include '::auditd::config'
     include '::auditd::service'
 
-    Class['::auditd::install'] ->
-    Class['::auditd::config']  ~>
-    Class['::auditd::service'] ->
-    Class['::auditd']
+    Class['::auditd::install']
+    -> Class['::auditd::config']
+    ~> Class['::auditd::service']
+    -> Class['::auditd']
 
     Class['::auditd::install'] -> Class['::auditd::config::grub']
 
     if $syslog {
       include '::auditd::config::logging'
 
-      Class['::auditd::config::logging'] ~>
-      Class['::auditd::service']
+      Class['::auditd::config::logging']
+      ~> Class['::auditd::service']
     }
   }
   else {
