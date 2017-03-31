@@ -1,3 +1,7 @@
+* Mon Mar 27 2017 Nicholas Hughes <nicholasmhughes@github.com> - 7.0.1-0
+- Audit kernel module tools from /usr/bin as well as /bin and /sbin
+- Correct auditing /var/log/tallylock, it should have been /var/log/tallylog
+
 * Thu Feb 22 2017 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.0.1-0
 - Changed auditd::failure_mode to '1' by default since the compliant audit
   rules were causing routine system restarts. The new value will default to
