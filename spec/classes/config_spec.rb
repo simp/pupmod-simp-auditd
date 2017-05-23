@@ -57,6 +57,14 @@ describe 'auditd::config' do
               :mode   => '0600'
             })
           }
+
+          if facts[:os][:release][:major] == '6'
+            it { is_expected.to contain_augeas('auditd/USE_AUGENRULES').with_changes(
+              ['set /files/etc/sysconfig/auditd/USE_AUGENRULES yes'])
+            }
+          else
+            it { is_expected.to_not contain_augeas('auditd/USE_AUGENRULES') }
+          end
         end
       end
     end
