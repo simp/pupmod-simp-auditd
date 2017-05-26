@@ -25,7 +25,7 @@ describe 'auditd::config' do
             is_expected.to contain_file('/etc/audit/audit.rules').with({
               :owner => 'root',
               :group => 'root',
-              :mode  => '0600'
+              :mode  => 'o-rwx'
             })
           }
 

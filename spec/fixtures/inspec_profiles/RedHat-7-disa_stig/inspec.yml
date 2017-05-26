@@ -1,0 +1,17 @@
+name: EL7 auditd STIG
+title: Auditd STIG for EL 7
+supports:
+  - os-family: redhat
+maintainer: Trevor Vaughan
+copyright: Onyx Point, Inc.
+copyright_email: tvaughan@onyxpoint.com
+license: Apache-2.0
+summary: |
+  A collection of InSpec tests for the auditd subsystem.
+version: 0.0.1
+depends:
+  - name: disa_stig-rhel7-baseline
+    path: ../../inspec_deps/inspec_profiles/profiles/disa_stig-rhel7-baseline
+  # This can be activated after https://github.com/chef/inspec/pull/2121 gets fixed
+  #- name: simp_stig-rhel7
+  #  path: ../../inspec_deps/inspec_profiles/profiles/simp_stig-rhel7
