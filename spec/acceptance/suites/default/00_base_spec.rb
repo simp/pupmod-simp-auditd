@@ -9,7 +9,6 @@ describe 'auditd class' do
       'pki::cacerts_sources'    => ['file:///etc/pki/simp-testing/pki/cacerts'] ,
       'pki::private_key_source' => "file:///etc/pki/simp-testing/pki/private/%{fqdn}.pem",
       'pki::public_key_source'  => "file:///etc/pki/simp-testing/pki/public/%{fqdn}.pub",
-      'simp_options::syslog'    => true
     }
   }
 
@@ -77,9 +76,8 @@ describe 'auditd class' do
           # log rotate so any audit messages present before the apply turned off
           # audit record logging are no longer in /var/log/secure
           on(host, 'logrotate --force /etc/logrotate.d/syslog')
-          # cause an auditable events
-          on(host,'puppet resource service crond ensure=stopped')
-          on(host,'puppet resource service crond ensure=running')
+          # cause an auditable event
+          on(host,'useradd thing1')
           on(host, %(grep -qe 'audispd:.*msg=audit' /var/log/secure), :acceptable_exit_codes => [1,2])
         end
 
@@ -98,10 +96,27 @@ describe 'auditd class' do
         end
 
         it 'should send audit logs to syslog' do
-          # cause auditable events
-          on(host,'puppet resource service crond ensure=stopped')
-          on(host,'puppet resource service crond ensure=running')
-          on(host, %(grep -qe 'audispd:.*msg=audit' /var/log/secure))
+          # spot check that audit.rules has been generated with SIMP rules
+          on(host, %(grep -qe '^-c$' /etc/audit/audit.rules))
+          on(host, %q(grep -qe '\-a exit,never \-F auid=-1' /etc/audit/audit.rules))
+          on(host, %q(grep -qe '\-a always,exit \-F perm=a \-F exit=-EACCES \-k access' /etc/audit/audit.rules))
+          on(host, %q(grep -qe '\-w /var/log/audit/audit.log -p wa \-k audit-logs' /etc/audit/audit.rules))
+          on(host, %q(grep -qe '\-w /var/log/audit/audit.log.5 \-p rwa \-k audit-logs' /etc/audit/audit.rules))
+
+          # spot check that loaded audit rules contain SIMP rules
+          # NOTE:  Loaded rules are normalized as follows:
+          #   - Implicit '-S all' is included in '-a' rules without a '-S' option
+          #   - '-a' arguments are reordered to have action,list instead of list,action.
+          #   - '-k keyname' arguments are expanded to '-F key=keyname' for '-a' rules
+          result = on(host, "auditctl -l")
+          expect(result.output).to include('-a never,exit -S all -F auid=-1')
+          expect(result.output).to include('-a always,exit -S all -F perm=a -F exit=-EACCES -F key=access')
+          expect(result.output).to include('-w /var/log/audit/audit.log -p wa -k audit-logs')
+          expect(result.output).to include('-w /var/log/audit/audit.log.5 -p rwa -k audit-logs')
+
+          # cause an auditable event
+          on(host,'useradd thing2')
+          on(host, %(grep -qe 'audispd:.*type=SYSCALL msg=audit.*comm="useradd.*key="audit_account_changes"' /var/log/secure))
         end
       end
 

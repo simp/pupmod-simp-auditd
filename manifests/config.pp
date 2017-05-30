@@ -107,4 +107,15 @@ class auditd::config (
     group => 'root',
     mode  => '0600'
   }
+
+  if ($facts['os']['release']['major'] < '7') {
+    # make sure audit.rules is regenerated every time the
+    # service is started
+    augeas { 'auditd/USE_AUGENRULES':
+      changes => [
+        "set /files/etc/sysconfig/auditd/USE_AUGENRULES yes",
+      ],
+    }
+  }
+
 }
