@@ -1,6 +1,7 @@
 * Mon May 22 2017 Liz Nemsick <lnemsick.simp@gmail.com> - 7.0.2-0
 - Fix bug whereby audit.rules file was not being regenerated prior
   to auditd service start in CentOS/RedHat 6.
+- Update puppet version in metadata.json
 
 * Mon Mar 27 2017 Nicholas Hughes <nicholasmhughes@github.com> - 7.0.1-0
 - Audit kernel module tools from /usr/bin as well as /bin and /sbin
