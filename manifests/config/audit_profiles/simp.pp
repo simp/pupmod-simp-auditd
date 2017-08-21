@@ -153,10 +153,14 @@ class auditd::config::audit_profiles::simp (
   String                              $audit_cfg_xinetd_tag                   = 'CFG_xinetd',
   Boolean                             $audit_yum                              = true,
   String                              $audit_yum_tag                          = 'yum-config',
+  Boolean                             $audit_yum_cmd                          = false,
+  String                              $audit_yum_cmd_tag                      = 'package_changes',
+  Boolean                             $audit_rpm_cmd                          = false,
+  String                              $audit_rpm_cmd_tag                      = 'package_changes',
   Boolean                             $audit_ptrace                           = true,
   String                              $audit_ptrace_tag                       = 'paranoid',
   Boolean                             $audit_personality                      = true,
-  String                              $audit_personality_tag                  = 'paranoid'
+  String                              $audit_personality_tag                  = 'paranoid',
 ) inherits ::auditd {
 
   $_profile_template_path = "${module_name}/rule_profiles/simp"

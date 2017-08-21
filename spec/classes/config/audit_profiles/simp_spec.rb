@@ -25,6 +25,7 @@ describe 'auditd::config::audit_profiles::simp' do
 
         context "without any parameters" do
           let(:params) {{ }}
+
           it { is_expected.to contain_auditd__rule('init.d_auditd') }
           it {
             is_expected.to contain_auditd__rule('rotated_audit_logs').with_content(
@@ -109,6 +110,19 @@ describe 'auditd::config::audit_profiles::simp' do
           it{
             is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
               %r(^-a always,exit -F arch=b\d\d( -S \w*chmod\w*?)+ -k chmod$)
+            )
+          }
+
+          # Package command auditing is disabled by default
+          it{
+            is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
+              %r(^-w /(usr/)?bin/rpm -p x)
+            )
+          }
+
+          it{
+            is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
+              %r(^-w /(usr/)?bin/yum -p x)
             )
           }
         end
@@ -229,6 +243,25 @@ describe 'auditd::config::audit_profiles::simp' do
           it{
             is_expected.to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
               %r(^-a always,exit -F arch=b\d\d( -S \w*attr\w*?)+ -k fhqwhgads$)
+            )
+          }
+        end
+
+        context "auditing package installation commands" do
+          let(:params) {{
+            :audit_yum_cmd => true,
+            :audit_rpm_cmd => true
+          }}
+
+          it{
+            is_expected.to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
+              %r(^-w /(usr/)?bin/rpm -p x)
+            )
+          }
+
+          it{
+            is_expected.to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
+              %r(^-w /(usr/)?bin/yum -p x)
             )
           }
         end
