@@ -1,17 +1,4 @@
-# Configure the audit daemon for use.
-#
-# This module is a component of the System Integrity Management Platform, a
-# a managed security compliance framework built on Puppet.
-#
-# This module is optimally designed for use within a larger SIMP ecosystem, but
-# it can be used independently:
-#
-# * When included within the SIMP ecosystem,
-#   security compliance settings will be managed from the Puppet server.
-#
-# * If used independently, all SIMP-managed security subsystems are disabled by
-#   default, and must be explicitly opted into by administrators.  Please review
-#   the simp_options parameters.
+# Configure the audit daemon for use with a specified audit profile
 #
 # Any variable that is not described here can be found in auditd.conf(5) and
 # auditctl(8).

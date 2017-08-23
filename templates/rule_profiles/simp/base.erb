@@ -264,6 +264,14 @@
 -w /etc/yum.conf -p wa -k <%= @audit_yum_tag %>
 -w /etc/yum.repos.d -p wa -k <%= @audit_yum_tag %>
 <% end -%>
+<% if @audit_yum_cmd -%>
+-w /bin/yum -p x -k <%= @audit_yum_cmd_tag %>
+-w /usr/bin/yum -p x -k <%= @audit_yum_cmd_tag %>
+<% end -%>
+<% if @audit_rpm_cmd -%>
+-w /bin/rpm -p x -k <%= @audit_rpm_cmd_tag %>
+-w /usr/bin/rpm -p x -k <%= @audit_rpm_cmd_tag %>
+<% end -%>
 <% if @audit_ptrace -%>
 <%   if @hardwaremodel.eql?("x86_64") -%>
 -a always,exit -F arch=b32 -S ptrace -k <%= @audit_ptrace_tag %>

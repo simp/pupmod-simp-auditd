@@ -1,3 +1,6 @@
+* Mon Aug 21 2017 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.1.0-0
+- Added the ability to log calls to the 'rpm' and 'yum' commands
+
 * Mon May 22 2017 Liz Nemsick <lnemsick.simp@gmail.com> - 7.0.2-0
 - Fix bug whereby audit.rules file was not being regenerated prior
   to auditd service start in CentOS/RedHat 6.
