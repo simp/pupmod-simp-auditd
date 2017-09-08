@@ -1,4 +1,8 @@
-[![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html) [![Build Status](https://travis-ci.org/simp/pupmod-simp-auditd.svg)](https://travis-ci.org/simp/pupmod-simp-dummy) [![SIMP compatibility](https://img.shields.io/badge/SIMP%20compatibility-4.2.*%2F5.1.*-orange.svg)](https://img.shields.io/badge/SIMP%20compatibility-4.2.*%2F5.1.*-orange.svg)
+[![License](https://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/73/badge)](https://bestpractices.coreinfrastructure.org/projects/73)
+[![Puppet Forge](https://img.shields.io/puppetforge/v/simp/auditd.svg)](https://forge.puppetlabs.com/simp/auditd)
+[![Puppet Forge Downloads](https://img.shields.io/puppetforge/dt/simp/auditd.svg)](https://forge.puppetlabs.com/simp/auditd)
+[![Build Status](https://travis-ci.org/simp/pupmod-simp-auditd.svg)](https://travis-ci.org/simp/pupmod-simp-auditd)
 
 #### Table of Contents
 
@@ -19,23 +23,33 @@
 This module manages the Audit daemon, kernel parameters, and related subsystems.
 
 ## This is a SIMP module
-This module is a component of the [System Integrity Management Platform](https://github.com/NationalSecurityAgency/SIMP), a compliance management framework built on Puppet.
+This module is a component of the [System Integrity Management
+Platform](https://github.com/NationalSecurityAgency/SIMP), a compliance
+management framework built on Puppet.
 
 If you find any issues, they can be submitted to our [JIRA](https://simp-project.atlassian.net/).
 
-Please read our [Contribution Guide](https://simp-project.atlassian.net/wiki/display/SD/Contributing+to+SIMP) and visit our [developer wiki](https://simp-project.atlassian.net/wiki/display/SD/SIMP+Development+Home).
+Please read our [Contribution Guide](https://simp-project.atlassian.net/wiki/display/SD/Contributing+to+SIMP)
+and visit our [developer wiki](https://simp-project.atlassian.net/wiki/display/SD/SIMP+Development+Home).
 
 This module is optimally designed for use within a larger SIMP ecosystem, but it can be used independently:
-* When included within the SIMP ecosystem, security compliance settings will be managed from the Puppet server.
-* In the future, all SIMP-managed security subsystems will be disabled by default and must be explicitly opted into by administrators.  Please review simp_options for details.
+* When included within the SIMP ecosystem, security compliance settings will be
+  managed from the Puppet server.
+* In the future, all SIMP-managed security subsystems will be disabled by
+  default and must be explicitly opted into by administrators.  Please review
+  ``simp_options`` for details.
 
 ## Module Description
 
-You can use this module for the management of all components of auditd including configuration, service management, kernel parameters, and custom rule sets.
+You can use this module for the management of all components of auditd
+including configuration, service management, kernel parameters, and custom rule
+sets.
 
-By default, a rule set is provided that should meet a reasonable set of operational goals for most environments.
+By default, a rule set is provided that should meet a reasonable set of
+operational goals for most environments.
 
-The `audit` kernel parameter may optionally be managed independently of the rest of the module using the `::auditd::config::grub` class.
+The `audit` kernel parameter may optionally be managed independently of the
+rest of the module using the `::auditd::config::grub` class.
 
 ## Setup
 

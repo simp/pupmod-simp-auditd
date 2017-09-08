@@ -11,7 +11,8 @@ group :test do
   gem 'rspec'
   gem 'rspec-puppet'
   gem 'hiera-puppet-helper'
-  gem 'puppetlabs_spec_helper'
+  # For the target in .fixtures.yml
+  gem 'puppetlabs_spec_helper', :git => 'https://github.com/puppetlabs/puppetlabs_spec_helper', :ref => 'b049630ac2cfbab96702701e4997ec51c23cf9c0'
   gem 'metadata-json-lint'
   gem 'puppet-strings'
   gem 'puppet-lint-empty_string-check',   :require => false
@@ -35,7 +36,6 @@ group :development do
 end
 
 group :system_tests do
-  gem 'beaker'
   gem 'beaker-rspec'
   gem 'simp-beaker-helpers', ENV.fetch('SIMP_BEAKER_HELPERS_VERSION', '~> 1.7')
 end

@@ -85,7 +85,7 @@ class auditd::config (
   file { '/etc/audit/audit.rules':
     owner => 'root',
     group => 'root',
-    mode  => '0600'
+    mode  => 'o-rwx'
   }
 
   file { '/etc/audit/auditd.conf':
