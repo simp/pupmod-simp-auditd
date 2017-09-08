@@ -65,6 +65,10 @@ compliance_markup::enforcement:
         apply_manifest_on(host, manifest, :catch_failures => true)
       end
 
+      it 'should reboot to fully apply' do
+        host.reboot
+      end
+
       it 'should be idempotent' do
         apply_manifest_on(host, manifest, :catch_changes => true)
       end
