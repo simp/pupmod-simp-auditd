@@ -41,6 +41,7 @@ jobs:
       rvm: 2.1.9
       env: PUPPET_VERSION="~> 4.8.2" STRICT_VARIABLES=yes TRUSTED_NODE_DATA=yes
       script:
+        - bundle exec rake compare_latest_tag
         - bundle exec rake test
       before_deploy:
         - 'bundle exec rake metadata_lint'
