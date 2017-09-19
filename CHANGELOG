@@ -1,3 +1,6 @@
+* Thu Aug 31 2017 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.1.1-0
+- Adjust audit.rules mode per inspec testing
+
 * Mon Aug 21 2017 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.1.0-0
 - Updated to use augeasproviders_grub 3
 - Added the ability to log calls to the 'rpm' and 'yum' commands
