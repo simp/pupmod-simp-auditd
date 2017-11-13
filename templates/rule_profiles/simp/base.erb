@@ -171,7 +171,7 @@
 # CCE-26691-6
 -w /var/log/faillog -p wa -k <%= @audit_login_files_tag %>
 -w /var/log/lastlog -p wa -k <%= @audit_login_files_tag %>
--w /var/log/faillock -p wa -k <%= @audit_login_files_tag %>
+-w /var/run/faillock -p wa -k <%= @audit_login_files_tag %>
 <% end -%>
 
 <% if @audit_session_files -%>
