@@ -1,15 +1,9 @@
 ---
 fixtures:
   repositories:
-    compliance_markup:
-      repo: https://github.com/simp/pupmod-simp-compliance_markup
-      branch: master
-    augeasproviders_core:
-      repo: https://github.com/simp/augeasproviders_core
-      branch: simp-master
-    augeasproviders_grub:
-      repo: https://github.com/simp/augeasproviders_grub
-      branch: simp-master
+    compliance_markup: https://github.com/simp/pupmod-simp-compliance_markup
+    augeasproviders_core: https://github.com/simp/augeasproviders_core
+    augeasproviders_grub: https://github.com/simp/augeasproviders_grub
     concat: https://github.com/simp/puppetlabs-concat
     logrotate: https://github.com/simp/pupmod-simp-logrotate
     pki: https://github.com/simp/pupmod-simp-pki
@@ -23,6 +17,3 @@ fixtures:
       repo: https://github.com/simp/inspec_profiles
       branch: master
       target: spec/fixtures/inspec_deps
-
-  symlinks:
-    auditd: "#{source_dir}"
