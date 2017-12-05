@@ -2,7 +2,8 @@
 - Removed unnecessary dependencies from metadata.json.  Now, when users install
   auditd stand-alone i.e. `puppet module install`, they will not have
   extraneous modules clutter their environment.
-- Removed unutilized modules from fixtures for better modular testing
+  - herculesteam/augeasproviders_grub
+  - simp/rsyslog
 
 * Fri Sep 07 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 8.1.0-0
 - Update Hiera 4 to Hiera 5
