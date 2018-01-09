@@ -10,8 +10,8 @@ summary: |
   A collection of InSpec tests for the auditd subsystem.
 version: 0.0.1
 depends:
-  - name: disa_stig-rhel7-baseline
-    path: ../../inspec_deps/inspec_profiles/profiles/disa_stig-rhel7-baseline
+  - name: disa_stig-el7-baseline
+    path: ../../inspec_deps/inspec_profiles/profiles/disa_stig-el7-baseline
   # This can be activated after https://github.com/chef/inspec/pull/2121 gets fixed
   #- name: simp_stig-rhel7
   #  path: ../../inspec_deps/inspec_profiles/profiles/simp_stig-rhel7

@@ -1,6 +1,6 @@
 overrides = []
 
-require_controls 'disa_stig-rhel7-baseline' do
+require_controls 'disa_stig-el7-baseline' do
   # SIMP uses Rsyslog for log offloading
   # Need to create a profile and tests
   control 'V-72087' do

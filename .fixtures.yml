@@ -13,7 +13,7 @@ fixtures:
     stdlib: https://github.com/simp/puppetlabs-stdlib
     # For InSpec Testing
     # Requires a currently unreleased version of puppetlabs_spec_helper
-    inspec_profiles:
-      repo: https://github.com/simp/inspec_profiles
+    disa_stig-el7-baseline:
+      repo: https://github.com/simp/inspec-profile-disa_stig-el7
       branch: master
-      target: spec/fixtures/inspec_deps
+      target: spec/fixtures/inspec_deps/inspec_profiles/profiles
