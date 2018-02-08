@@ -113,7 +113,7 @@ class auditd::config (
     # service is started
     augeas { 'auditd/USE_AUGENRULES':
       changes => [
-        "set /files/etc/sysconfig/auditd/USE_AUGENRULES yes",
+        'set /files/etc/sysconfig/auditd/USE_AUGENRULES yes',
       ],
     }
   }
