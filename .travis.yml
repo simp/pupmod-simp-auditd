@@ -8,56 +8,73 @@
 # PE 2017.2   4.10  2.1.9  TBD
 ---
 language: ruby
-sudo: false
 cache: bundler
+sudo: false
 
 bundler_args: --without development system_tests --path .vendor
 
 notifications:
   email: false
 
+addons:
+  apt:
+    packages:
+      - rpm
+
 before_install:
   - rm -f Gemfile.lock
 
 jobs:
-  fast_finish: true
   allow_failures:
-    - env: PUPPET_VERSION="~> 5.0" STRICT_VARIABLES=yes TRUSTED_NODE_DATA=yes
+    - env: STRICT_VARIABLES=yes TRUSTED_NODE_DATA=yes PUPPET_VERSION="~> 5.0"
 
   include:
-    - stage: test
-      rvm: 2.1.9
-      env: PUPPET_VERSION="~> 4.10.0" STRICT_VARIABLES=yes TRUSTED_NODE_DATA=yes
+    - stage: check
+      rvm: 2.4.1
+      env: STRICT_VARIABLES=yes TRUSTED_NODE_DATA=yes PUPPET_VERSION="~> 5"
       script:
-        - bundle exec rake test
+        - bundle exec rake check:dot_underscore
+        - bundle exec rake check:test_file
+        - bundle exec rake pkg:check_version
+        - bundle exec rake metadata_lint
+        - bundle exec rake pkg:compare_latest_tag
+        - bundle exec rake pkg:create_tag_changelog
+        - bundle exec rake lint
+        - bundle exec puppet module build
 
-    - stage: test
-      rvm: 2.1.9
-      env: PUPPET_VERSION="~> 4.7.0" STRICT_VARIABLES=yes TRUSTED_NODE_DATA=yes
+    - stage: spec
+      rvm: 2.4.1
+      env: STRICT_VARIABLES=yes TRUSTED_NODE_DATA=yes PUPPET_VERSION="~> 5.0"
       script:
-        - bundle exec rake test
+        - bundle exec rake spec
 
-    - stage: test
+    - stage: spec
       rvm: 2.1.9
-      env: PUPPET_VERSION="~> 4.8.2" STRICT_VARIABLES=yes TRUSTED_NODE_DATA=yes
+      env: STRICT_VARIABLES=yes TRUSTED_NODE_DATA=yes PUPPET_VERSION="~> 4.10.0"
       script:
-        - bundle exec rake compare_latest_tag
-        - bundle exec rake test
+        - bundle exec rake spec
+
+    - stage: spec
+      rvm: 2.1.9
+      env: STRICT_VARIABLES=yes TRUSTED_NODE_DATA=yes PUPPET_VERSION="~> 4.9.2"
+      script:
+        - bundle exec rake spec
+
+    - stage: spec
+      rvm: 2.1.9
+      env: STRICT_VARIABLES=yes TRUSTED_NODE_DATA=yes PUPPET_VERSION="~> 4.7.0"
+      script:
+        - bundle exec rake spec
+
+    - stage: deploy
+      rvm: 2.4.1
+      script:
+        - true
       before_deploy:
-        - 'bundle exec rake metadata_lint'
-        - 'bundle exec rake clobber'
-        - 'bundle exec rake spec_clean'
         - "export PUPMOD_METADATA_VERSION=`ruby -r json -e \"puts JSON.parse(File.read('metadata.json')).fetch('version')\"`"
         - '[[ $TRAVIS_TAG =~ ^simp-${PUPMOD_METADATA_VERSION}$|^${PUPMOD_METADATA_VERSION}$ ]]'
+
       deploy:
-        - provider: puppetforge
-          user: simp
-          password:
-              secure: "C3OPqmBFwv7sz0jJLctYM1hVZuAmTBa9+K9v8pdWf24csOcSKrQ76D/OgAHEhQZltTTvKqswThoVltBsTLd7xZ5CLWuv2L227unU3hgbfKTsP+xOmZi0OGIw6wO/b22zxbLBiw6OgY2WFIXemLPFffLHTf99pCW1FK8+cdwoz/NknrQApiSKbzWw7iIBhgIE2efF4/mbLofGITKvCA2aMTU0dZm16l7o8U5zvOjKJ++FkOaCVKBGJX+2YwKj/g7KNO4h6CitfjJHgW45SJWSPJVwY5kGWzAXMNHIUlkH1LKt3mqIbZeuCQJjoYzUO0Z3x8DKFMrzsHFyA7uffHxy5kWOn5HdAmtAPdy3BS6SU+0XL3gWutQHPUDp12+jtccOFWlDUvn20kaIj4B6CP4SoXNCFMVfZqoeAr23TZMJHlzHVcQpHEKi2T9hw7ZBVMOq/jJl9Wll9FVz3xO7aaCpH6yAJXCVCujdoL0jfEchsa7kyObMku/sMDDXIkj2K1jUXTa71m2TS+dOXoAeBmMSnzszUq8+yP4Fss8Qwqc87ymg6mVs5HI3E/JHy1Z3QsLRuJfU3ZqU7YiH7PYUiBKCVSQhxLSd9S6HElgcnEMNWYKrGVX9q9P4fiaLpm/sRZqDO20vLQ22DeZUcnzWR7EWh+95YFHF3gybKvvChfWjA5w="
-          on:
-            tags: true
-            rvm: 2.1.9
-            condition: '($SKIP_FORGE_PUBLISH != true)'
         - provider: releases
           api_key:
               secure: "W6tT4dtCZl6eqtno0hLC3BBEmZacd3Aj/wMsmI1pOka20/ju7HIHOEcCDY9UMG2gwdORhwOK5rkG87yoFb2hGDvGF6syN0YSjWAqHvEzbB4xbznZwIrby3CumPEeUcK9zx1mEwcEwLJH3dsyrfcTQVfN+4WFlJxb0PYMjzCGwhDaG5YIS1a1WyEjKzdnO+Yt3R+/laBq4U5FoEYjYGEgPf62W9Mh2G056fZkTfiIeSp5We56NByXmM46k0QN1LTnjRhMeAoS9Qg2XaDyefcpLn6fSzVoXgowU/O4Z23ONdBtX5a0zIPNKDm8Wh7o0IUYgx1bVIUlsKY7GyDwsOAKJhklocgCZyi6LwhKKJb7oS9bAEeZSS3wEAp5flBvI2lT5yHvg2zqEvVEI2vw0BMj1soN+r7Oba3+1cdnJtlQrBCrn5xBawMnlFHxX/gQho7zmju/65uzM7lwCN0grb4unpy+iS7XKXjkJC3PRRJJCnE0Hwj9ALPbyPKF+mVH20I/qAaGopUeriwjyHJeG2QRoD2FPgaZRZKRQ+YkNdRjdWnECUvcHSwTkFI9CXdyAjb34/sCdjP9aYfyzcrBWEG3FickO+i3GVfc0lJ5J9oyHDUPkbPkB0qSFeBa92V/XMHcz7ismJSYNbVVs5sxdEbs2xgAMAyUYEb9zE/fYx15xq0="
@@ -65,3 +82,7 @@ jobs:
           on:
             tags: true
             condition: '($SKIP_FORGE_PUBLISH != true)'
+        - provider: puppetforge
+          user: simp
+          password:
+              secure: "C3OPqmBFwv7sz0jJLctYM1hVZuAmTBa9+K9v8pdWf24csOcSKrQ76D/OgAHEhQZltTTvKqswThoVltBsTLd7xZ5CLWuv2L227unU3hgbfKTsP+xOmZi0OGIw6wO/b22zxbLBiw6OgY2WFIXemLPFffLHTf99pCW1FK8+cdwoz/NknrQApiSKbzWw7iIBhgIE2efF4/mbLofGITKvCA2aMTU0dZm16l7o8U5zvOjKJ++FkOaCVKBGJX+2YwKj/g7KNO4h6CitfjJHgW45SJWSPJVwY5kGWzAXMNHIUlkH1LKt3mqIbZeuCQJjoYzUO0Z3x8DKFMrzsHFyA7uffHxy5kWOn5HdAmtAPdy3BS6SU+0XL3gWutQHPUDp12+jtccOFWlDUvn20kaIj4B6CP4SoXNCFMVfZqoeAr23TZMJHlzHVcQpHEKi2T9hw7ZBVMOq/jJl9Wll9FVz3xO7aaCpH6yAJXCVCujdoL0jfEchsa7kyObMku/sMDDXIkj2K1jUXTa71m2TS+dOXoAeBmMSnzszUq8+yP4Fss8Qwqc87ymg6mVs5HI3E/JHy1Z3QsLRuJfU3ZqU7YiH7PYUiBKCVSQhxLSd9S6HElgcnEMNWYKrGVX9q9P4fiaLpm/sRZqDO20vLQ22DeZUcnzWR7EWh+95YFHF3gybKvvChfWjA5w="
