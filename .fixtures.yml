@@ -4,7 +4,9 @@ fixtures:
     compliance_markup: https://github.com/simp/pupmod-simp-compliance_markup
     augeasproviders_core: https://github.com/simp/augeasproviders_core
     augeasproviders_grub: https://github.com/simp/augeasproviders_grub
-    concat: https://github.com/simp/puppetlabs-concat
+    concat:
+      repo: https://github.com/simp/puppetlabs-concat
+      ref: 3.0.0
     logrotate: https://github.com/simp/pupmod-simp-logrotate
     pki: https://github.com/simp/pupmod-simp-pki
     rsyslog: https://github.com/simp/pupmod-simp-rsyslog
