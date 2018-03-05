@@ -1,22 +1,29 @@
-# This class is meant to be called from auditd.
-# It ensure the service is running.
+# NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
 #
-class auditd::service {
+# Ensure that the service is running
+#
+# @param ensure
+#   ``ensure`` state from the service resource
+#
+# @param enable
+#   ``enable`` state from the service resource
+#
+class auditd::service (
+  $ensure = 'running',
+  $enable = true
+){
   assert_private()
 
   case $facts['os']['name'] {
-    'RedHat','CentOS' : {
+    'RedHat','CentOS','OracleLinux' : {
       # CCE-27058-7
       service { $::auditd::service_name:
-        ensure     => 'running',
-        enable     => true,
+        ensure     => $ensure,
+        enable     => $enable,
         hasrestart => true,
         hasstatus  => true,
         provider   => 'redhat'
       }
-    }
-    default : {
-      fail("Error: ${facts['os']['name']} is not yet supported by module '${module_name}'")
     }
   }
 }

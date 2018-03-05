@@ -1,5 +1,5 @@
 # This define allows you to add rules to the auditd.rules file.  These rules
-# should be uniquely named.  See auditctl(8) for more information on how to
+# should be uniquely named.  See ``auditctl(8)`` for more information on how to
 # write the content for these rules.
 #
 # @param name

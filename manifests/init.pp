@@ -69,7 +69,7 @@ class auditd (
   Auditd::MaxLogFileAction            $max_log_file_action     = 'ROTATE',# CCE-27237-7
   Integer[0]                          $space_left              = 75,
   Auditd::SpaceLeftAction             $space_left_action       = 'SYSLOG', # CCE-27238-5 : No guarantee of e-mail server so sending to syslog.
-  String                              $action_mail_acct        = 'root',# CCE-27241-9
+  String[1]                           $action_mail_acct        = 'root',# CCE-27241-9
   Integer[0]                          $admin_space_left        = 50,
   Auditd::SpaceLeftAction             $admin_space_left_action = 'SUSPEND', # CCE-27239-3 : No guarantee of e-mail server so sending to syslog.
   Auditd::DiskFullAction              $disk_full_action        = 'SUSPEND',
@@ -83,13 +83,13 @@ class auditd (
   Boolean                             $at_boot                 = true, # CCE-26785-6
   Boolean                             $syslog                  = simplib::lookup('simp_options::syslog', {'default_value' => false }),  # CCE-26933-2
   Variant[Enum['simp'],Boolean]       $default_audit_profile   = 'simp',
-  String                              $service_name            = $::auditd::params::service_name,
-  String                              $package_name            = $::auditd::params::package_name,
-  String                              $package_ensure          = 'latest',
+  String[1]                           $service_name            = 'auditd',
+  String[1]                           $package_name            = 'audit',
+  Simplib::PackageEnsure              $package_ensure          = 'latest',
   Boolean                             $enable                  = true,
-) inherits ::auditd::params {
-
+) {
   if $enable {
+    simplib::assert_metadata($module_name)
 
     # This is done here so that the kernel option can be properly removed if
     # auditing is to be disabled on the system.

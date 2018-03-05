@@ -206,3 +206,37 @@ acceptance-fips-default:
     BEAKER_fips: 'yes'
   script:
     - bundle exec rake beaker:suites[default]
+
+acceptance-puppet5-default:
+  stage: acceptance
+  tags:
+    - beaker
+  <<: *cache_bundler
+  <<: *setup_bundler_env
+  variables:
+    PUPPET_VERSION: '5.4'
+  script:
+    - bundle exec rake beaker:suites[default]
+
+acceptance-fips-puppet5-default:
+  stage: acceptance
+  tags:
+    - beaker
+  <<: *cache_bundler
+  <<: *setup_bundler_env
+  variables:
+    PUPPET_VERSION: '5.4'
+    BEAKER_fips: 'yes'
+  script:
+    - bundle exec rake beaker:suites[default]
+
+acceptance-oel-puppet5-default:
+  stage: acceptance
+  tags:
+    - beaker
+  <<: *cache_bundler
+  <<: *setup_bundler_env
+  variables:
+    PUPPET_VERSION: '5.4'
+  script:
+    - bundle exec rake beaker:suites[default,oel_p5]

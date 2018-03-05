@@ -1,3 +1,6 @@
+* Mon Mar 05 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.1.4-0
+- Updated to work with Puppet 5 and OEL
+
 * Tue Jan 09 2018 Nick Markowski <nicholas.markowski@onyxpoint.com> - 7.1.3-0
 - Updated compliance suite to use new inspec profile,
   https://github.com/simp/inspec-profile-disa_stig-el7

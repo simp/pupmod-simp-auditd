@@ -5,7 +5,6 @@ describe 'auditd' do
     it { is_expected.to compile.with_all_deps }
     it { is_expected.to create_class('auditd') }
     it { is_expected.to contain_class('auditd') }
-    it { is_expected.to contain_class('auditd::params') }
     it { is_expected.to contain_class('auditd::install').that_comes_before('Class[auditd::config]') }
     it { is_expected.to contain_class('auditd::config') }
     it { is_expected.to contain_class('auditd::service').that_subscribes_to('Class[auditd::config]') }
@@ -68,7 +67,7 @@ describe 'auditd' do
         os_facts
       }
 
-      it { expect { is_expected.to contain_package('auditd') }.to raise_error(Puppet::Error, /Solaris not supported/) }
+      it { expect { is_expected.to contain_package('auditd') }.to raise_error(Puppet::Error, /.*Solaris.* not supported/) }
     end
   end
 end
