@@ -219,10 +219,8 @@ acceptance-puppet5-default:
     - beaker
   <<: *cache_bundler
   <<: *setup_env_beaker
-  variables:
-    PUPPET_VERSION: '5.4'
   script:
-    - bundle exec rake beaker:suites[default]
+    - bundle exec rake beaker:suites[default,puppet5]
 
 acceptance-fips-puppet5-default:
   stage: acceptance
@@ -231,10 +229,9 @@ acceptance-fips-puppet5-default:
   <<: *cache_bundler
   <<: *setup_env_beaker
   variables:
-    PUPPET_VERSION: '5.4'
     BEAKER_fips: 'yes'
   script:
-    - bundle exec rake beaker:suites[default]
+    - bundle exec rake beaker:suites[default,puppet5]
 
 acceptance-oel-puppet5-default:
   stage: acceptance
