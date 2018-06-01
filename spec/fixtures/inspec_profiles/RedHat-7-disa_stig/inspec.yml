@@ -1,17 +1,14 @@
-name: EL7 auditd STIG
-title: Auditd STIG for EL 7
+name: EL7 ssh STIG
+title: SSH STIG for EL 7
 supports:
   - os-family: redhat
-maintainer: Trevor Vaughan
+maintainer: SIMP Team
 copyright: Onyx Point, Inc.
-copyright_email: tvaughan@onyxpoint.com
+copyright_email: simp@onyxpoint.com
 license: Apache-2.0
 summary: |
-  A collection of InSpec tests for the auditd subsystem.
+  A collection of InSpec tests for the ssh subsystem
 version: 0.0.1
 depends:
   - name: disa_stig-el7-baseline
     path: ../../inspec_deps/inspec_profiles/profiles/disa_stig-el7-baseline
-  # This can be activated after https://github.com/chef/inspec/pull/2121 gets fixed
-  #- name: simp_stig-rhel7
-  #  path: ../../inspec_deps/inspec_profiles/profiles/simp_stig-rhel7
