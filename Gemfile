@@ -22,9 +22,6 @@ group :test do
 end
 
 group :development do
-  gem 'travis'
-  gem 'travis-lint'
-  gem 'travish'
   gem 'puppet-blacksmith'
   gem 'guard-rake'
   gem 'pry'
@@ -37,5 +34,5 @@ end
 
 group :system_tests do
   gem 'beaker-rspec'
-  gem 'simp-beaker-helpers', ENV.fetch('SIMP_BEAKER_HELPERS_VERSION', '~> 1.7')
+  gem 'simp-beaker-helpers', ENV.fetch('SIMP_BEAKER_HELPERS_VERSION', ['>= 1.10.7', ' < 2'])
 end

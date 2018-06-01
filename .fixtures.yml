@@ -15,6 +15,9 @@ fixtures:
     simplib: https://github.com/simp/pupmod-simp-simplib
     simp_options: https://github.com/simp/pupmod-simp-simp_options
     stdlib: https://github.com/simp/puppetlabs-stdlib
+    systemd:
+      repo: https://github.com/simp/puppet-systemd
+      branch: simp-master
     # For InSpec Testing
     # Requires a currently unreleased version of puppetlabs_spec_helper
     disa_stig-el7-baseline:
