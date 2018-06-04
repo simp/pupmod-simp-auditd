@@ -166,6 +166,20 @@
 # CCE-26657-7
 -w /etc/selinux/ -p wa -k <%= @audit_selinux_policy_tag %>
 <% end -%>
+<% if @audit_selinux_cmds -%>
+
+# SRG-OS-000392-GPOS-00172
+# SRG-OS-000463-GPOS-00207
+# SRG-OS-000465-GPOS-00209
+-a always,exit -F path=/usr/bin/chcon -F perm=x -k <%= @audit_selinux_cmds_tag %>
+-a always,exit -F path=/usr/sbin/semanage -F perm=x -k <%= @audit_selinux_cmds_tag %>
+-a always,exit -F path=/usr/sbin/setsebool -F perm=x -k <%= @audit_selinux_cmds_tag %>
+<%   if @_os_release_major < '7' -%>
+-a always,exit -F path=/sbin/setfiles -F perm=x -k <%= @audit_selinux_cmds_tag %>
+<%   else -%>
+-a always,exit -F path=/usr/sbin/setfiles -F perm=x -k <%= @audit_selinux_cmds_tag %>
+<%   end -%>
+<% end -%>
 
 <% if @audit_login_files -%>
 # CCE-26691-6

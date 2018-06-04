@@ -121,6 +121,31 @@ describe 'auditd::config::audit_profiles::simp' do
             %r(^-w /(usr/)?bin/yum -p x)
           )
         }
+
+        # Selinux commands auditing is disabled by default
+        it{
+          is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
+            %r(^-a always,exit -F path=/usr/bin/chcon -F perm=x -k privileged-priv_change)
+          )
+        }
+
+        it{
+          is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
+            %r(^-a always,exit -F path=/usr/sbin/semanage -F perm=x -k privileged-priv_change)
+          )
+        }
+
+        it{
+          is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
+            %r(^-a always,exit -F path=/usr/sbin/setsebool -F perm=x -k privileged-priv_change)
+          )
+        }
+
+        it{
+          is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
+            %r(^-a always,exit -F path=/(usr/)?sbin/setfiles -F perm=x -k privileged-priv_change)
+          )
+        }
       end
 
       context "setting the root audit level to aggressive" do
@@ -265,6 +290,34 @@ describe 'auditd::config::audit_profiles::simp' do
         it{
           is_expected.to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
             %r(^-w /(usr/)?bin/yum -p x)
+          )
+        }
+      end
+
+      context 'auditing selinux commands' do
+        let(:params) {{ :audit_selinux_cmds => true }}
+
+        it{
+          is_expected.to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
+            %r(^-a always,exit -F path=/usr/bin/chcon -F perm=x -k privileged-priv_change)
+          )
+        }
+
+        it{
+          is_expected.to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
+            %r(^-a always,exit -F path=/usr/sbin/semanage -F perm=x -k privileged-priv_change)
+          )
+        }
+
+        it{
+          is_expected.to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
+            %r(^-a always,exit -F path=/usr/sbin/setsebool -F perm=x -k privileged-priv_change)
+          )
+        }
+
+        it{
+          is_expected.to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
+            %r(^-a always,exit -F path=/(usr/)?sbin/setfiles -F perm=x -k privileged-priv_change)
           )
         }
       end

@@ -129,6 +129,8 @@ class auditd::config::audit_profiles::simp (
   String                              $audit_local_account_tag                = 'audit_account_changes',
   Boolean                             $audit_selinux_policy                   = true,
   String                              $audit_selinux_policy_tag               = 'MAC-policy',
+  Boolean                             $audit_selinux_cmds                     = false,
+  String                              $audit_selinux_cmds_tag                 = 'privileged-priv_change',
   Boolean                             $audit_login_files                      = true,
   String                              $audit_login_files_tag                  = 'logins',
   Boolean                             $audit_session_files                    = true,
@@ -182,6 +184,8 @@ class auditd::config::audit_profiles::simp (
     content => template("${_profile_template_path}/default_drop.erb")
   }
 
+
+  $_os_release_major = $facts['os']['release']['major']
   file { '/etc/audit/rules.d/50_base.rules':
     content => template("${_profile_template_path}/base.erb")
   }
