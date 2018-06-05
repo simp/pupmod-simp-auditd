@@ -42,6 +42,8 @@
 # @param audit_chown_tag
 # @param audit_chmod
 # @param audit_chmod_tag
+# @param audit_attr
+# @param audit_attr_tag
 # @param audit_su_root_activity
 # @param audit_su_root_activity_tag
 # @param audit_suid_sgid
@@ -84,10 +86,55 @@
 # @param audit_cfg_xinetd_tag
 # @param audit_yum
 # @param audit_yum_tag
+# @param audit_yum_cmd
+# @param audit_yum_cmd_tag
+# @param audit_rpm_cmd
+# @param audit_rpm_cmd_tag
 # @param audit_ptrace
 # @param audit_ptrace_tag
 # @param audit_personality
 # @param audit_personality_tag
+#
+# @param audit_passwd_cmds
+#   Whether to audit the execution of password commands,
+#   i.e., `passwd`, `unix_chkpwd`, `gpasswd`, `chage`,
+#   `userhelper`
+#
+# @param audit_passwd_cmds_tag
+#   Tag to apply to `$audit_passwd_cmds` audit rules
+#
+# @param audit_priv_cmds
+#   Whether to audit the execution of privilege-related
+#   commands, i.e., `su`, `sudo`, `newgrp`, `chsh`,
+#   `sudoedit`
+#
+# @param audit_priv_cmds_tag
+#   Tag to apply to `$audit_priv_cmds` audit rules
+#
+# @param audit_postfix_cmds
+#   Whether to audit the execution of postfix-related commands,
+#   i.e. `postdrop` and `postqueue`
+#
+# @param audit_postfix_cmds_tag
+#   Tag to apply to `$audit_postfix_cmds` audit rules
+#
+# @param audit_ssh_keysign_cmd
+#   Whether to audit the execution of the `ssh-keysign` command
+#
+# @param audit_ssh_keysign_cmd_tag
+#   Tag to apply to `$audit_ssh_keysign_cmd` audit rule
+#
+# @param audit_crontab_cmd
+#   Whether to audit the execution of the `crontab` command
+#
+# @param audit_crontab_cmd_tag
+#   Tag to apply to `$audit_crontab_cmd` audit rule
+#
+# @param audit_pam_timestamp_check_cmd
+#   Whether to audit the execution of the `pam_timestamp_check` command
+#
+# @param audit_pam_timestamp_check_cmd_tag
+#   Tag to apply to `$audit_pam_timestamp_check_cmd` audit rule
 #
 class auditd::config::audit_profiles::simp (
   Stdlib::Absolutepath                $log_file                               = $::auditd::log_file,
@@ -161,6 +208,18 @@ class auditd::config::audit_profiles::simp (
   String                              $audit_ptrace_tag                       = 'paranoid',
   Boolean                             $audit_personality                      = true,
   String                              $audit_personality_tag                  = 'paranoid',
+  Boolean                             $audit_passwd_cmds                      = true,
+  String                              $audit_passwd_cmds_tag                  = 'privileged-passwd',
+  Boolean                             $audit_priv_cmds                        = true,
+  String                              $audit_priv_cmds_tag                    = 'privileged-priv_change',
+  Boolean                             $audit_postfix_cmds                     = true,
+  String                              $audit_postfix_cmds_tag                 = 'privileged-postfix',
+  Boolean                             $audit_ssh_keysign_cmd                  = true,
+  String                              $audit_ssh_keysign_cmd_tag              = 'privileged-ssh',
+  Boolean                             $audit_crontab_cmd                      = true,
+  String                              $audit_crontab_cmd_tag                  = 'privileged-cron',
+  Boolean                             $audit_pam_timestamp_check_cmd          = true,
+  String                              $audit_pam_timestamp_check_cmd_tag      = 'privileged-pam',
 ) inherits ::auditd {
 
   $_profile_template_path = "${module_name}/rule_profiles/simp"
@@ -182,6 +241,7 @@ class auditd::config::audit_profiles::simp (
     content => template("${_profile_template_path}/default_drop.erb")
   }
 
+  $_os_release_major = $facts['os']['release']['major']
   file { '/etc/audit/rules.d/50_base.rules':
     content => template("${_profile_template_path}/base.erb")
   }
