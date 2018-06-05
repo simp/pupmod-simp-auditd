@@ -60,6 +60,14 @@
 # @param audit_local_account_tag
 # @param audit_selinux_policy
 # @param audit_selinux_policy_tag
+#
+# @param audit_selinux_cmds
+#   Whether to add audit rules for `chcon`, `semanage`, `setsebool`,
+#   and `setfiles` commands
+#
+# @param audit_selinux_cmds_tag
+#   Tag to apply to `$audit_selinux_cmds` audit rules
+#
 # @param audit_login_files
 # @param audit_login_files_tag
 # @param audit_session_files
