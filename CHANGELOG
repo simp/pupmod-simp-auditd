@@ -3,6 +3,10 @@
   commands, (i.e., chcon, semanage, setfiles, setsebool), when
   using the 'simp' audit profile.
 
+* Fri Jun 01 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 7.2.0-0
+- Update 'simp' audit profile settings for DISA STIG.
+  - Expanded the list of successful syscall operations audited.
+
 * Mon Mar 26 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 7.1.3-0
 - Work around RPM upgrade issue with nodeset link in compliance
   acceptance test suite.

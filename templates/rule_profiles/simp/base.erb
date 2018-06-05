@@ -74,14 +74,45 @@
 # things like cron as well.
 <%
     # Set up the rule sets
+    _basic_syscalls = [
+       'capset',
+       'mknod',
+       'pivot_root',
+       'quotactl',
+       'setsid',
+       'settimeofday',
+       'setuid',
+       'swapoff',
+       'swapon'
+    ]
 
-    _su_rules = "-S capset -S mknod -S pivot_root -S quotactl -S setsid -S settimeofday -S setuid -S swapoff -S swapon"
+    _aggressive_syscalls = [
+      'execv',
+      'rename',
+      'renameat',
+      'rmdir',
+      'unlink',
+      'unlinkat'
+    ]
 
-    if @root_audit_level =~ /agg.*/
-      _su_rules = "-S execve #{_su_rules}"
+    _insane_syscalls = [
+      'write',
+      'chown',
+      'creat',
+      'fork',
+      'vfork',
+      'link',
+      'mkdir',
+      'rmdir'
+    ]
+
+    _su_rules = "-S #{_basic_syscalls.join(' -S ')}"
+
+    if @root_audit_level =~ /^agg.*/
+      _su_rules += " -S #{_aggressive_syscalls.join(' -S ')}"
     end
-    if @root_audit_level =~ /in.*/
-      _su_rules = "-S write -S chown -S creat -S execve -S fork -S vfork -S link -S mkdir -S rmdir #{_su_rules}"
+    if @root_audit_level =~ /^in.*/
+      _su_rules += " -S #{(_aggressive_syscalls + _insane_syscalls).join(' -S ')}"
     end
 -%>
 

@@ -19,9 +19,33 @@ describe 'auditd::config::audit_profiles::simp' do
         ]
       end
 
+      let(:aggressive_audit_syscalls) do
+        base_audit_syscalls + [
+          'execv',
+          'rename',
+          'renameat',
+          'rmdir',
+          'unlink',
+          'unlinkat'
+        ]
+      end
+
+      let(:insane_audit_syscalls) do
+        base_audit_syscalls + aggressive_audit_syscalls + [
+          'write',
+          'chown',
+          'creat',
+          'fork',
+          'vfork',
+          'link',
+          'mkdir',
+          'rmdir'
+        ]
+      end
+
       it { is_expected.to compile.with_all_deps }
 
-      context "without any parameters" do
+      context 'with default parameters' do
         it { is_expected.to contain_auditd__rule('init.d_auditd') }
         it {
           is_expected.to contain_auditd__rule('rotated_audit_logs').with_content(
@@ -75,6 +99,15 @@ describe 'auditd::config::audit_profiles::simp' do
           is_expected.to contain_file('/etc/audit/rules.d/05_default_drop.rules').with_content(
             %r(^-a\s+exit,never\s+-F\s+auid!=0\s+-F\s+auid<#{facts[:uid_min]}$)
           )
+        }
+
+        it {
+          if os_facts[:os][:release][:major] == '7'
+            expected = File.read('spec/classes/config/audit_profiles/expected/basic_el6_base.rules.txt')
+          else
+            expected = File.read('spec/classes/config/audit_profiles/expected/basic_el7_base.rules.txt')
+          end
+          is_expected.to contain_file('/etc/audit/rules.d/50_base.rules').with_content(expected)
         }
 
         it {
@@ -148,21 +181,7 @@ describe 'auditd::config::audit_profiles::simp' do
         }
       end
 
-      context "setting the root audit level to aggressive" do
-        let(:base_audit_syscalls) do
-          [
-            'capset',
-            'mknod',
-            'pivot_root',
-            'quotactl',
-            'setsid',
-            'settimeofday',
-            'setuid',
-            'swapoff',
-            'swapon',
-            'execve'
-          ]
-        end
+      context 'setting the root audit level to aggressive' do
         let(:params) {{ :root_audit_level => 'aggressive' }}
 
         it {
@@ -174,12 +193,11 @@ describe 'auditd::config::audit_profiles::simp' do
 
         it {
           if os_facts[:os][:release][:major] == '7'
-            expected = File.read('spec/classes/config/audit_profiles/expected/default_el6_base.rules.txt')
-            is_expected.to contain_file('/etc/audit/rules.d/50_base.rules').with_content(expected)
+            expected = File.read('spec/classes/config/audit_profiles/expected/aggressive_el6_base.rules.txt')
           else
-            expected = File.read('spec/classes/config/audit_profiles/expected/default_el7_base.rules.txt')
-            is_expected.to contain_file('/etc/audit/rules.d/50_base.rules').with_content(expected)
+            expected = File.read('spec/classes/config/audit_profiles/expected/aggressive_el7_base.rules.txt')
           end
+          is_expected.to contain_file('/etc/audit/rules.d/50_base.rules').with_content(expected)
         }
 
         it {
@@ -194,35 +212,12 @@ describe 'auditd::config::audit_profiles::simp' do
             _syscalls = rule_line.scan(/-S\s.+?\s/).map{|x| x.sub(/-S\s+/,'')}.map(&:strip)
 
             expect(_syscalls).to_not be_empty
-            expect(_syscalls - base_audit_syscalls).to be_empty
+            expect(_syscalls - aggressive_audit_syscalls).to be_empty
           end
         }
       end
 
-      context "setting the root audit level to insane" do
-        let(:base_audit_syscalls) do
-          [
-            'capset',
-            'mknod',
-            'pivot_root',
-            'quotactl',
-            'setsid',
-            'settimeofday',
-            'setuid',
-            'swapoff',
-            'swapon',
-            'execve',
-            'write',
-            'chown',
-            'creat',
-            'fork',
-            'vfork',
-            'link',
-            'mkdir',
-            'rmdir'
-          ]
-        end
-
+      context 'setting the root audit level to insane' do
         let(:params) {{ :root_audit_level => 'insane' }}
 
         it {
@@ -233,6 +228,15 @@ describe 'auditd::config::audit_profiles::simp' do
         }
 
         it {
+          if os_facts[:os][:release][:major] == '7'
+            expected = File.read('spec/classes/config/audit_profiles/expected/insane_el6_base.rules.txt')
+          else
+            expected = File.read('spec/classes/config/audit_profiles/expected/insane_el7_base.rules.txt')
+          end
+          is_expected.to contain_file('/etc/audit/rules.d/50_base.rules').with_content(expected)
+        }
+
+        it {
           # Setting what we audit for 'su' type usage
           # Check that we have the expected audit line
           is_expected.to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
@@ -244,12 +248,12 @@ describe 'auditd::config::audit_profiles::simp' do
             _syscalls = rule_line.scan(/-S\s.+?\s/).map{|x| x.sub(/-S\s+/,'')}.map(&:strip)
 
             expect(_syscalls).to_not be_empty
-            expect(_syscalls - base_audit_syscalls).to be_empty
+            expect(_syscalls - insane_audit_syscalls).to be_empty
           end
         }
       end
 
-      context "setting permissions auditing separated by chown, chmod, and attr" do
+      context 'setting permissions auditing separated by chown, chmod, and attr' do
         let(:params) {{
           :audit_chown => false,
           :audit_chmod => true,
@@ -275,7 +279,7 @@ describe 'auditd::config::audit_profiles::simp' do
         }
       end
 
-      context "auditing package installation commands" do
+      context 'auditing package installation commands' do
         let(:params) {{
           :audit_yum_cmd => true,
           :audit_rpm_cmd => true
