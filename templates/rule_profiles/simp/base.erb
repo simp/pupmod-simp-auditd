@@ -14,10 +14,13 @@
 <% end -%>
 <% if @audit_selinux_cmds -%>
 
-# SRG-OS-000392-GPOS-00172
-# SRG-OS-000463-GPOS-00207
-# SRG-OS-000465-GPOS-00209
-# NOTE:  These rules come before the *xattr* checks, to ensure they hit.
+# Audit selinux commands
+# RHEL-07-030560
+# RHEL-07-030570
+# RHEL-07-030580
+# RHEL-07-030590
+# NOTE:  These rules come before the *xattr* checks, to ensure the
+#        correct tag is recorded.
 #
 -a always,exit -F path=/usr/bin/chcon -F perm=x -k <%= @audit_selinux_cmds_tag %>
 -a always,exit -F path=/usr/sbin/semanage -F perm=x -k <%= @audit_selinux_cmds_tag %>
