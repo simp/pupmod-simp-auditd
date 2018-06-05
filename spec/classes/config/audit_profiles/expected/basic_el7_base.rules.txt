@@ -33,8 +33,8 @@
 # are only moderately useful and contain *way* too much noise since this covers
 # things like cron as well.
 
--a always,exit -F arch=b64 -F auid!=0 -F uid=0 -S execve -S capset -S mknod -S pivot_root -S quotactl -S setsid -S settimeofday -S setuid -S swapoff -S swapon -k su-root-activity
--a always,exit -F arch=b32 -F auid!=0 -F uid=0 -S execve -S capset -S mknod -S pivot_root -S quotactl -S setsid -S settimeofday -S setuid -S swapoff -S swapon -k su-root-activity
+-a always,exit -F arch=b64 -F auid!=0 -F uid=0 -S capset -S mknod -S pivot_root -S quotactl -S setsid -S settimeofday -S setuid -S swapoff -S swapon -k su-root-activity
+-a always,exit -F arch=b32 -F auid!=0 -F uid=0 -S capset -S mknod -S pivot_root -S quotactl -S setsid -S settimeofday -S setuid -S swapoff -S swapon -k su-root-activity
 
 # Audit the execution of suid and sgid binaries.
 # CCE-26457-2
@@ -108,7 +108,7 @@
 -w /etc/sudoers.d -p wa -k CFG_sys
 
 # Generally good things to audit.
--w /etc/grub.d -p wa -k CFG_grub
+-w /boot/grub/grub.conf -p wa -k CFG_grub
 -w /etc/default -p wa -k CFG_sys
 -w /etc/exports -p wa -k CFG_sys
 -w /etc/fstab -p wa -k CFG_sys
