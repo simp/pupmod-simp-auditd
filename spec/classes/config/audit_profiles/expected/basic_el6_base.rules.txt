@@ -92,8 +92,13 @@
 -w /sbin/insmod -p x -k modules
 -w /sbin/rmmod -p x -k modules
 -w /sbin/modprobe -p x -k modules
--a always,exit -F arch=b64 -S init_module -S delete_module -k modules
--a always,exit -F arch=b32 -S init_module -S delete_module -k modules
+
+# RHEL-07-030819
+# RHEL-07-030820
+# RHEL-07-030821
+# RHEL-07-030830
+-a always,exit -F arch=b64 -S create_module -S init_module -S finit_module -S delete_module -k modules
+-a always,exit -F arch=b32 -S create_module -S init_module -S finit_module -S delete_module -k modules
 
 ## Things that could affect time
 # CCE-27172-6
