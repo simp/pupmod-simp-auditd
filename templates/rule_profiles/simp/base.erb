@@ -46,23 +46,23 @@
 # CCE-27183-3
 # CCE-27184-1
 # CCE-27185-8
-<%   if @hardwaremodel.eql?("x86_64") -%>
-<% if @audit_chown -%>
+<% if @hardwaremodel.eql?("x86_64") -%>
+<%   if @audit_chown -%>
 -a always,exit -F arch=b64 -S chown -S fchown -S fchownat -S lchown -k <%= @audit_chown_tag %>
 <%   end -%>
-<% if @audit_chmod -%>
+<%   if @audit_chmod -%>
 -a always,exit -F arch=b64 -S chmod -S fchmod -S fchmodat -k <%= @audit_chmod_tag %>
 <%   end -%>
-<% if @audit_attr -%>
+<%   if @audit_attr -%>
 -a always,exit -F arch=b64 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -k <%= @audit_attr_tag %>
 <%   end -%>
-<%   end -%>
+<% end -%>
 <% if @audit_chown -%>
 -a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -k <%= @audit_chown_tag %>
-<%   end -%>
+<% end -%>
 <% if @audit_chmod -%>
 -a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -k <%= @audit_chmod_tag %>
-<%   end -%>
+<% end -%>
 <% if @audit_attr -%>
 -a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -k <%= @audit_attr_tag %>
 <% end -%>
@@ -143,11 +143,16 @@
 -w /sbin/insmod -p x -k modules
 -w /sbin/rmmod -p x -k modules
 -w /sbin/modprobe -p x -k modules
-<%    if @hardwaremodel.eql?("x86_64") -%>
--a always,exit -F arch=b64 -S init_module -S delete_module -k <%= @audit_kernel_modules_tag %>
--a always,exit -F arch=b32 -S init_module -S delete_module -k <%= @audit_kernel_modules_tag %>
+
+<%   if @hardwaremodel.eql?("x86_64") -%>
+# RHEL-07-030819
+# RHEL-07-030820
+# RHEL-07-030821
+# RHEL-07-030830
+-a always,exit -F arch=b64 -S create_module -S init_module -S finit_module -S delete_module -k <%= @audit_kernel_modules_tag %>
+-a always,exit -F arch=b32 -S create_module -S init_module -S finit_module -S delete_module -k <%= @audit_kernel_modules_tag %>
 <%   else -%>
--a always,exit -S init_module -S delete_module -k <%= @audit_kernel_modules_tag %>
+-a always,exit -S create_module -S init_module -S finit_module -S delete_module -k <%= @audit_kernel_modules_tag %>
 <%   end -%>
 <% end -%>
 
