@@ -78,6 +78,25 @@
 # RHEL-07-030810
 -a always,exit -F path=/sbin/pam_timestamp_check -F perm=x -k <%= @audit_pam_timestamp_check_cmd_tag %>
 <% end -%>
+<% if @audit_selinux_cmds -%>
+
+# Audit selinux commands
+# RHEL-07-030560
+# RHEL-07-030570
+# RHEL-07-030580
+# RHEL-07-030590
+# NOTE:  These rules come before the *xattr* checks, to ensure the
+#        correct tag is recorded.
+#
+-a always,exit -F path=/usr/bin/chcon -F perm=x -k <%= @audit_selinux_cmds_tag %>
+-a always,exit -F path=/usr/sbin/semanage -F perm=x -k <%= @audit_selinux_cmds_tag %>
+-a always,exit -F path=/usr/sbin/setsebool -F perm=x -k <%= @audit_selinux_cmds_tag %>
+<%   if @_os_release_major < '7' -%>
+-a always,exit -F path=/sbin/setfiles -F perm=x -k <%= @audit_selinux_cmds_tag %>
+<%   else -%>
+-a always,exit -F path=/usr/sbin/setfiles -F perm=x -k <%= @audit_selinux_cmds_tag %>
+<%   end -%>
+<% end -%>
 
 # Permissions auditing separated by chown, chmod, and attr
 # CCE-26280-8
