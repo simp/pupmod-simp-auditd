@@ -102,7 +102,7 @@ describe 'auditd::config::audit_profiles::simp' do
         }
 
         it {
-          if os_facts[:os][:release][:major] == '7'
+          if os_facts[:os][:release][:major] == '6'
             expected = File.read('spec/classes/config/audit_profiles/expected/basic_el6_base.rules.txt')
           else
             expected = File.read('spec/classes/config/audit_profiles/expected/basic_el7_base.rules.txt')
@@ -192,7 +192,7 @@ describe 'auditd::config::audit_profiles::simp' do
         }
 
         it {
-          if os_facts[:os][:release][:major] == '7'
+          if os_facts[:os][:release][:major] == '6'
             expected = File.read('spec/classes/config/audit_profiles/expected/aggressive_el6_base.rules.txt')
           else
             expected = File.read('spec/classes/config/audit_profiles/expected/aggressive_el7_base.rules.txt')
@@ -228,7 +228,7 @@ describe 'auditd::config::audit_profiles::simp' do
         }
 
         it {
-          if os_facts[:os][:release][:major] == '7'
+          if os_facts[:os][:release][:major] == '6'
             expected = File.read('spec/classes/config/audit_profiles/expected/insane_el6_base.rules.txt')
           else
             expected = File.read('spec/classes/config/audit_profiles/expected/insane_el7_base.rules.txt')
@@ -294,6 +294,79 @@ describe 'auditd::config::audit_profiles::simp' do
         it{
           is_expected.to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
             %r(^-w /(usr/)?bin/yum -p x)
+          )
+        }
+      end
+
+      context 'disabling passwd command auditing' do
+        let(:params) {{ :audit_passwd_cmds => false }}
+        [
+          %r{-a always,exit -F path=/usr/bin/passwd -F perm=x -k privileged-passwd},
+          %r{-a always,exit -F path=/(usr/)?bin/unix_chkpwd -F perm=x -k privileged-passwd},
+          %r{-a always,exit -F path=/usr/bin/gpasswd -F perm=x -k privileged-passwd},
+          %r{-a always,exit -F path=/usr/bin/chage -F perm=x -k privileged-passwd},
+          %r{-a always,exit -F path=/usr/sbin/userhelper -F perm=x -k privileged-passwd}
+        ].each do |command_regex|
+          it {
+            is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').
+              with_content(command_regex)
+          }
+        end
+      end
+
+      context 'disabling privilege-related command auditing' do
+        let(:params) {{ :audit_priv_cmds => false }}
+        [
+          %r{-a always,exit -F path=/(usr/)?bin/su -F perm=x -k privileged-priv_change},
+          %r{-a always,exit -F path=/usr/bin/sudo -F perm=x -k privileged-priv_change},
+          %r{-a always,exit -F path=/usr/bin/newgrp -F perm=x -k privileged-priv_change},
+          %r{-a always,exit -F path=/usr/bin/chsh -F perm=x -k privileged-priv_change},
+          %r{-a always,exit -F path=/(usr/)?bin/sudoedit -F perm=x -k privileged-priv_change}
+        ].each do |command_regex|
+          it {
+            is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').
+              with_content(command_regex)
+          }
+        end
+      end
+
+      context 'disabling postfix-related command auditing' do
+        let(:params) {{ :audit_postfix_cmds => false }}
+        [
+          %r{-a always,exit -F path=/usr/sbin/postdrop -F perm=x -k privileged-postfix},
+          %r{-a always,exit -F path=/usr/sbin/postqueue -F perm=x -k privileged-postfix}
+        ].each do |command_regex|
+          it {
+            is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').
+              with_content(command_regex)
+          }
+        end
+      end
+
+      context 'disabling ssh-keysign command auditing' do
+        let(:params) {{ :audit_ssh_keysign_cmd => false }}
+        it {
+          is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
+            %r{-a always,exit -F path=/usr/libexec/openssh/ssh-keysign -F perm=x -k privileged-ssh}
+          )
+        }
+
+      end
+
+      context 'disabling crontab command auditing' do
+        let(:params) {{ :audit_crontab_cmd => false }}
+        it {
+          is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
+            %r{-a always,exit -F path=/usr/bin/crontab -F perm=x -k privileged-cron}
+          )
+        }
+      end
+
+      context 'disabling pam-timestamp-check command auditing' do
+        let(:params) {{ :audit_pam_timestamp_check_cmd => false }}
+        it {
+          is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
+            %r{-a always,exit -F path=/sbin/pam_timestamp_check -F perm=x -k privileged-pam}
           )
         }
       end

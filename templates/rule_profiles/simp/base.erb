@@ -12,6 +12,72 @@
 -a always,exit -F perm=a -F exit=-EACCES -k <%= @audit_unsuccessful_file_operations_tag %>
 -a always,exit -F perm=a -F exit=-EPERM -k <%= @audit_unsuccessful_file_operations_tag %>
 <% end -%>
+<% if @audit_passwd_cmds -%>
+
+# Audit the execution of password commands
+# RHEL-07-030630
+# RHEL-07-030640
+# RHEL-07-030650
+# RHEL-07-030660
+# RHEL-07-030670
+-a always,exit -F path=/usr/bin/passwd -F perm=x -k <%= @audit_passwd_cmds_tag %>
+<%   if @_os_release_major < '7' -%>
+-a always,exit -F path=/sbin/unix_chkpwd -F perm=x -k <%= @audit_passwd_cmds_tag %>
+<%   else -%>
+-a always,exit -F path=/usr/sbin/unix_chkpwd -F perm=x -k <%= @audit_passwd_cmds_tag %>
+<%   end -%>
+-a always,exit -F path=/usr/bin/gpasswd -F perm=x -k <%= @audit_passwd_cmds_tag %>
+-a always,exit -F path=/usr/bin/chage -F perm=x -k <%= @audit_passwd_cmds_tag %>
+-a always,exit -F path=/usr/sbin/userhelper -F perm=x -k <%= @audit_passwd_cmds_tag %>
+<% end -%>
+<% if @audit_priv_cmds -%>
+
+# Audit the execution of privilege-related commands
+# RHEL-07-030680
+# RHEL-07-030690
+# RHEL-07-030710
+# RHEL-07-030720
+# RHEL-07-030730
+<%   if @_os_release_major < '7' -%>
+-a always,exit -F path=/bin/su -F perm=x -k <%= @audit_priv_cmds_tag %>
+<%   else -%>
+-a always,exit -F path=/usr/bin/su -F perm=x -k <%= @audit_priv_cmds_tag %>
+<%   end -%>
+-a always,exit -F path=/usr/bin/sudo -F perm=x -k <%= @audit_priv_cmds_tag %>
+-a always,exit -F path=/usr/bin/newgrp -F perm=x -k <%= @audit_priv_cmds_tag %>
+-a always,exit -F path=/usr/bin/chsh -F perm=x -k <%= @audit_priv_cmds_tag %>
+<%   if @_os_release_major < '7' -%>
+-a always,exit -F path=/usr/bin/sudoedit -F perm=x -k <%= @audit_priv_cmds_tag %>
+<%   else -%>
+-a always,exit -F path=/bin/sudoedit -F perm=x -k <%= @audit_priv_cmds_tag %>
+<%   end -%>
+<% end -%>
+<% if @audit_postfix_cmds -%>
+
+# Audit the execution of postfix-related commands
+# RHEL-07-030760
+# RHEL-07-030770
+-a always,exit -F path=/usr/sbin/postdrop -F perm=x -k <%= @audit_postfix_cmds_tag %>
+-a always,exit -F path=/usr/sbin/postqueue -F perm=x -k <%= @audit_postfix_cmds_tag %>
+<% end -%>
+<% if @audit_ssh_keysign_cmd -%>
+
+# Audit the execution of the ssh-keysign command
+# RHEL-07-030780
+-a always,exit -F path=/usr/libexec/openssh/ssh-keysign -F perm=x -k <%= @audit_ssh_keysign_cmd_tag %>
+<% end -%>
+<% if @audit_crontab_cmd -%>
+
+# Audit the execution of the crontab command
+# RHEL-07-030800
+-a always,exit -F path=/usr/bin/crontab -F perm=x -k <%= @audit_crontab_cmd_tag %>
+<% end -%>
+<% if @audit_pam_timestamp_check_cmd -%>
+
+# Audit the execution of the pam_timestamp_check command
+# RHEL-07-030810
+-a always,exit -F path=/sbin/pam_timestamp_check -F perm=x -k <%= @audit_pam_timestamp_check_cmd_tag %>
+<% end -%>
 <% if @audit_selinux_cmds -%>
 
 # Audit selinux commands

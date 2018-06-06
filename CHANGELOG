@@ -1,9 +1,19 @@
 * Wed Jun 06 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 7.2.0-0
-- Update 'simp' audit profile settings for DISA STIG.
+- Updated 'simp' audit profile settings for DISA STIG.
   - Expanded the list of successful syscall operations audited.
   - Expanded the list of module syscall operations audited
   - Added an option to monitor selinux commands, (i.e., chcon,
     semanage, setfiles, setsebool)
+  - Added an option to audit the execution of password commands
+    ('passwd', 'unix_chkpwd', 'gpasswd', 'chage', 'userhelper')
+  - Added an option to audit the execution of privilege-related
+    commands ('su', 'sudo', 'newgrp', 'chsh', 'sudoedit')
+  - Added an option to audit the execution of postfix-related commands
+    ('postdrop', 'postqueue')
+  - Added an option to audit the execution of the 'ssh-keysign' command
+  - Added an option to audit the execution of the 'crontab' command
+  - Added an option to audit the execution of the 'pam_timestamp_check'
+    command
 
 * Mon Mar 26 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 7.1.3-0
 - Work around RPM upgrade issue with nodeset link in compliance

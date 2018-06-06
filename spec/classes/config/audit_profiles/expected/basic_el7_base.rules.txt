@@ -9,6 +9,48 @@
 -a always,exit -F perm=a -F exit=-EACCES -k access
 -a always,exit -F perm=a -F exit=-EPERM -k access
 
+# Audit the execution of password commands
+# RHEL-07-030630
+# RHEL-07-030640
+# RHEL-07-030650
+# RHEL-07-030660
+# RHEL-07-030670
+-a always,exit -F path=/usr/bin/passwd -F perm=x -k privileged-passwd
+-a always,exit -F path=/usr/sbin/unix_chkpwd -F perm=x -k privileged-passwd
+-a always,exit -F path=/usr/bin/gpasswd -F perm=x -k privileged-passwd
+-a always,exit -F path=/usr/bin/chage -F perm=x -k privileged-passwd
+-a always,exit -F path=/usr/sbin/userhelper -F perm=x -k privileged-passwd
+
+# Audit the execution of privilege-related commands
+# RHEL-07-030680
+# RHEL-07-030690
+# RHEL-07-030710
+# RHEL-07-030720
+# RHEL-07-030730
+-a always,exit -F path=/usr/bin/su -F perm=x -k privileged-priv_change
+-a always,exit -F path=/usr/bin/sudo -F perm=x -k privileged-priv_change
+-a always,exit -F path=/usr/bin/newgrp -F perm=x -k privileged-priv_change
+-a always,exit -F path=/usr/bin/chsh -F perm=x -k privileged-priv_change
+-a always,exit -F path=/bin/sudoedit -F perm=x -k privileged-priv_change
+
+# Audit the execution of postfix-related commands
+# RHEL-07-030760
+# RHEL-07-030770
+-a always,exit -F path=/usr/sbin/postdrop -F perm=x -k privileged-postfix
+-a always,exit -F path=/usr/sbin/postqueue -F perm=x -k privileged-postfix
+
+# Audit the execution of the ssh-keysign command
+# RHEL-07-030780
+-a always,exit -F path=/usr/libexec/openssh/ssh-keysign -F perm=x -k privileged-ssh
+
+# Audit the execution of the crontab command
+# RHEL-07-030800
+-a always,exit -F path=/usr/bin/crontab -F perm=x -k privileged-cron
+
+# Audit the execution of the pam_timestamp_check command
+# RHEL-07-030810
+-a always,exit -F path=/sbin/pam_timestamp_check -F perm=x -k privileged-pam
+
 # Permissions auditing separated by chown, chmod, and attr
 # CCE-26280-8
 # CCE-27173-4
@@ -113,7 +155,7 @@
 -w /etc/sudoers.d -p wa -k CFG_sys
 
 # Generally good things to audit.
--w /boot/grub/grub.conf -p wa -k CFG_grub
+-w /etc/grub.d -p wa -k CFG_grub
 -w /etc/default -p wa -k CFG_sys
 -w /etc/exports -p wa -k CFG_sys
 -w /etc/fstab -p wa -k CFG_sys
