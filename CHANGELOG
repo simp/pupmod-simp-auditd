@@ -1,6 +1,7 @@
-* Mon Jun 04 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 7.2.0-0
+* Wed Jun 06 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 7.2.0-0
 - Update 'simp' audit profile settings for DISA STIG.
   - Expanded the list of successful syscall operations audited.
+  - Expanded the list of module syscall operations audited
   - Added an option to monitor selinux commands, (i.e., chcon,
     semanage, setfiles, setsebool)
 
