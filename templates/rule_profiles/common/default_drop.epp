@@ -1,0 +1,17 @@
+# This file is managed by Puppet (module 'auditd')
+
+<% if $::auditd::ignore_anonymous { -%>
+## Get rid of all anonymous and daemon junk.  It clogs up the logs and doesn't
+# do anyone any good.
+-a exit,never -F auid=-1
+<% } -%>
+<% if $::auditd::ignore_system_services { -%>
+# Ignore system services. In most guides this is tagged onto every rule but
+# that just makes for more processing time.
+-a exit,never -F auid!=0 -F auid<<%= $::auditd::uid_min %>
+<% } -%>
+<% if $::auditd::ignore_crond {-%>
+# Drop events related to cron jobs.  It creates a lot of logs that are not
+# usually useful
+-a never,user -F subj_type=crond_t
+<% } -%>
