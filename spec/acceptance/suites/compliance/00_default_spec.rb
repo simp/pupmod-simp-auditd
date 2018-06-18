@@ -24,16 +24,15 @@ compliance_markup::enforcement:
 
     let(:hiera_yaml) { <<-EOM
 ---
-:backends:
-  - yaml
-  - simp_compliance_enforcement
-:yaml:
-  :datadir: "#{hiera_datadir(host)}"
-:simp_compliance_enforcement:
-  :datadir: "#{hiera_datadir(host)}"
-:hierarchy:
-  - default
-:logger: console
+version: 5
+hierarchy:
+  - name: Common
+    path: default.yaml
+  - name: Compliance
+    lookup_key: compliance_markup::enforcement
+defaults:
+  data_hash: yaml_data
+  datadir: "#{hiera_datadir(host)}"
       EOM
     }
 
@@ -41,6 +40,8 @@ compliance_markup::enforcement:
       # Using puppet_apply as a helper
       it 'should work with no errors' do
         create_remote_file(host, host.puppet['hiera_config'], hiera_yaml)
+        write_hieradata_to(host, hieradata)
+
         apply_manifest_on(host, manifest, :catch_failures => true)
       end
 
