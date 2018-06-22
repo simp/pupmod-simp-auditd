@@ -1,0 +1,2 @@
+---
+auditd::config::audit_profiles::simp::audit_sudoers_tag: 'old_sudoers_tag'

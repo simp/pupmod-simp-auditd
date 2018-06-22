@@ -5,16 +5,27 @@
   auditd::default_audit_profiles.
 - The following API Changes were made in support of multiple audit
   profiles:
-  - auditd::config and auditd::config::audit_profiles::simp are now
-    private.  In the unlikely event that you included just these
+  - $::auditd::$default_audit_profile has been deprecated by
+    $::auditd::$default_audit_profiles
+  - auditd::config and auditd::config::audit_profiles::simp classes are
+    now private.  In the unlikely event that you included just these
     classes in your manifest, you must now include auditd instead.
-  - `auditcl` global configuration options that were in
-    auditd::config::audit_profiles::simp are now in auditd, instead.
-    They were moved because they are now applied to the set of audit
-    profiles selected, not just the 'simp' audit profile.
+  - The following auditctl global configuration options that were in
+    auditd::config::audit_profiles::simp are now in the auditd class,
+    instead: $ignore_errors, $ignore_anonymous, $ignore_system_services,
+    and $ignore_crond. They were moved because they are now applied to
+    the set of audit profiles selected, not just the 'simp' audit
+    profile.
+  - The following auditd::config::audit_profiles::simp class parameters
+    have been deprecated for clarity:
+    - $audit_sudoers has been deprecated by $audit_cfg_sudoers
+    - $audit_sudoers_tag has been deprecated by $audit_cfg_sudoers
+    - $audit_grub has been deprecated by $audit_cfg_grub
+    - $audit_grub_tag has been deprecated by $audit_cfg_grub_tag
+    - $audit_yum has been deprecated by $audit_cfg_yum
+    - $audit_yum_tag has been deprecated by $audit_cfg_yum_tag
   - Some previously hard-coded, internal configuration is now exposed
     as data-in-modules.
-  - Some configuration parameter names have been changed for clarity.
 - Added 'stig' audit profile which manages rules that match DISA STIG
   checks, exactly.
   - For executables explicitly listed in the RHEL7 STIG, includes watchs

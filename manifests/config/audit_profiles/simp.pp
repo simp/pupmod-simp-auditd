@@ -175,6 +175,12 @@
 # @param audit_session_files_tag
 #   The tag to identify session file changes in an audit record
 #
+# @param audit_sudoers
+#   Deprecated by `$audit_cfg_sudoers`
+#
+# @param audit_sudoers_tag
+#   Deprecated by `$audit_cfg_sudoers_tag`
+#
 # @param audit_cfg_sudoers
 #   Whether to audit changes to sudoers configuration files
 #
@@ -182,6 +188,12 @@
 #   The tag to identify sudoers configuration file changes in an audit
 #   record.  You should change this to 'privileged-actions' to match the
 #   automated DISA STIG compliance checks for RHEL7.
+#
+# @param audit_grub
+#   Deprecated by `$audit_cfg_grub`
+#
+# @param audit_grub_tag
+#   Deprecated by `$audit_cfg_grub_tag`
 #
 # @param audit_cfg_grub
 #   Whether to audit changes to grub configuration files
@@ -234,6 +246,12 @@
 #
 # @param audit_cfg_xinetd_tag
 #   The tag to identify xinetd configuration file changes in an audit record
+#
+# @param audit_yum
+#   Deprecated by `$audit_cfg_yum`
+#
+# @param audit_yum_tag
+#   Deprecated by `$audit_cfg_yum_tag`
 #
 # @param audit_cfg_yum
 #   Whether to audit changes to yum configuration files
@@ -308,90 +326,144 @@
 class auditd::config::audit_profiles::simp (
   Auditd::RootAuditLevel $root_audit_level                       = $::auditd::root_audit_level,
   Boolean                $audit_unsuccessful_file_operations     = true,
-  String                 $audit_unsuccessful_file_operations_tag = 'access',
+  String[1]              $audit_unsuccessful_file_operations_tag = 'access',
   Boolean                $audit_chown                            = true,
-  String                 $audit_chown_tag                        = 'chown',
+  String[1]              $audit_chown_tag                        = 'chown',
   Boolean                $audit_chmod                            = false,
-  String                 $audit_chmod_tag                        = 'chmod',
+  String[1]              $audit_chmod_tag                        = 'chmod',
   Boolean                $audit_attr                             = true,
-  String                 $audit_attr_tag                         = 'attr',
+  String[1]              $audit_attr_tag                         = 'attr',
   Boolean                $audit_rename_remove                    = false,
-  String                 $audit_rename_remove_tag                = 'delete',
+  String[1]              $audit_rename_remove_tag                = 'delete',
   Boolean                $audit_su_root_activity                 = true,
-  String                 $audit_su_root_activity_tag             = 'su-root-activity',
+  String[1]              $audit_su_root_activity_tag             = 'su-root-activity',
   Boolean                $audit_suid_sgid                        = true,
-  String                 $audit_suid_sgid_tag                    = 'suid-root-exec',
+  String[1]              $audit_suid_sgid_tag                    = 'suid-root-exec',
   Boolean                $audit_kernel_modules                   = true,
-  String                 $audit_kernel_modules_tag               = 'modules',
+  String[1]              $audit_kernel_modules_tag               = 'modules',
   Boolean                $audit_time                             = true,
-  String                 $audit_time_tag                         = 'audit_time_rules',
+  String[1]              $audit_time_tag                         = 'audit_time_rules',
   Boolean                $audit_locale                           = true,
-  String                 $audit_locale_tag                       = 'audit_network_modifications',
+  String[1]              $audit_locale_tag                       = 'audit_network_modifications',
   Boolean                $audit_mount                            = true,
-  String                 $audit_mount_tag                        = 'mount',
+  String[1]              $audit_mount_tag                        = 'mount',
   Boolean                $audit_umask                            = false,
-  String                 $audit_umask_tag                        = 'umask',
+  String[1]              $audit_umask_tag                        = 'umask',
   Boolean                $audit_local_account                    = true,
-  String                 $audit_local_account_tag                = 'audit_account_changes',
+  String[1]              $audit_local_account_tag                = 'audit_account_changes',
   Boolean                $audit_selinux_policy                   = true,
-  String                 $audit_selinux_policy_tag               = 'MAC-policy',
+  String[1]              $audit_selinux_policy_tag               = 'MAC-policy',
   Boolean                $audit_selinux_cmds                     = false,
-  String                 $audit_selinux_cmds_tag                 = 'privileged-priv_change',
+  String[1]              $audit_selinux_cmds_tag                 = 'privileged-priv_change',
   Boolean                $audit_login_files                      = true,
-  String                 $audit_login_files_tag                  = 'logins',
+  String[1]              $audit_login_files_tag                  = 'logins',
   Boolean                $audit_session_files                    = true,
-  String                 $audit_session_files_tag                = 'session',
+  String[1]              $audit_session_files_tag                = 'session',
+  Optional[Boolean]      $audit_sudoers                          = undef,
+  Optional[String[1]]    $audit_sudoers_tag                      = undef,
   Boolean                $audit_cfg_sudoers                      = true,
-  String                 $audit_cfg_sudoers_tag                  = 'CFG_sys',
+  String[1]              $audit_cfg_sudoers_tag                  = 'CFG_sys',
+  Optional[Boolean]      $audit_grub                             = undef,
+  Optional[String[1]]    $audit_grub_tag                         = undef,
   Boolean                $audit_cfg_grub                         = true,
-  String                 $audit_cfg_grub_tag                     = 'CFG_grub',
+  String[1]              $audit_cfg_grub_tag                     = 'CFG_grub',
   Boolean                $audit_cfg_sys                          = true,
-  String                 $audit_cfg_sys_tag                      = 'CFG_sys',
+  String[1]              $audit_cfg_sys_tag                      = 'CFG_sys',
   Boolean                $audit_cfg_cron                         = true,
-  String                 $audit_cfg_cron_tag                     = 'CFG_cron',
+  String[1]              $audit_cfg_cron_tag                     = 'CFG_cron',
   Boolean                $audit_cfg_shell                        = true,
-  String                 $audit_cfg_shell_tag                    = 'CFG_shell',
+  String[1]              $audit_cfg_shell_tag                    = 'CFG_shell',
   Boolean                $audit_cfg_pam                          = true,
-  String                 $audit_cfg_pam_tag                      = 'CFG_pam',
+  String[1]              $audit_cfg_pam_tag                      = 'CFG_pam',
   Boolean                $audit_cfg_security                     = true,
-  String                 $audit_cfg_security_tag                 = 'CFG_security',
+  String[1]              $audit_cfg_security_tag                 = 'CFG_security',
   Boolean                $audit_cfg_services                     = true,
-  String                 $audit_cfg_services_tag                 = 'CFG_services',
+  String[1]              $audit_cfg_services_tag                 = 'CFG_services',
   Boolean                $audit_cfg_xinetd                       = true,
-  String                 $audit_cfg_xinetd_tag                   = 'CFG_xinetd',
+  String[1]              $audit_cfg_xinetd_tag                   = 'CFG_xinetd',
+  Optional[Boolean]      $audit_yum                              = undef,
+  Optional[String[1]]    $audit_yum_tag                          = undef,
   Boolean                $audit_cfg_yum                          = true,
-  String                 $audit_cfg_yum_tag                      = 'yum-config',
+  String[1]              $audit_cfg_yum_tag                      = 'yum-config',
   Boolean                $audit_yum_cmd                          = false,
-  String                 $audit_yum_cmd_tag                      = 'package_changes',
+  String[1]              $audit_yum_cmd_tag                      = 'package_changes',
   Boolean                $audit_rpm_cmd                          = false,
-  String                 $audit_rpm_cmd_tag                      = 'package_changes',
+  String[1]              $audit_rpm_cmd_tag                      = 'package_changes',
   Boolean                $audit_ptrace                           = true,
-  String                 $audit_ptrace_tag                       = 'paranoid',
+  String[1]              $audit_ptrace_tag                       = 'paranoid',
   Boolean                $audit_personality                      = true,
-  String                 $audit_personality_tag                  = 'paranoid',
+  String[1]              $audit_personality_tag                  = 'paranoid',
   Boolean                $audit_passwd_cmds                      = true,
-  String                 $audit_passwd_cmds_tag                  = 'privileged-passwd',
+  String[1]              $audit_passwd_cmds_tag                  = 'privileged-passwd',
   Boolean                $audit_priv_cmds                        = true,
-  String                 $audit_priv_cmds_tag                    = 'privileged-priv_change',
+  String[1]              $audit_priv_cmds_tag                    = 'privileged-priv_change',
   Boolean                $audit_postfix_cmds                     = true,
-  String                 $audit_postfix_cmds_tag                 = 'privileged-postfix',
+  String[1]              $audit_postfix_cmds_tag                 = 'privileged-postfix',
   Boolean                $audit_ssh_keysign_cmd                  = true,
-  String                 $audit_ssh_keysign_cmd_tag              = 'privileged-ssh',
+  String[1]              $audit_ssh_keysign_cmd_tag              = 'privileged-ssh',
   Boolean                $audit_crontab_cmd                      = true,
-  String                 $audit_crontab_cmd_tag                  = 'privileged-cron',
+  String[1]              $audit_crontab_cmd_tag                  = 'privileged-cron',
   Boolean                $audit_pam_timestamp_check_cmd          = true,
-  String                 $audit_pam_timestamp_check_cmd_tag      = 'privileged-pam',
-  Array                  $basic_root_audit_syscalls,             # data in modules
-  Array                  $aggressive_root_audit_syscalls,        # data in modules
-  Array                  $insane_root_audit_syscalls             # data in modules
+  String[1]              $audit_pam_timestamp_check_cmd_tag      = 'privileged-pam',
+  Array[String[1]]       $basic_root_audit_syscalls,             # data in modules
+  Array[String[1]]       $aggressive_root_audit_syscalls,        # data in modules
+  Array[String[1]]       $insane_root_audit_syscalls             # data in modules
 ) {
   assert_private()
 
+  if $audit_sudoers != undef {
+    deprecation("${name}::audit_sudoers",
+      "'${name}::audit_sudoers' is deprecated. Use '${name}::audit_cfg_sudoers' instead")
+    $_audit_cfg_sudoers = $audit_sudoers
+  } else {
+    $_audit_cfg_sudoers = $audit_cfg_sudoers
+  }
+
+  if $audit_sudoers_tag != undef {
+    deprecation("${name}::audit_sudoers_tag",
+      "'${name}::audit_sudoers_tag' is deprecated. Use '${name}::audit_cfg_sudoers_tag' instead")
+    $_audit_cfg_sudoers_tag = $audit_sudoers_tag
+  } else {
+    $_audit_cfg_sudoers_tag = $audit_cfg_sudoers_tag
+  }
+
+  if $audit_grub != undef {
+    deprecation("${name}::audit_grub",
+      "'${name}::audit_grub' is deprecated. Use '${name}::audit_cfg_grub' instead")
+    $_audit_cfg_grub = $audit_grub
+  } else {
+    $_audit_cfg_grub = $audit_cfg_grub
+  }
+
+  if $audit_grub_tag != undef {
+    deprecation("${name}::audit_grub_tag",
+      "'${name}::audit_grub_tag' is deprecated. Use '${name}::audit_cfg_grub_tag' instead")
+    $_audit_cfg_grub_tag = $audit_grub_tag
+  } else {
+    $_audit_cfg_grub_tag = $audit_cfg_grub_tag
+  }
+
+  if $audit_yum != undef {
+    deprecation("${name}::audit_yum",
+      "'${name}::audit_yum' is deprecated. Use '${name}::'audit_cfg_yum instead")
+    $_audit_cfg_yum = $audit_yum
+  } else {
+    $_audit_cfg_yum = $audit_cfg_yum
+  }
+
+  if $audit_yum_tag != undef {
+    deprecation("${name}::audit_yum_tag",
+      "'${name}::audit_yum_tag' is deprecated. Use '${name}::'audit_cfg_yum_tag instead")
+    $_audit_cfg_yum_tag = $audit_yum_tag
+  } else {
+    $_audit_cfg_yum_tag = $audit_cfg_yum_tag
+  }
+
   $_short_name = 'simp'
-  if length($::auditd::default_audit_profiles) == 1 {
+  if length($::auditd::config::profiles) == 1 {
     $_rules_file = '/etc/audit/rules.d/50_base.rules'
   } else {
-    $_index = auditd::get_array_index($_short_name, $::auditd::default_audit_profiles)
+    $_index = auditd::get_array_index($_short_name, $::auditd::config::profiles)
     $_rules_file = "/etc/audit/rules.d/50_${_index}_${_short_name}_base.rules"
   }
 

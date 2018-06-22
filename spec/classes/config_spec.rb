@@ -79,6 +79,30 @@ describe 'auditd' do
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to_not contain_class('auditd::config::audit_profiles') }
         end
+
+        context 'with deprecated parameters' do
+          context 'with default_audit_profile = true' do
+            let(:params) {{ :default_audit_profile => true }}
+
+            it { is_expected.to contain_class('auditd::config::audit_profiles') }
+            it { is_expected.to contain_class('auditd::config::audit_profiles::simp') }
+          end
+
+          context 'with default_audit_profile = false' do
+            let(:params) {{ :default_audit_profile => false }}
+
+            it { is_expected.to compile.with_all_deps }
+            it { is_expected.to_not contain_class('auditd::config::audit_profiles') }
+            it { is_expected.to_not contain_class('auditd::config::audit_profiles::simp') }
+          end
+
+          context "with default_audit_profile = 'simp'" do
+            let(:params) {{ :default_audit_profile => 'simp' }}
+
+            it { is_expected.to contain_class('auditd::config::audit_profiles') }
+            it { is_expected.to contain_class('auditd::config::audit_profiles::simp') }
+          end
+        end
       end
     end
   end

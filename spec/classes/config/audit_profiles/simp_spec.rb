@@ -35,13 +35,13 @@ describe 'auditd' do
         it 'disables chmod auditing by default' do
           # chmod is disabled by default (SIMP-2250)
           is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
-            %r(^-a always,exit -F arch=b\d\d( -S \w*chmod\w*?)+ -k chmod$)
+            %r(^-a always,exit -F arch=b\d\d -S chmod,fchmod,fchmodat -k chmod$)
           )
         end
 
         it 'disables rename/remove auditing by default' do
           is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
-            %r(^-a always,exit -F arch=b\d\d -S rename -S renameat -S rmdir -S unlink -S unlinkat -F perm=x -k delete)
+            %r(^-a always,exit -F arch=b\d\d -S rename,renameat,rmdir,unlink,unlinkat -F perm=x -k delete)
           )
         end
 
@@ -96,35 +96,35 @@ describe 'auditd' do
       end
 
       # check disabling of parameters for which the key is unique
-      { 'access'                      => 'simp_audit_profile/disable__audit_unsuccessful_file_operations',
-        'chown'                       => 'simp_audit_profile/disable__audit_chown',
-        'attr'                        => 'simp_audit_profile/disable__audit_attr',
-        'su-root-activity'            => 'simp_audit_profile/disable__audit_su_root_activity',
-        'suid-root-exec'              => 'simp_audit_profile/disable__audit_suid_sgid',
-        'modules'                     => 'simp_audit_profile/disable__audit_kernel_modules',
-        'audit_time_rules'            => 'simp_audit_profile/disable__audit_time',
-        'audit_network_modifications' => 'simp_audit_profile/disable__audit_locale',
-        'mount'                       => 'simp_audit_profile/disable__audit_mount',
-        'audit_account_changes'       => 'simp_audit_profile/disable__audit_local_account',
-        'MAC-policy'                  => 'simp_audit_profile/disable__audit_selinux_policy',
-        'logins'                      => 'simp_audit_profile/disable__audit_login_files',
-        'session'                     => 'simp_audit_profile/disable__audit_session_files',
-        'CFG_grub'                    => 'simp_audit_profile/disable__audit_cfg_grub',
-        'CFG_cron'                    => 'simp_audit_profile/disable__audit_cfg_cron',
-        'CFG_shell'                   => 'simp_audit_profile/disable__audit_cfg_shell',
-        'CFG_pam'                     => 'simp_audit_profile/disable__audit_cfg_pam',
-        'CFG_security'                => 'simp_audit_profile/disable__audit_cfg_security',
-        'CFG_services'                => 'simp_audit_profile/disable__audit_cfg_services',
-        'CFG_xinetd'                  => 'simp_audit_profile/disable__audit_cfg_xinetd',
-        'yum-config'                  => 'simp_audit_profile/disable__audit_cfg_yum',
-        'privileged-passwd'           => 'simp_audit_profile/disable__audit_passwd_cmds',
-        'privileged-postfix'          => 'simp_audit_profile/disable__audit_postfix_cmds',
-        'privileged-ssh'              => 'simp_audit_profile/disable__audit_ssh_keysign_cmd',
-        'privileged-cron'             => 'simp_audit_profile/disable__audit_crontab_cmd',
-        'privileged-pam'              => 'simp_audit_profile/disable__audit_pam_timestamp_check_cmd',
+      { 'access'                      => 'disable__audit_unsuccessful_file_operations',
+        'chown'                       => 'disable__audit_chown',
+        'attr'                        => 'disable__audit_attr',
+        'su-root-activity'            => 'disable__audit_su_root_activity',
+        'suid-root-exec'              => 'disable__audit_suid_sgid',
+        'modules'                     => 'disable__audit_kernel_modules',
+        'audit_time_rules'            => 'disable__audit_time',
+        'audit_network_modifications' => 'disable__audit_locale',
+        'mount'                       => 'disable__audit_mount',
+        'audit_account_changes'       => 'disable__audit_local_account',
+        'MAC-policy'                  => 'disable__audit_selinux_policy',
+        'logins'                      => 'disable__audit_login_files',
+        'session'                     => 'disable__audit_session_files',
+        'CFG_grub'                    => 'disable__audit_cfg_grub',
+        'CFG_cron'                    => 'disable__audit_cfg_cron',
+        'CFG_shell'                   => 'disable__audit_cfg_shell',
+        'CFG_pam'                     => 'disable__audit_cfg_pam',
+        'CFG_security'                => 'disable__audit_cfg_security',
+        'CFG_services'                => 'disable__audit_cfg_services',
+        'CFG_xinetd'                  => 'disable__audit_cfg_xinetd',
+        'yum-config'                  => 'disable__audit_cfg_yum',
+        'privileged-passwd'           => 'disable__audit_passwd_cmds',
+        'privileged-postfix'          => 'disable__audit_postfix_cmds',
+        'privileged-ssh'              => 'disable__audit_ssh_keysign_cmd',
+        'privileged-cron'             => 'disable__audit_crontab_cmd',
+        'privileged-pam'              => 'disable__audit_pam_timestamp_check_cmd',
       }.each do |key, hiera_file|
         context "with #{key} auditing disabled" do
-          let(:hieradata) { hiera_file }
+          let(:hieradata) { "simp_audit_profile/#{hiera_file}" }
 
           it {
             is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
@@ -154,7 +154,7 @@ describe 'auditd' do
         let(:hieradata) { 'simp_audit_profile/disable__audit_cfg_sudoers' }
         [
           %r{^-w /etc/sudoers -p wa -k CFG_sys$},
-          %r{^-w /etc/sudoers.d -p wa -k CFG_sys$},
+          %r{^-w /etc/sudoers.d/ -p wa -k CFG_sys$},
         ].each do |command_regex|
           it {
             is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').
@@ -230,7 +230,7 @@ describe 'auditd' do
 
         it {
           is_expected.to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
-            %r{^-a always,exit -F arch=b\d\d( -S \w*chmod\w*?)+ -k chmod$}
+            %r(^-a always,exit -F arch=b\d\d -S chmod,fchmod,fchmodat -k chmod$)
           )
         }
       end
@@ -240,13 +240,13 @@ describe 'auditd' do
 
         it {
           is_expected.to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
-            %r(^-a always,exit -F arch=b64 -S rename -S renameat -S rmdir -S unlink -S unlinkat -F perm=x -k delete)
+            %r(^-a always,exit -F arch=b64 -S rename,renameat,rmdir,unlink,unlinkat -F perm=x -k delete)
           )
         }
 
         it {
           is_expected.to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
-            %r(^-a always,exit -F arch=b32 -S rename -S renameat -S rmdir -S unlink -S unlinkat -F perm=x -k delete)
+            %r(^-a always,exit -F arch=b32 -S rename,renameat,rmdir,unlink,unlinkat -F perm=x -k delete)
           )
         }
       end
@@ -312,6 +312,7 @@ describe 'auditd' do
 
       context 'with all auditing options enabled and custom tags' do
         let(:hieradata) { 'simp_audit_profile/enable_all_custom_tags' }
+        let(:params) {{ :root_audit_level => 'insane' }}
 
         it 'uses custom tags as rule keys' do
           if os_facts[:os][:release][:major] == '6'
@@ -337,6 +338,94 @@ describe 'auditd' do
         it { is_expected.to contain_file('/etc/audit/rules.d/50_01_stig_base.rules').with_content(
           /#### auditd::config::audit_profiles::stig Audit Rules ####/)
         }
+      end
+
+      context 'with deprecated parameters' do
+        context 'disable audit_cfg_sudoers using deprecated audit_sudoers' do
+          let(:hieradata) { 'simp_audit_profile/disable__audit_sudoers' }
+          [
+            %r{^-w /etc/sudoers -p wa -k CFG_sys$},
+            %r{^-w /etc/sudoers.d/ -p wa -k CFG_sys$},
+          ].each do |command_regex|
+            it {
+              is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').
+                with_content(command_regex)
+            }
+          end
+        end
+
+        context 'set audit_cfg_sudoers rule key using deprecated audit_sudoers_tag' do
+          let(:hieradata) { 'simp_audit_profile/set__audit_sudoers_tag' }
+          [
+            %r{^-w /etc/sudoers -p wa -k old_sudoers_tag$},
+            %r{^-w /etc/sudoers.d/ -p wa -k old_sudoers_tag$},
+          ].each do |command_regex|
+            it {
+              is_expected.to contain_file('/etc/audit/rules.d/50_base.rules').
+                with_content(command_regex)
+            }
+          end
+
+          [
+            %r{^-w /etc/sudoers -p wa -k CFG_sys$},
+            %r{^-w /etc/sudoers.d/ -p wa -k CFG_sys$},
+          ].each do |command_regex|
+            it {
+              is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').
+                with_content(command_regex)
+            }
+          end
+        end
+
+        context 'disable audit_cfg_grub using deprecated audit_grub' do
+          let(:hieradata) { 'simp_audit_profile/disable__audit_grub' }
+          it {
+            is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
+              %r{^.* -k CFG_grub$}
+            )
+          }
+        end
+
+        context 'set audit_cfg_grub rule key using deprecated audit_grub_tag' do
+          let(:hieradata) { 'simp_audit_profile/set__audit_grub_tag' }
+
+          it {
+            is_expected.to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
+              %r{^.*grub.(d|conf).* -k old_grub_tag$}
+            )
+          }
+
+          it {
+            is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
+              %r{^.* -k CFG_grub$}
+            )
+          }
+        end
+
+        context 'disable audit_cfg_yum using deprecated audit_yum' do
+          let(:hieradata) { 'simp_audit_profile/disable__audit_yum' }
+          it {
+            is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
+              %r{^.* -k yum_config$}
+            )
+          }
+        end
+
+        context 'set audit_cfg_yum rule key using deprecated audit_yum_tag' do
+          let(:hieradata) { 'simp_audit_profile/set__audit_yum_tag' }
+
+          it {
+            is_expected.to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
+              %r{^.*/etc/yum.* -k old_yum_tag$}
+            )
+          }
+
+          it {
+            is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
+              %r{^.* -k yum_config$}
+            )
+          }
+        end
       end
     end
   end

@@ -45,6 +45,9 @@
 #   If true, set up audispd to send logs to syslog.
 #   Meets CCE-26933-2
 #
+# @param default_audit_profile
+#   Deprecated by `$default_audit_profiles`
+#
 # @param default_audit_profiles
 #   The built-in audit profile(s) to use to provide global audit rule
 #   configuration (error handling, buffer size, etc.) and a base set
@@ -120,44 +123,45 @@
 #   jobs. `cron` creates a lot of audit events that are not usually useful.
 #
 class auditd (
-  String                      $lname                   = $facts['fqdn'],
-  Boolean                     $immutable               = false,
-  Auditd::RootAuditLevel      $root_audit_level        = 'basic',
-  Integer[0]                  $uid_min                 = to_integer($facts['uid_min']),
-  Boolean                     $at_boot                 = true, # CCE-26785-6
-  Boolean                     $syslog                  = simplib::lookup('simp_options::syslog', {'default_value' => false }),  # CCE-26933-2
-  Array[Auditd::AuditProfile] $default_audit_profiles  = [ 'simp' ],
-  String                      $service_name            = 'auditd',
-  String                      $package_name            = 'audit',
-  String                      $package_ensure          = 'latest',
-  Boolean                     $enable                  = true,
-  Stdlib::Absolutepath        $log_file                = '/var/log/audit/audit.log',
-  Enum['RAW','NOLOG']         $log_format              = 'RAW',
-  String                      $log_group               = 'root',
-  Integer[0]                  $priority_boost          = 3,
-  Auditd::Flush               $flush                   = 'INCREMENTAL',
-  Integer[0]                  $freq                    = 20,
-  Integer[0]                  $num_logs                = 5, # CCE-27522-2
-  Enum['lossy','lossless']    $disp_qos                = 'lossy',
-  Stdlib::Absolutepath        $dispatcher              = '/sbin/audispd',
-  Auditd::NameFormat          $name_format             = 'USER',
-  Integer[0]                  $max_log_file            = 24, # CCE-27550-3
-  Auditd::MaxLogFileAction    $max_log_file_action     = 'ROTATE', # CCE-27237-7
-  Integer[0]                  $space_left              = 75,
-  Auditd::SpaceLeftAction     $space_left_action       = 'SYSLOG', # CCE-27238-5 : No guarantee of e-mail server so sending to syslog.
-  String                      $action_mail_acct        = 'root', # CCE-27241-9
-  Integer[0]                  $admin_space_left        = 50,
-  Auditd::SpaceLeftAction     $admin_space_left_action = 'SUSPEND', # CCE-27239-3 : No guarantee of e-mail server so sending to syslog.
-  Auditd::DiskFullAction      $disk_full_action        = 'SUSPEND',
-  Auditd::DiskErrorAction     $disk_error_action       = 'SUSPEND',
-  Boolean                     $ignore_errors           = true,
-  Boolean                     $ignore_failures         = true,
-  Integer[0]                  $buffer_size             = 16384,
-  Integer[0]                  $failure_mode            = 1,
-  Integer[0]                  $rate                    = 0,
-  Boolean                     $ignore_anonymous        = true,
-  Boolean                     $ignore_system_services  = true,
-  Boolean                     $ignore_crond            = true,
+  String                                  $lname                   = $facts['fqdn'],
+  Boolean                                 $immutable               = false,
+  Auditd::RootAuditLevel                  $root_audit_level        = 'basic',
+  Integer[0]                              $uid_min                 = to_integer($facts['uid_min']),
+  Boolean                                 $at_boot                 = true, # CCE-26785-6
+  Boolean                                 $syslog                  = simplib::lookup('simp_options::syslog', {'default_value' => false }),  # CCE-26933-2
+  Optional[Variant[Enum['simp'],Boolean]] $default_audit_profile   = undef,
+  Array[Auditd::AuditProfile]             $default_audit_profiles  = [ 'simp' ],
+  String                                  $service_name            = 'auditd',
+  String                                  $package_name            = 'audit',
+  String                                  $package_ensure          = 'latest',
+  Boolean                                 $enable                  = true,
+  Stdlib::Absolutepath                    $log_file                = '/var/log/audit/audit.log',
+  Enum['RAW','NOLOG']                     $log_format              = 'RAW',
+  String                                  $log_group               = 'root',
+  Integer[0]                              $priority_boost          = 3,
+  Auditd::Flush                           $flush                   = 'INCREMENTAL',
+  Integer[0]                              $freq                    = 20,
+  Integer[0]                              $num_logs                = 5, # CCE-27522-2
+  Enum['lossy','lossless']                $disp_qos                = 'lossy',
+  Stdlib::Absolutepath                    $dispatcher              = '/sbin/audispd',
+  Auditd::NameFormat                      $name_format             = 'USER',
+  Integer[0]                              $max_log_file            = 24, # CCE-27550-3
+  Auditd::MaxLogFileAction                $max_log_file_action     = 'ROTATE', # CCE-27237-7
+  Integer[0]                              $space_left              = 75,
+  Auditd::SpaceLeftAction                 $space_left_action       = 'SYSLOG', # CCE-27238-5 : No guarantee of e-mail server so sending to syslog.
+  String                                  $action_mail_acct        = 'root', # CCE-27241-9
+  Integer[0]                              $admin_space_left        = 50,
+  Auditd::SpaceLeftAction                 $admin_space_left_action = 'SUSPEND', # CCE-27239-3 : No guarantee of e-mail server so sending to syslog.
+  Auditd::DiskFullAction                  $disk_full_action        = 'SUSPEND',
+  Auditd::DiskErrorAction                 $disk_error_action       = 'SUSPEND',
+  Boolean                                 $ignore_errors           = true,
+  Boolean                                 $ignore_failures         = true,
+  Integer[0]                              $buffer_size             = 16384,
+  Integer[0]                              $failure_mode            = 1,
+  Integer[0]                              $rate                    = 0,
+  Boolean                                 $ignore_anonymous        = true,
+  Boolean                                 $ignore_system_services  = true,
+  Boolean                                 $ignore_crond            = true,
 ) {
 
   simplib::assert_metadata($module_name)

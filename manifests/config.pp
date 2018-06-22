@@ -4,6 +4,18 @@ class auditd::config {
 
   assert_private()
 
+  if $::auditd::default_audit_profile != undef {
+    deprecation('auditd::default_audit_profile',
+      "'auditd::default_audit_profile' is deprecated. Use 'auditd::default_audit_profiles' instead")
+    if $::auditd::default_audit_profile {
+      $profiles = [ 'simp' ]
+    } else {
+      $profiles = []
+    }
+  } else {
+    $profiles = $::auditd::default_audit_profiles
+  }
+
   file { '/etc/audit/rules.d':
     ensure  => 'directory',
     owner   => 'root',
@@ -49,7 +61,7 @@ class auditd::config {
     }
   }
 
-  unless empty($::auditd::default_audit_profiles) {
+  unless empty($profiles) {
     # use contain instead of include so that config file changes can
     # notify auditd::service class
     contain 'auditd::config::audit_profiles'

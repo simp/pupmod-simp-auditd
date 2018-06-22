@@ -156,55 +156,55 @@
 #   record
 #
 class auditd::config::audit_profiles::stig (
-  Integer $uid_min                                = $::auditd::uid_min,
-  Boolean $audit_unsuccessful_file_operations     = true,
-  String  $audit_unsuccessful_file_operations_tag = 'access',
-  Boolean $audit_chown                            = true,
-  String  $audit_chown_tag                        = 'perm_mod',
-  Boolean $audit_chmod                            = true,
-  String  $audit_chmod_tag                        = 'perm_mod',
-  Boolean $audit_attr                             = true,
-  String  $audit_attr_tag                         = 'perm_mod',
-  Boolean $audit_rename_remove                    = true,
-  String  $audit_rename_remove_tag                = 'delete',
-  Boolean $audit_suid_sgid                        = true,
-  Array   $default_suid_sgid_cmds,                   #data in modules
-  Array   $suid_sgid_cmds                         = [],
-  String  $audit_suid_sgid_tag                    = 'setuid/setgid',
-  Boolean $audit_kernel_modules                   = true,
-  String  $audit_kernel_modules_tag               = 'module-change',
-  Boolean $audit_mount                            = true,
-  String  $audit_mount_tag                        = 'privileged-mount',
-  Boolean $audit_local_account                    = true,
-  String  $audit_local_account_tag                = 'identity',
-  Boolean $audit_selinux_cmds                     = true,
-  String  $audit_selinux_cmds_tag                 = 'privileged-priv_change',
-  Boolean $audit_login_files                      = true,
-  String  $audit_login_files_tag                  = 'logins',
-  Boolean $audit_cfg_sudoers                      = true,
-  String  $audit_cfg_sudoers_tag                  = 'privileged-actions',
-  Boolean $audit_passwd_cmds                      = true,
-  String  $audit_passwd_cmds_tag                  = 'privileged-passwd',
-  Boolean $audit_priv_cmds                        = true,
-  String  $audit_priv_cmds_tag                    = 'privileged-priv_change',
-  Boolean $audit_postfix_cmds                     = true,
-  String  $audit_postfix_cmds_tag                 = 'privileged-postfix',
-  Boolean $audit_ssh_keysign_cmd                  = true,
-  String  $audit_ssh_keysign_cmd_tag              = 'privileged-ssh',
-  Boolean $audit_crontab_cmd                      = true,
-  String  $audit_crontab_cmd_tag                  = 'privileged-cron',
-  Boolean $audit_pam_timestamp_check_cmd          = true,
-  String  $audit_pam_timestamp_check_cmd_tag      = 'privileged-pam',
+  Integer[0]       $uid_min                                = $::auditd::uid_min,
+  Boolean          $audit_unsuccessful_file_operations     = true,
+  String[1]        $audit_unsuccessful_file_operations_tag = 'access',
+  Boolean          $audit_chown                            = true,
+  String[1]        $audit_chown_tag                        = 'perm_mod',
+  Boolean          $audit_chmod                            = true,
+  String[1]        $audit_chmod_tag                        = 'perm_mod',
+  Boolean          $audit_attr                             = true,
+  String[1]        $audit_attr_tag                         = 'perm_mod',
+  Boolean          $audit_rename_remove                    = true,
+  String[1]        $audit_rename_remove_tag                = 'delete',
+  Boolean          $audit_suid_sgid                        = true,
+  Array[String[1]] $default_suid_sgid_cmds,                   #data in modules
+  Array[String[1]] $suid_sgid_cmds                         = [],
+  String[1]        $audit_suid_sgid_tag                    = 'setuid/setgid',
+  Boolean          $audit_kernel_modules                   = true,
+  String[1]        $audit_kernel_modules_tag               = 'module-change',
+  Boolean          $audit_mount                            = true,
+  String[1]        $audit_mount_tag                        = 'privileged-mount',
+  Boolean          $audit_local_account                    = true,
+  String[1]        $audit_local_account_tag                = 'identity',
+  Boolean          $audit_selinux_cmds                     = true,
+  String[1]        $audit_selinux_cmds_tag                 = 'privileged-priv_change',
+  Boolean          $audit_login_files                      = true,
+  String[1]        $audit_login_files_tag                  = 'logins',
+  Boolean          $audit_cfg_sudoers                      = true,
+  String[1]        $audit_cfg_sudoers_tag                  = 'privileged-actions',
+  Boolean          $audit_passwd_cmds                      = true,
+  String[1]        $audit_passwd_cmds_tag                  = 'privileged-passwd',
+  Boolean          $audit_priv_cmds                        = true,
+  String[1]        $audit_priv_cmds_tag                    = 'privileged-priv_change',
+  Boolean          $audit_postfix_cmds                     = true,
+  String[1]        $audit_postfix_cmds_tag                 = 'privileged-postfix',
+  Boolean          $audit_ssh_keysign_cmd                  = true,
+  String[1]        $audit_ssh_keysign_cmd_tag              = 'privileged-ssh',
+  Boolean          $audit_crontab_cmd                      = true,
+  String[1]        $audit_crontab_cmd_tag                  = 'privileged-cron',
+  Boolean          $audit_pam_timestamp_check_cmd          = true,
+  String[1]        $audit_pam_timestamp_check_cmd_tag      = 'privileged-pam',
 ) {
 
   assert_private()
   $_suid_sgid_cmds = unique($default_suid_sgid_cmds + $suid_sgid_cmds)
 
   $_short_name = 'stig'
-  if length($::auditd::default_audit_profiles) == 1 {
+  if length($::auditd::config::profiles) == 1 {
     $_rules_file = '/etc/audit/rules.d/50_base.rules'
   } else {
-    $_index = auditd::get_array_index($_short_name, $::auditd::default_audit_profiles)
+    $_index = auditd::get_array_index($_short_name, $::auditd::config::profiles)
     $_rules_file = "/etc/audit/rules.d/50_${_index}_${_short_name}_base.rules"
   }
 

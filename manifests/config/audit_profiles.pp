@@ -67,7 +67,7 @@ class auditd::config::audit_profiles {
     content => epp("${_common_template_path}/tail.epp")
   }
 
-  $::auditd::default_audit_profiles.each | String $audit_profile | {
+  $::auditd::config::profiles.each | String $audit_profile | {
     # use contain instead of include so that config file changes can
     # notify auditd::service class
     contain "auditd::config::audit_profiles::${audit_profile}"

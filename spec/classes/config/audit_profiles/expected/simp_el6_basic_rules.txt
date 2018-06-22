@@ -9,10 +9,10 @@
 # RHEL-07-030530
 # RHEL-07-030540
 # RHEL-07-030550
--a always,exit -F arch=b64 -S creat -S mkdir -S mknod -S link -S symlink -S mkdirat -S mknodat -S linkat -S symlinkat -S openat -S open_by_handle_at -S open -S close -S rename -S renameat -S truncate -S ftruncate -S rmdir -S unlink -S unlinkat -F exit=-EACCES -k access
--a always,exit -F arch=b64 -S creat -S mkdir -S mknod -S link -S symlink -S mkdirat -S mknodat -S linkat -S symlinkat -S openat -S open_by_handle_at -S open -S close -S rename -S renameat -S truncate -S ftruncate -S rmdir -S unlink -S unlinkat -F exit=-EPERM -k access
--a always,exit -F arch=b32 -S creat -S mkdir -S mknod -S link -S symlink -S mkdirat -S mknodat -S linkat -S symlinkat -S openat -S open_by_handle_at -S open -S close -S rename -S renameat -S truncate -S ftruncate -S rmdir -S unlink -S unlinkat -F exit=-EACCES -k access
--a always,exit -F arch=b32 -S creat -S mkdir -S mknod -S link -S symlink -S mkdirat -S mknodat -S linkat -S symlinkat -S openat -S open_by_handle_at -S open -S close -S rename -S renameat -S truncate -S ftruncate -S rmdir -S unlink -S unlinkat -F exit=-EPERM -k access
+-a always,exit -F arch=b64 -S creat,mkdir,mknod,link,symlink,mkdirat,mknodat,linkat,symlinkat,openat,open_by_handle_at,open,close,rename,renameat,truncate,ftruncate,rmdir,unlink,unlinkat -F exit=-EACCES -k access
+-a always,exit -F arch=b64 -S creat,mkdir,mknod,link,symlink,mkdirat,mknodat,linkat,symlinkat,openat,open_by_handle_at,open,close,rename,renameat,truncate,ftruncate,rmdir,unlink,unlinkat -F exit=-EPERM -k access
+-a always,exit -F arch=b32 -S creat,mkdir,mknod,link,symlink,mkdirat,mknodat,linkat,symlinkat,openat,open_by_handle_at,open,close,rename,renameat,truncate,ftruncate,rmdir,unlink,unlinkat -F exit=-EACCES -k access
+-a always,exit -F arch=b32 -S creat,mkdir,mknod,link,symlink,mkdirat,mknodat,linkat,symlinkat,openat,open_by_handle_at,open,close,rename,renameat,truncate,ftruncate,rmdir,unlink,unlinkat -F exit=-EPERM -k access
 
 -a always,exit -F perm=a -F exit=-EACCES -k access
 -a always,exit -F perm=a -F exit=-EPERM -k access
@@ -87,8 +87,8 @@
 # RHEL-07-030380
 # RHEL-07-030390
 # RHEL-07-030400
--a always,exit -F arch=b64 -S chown -S fchown -S fchownat -S lchown -k chown
--a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -k chown
+-a always,exit -F arch=b64 -S chown,fchown,fchownat,lchown -k chown
+-a always,exit -F arch=b32 -S chown,fchown,fchownat,lchown -k chown
 
 # RHEL-07-030440
 # RHEL-07-030450
@@ -96,15 +96,15 @@
 # RHEL-07-030470
 # RHEL-07-030480
 # RHEL-07-030490
--a always,exit -F arch=b64 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -k attr
--a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -k attr
+-a always,exit -F arch=b64 -S setxattr,lsetxattr,fsetxattr,removexattr,lremovexattr,fremovexattr -k attr
+-a always,exit -F arch=b32 -S setxattr,lsetxattr,fsetxattr,removexattr,lremovexattr,fremovexattr -k attr
 
 ## Audit useful items that someone does when su'ing to root.
 # Had to add an entry in the default_drop rules file for getting rid of
 # anonymous records.  They are only moderately useful and contain *way*
 # too much noise since this covers things like cron as well.
--a always,exit -F arch=b64 -F auid!=0 -F uid=0 -S capset -S mknod -S mknodat -S pivot_root -S quotactl -S setsid -S adjtimex -S settimeofday -S setuid -S swapoff -S swapon -k su-root-activity
--a always,exit -F arch=b32 -F auid!=0 -F uid=0 -S capset -S mknod -S mknodat -S pivot_root -S quotactl -S setsid -S adjtimex -S settimeofday -S setuid -S swapoff -S swapon -k su-root-activity
+-a always,exit -F arch=b64 -F auid!=0 -F uid=0 -S capset,mknod,mknodat,pivot_root,quotactl,setsid,adjtimex,settimeofday,setuid,swapoff,swapon -k su-root-activity
+-a always,exit -F arch=b32 -F auid!=0 -F uid=0 -S capset,mknod,mknodat,pivot_root,quotactl,setsid,adjtimex,settimeofday,setuid,swapoff,swapon -k su-root-activity
 
 ## Audit the execution of suid and sgid binaries.
 # CCE-26457-2
@@ -128,16 +128,16 @@
 # RHEL-07-030820
 # RHEL-07-030821
 # RHEL-07-030830
--a always,exit -F arch=b64 -S create_module -S init_module -S finit_module -S delete_module -k modules
--a always,exit -F arch=b32 -S create_module -S init_module -S finit_module -S delete_module -k modules
+-a always,exit -F arch=b64 -S create_module,init_module,finit_module,delete_module -k modules
+-a always,exit -F arch=b32 -S create_module,init_module,finit_module,delete_module -k modules
 
 ## Audit things that could affect time
 # CCE-27172-6
 # CCE-27203-9
 # CCE-27169-2
 # CCE-27170-0
--a always,exit -F arch=b32 -S adjtimex -S stime -S settimeofday -k audit_time_rules
--a always,exit -F arch=b64 -S adjtimex -S settimeofday -k audit_time_rules
+-a always,exit -F arch=b32 -S adjtimex,stime,settimeofday -k audit_time_rules
+-a always,exit -F arch=b64 -S adjtimex,settimeofday -k audit_time_rules
 -a always,exit -F arch=b32 -S clock_settime -F a0=0x0 -k audit_time_rules
 -a always,exit -F arch=b64 -S clock_settime -F a0=0x0 -k audit_time_rules
 
@@ -146,8 +146,8 @@
 
 ## Audit things that could affect system locale
 # CCE-26648-6
--a always,exit -F arch=b32 -S sethostname -S setdomainname -k audit_network_modifications
--a always,exit -F arch=b64 -S sethostname -S setdomainname -k audit_network_modifications
+-a always,exit -F arch=b32 -S sethostname,setdomainname -k audit_network_modifications
+-a always,exit -F arch=b64 -S sethostname,setdomainname -k audit_network_modifications
 -w /etc/issue -p wa -k audit_network_modifications
 -w /etc/issue.net -p wa -k audit_network_modifications
 -w /etc/hosts -p wa -k audit_network_modifications
@@ -159,8 +159,8 @@
 #
 # RHEL-07-030740
 # RHEL-07-030750
--a always,exit -F arch=b32 -S mount -S umount -S umount2 -k mount
--a always,exit -F arch=b64 -S mount -S umount2 -k mount
+-a always,exit -F arch=b32 -S mount,umount,umount2 -k mount
+-a always,exit -F arch=b64 -S mount,umount2 -k mount
 -a always,exit -F arch=b64 -F path=/bin/mount -k mount
 -a always,exit -F arch=b32 -F path=/bin/mount -k mount
 -a always,exit -F path=/bin/umount -F perm=x -k mount
