@@ -1,5 +1,58 @@
 require 'spec_helper_acceptance'
 
+# Returns list of errors and a list or warnings
+# This logic ASSUMES the augenrules error log has 2 lines for each
+# error and 1 line for each warning, as follows:
+# ...
+#   Error sending add rule data request (No such file or directory)
+#   There was an error in line 272 of /etc/audit/audit.rules
+#   Error sending add rule data request (Rule exists)
+#   There was an error in line 305 of /etc/audit/audit.rules
+#   WARNING - 32/64 bit syscall mismatch in line 159, you should specify an arch
+# ...
+#
+def get_rule_errors_and_warnings(host, ignore = [], print_findings = true)
+  result = on(host, 'augenrules --load', :accept_all_exit_codes => true)
+
+  # warnings
+  rule_warnings = result.stderr.split("\n").delete_if { |line| !line.include?('WARNING') }
+
+  # errors
+  errors = result.stderr.split("\n").delete_if { |line| line.include?('WARNING') }
+  rule_errors = []
+  errors.each_slice(2) do |line_pair|
+    match = line_pair[0].match(/.*\((.*)\)/)
+    if match
+      err_msg = match[1]
+    else
+      err_msg = line_pair[0].strip
+    end
+    line_num = line_pair[1].match(%r{error in line (.+) of /etc/audit/audit.rules})[1]
+    rule = on(host, "sed -n #{line_num}p /etc/audit/audit.rules").stdout.strip
+    rule_errors << [err_msg, line_num, rule]
+  end
+  rule_errors.sort { |x,y|  x[0] <=> y[0] }
+
+  if print_findings
+    unless rule_warnings.empty?
+      puts '<'*10 + ' Rule warnings ' + '<'*10
+      rule_warnings.each { |rule_warning | puts rule_warning }
+    end
+
+    unless rule_errors.empty?
+      puts '<'*10 + ' Rule errors ' + '<'*10
+      rule_errors.each do |rule_error |
+        puts "#{rule_error[0]}: #{rule_error[2]}  (line #{rule_error[1]})"
+      end
+    end
+  end
+
+  # filter out rules that match ignore list
+  rule_errors.delete_if { |rule_error| ignore.include?(rule_error[0]) }
+
+  [rule_errors, rule_warnings]
+end
+
 test_name 'auditd class with alternative auditd profiles'
 
 # The fundamental module capabilities are tested in 00_base_spec.rb and
@@ -80,20 +133,13 @@ describe 'auditd class with alternative audit profiles' do
           result = on(host, "auditctl -l")
           expect(result.stdout).to_not match(/No rules/)
 
-          result = on(host, 'augenrules --load', :accept_all_exit_codes => true)
-          rule_errors = result.stderr.split("\n").delete_if { |line| !line.include?('error in line') }
-          rule_errors.map! { |line| line=line.match(%r{error in line (.+) of /etc/audit/audit.rules})[1] }
-          rule_errors.uniq!
-
-          # Again, only the watch rule for /etc/snmp/snmpd.conf should
-          # be rejected because the watche file's parent directory does
-          # not exist
-          expect(rule_errors.size).to eq 1
-          result = on(host, "sed -n #{rule_errors[0]}p /etc/audit/audit.rules")
-          expect(result.stdout).to match(%r{/etc/snmp/snmpd.conf})
+          # get errors and warnings from augenrules, ignoring watch rules
+          # for any file for which its parent directory does not exist.
+          ignore = ['No such file or directory']
+          rule_errors, rule_warnings = get_rule_errors_and_warnings(host, ignore)
+          expect(rule_errors.size).to eq 0
 
           # No rule warnings should be emitted
-          rule_warnings = result.stderr.split("\n").delete_if { |line| !line.include?('WARNING') }
           expect(rule_warnings.size).to eq 0
         end
       end
@@ -123,17 +169,11 @@ describe 'auditd class with alternative audit profiles' do
           result = on(host, "auditctl -l")
           expect(result.stdout).to_not match(/No rules/)
 
-          result = on(host, 'augenrules --load', :accept_all_exit_codes => true)
-          rule_errors = result.stderr.split("\n").delete_if { |line| !line.include?('error in line') }
-          rule_errors.map! { |line| line=line.match(%r{error in line (.+) of /etc/audit/audit.rules})[1] }
-          rule_errors.uniq!
-
-          # Again, only the watch rule for /etc/snmp/snmpd.conf should
-          # be rejected because the watche file's parent directory does
-          # not exist
-          expect(rule_errors.size).to eq 1
-          result = on(host, "sed -n #{rule_errors[0]}p /etc/audit/audit.rules")
-          expect(result.stdout).to match(%r{/etc/snmp/snmpd.conf})
+          # get errors and warnings from augenrules, ignoring watch rules
+          # for any file for which its parent directory does not exist.
+          ignore = ['No such file or directory']
+          rule_errors, rule_warnings = get_rule_errors_and_warnings(host, ignore)
+          expect(rule_errors.size).to eq 0
 
           # No rule warnings should be emitted
           rule_warnings = result.stderr.split("\n").delete_if { |line| !line.include?('WARNING') }
@@ -166,37 +206,13 @@ describe 'auditd class with alternative audit profiles' do
           result = on(host, "auditctl -l")
           expect(result.stdout).to_not match(/No rules/)
 
-          result = on(host, 'augenrules --load', :accept_all_exit_codes => true)
-          rule_errors = result.stderr.split("\n").delete_if { |line| !line.include?('error in line') }
-          rule_errors.map! { |line| line=line.match(%r{error in line (.+) of /etc/audit/audit.rules})[1] }
-          rule_errors.uniq!
-
-          if host.host_hash['platform'] =~ /el-6/
-            # We expect no rules to be rejected
-            expected = []
-          else
-            # We expect 5 file watch rules to be rejected because the
-            # packages for those files have not been installed, and thus
-            # the paths to those files do not exist.
-            expected = [
-              '/usr/lib64/dbus-1/dbus-daemon-launch-helper',
-              '/usr/libexec/sssd/krb5_child',
-              '/usr/libexec/sssd/ldap_child',
-              '/usr/libexec/sssd/proxy_child',
-              '/usr/libexec/sssd/selinux_child'
-            ]
-          end
-
-          errors = []
-          rule_errors.each do |index|
-            rule = on(host, "sed -n #{index}p /etc/audit/audit.rules").stdout
-            errors << rule.match(/.* path=(.*?) .*/)[1]
-          end
-          expect(errors.size).to eq expected.size
-          expect(expected - errors).to be_empty
+          # get errors and warnings from augenrules, ignoring watch rules
+          # for any file for which its parent directory does not exist.
+          ignore = ['No such file or directory']
+          rule_errors, rule_warnings = get_rule_errors_and_warnings(host, ignore)
+          expect(rule_errors.size).to eq 0
 
           # No rule warnings should be emitted
-          rule_warnings = result.stderr.split("\n").delete_if { |line| !line.include?('WARNING') }
           expect(rule_warnings.size).to eq 0
         end
       end
@@ -217,52 +233,14 @@ describe 'auditd class with alternative audit profiles' do
           result = on(host, "auditctl -l")
           expect(result.stdout).to_not match(/No rules/)
 
-          result = on(host, 'augenrules --load', :accept_all_exit_codes => true)
-          rule_errors = result.stderr.split("\n").delete_if { |line| !line.include?('error in line') }
-          rule_errors.map! { |line| line=line.match(%r{error in line (.+) of /etc/audit/audit.rules})[1] }
-          rule_errors.uniq!
-
-          if host.host_hash['platform'] =~ /el-6/
-            # We expect 1 watch rule from simp profile to be rejected,
-            # because its parent directory does not exist.
-            # In addition, we expect 3 duplicate rules to be rejected.
-            expected = [
-              '/etc/snmp/snmpd.conf',
-              '/var/log/lastlog',
-              '/var/log/tallylog',
-              '/var/run/faillock'
-            ]
-          else
-            # We expect 6 file watch rules to be rejected, because
-            # their parent directories do not exist:
-            # - 1 from simp profile
-            # - 5 from stig profile
-            #
-            # We expect 1 watch rule from simp profile to be rejected.
-            expected = [
-              '/etc/snmp/snmpd.conf',
-              '/usr/lib64/dbus-1/dbus-daemon-launch-helper',
-              '/usr/libexec/sssd/krb5_child',
-              '/usr/libexec/sssd/ldap_child',
-              '/usr/libexec/sssd/proxy_child',
-              '/usr/libexec/sssd/selinux_child',
-              '/var/log/lastlog',
-              '/var/log/tallylog',
-              '/var/run/faillock'
-            ]
-          end
-
-          errors = []
-          rule_errors.each do |index|
-            rule = on(host, "sed -n #{index}p /etc/audit/audit.rules").stdout
-            match = rule.match(/ path=(.*?) -|^-w (.*) -p/)
-            errors << (match[1] or match[2])
-          end
-          expect(errors.size).to eq expected.size
-          expect(expected - errors).to be_empty
+          # get errors and warnings from augenrules, ignoring duplicate rules
+          # and watch rules for any file for which its parent directory does
+          # not exist.
+          ignore = ['Rule exists', 'No such file or directory']
+          rule_errors, rule_warnings = get_rule_errors_and_warnings(host, ignore)
+          expect(rule_errors.size).to eq 0
 
           # No rule warnings should be emitted
-          rule_warnings = result.stderr.split("\n").delete_if { |line| !line.include?('WARNING') }
           expect(rule_warnings.size).to eq 0
         end
       end
