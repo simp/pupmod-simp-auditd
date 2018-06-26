@@ -1,0 +1,7 @@
+# This file is managed by Puppet (module 'auditd')
+
+<% if @_num_logs.to_i > 0
+    (1..@_num_logs.to_i).each do |i| -%>
+-w <%= @_log_file %>.<%= i %> -p rwa -k audit-logs
+<%  end -%>
+<% end -%>
