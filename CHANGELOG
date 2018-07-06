@@ -1,3 +1,7 @@
+* Fri Jul 06 2018 Trey Dockendorf <tdockendorf@osc.edu> - 8.0.1-0
+- Allow lowercase values for several parameters in accordance with the man
+  pages and SCAP expectations.
+
 * Thu Jun 21 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 8.0.0-0
 - Added ability to select one or more audit profiles.  When multiple
   profiles are selected, their rules are effectively concatenated in
