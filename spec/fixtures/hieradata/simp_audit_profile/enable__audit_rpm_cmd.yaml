@@ -1,0 +1,2 @@
+---
+auditd::config::audit_profiles::simp::audit_rpm_cmd: true

@@ -1,6 +1,9 @@
 require 'spec_helper'
 
-describe 'auditd::config' do
+# We have to test auditd::config via auditd, because auditd::config is
+# private.  To take advantage of hooks built into puppet-rspec, the
+# class described needs to be the class instantiated, i.e., auditd.
+describe 'auditd' do
   context 'supported operating systems' do
     on_supported_os.each do |os, facts|
       context "on #{os}" do
@@ -8,9 +11,10 @@ describe 'auditd::config' do
           facts
         end
 
-        context "auditd::config without any parameters" do
+        context "with default parameters" do
           let(:params) {{ }}
-          it { is_expected.to contain_class('auditd::config::audit_profiles::simp') }
+
+          it { is_expected.to compile.with_all_deps }
           it {
             is_expected.to contain_file('/etc/audit/rules.d').with({
               :ensure  => 'directory',
@@ -64,6 +68,39 @@ describe 'auditd::config' do
             }
           else
             it { is_expected.to_not contain_augeas('auditd/USE_AUGENRULES') }
+          end
+          it { is_expected.to contain_class('auditd::config::audit_profiles') }
+          it { is_expected.to contain_class('auditd::config::audit_profiles::simp') }
+        end
+
+        context 'with empty default_audit_profiles' do
+          let(:params) {{ :default_audit_profiles => [] }}
+
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to_not contain_class('auditd::config::audit_profiles') }
+        end
+
+        context 'with deprecated parameters' do
+          context 'with default_audit_profile = true' do
+            let(:params) {{ :default_audit_profile => true }}
+
+            it { is_expected.to contain_class('auditd::config::audit_profiles') }
+            it { is_expected.to contain_class('auditd::config::audit_profiles::simp') }
+          end
+
+          context 'with default_audit_profile = false' do
+            let(:params) {{ :default_audit_profile => false }}
+
+            it { is_expected.to compile.with_all_deps }
+            it { is_expected.to_not contain_class('auditd::config::audit_profiles') }
+            it { is_expected.to_not contain_class('auditd::config::audit_profiles::simp') }
+          end
+
+          context "with default_audit_profile = 'simp'" do
+            let(:params) {{ :default_audit_profile => 'simp' }}
+
+            it { is_expected.to contain_class('auditd::config::audit_profiles') }
+            it { is_expected.to contain_class('auditd::config::audit_profiles::simp') }
           end
         end
       end

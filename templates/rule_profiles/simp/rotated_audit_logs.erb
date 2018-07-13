@@ -1,5 +1,0 @@
-<% if @num_logs.to_i > 0 then
-    (1..@num_logs.to_i).each do |i| -%>
--w <%= @log_file %>.<%= i %> -p rwa -k audit-logs
-<%  end -%>
-<% end -%>

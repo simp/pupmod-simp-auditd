@@ -1,3 +1,10 @@
+<%
+  if ENV['BEAKER_HYPERVISOR']
+    hypervisor = ENV['BEAKER_HYPERVISOR']
+  else
+    hypervisor = 'vagrant'
+  end
+-%>
 HOSTS:
   oel7:
     roles:
@@ -5,7 +12,7 @@ HOSTS:
       - el7
     platform:   el-7-x86_64
     box:        elastic/oel-7-x86_64
-    hypervisor: vagrant
+    hypervisor: <%= hypervisor %>
     yum_repos:
       chef-current:
         baseurl: 'https://packages.chef.io/repos/yum/current/el/7/$basearch'
@@ -21,7 +28,7 @@ HOSTS:
       - el6
     platform:   el-6-x86_64
     box:        elastic/oel-6-x86_64
-    hypervisor: vagrant
+    hypervisor: <%= hypervisor %>
     yum_repos:
       chef-current:
         baseurl: 'https://packages.chef.io/repos/yum/current/el/7/$basearch'
@@ -36,3 +43,6 @@ CONFIG:
   log_level: verbose
   type:      aio
   vagrant_memsize: 256
+<% if ENV['BEAKER_PUPPET_ENVIRONMENT'] -%>
+  puppet_environment: <%= ENV['BEAKER_PUPPET_ENVIRONMENT'] %>
+<% end -%>

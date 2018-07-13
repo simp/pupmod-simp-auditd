@@ -1,0 +1,20 @@
+---
+auditd::config::audit_profiles::stig::audit_attr_tag: my_attr
+auditd::config::audit_profiles::stig::audit_cfg_sudoers_tag: my_cfg_sudoers
+auditd::config::audit_profiles::stig::audit_chmod_tag: my_chmod
+auditd::config::audit_profiles::stig::audit_chown_tag: my_chown
+auditd::config::audit_profiles::stig::audit_crontab_cmd_tag: my_crontab
+auditd::config::audit_profiles::stig::audit_kernel_modules_tag: my_kernel_modules
+auditd::config::audit_profiles::stig::audit_local_account_tag: my_local_account
+auditd::config::audit_profiles::stig::audit_login_files_tag: my_login_files
+auditd::config::audit_profiles::stig::audit_mount_tag: my_mount
+auditd::config::audit_profiles::stig::audit_pam_timestamp_check_cmd_tag: my_pam_timestamp_check_cmd
+auditd::config::audit_profiles::stig::audit_passwd_cmds_tag: my_passwd_cmds
+auditd::config::audit_profiles::stig::audit_postfix_cmds_tag: my_postfix_cmds
+auditd::config::audit_profiles::stig::audit_priv_cmds_tag: my_priv_cmds
+auditd::config::audit_profiles::stig::audit_rename_remove_tag: my_rename_remove
+auditd::config::audit_profiles::stig::audit_selinux_cmds_tag: my_selinux_cmds
+auditd::config::audit_profiles::stig::audit_session_files_tag: my_session_files
+auditd::config::audit_profiles::stig::audit_ssh_keysign_cmd_tag: my_ssh_keysign_cmd
+auditd::config::audit_profiles::stig::audit_suid_sgid_tag: my_suid_sgid
+auditd::config::audit_profiles::stig::audit_unsuccessful_file_operations_tag: my_unsuccessful_file_operations

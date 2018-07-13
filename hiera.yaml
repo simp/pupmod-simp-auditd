@@ -1,0 +1,19 @@
+---
+version: 4
+datadir: data
+hierarchy:
+  - name: "OS + Release"
+    backend: "yaml"
+    path: "os/%{facts.operatingsystem}-%{facts.operatingsystemmajrelease}"
+  - name: "OS"
+    backend: "yaml"
+    path: "os/%{facts.operatingsystem}"
+  - name: "OSFamily"
+    backend: "yaml"
+    path: "os/%{facts.osfamily}"
+  - name: "Kernel"
+    backend: "yaml"
+    path: "os/%{facts.kernel}"
+  - name: "Common"
+    backend: "yaml"
+    path: "common"

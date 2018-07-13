@@ -1,0 +1,2 @@
+---
+auditd::config::audit_profiles::stig::audit_postfix_cmds: false

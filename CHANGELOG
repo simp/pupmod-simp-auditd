@@ -1,5 +1,81 @@
-* Mon Mar 05 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.1.4-0
+* Fri Jul 13 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.0.2-0
 - Updated to work with Puppet 5 and OEL
+
+* Fri Jul 06 2018 Trey Dockendorf <tdockendorf@osc.edu> - 8.0.1-0
+- Allow lowercase values for several parameters in accordance with the man
+  pages and SCAP expectations.
+
+* Thu Jun 21 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 8.0.0-0
+- Added ability to select one or more audit profiles.  When multiple
+  profiles are selected, their rules are effectively concatenated in
+  the order in which the profiles are listed in
+  auditd::default_audit_profiles.
+- The following API Changes were made in support of multiple audit
+  profiles:
+  - $::auditd::$default_audit_profile has been deprecated by
+    $::auditd::$default_audit_profiles
+  - auditd::config and auditd::config::audit_profiles::simp classes are
+    now private.  In the unlikely event that you included just these
+    classes in your manifest, you must now include auditd instead.
+  - The following auditctl global configuration options that were in
+    auditd::config::audit_profiles::simp are now in the auditd class,
+    instead: $ignore_errors, $ignore_anonymous, $ignore_system_services,
+    and $ignore_crond. They were moved because they are now applied to
+    the set of audit profiles selected, not just the 'simp' audit
+    profile.
+  - The following auditd::config::audit_profiles::simp class parameters
+    have been deprecated for clarity:
+    - $audit_sudoers has been deprecated by $audit_cfg_sudoers
+    - $audit_sudoers_tag has been deprecated by $audit_cfg_sudoers
+    - $audit_grub has been deprecated by $audit_cfg_grub
+    - $audit_grub_tag has been deprecated by $audit_cfg_grub_tag
+    - $audit_yum has been deprecated by $audit_cfg_yum
+    - $audit_yum_tag has been deprecated by $audit_cfg_yum_tag
+  - Some previously hard-coded, internal configuration is now exposed
+    as data-in-modules.
+- Added 'stig' audit profile which manages rules that match DISA STIG
+  checks, exactly.
+  - For executables explicitly listed in the RHEL7 STIG, includes watchs
+    for binaries in the real paths (/usr/bin, /usr/sbin) and linked paths
+    (/bin, /sbin). This is to address inconsistencies among the STIG and
+    the Inspec and OSCAP scans. (All should use the real paths, but don't.)
+- Fixed bugs in 'simp' audit profile
+  - Fixed umask syscall rules.  These rules require arch filters.
+  - Fixed clock_settime syscall rules.  Per the sample STIG audit rules
+    packaged in the auditd RPM, these rules require an 'a0' filter.
+  - Fixed bug in which /var/log/tallylog was grouped with session
+    instead of logins.
+  - Fixed bug in which the /etc/pam.d watch rule had the wrong tag
+- Updated 'simp' audit profile settings for DISA STIG.
+  - Expanded the list of successful syscall operations audited.
+  - Expanded the list of module syscall operations audited
+  - Added an option to monitor selinux commands, (i.e., chcon,
+    semanage, setfiles, setsebool)
+  - Added an option to audit the execution of password commands
+    ('passwd', 'unix_chkpwd', 'gpasswd', 'chage', 'userhelper')
+  - Added an option to audit the execution of privilege-related
+    commands ('su', 'sudo', 'newgrp', 'chsh', 'sudoedit')
+  - Added an option to audit the execution of postfix-related commands
+    ('postdrop', 'postqueue')
+  - Added an option to audit the execution of the 'ssh-keysign' command
+  - Added an option to audit the execution of the 'crontab' command
+  - Added an option to audit the execution of the 'pam_timestamp_check'
+    command
+  - Added an option to audit the execution of rename/remove operations
+    for non-service users (rename', 'renameat', rmdir', 'unlink', and
+    'unlinkat')
+  - Added watch rules for /etc/hostname and /etc/NetworkManager (for
+    centos7) pulled from the sample STIG audit rules packaged in the
+    auditd RPM.
+  - For executables explicitly listed in the RHEL7 STIG, includes watchs
+    for binaries in the real paths (/usr/bin, /usr/sbin) and linked paths
+    (/bin, /sbin). This is to address inconsistencies among the STIG and
+    the Inspec and OSCAP scans. (All should use the real paths, but don't.)
+
+* Mon Mar 26 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 7.1.3-0
+- Work around RPM upgrade issue with nodeset link in compliance
+  acceptance test suite.
+>>>>>>> master
 
 * Tue Jan 09 2018 Nick Markowski <nicholas.markowski@onyxpoint.com> - 7.1.3-0
 - Updated compliance suite to use new inspec profile,

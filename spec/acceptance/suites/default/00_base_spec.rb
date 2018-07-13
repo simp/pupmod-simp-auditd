@@ -1,8 +1,8 @@
 require 'spec_helper_acceptance'
 
-test_name 'auditd class'
+test_name 'auditd class with simp audit profile'
 
-describe 'auditd class' do
+describe 'auditd class with simp audit profile' do
   let(:hieradata) {
     {
       'simp_options::syslog'    => true,
@@ -10,12 +10,6 @@ describe 'auditd class' do
       'pki::private_key_source' => "file:///etc/pki/simp-testing/pki/private/%{fqdn}.pem",
       'pki::public_key_source'  => "file:///etc/pki/simp-testing/pki/public/%{fqdn}.pub",
     }
-  }
-
-  let(:disable_hieradata) {
-    {
-      'auditd::at_boot' => false
-    }.merge(hieradata)
   }
 
   let(:enable_audit_messages) {
@@ -34,7 +28,6 @@ describe 'auditd class' do
   hosts.each do |host|
     context "on #{host}" do
       context 'default parameters' do
-        # Using puppet_apply as a helper
         it 'should work with no errors' do
           set_hieradata_on(host, hieradata)
           apply_manifest_on(host, manifest, :catch_failures => true)
@@ -66,6 +59,29 @@ describe 'auditd class' do
           on(host, 'pgrep audispd')
         end
 
+        it 'should load valid rules' do
+          on(host, 'cat /etc/audit/audit.rules')
+          result = on(host, 'auditctl -l')
+          expect(result.stdout).to_not match(/No rules/)
+
+          result = on(host, 'augenrules --load', :accept_all_exit_codes => true)
+          rule_errors = result.stderr.split("\n").delete_if { |line| !line.include?('error in line') }
+          rule_errors.map! { |line| line=line.match(%r{error in line (.+) of /etc/audit/audit.rules})[1] }
+          rule_errors.uniq!
+
+          # We expect one rule to be rejected: the watch for
+          # /etc/snmp/snmpd.conf changes.  This rule should be rejected
+          # because the watched file's parent directory does not exist.
+          # (net-snmp package is not installed.)
+          expect(rule_errors.size).to eq 1
+          result = on(host, "sed -n #{rule_errors[0]}p /etc/audit/audit.rules")
+          expect(result.stdout).to match(%r{/etc/snmp/snmpd.conf})
+
+          # No rule warnings should be emitted
+          rule_warnings = result.stderr.split("\n").delete_if { |line| !line.include?('WARNING') }
+          expect(rule_warnings.size).to eq 0
+        end
+
         it 'should restart the audit dispatcher if it is killed' do
           on(host, 'pkill audispd')
           apply_manifest_on(host, manifest, :catch_failures => true)
@@ -89,7 +105,7 @@ describe 'auditd class' do
         end
       end
 
-      context 'allowing audit messages' do
+      context 'allowing audit syslog messages' do
         it 'should work with no errors' do
           set_hieradata_on(host, enable_audit_messages)
           apply_manifest_on(host, manifest, :catch_failures => true)
@@ -114,36 +130,9 @@ describe 'auditd class' do
           expect(result.output).to include('-w /var/log/audit/audit.log -p wa -k audit-logs')
           expect(result.output).to include('-w /var/log/audit/audit.log.5 -p rwa -k audit-logs')
 
-          # cause an auditable event
+          # cause an auditable event and verify it is logged
           on(host,'useradd thing2')
           on(host, %(grep -qe 'audispd:.*type=SYSCALL msg=audit.*comm="useradd.*key="audit_account_changes"' /var/log/secure))
-        end
-      end
-
-      context 'disabling auditd at the kernel level' do
-        it 'should work with no errors' do
-          set_hieradata_on(host, disable_hieradata)
-          apply_manifest_on(host, manifest, :catch_failures => true)
-        end
-
-        # Note: In SIMP, svckill will take care of actually disabling auditd if
-        # it is no longer managed. Here, we're not including svckill by default.
-        it 'should not kill the auditd service' do
-          result = on(host, 'puppet resource service auditd')
-          expect(result.output).to include("ensure => 'running'")
-          expect(result.output).to include("enable => 'true'")
-        end
-
-        it 'should require reboot on subsequent run' do
-          result = apply_manifest_on(host, manifest, :catch_failures => true)
-          expect(result.output).to include('audit => modified')
-
-          # Reboot to disable auditing in the kernel
-          host.reboot
-        end
-
-        it 'should have kernel-level audit disabled on reboot' do
-          on(host, 'grep "audit=0" /proc/cmdline')
         end
       end
     end

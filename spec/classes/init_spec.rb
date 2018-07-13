@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe 'auditd' do
-  shared_examples_for "a structured module" do
+  shared_examples_for 'a structured module' do
     it { is_expected.to compile.with_all_deps }
     it { is_expected.to create_class('auditd') }
     it { is_expected.to contain_class('auditd') }
@@ -17,9 +17,9 @@ describe 'auditd' do
           os_facts
         end
 
-        context "auditd without default parameters" do
+        context 'auditd with default parameters' do
           let(:params) {{ }}
-          it_behaves_like "a structured module"
+          it_behaves_like 'a structured module'
           it {
             is_expected.to contain_service('auditd').with({
               :ensure => 'running',
@@ -35,7 +35,7 @@ describe 'auditd' do
           it { is_expected.to contain_class('auditd::config::grub').with_enable(true) }
         end
 
-        context "auditd with auditing disabled" do
+        context 'auditd with auditing disabled' do
           let(:params) {{
             :enable => false
           }}
@@ -46,7 +46,7 @@ describe 'auditd' do
           it { is_expected.to_not contain_class('auditd::service') }
         end
 
-        context "auditd with logging enabled" do
+        context 'auditd with logging enabled' do
           let(:params) {{
             :syslog => true
           }}
@@ -67,7 +67,7 @@ describe 'auditd' do
         os_facts
       }
 
-      it { expect { is_expected.to contain_package('auditd') }.to raise_error(Puppet::Error, /.*Solaris.* not supported/) }
+      it { expect { is_expected.to contain_package('auditd') }.to raise_error(Puppet::Error) }
     end
   end
 end

@@ -1,19 +1,162 @@
+#### <%= @name -%> Audit Rules ####
 <% if @audit_unsuccessful_file_operations -%>
-## unsuccessful file operations
+
+## Audit unsuccessful file operations
 # CCE-26712-0
 # CCE-26651-0
-<%   if @hardwaremodel.eql?("x86_64") -%>
--a always,exit -F arch=b64 -S creat -S mkdir -S mknod -S link -S symlink -S mkdirat -S mknodat -S linkat -S symlinkat -S openat -S open_by_handle_at -S open -S close -S rename -S renameat -S truncate -S ftruncate -S rmdir -S unlink -S unlinkat -F exit=-EACCES -k <%= @audit_unsuccessful_file_operations_tag %>
--a always,exit -F arch=b64 -S creat -S mkdir -S mknod -S link -S symlink -S mkdirat -S mknodat -S linkat -S symlinkat -S openat -S open_by_handle_at -S open -S close -S rename -S renameat -S truncate -S ftruncate -S rmdir -S unlink -S unlinkat -F exit=-EPERM -k <%= @audit_unsuccessful_file_operations_tag %>
+# RHEL-07-030500
+# RHEL-07-030510
+# RHEL-07-030520
+# RHEL-07-030530
+# RHEL-07-030540
+# RHEL-07-030550
+<%   if @facts['hardwaremodel'].eql?("x86_64") -%>
+-a always,exit -F arch=b64 -S creat,mkdir,mknod,link,symlink,mkdirat,mknodat,linkat,symlinkat,openat,open_by_handle_at,open,close,rename,renameat,truncate,ftruncate,rmdir,unlink,unlinkat -F exit=-EACCES -k <%= @audit_unsuccessful_file_operations_tag %>
+-a always,exit -F arch=b64 -S creat,mkdir,mknod,link,symlink,mkdirat,mknodat,linkat,symlinkat,openat,open_by_handle_at,open,close,rename,renameat,truncate,ftruncate,rmdir,unlink,unlinkat -F exit=-EPERM -k <%= @audit_unsuccessful_file_operations_tag %>
 <%   end -%>
--a always,exit -F arch=b32 -S creat -S mkdir -S mknod -S link -S symlink -S mkdirat -S mknodat -S linkat -S symlinkat -S openat -S open_by_handle_at -S open -S close -S rename -S renameat -S truncate -S ftruncate -S rmdir -S unlink -S unlinkat -F exit=-EACCES -k <%= @audit_unsuccessful_file_operations_tag %>
--a always,exit -F arch=b32 -S creat -S mkdir -S mknod -S link -S symlink -S mkdirat -S mknodat -S linkat -S symlinkat -S openat -S open_by_handle_at -S open -S close -S rename -S renameat -S truncate -S ftruncate -S rmdir -S unlink -S unlinkat -F exit=-EPERM -k <%= @audit_unsuccessful_file_operations_tag %>
+-a always,exit -F arch=b32 -S creat,mkdir,mknod,link,symlink,mkdirat,mknodat,linkat,symlinkat,openat,open_by_handle_at,open,close,rename,renameat,truncate,ftruncate,rmdir,unlink,unlinkat -F exit=-EACCES -k <%= @audit_unsuccessful_file_operations_tag %>
+-a always,exit -F arch=b32 -S creat,mkdir,mknod,link,symlink,mkdirat,mknodat,linkat,symlinkat,openat,open_by_handle_at,open,close,rename,renameat,truncate,ftruncate,rmdir,unlink,unlinkat -F exit=-EPERM -k <%= @audit_unsuccessful_file_operations_tag %>
 
 -a always,exit -F perm=a -F exit=-EACCES -k <%= @audit_unsuccessful_file_operations_tag %>
 -a always,exit -F perm=a -F exit=-EPERM -k <%= @audit_unsuccessful_file_operations_tag %>
 <% end -%>
+<% if @audit_passwd_cmds -%>
 
-# Permissions auditing separated by chown, chmod, and attr
+## Audit the execution of password commands
+# RHEL-07-030630
+-a always,exit -F path=/usr/bin/passwd -F perm=x -k <%= @audit_passwd_cmds_tag %>
+<%   if @facts['os']['release']['major'] > '6' -%>
+-a always,exit -F path=/bin/passwd -F perm=x -k <%= @audit_passwd_cmds_tag %>
+<%   end -%>
+
+# RHEL-07-030640
+<%   if @facts['os']['release']['major'] > '6' -%>
+-a always,exit -F path=/usr/sbin/unix_chkpwd -F perm=x -k <%= @audit_passwd_cmds_tag %>
+<%   end -%>
+-a always,exit -F path=/sbin/unix_chkpwd -F perm=x -k <%= @audit_passwd_cmds_tag %>
+
+# RHEL-07-030650
+-a always,exit -F path=/usr/bin/gpasswd -F perm=x -k <%= @audit_passwd_cmds_tag %>
+<%   if @facts['os']['release']['major'] > '6' -%>
+-a always,exit -F path=/bin/gpasswd -F perm=x -k <%= @audit_passwd_cmds_tag %>
+<%   end -%>
+
+# RHEL-07-030660
+-a always,exit -F path=/usr/bin/chage -F perm=x -k <%= @audit_passwd_cmds_tag %>
+<%   if @facts['os']['release']['major'] > '6' -%>
+-a always,exit -F path=/bin/chage -F perm=x -k <%= @audit_passwd_cmds_tag %>
+<%   end -%>
+
+# RHEL-07-030670
+-a always,exit -F path=/usr/sbin/userhelper -F perm=x -k <%= @audit_passwd_cmds_tag %>
+<%   if @facts['os']['release']['major'] > '6' -%>
+-a always,exit -F path=/sbin/userhelper -F perm=x -k <%= @audit_passwd_cmds_tag %>
+<%   end -%>
+<% end -%>
+<% if @audit_priv_cmds -%>
+
+## Audit the execution of privilege-related commands
+# RHEL-07-030680
+<%   if @facts['os']['release']['major'] > '6' -%>
+-a always,exit -F path=/usr/bin/su -F perm=x -k <%= @audit_priv_cmds_tag %>
+<%   end -%>
+-a always,exit -F path=/bin/su -F perm=x -k <%= @audit_priv_cmds_tag %>
+
+# RHEL-07-030690
+-a always,exit -F path=/usr/bin/sudo -F perm=x -k <%= @audit_priv_cmds_tag %>
+<%   if @facts['os']['release']['major'] > '6' -%>
+-a always,exit -F path=/bin/sudo -F perm=x -k <%= @audit_priv_cmds_tag %>
+<%   end -%>
+
+# RHEL-07-030710
+-a always,exit -F path=/usr/bin/newgrp -F perm=x -k <%= @audit_priv_cmds_tag %>
+<%   if @facts['os']['release']['major'] > '6' -%>
+-a always,exit -F path=/bin/newgrp -F perm=x -k <%= @audit_priv_cmds_tag %>
+<%   end -%>
+
+# RHEL-07-030720
+-a always,exit -F path=/usr/bin/chsh -F perm=x -k <%= @audit_priv_cmds_tag %>
+<%   if @facts['os']['release']['major'] > '6' -%>
+-a always,exit -F path=/bin/chsh -F perm=x -k <%= @audit_priv_cmds_tag %>
+<%   end -%>
+
+# RHEL-07-030730
+-a always,exit -F path=/usr/bin/sudoedit -F perm=x -k <%= @audit_priv_cmds_tag %>
+<%   if @facts['os']['release']['major'] > '6' -%>
+-a always,exit -F path=/bin/sudoedit -F perm=x -k <%= @audit_priv_cmds_tag %>
+<%   end -%>
+<% end -%>
+<% if @audit_postfix_cmds -%>
+
+## Audit the execution of postfix-related commands
+# RHEL-07-030760
+-a always,exit -F path=/usr/sbin/postdrop -F perm=x -k <%= @audit_postfix_cmds_tag %>
+<%   if @facts['os']['release']['major'] > '6' -%>
+-a always,exit -F path=/sbin/postdrop -F perm=x -k <%= @audit_postfix_cmds_tag %>
+<%   end -%>
+
+# RHEL-07-030770
+-a always,exit -F path=/usr/sbin/postqueue -F perm=x -k <%= @audit_postfix_cmds_tag %>
+<%   if @facts['os']['release']['major'] > '6' -%>
+-a always,exit -F path=/sbin/postqueue -F perm=x -k <%= @audit_postfix_cmds_tag %>
+<%   end -%>
+<% end -%>
+<% if @audit_ssh_keysign_cmd -%>
+
+## Audit the execution of the ssh-keysign command
+# RHEL-07-030780
+-a always,exit -F path=/usr/libexec/openssh/ssh-keysign -F perm=x -k <%= @audit_ssh_keysign_cmd_tag %>
+<% end -%>
+<% if @audit_crontab_cmd -%>
+
+## Audit the execution of the crontab command
+# RHEL-07-030800
+-a always,exit -F path=/usr/bin/crontab -F perm=x -k <%= @audit_crontab_cmd_tag %>
+<%   if @facts['os']['release']['major'] > '6' -%>
+-a always,exit -F path=/bin/crontab -F perm=x -k <%= @audit_crontab_cmd_tag %>
+<%   end -%>
+<% end -%>
+<% if @audit_pam_timestamp_check_cmd -%>
+
+## Audit the execution of the pam_timestamp_check command
+# RHEL-07-030810
+<%   if @facts['os']['release']['major'] > '6' -%>
+-a always,exit -F path=/usr/sbin/pam_timestamp_check -F perm=x -k <%= @audit_pam_timestamp_check_cmd_tag %>
+<%   end -%>
+-a always,exit -F path=/sbin/pam_timestamp_check -F perm=x -k <%= @audit_pam_timestamp_check_cmd_tag %>
+<% end -%>
+<% if @audit_selinux_cmds -%>
+
+## Audit selinux commands
+# NOTE:  These rules come before the *xattr* checks, to ensure the
+#        correct tag is recorded.
+#
+# RHEL-07-030560
+-a always,exit -F path=/usr/sbin/semanage -F perm=x -k <%= @audit_selinux_cmds_tag %>
+<%   if @facts['os']['release']['major'] > '6' -%>
+-a always,exit -F path=/sbin/semanage -F perm=x -k <%= @audit_selinux_cmds_tag %>
+<%   end -%>
+
+# RHEL-07-030570
+-a always,exit -F path=/usr/sbin/setsebool -F perm=x -k <%= @audit_selinux_cmds_tag %>
+<%   if @facts['os']['release']['major'] > '6' -%>
+-a always,exit -F path=/sbin/setsebool -F perm=x -k <%= @audit_selinux_cmds_tag %>
+<%   end -%>
+
+# RHEL-07-030580
+-a always,exit -F path=/usr/bin/chcon -F perm=x -k <%= @audit_selinux_cmds_tag %>
+<%   if @facts['os']['release']['major'] > '6' -%>
+-a always,exit -F path=/bin/chcon -F perm=x -k <%= @audit_selinux_cmds_tag %>
+<%   end -%>
+
+# RHEL-07-030590
+<%   if @facts['os']['release']['major'] > '6' -%>
+-a always,exit -F path=/usr/sbin/setfiles -F perm=x -k <%= @audit_selinux_cmds_tag %>
+<%   end -%>
+-a always,exit -F path=/sbin/setfiles -F perm=x -k <%= @audit_selinux_cmds_tag %>
+<% end -%>
+
+## Permissions auditing separated by chown, chmod, and attr
 # CCE-26280-8
 # CCE-27173-4
 # CCE-27174-2
@@ -27,173 +170,265 @@
 # CCE-27183-3
 # CCE-27184-1
 # CCE-27185-8
-<%   if @hardwaremodel.eql?("x86_64") -%>
 <% if @audit_chown -%>
--a always,exit -F arch=b64 -S chown -S fchown -S fchownat -S lchown -k <%= @audit_chown_tag %>
+
+# RHEL-07-030370
+# RHEL-07-030380
+# RHEL-07-030390
+# RHEL-07-030400
+<%   if @facts['hardwaremodel'].eql?("x86_64") -%>
+-a always,exit -F arch=b64 -S chown,fchown,fchownat,lchown -k <%= @audit_chown_tag %>
 <%   end -%>
-<% if @audit_chmod -%>
--a always,exit -F arch=b64 -S chmod -S fchmod -S fchmodat -k <%= @audit_chmod_tag %>
-<%   end -%>
-<% if @audit_attr -%>
--a always,exit -F arch=b64 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -k <%= @audit_attr_tag %>
-<%   end -%>
-<%   end -%>
-<% if @audit_chown -%>
--a always,exit -F arch=b32 -S chown -S fchown -S fchownat -S lchown -k <%= @audit_chown_tag %>
-<%   end -%>
-<% if @audit_chmod -%>
--a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -k <%= @audit_chmod_tag %>
-<%   end -%>
-<% if @audit_attr -%>
--a always,exit -F arch=b32 -S setxattr -S lsetxattr -S fsetxattr -S removexattr -S lremovexattr -S fremovexattr -k <%= @audit_attr_tag %>
+-a always,exit -F arch=b32 -S chown,fchown,fchownat,lchown -k <%= @audit_chown_tag %>
 <% end -%>
+<% if @audit_chmod -%>
 
+# RHEL-07-030410
+# RHEL-07-030420
+# RHEL-07-030430
+<%   if @facts['hardwaremodel'].eql?("x86_64") -%>
+-a always,exit -F arch=b64 -S chmod,fchmod,fchmodat -k <%= @audit_chmod_tag %>
+<%   end -%>
+-a always,exit -F arch=b32 -S chmod,fchmod,fchmodat -k <%= @audit_chmod_tag %>
+<% end -%>
+<% if @audit_attr -%>
+
+# RHEL-07-030440
+# RHEL-07-030450
+# RHEL-07-030460
+# RHEL-07-030470
+# RHEL-07-030480
+# RHEL-07-030490
+<%   if @facts['hardwaremodel'].eql?("x86_64") -%>
+-a always,exit -F arch=b64 -S setxattr,lsetxattr,fsetxattr,removexattr,lremovexattr,fremovexattr -k <%= @audit_attr_tag %>
+<%   end -%>
+-a always,exit -F arch=b32 -S setxattr,lsetxattr,fsetxattr,removexattr,lremovexattr,fremovexattr -k <%= @audit_attr_tag %>
+<% end -%>
+<% if @audit_rename_remove -%>
+
+## Audit rename/removal operations
+# RHEL-07-030880
+# RHEL-07-030890
+# RHEL-07-030900
+# RHEL-07-030910
+# RHEL-07-030920
+<%   if @facts['hardwaremodel'].eql?("x86_64") -%>
+-a always,exit -F arch=b64 -S rename,renameat,rmdir,unlink,unlinkat -F perm=x -k <%= @audit_rename_remove_tag %>
+<%   end -%>
+-a always,exit -F arch=b32 -S rename,renameat,rmdir,unlink,unlinkat -F perm=x -k <%= @audit_rename_remove_tag %>
+<% end -%>
 <% if @audit_su_root_activity -%>
-# Audit useful items that someone does when su'ing to root.
-# Had to add an entry at the top for getting rid of anonymous records.  They
-# are only moderately useful and contain *way* too much noise since this covers
-# things like cron as well.
+
+## Audit useful items that someone does when su'ing to root.
+# Had to add an entry in the default_drop rules file for getting rid of
+# anonymous records.  They are only moderately useful and contain *way*
+# too much noise since this covers things like cron as well.
 <%
-    # Set up the rule sets
-
-    _su_rules = "-S capset -S mknod -S pivot_root -S quotactl -S setsid -S settimeofday -S setuid -S swapoff -S swapon"
-
-    if @root_audit_level =~ /agg.*/
-      _su_rules = "-S execve #{_su_rules}"
-    end
-    if @root_audit_level =~ /in.*/
-      _su_rules = "-S write -S chown -S creat -S execve -S fork -S vfork -S link -S mkdir -S rmdir #{_su_rules}"
+    if @root_audit_level =~ /^bas.*/
+      _su_rules ="-S #{@basic_root_audit_syscalls.join(',')}"
+    elsif @root_audit_level =~ /^agg.*/
+      _su_rules ="-S #{@aggressive_root_audit_syscalls.join(',')}"
+    else
+      _su_rules ="-S #{@insane_root_audit_syscalls.join(',')}"
     end
 -%>
-
-<%  unless @root_audit_level.eql?("none") -%>
-<%    if @hardwaremodel.eql?("x86_64") -%>
+<%   if @facts['hardwaremodel'].eql?("x86_64") -%>
 -a always,exit -F arch=b64 -F auid!=0 -F uid=0 <%= _su_rules %> -k <%= @audit_su_root_activity_tag %>
-<%    end -%>
+<%   end -%>
 -a always,exit -F arch=b32 -F auid!=0 -F uid=0 <%= _su_rules %> -k <%= @audit_su_root_activity_tag %>
-<%  end -%>
 <% end -%>
-
 <% if @audit_suid_sgid -%>
-# Audit the execution of suid and sgid binaries.
+
+## Audit the execution of suid and sgid binaries.
 # CCE-26457-2
-<%   if @hardwaremodel.eql?("x86_64") -%>
+# RHEL-07-030360
+<%   if @facts['hardwaremodel'].eql?("x86_64") -%>
 -a always,exit -F arch=b64 -F euid=0 -F uid!=0 -S execve -k <%= @audit_suid_sgid_tag %>
 <%   end -%>
 -a always,exit -F arch=b32 -F euid=0 -F uid!=0 -S execve -k <%= @audit_suid_sgid_tag %>
 <% end -%>
-
 <% if @audit_kernel_modules -%>
+
 ## Audit the loading and unloading of kernel modules.
 # CCE-26611-4
--w /usr/sbin/insmod -p x -k modules
--w /usr/sbin/rmmod -p x -k modules
--w /usr/sbin/modprobe -p x -k modules
--w /bin/kmod -p x -k modules
--w /sbin/insmod -p x -k modules
--w /sbin/rmmod -p x -k modules
--w /sbin/modprobe -p x -k modules
-<%    if @hardwaremodel.eql?("x86_64") -%>
--a always,exit -F arch=b64 -S init_module -S delete_module -k <%= @audit_kernel_modules_tag %>
--a always,exit -F arch=b32 -S init_module -S delete_module -k <%= @audit_kernel_modules_tag %>
+<%   if @facts['os']['release']['major'] > '6' -%>
+-w /usr/bin/kmod -p x -k <%= @audit_kernel_modules_tag %>
+-w /bin/kmod -p x -k <%= @audit_kernel_modules_tag %>
+<%   end -%>
+
+# RHEL-07-030840
+<%   if @facts['os']['release']['major'] > '6' -%>
+-w /usr/sbin/insmod -p x -k <%= @audit_kernel_modules_tag %>
+<%   end -%>
+-w /sbin/insmod -p x -k <%= @audit_kernel_modules_tag %>
+
+# RHEL-07-030850
+<%   if @facts['os']['release']['major'] > '6' -%>
+-w /usr/sbin/rmmod -p x -k <%= @audit_kernel_modules_tag %>
+<%   end -%>
+-w /sbin/rmmod -p x -k <%= @audit_kernel_modules_tag %>
+
+# RHEL-07-030860
+<%   if @facts['os']['release']['major'] > '6' -%>
+-w /usr/sbin/modprobe -p x -k <%= @audit_kernel_modules_tag %>
+<%   end -%>
+-w /sbin/modprobe -p x -k <%= @audit_kernel_modules_tag %>
+
+<%   if @facts['hardwaremodel'].eql?("x86_64") -%>
+# RHEL-07-030819
+# RHEL-07-030820
+# RHEL-07-030821
+# RHEL-07-030830
+-a always,exit -F arch=b64 -S create_module,init_module,finit_module,delete_module -k <%= @audit_kernel_modules_tag %>
+-a always,exit -F arch=b32 -S create_module,init_module,finit_module,delete_module -k <%= @audit_kernel_modules_tag %>
 <%   else -%>
--a always,exit -S init_module -S delete_module -k <%= @audit_kernel_modules_tag %>
+-a always,exit -S create_module,init_module,finit_module,delete_module -k <%= @audit_kernel_modules_tag %>
 <%   end -%>
 <% end -%>
-
 <% if @audit_time -%>
-## Things that could affect time
+
+## Audit things that could affect time
 # CCE-27172-6
 # CCE-27203-9
 # CCE-27169-2
 # CCE-27170-0
-<%   if @hardwaremodel.eql?("x86_64") -%>
--a always,exit -F arch=b32 -S adjtimex -S stime -S clock_settime -S settimeofday -k <%= @audit_time_tag %>
--a always,exit -F arch=b64 -S adjtimex -S clock_settime -S settimeofday -k <%= @audit_time_tag %>
+<%   if @facts['hardwaremodel'].eql?("x86_64") -%>
+-a always,exit -F arch=b32 -S adjtimex,stime,settimeofday -k <%= @audit_time_tag %>
+-a always,exit -F arch=b64 -S adjtimex,settimeofday -k <%= @audit_time_tag %>
+-a always,exit -F arch=b32 -S clock_settime -F a0=0x0 -k <%= @audit_time_tag %>
+-a always,exit -F arch=b64 -S clock_settime -F a0=0x0 -k <%= @audit_time_tag %>
 <%   else -%>
--a always,exit -S adjtimex -S stime -S clock_settime -S settimeofday -k <%= @audit_time_tag %>
+-a always,exit -S adjtimex,stime,clock_settime,settimeofday -k <%= @audit_time_tag %>
 <%   end -%>
 
 # CCE-27172-6
 -w /etc/localtime -p wa -k <%= @audit_time_tag %>
 <% end -%>
-
 <% if @audit_locale -%>
-## Things that could affect system locale
+
+## Audit things that could affect system locale
 # CCE-26648-6
-<%   if @hardwaremodel.eql?("x86_64") -%>
--a always,exit -F arch=b32 -S sethostname -S setdomainname -k <%= @audit_locale_tag %>
--a always,exit -F arch=b64 -S sethostname -S setdomainname -k <%= @audit_locale_tag %>
+<%   if @facts['hardwaremodel'].eql?("x86_64") -%>
+-a always,exit -F arch=b32 -S sethostname,setdomainname -k <%= @audit_locale_tag %>
+-a always,exit -F arch=b64 -S sethostname,setdomainname -k <%= @audit_locale_tag %>
 <%   else -%>
 -a always,exit -S sethostname -k <%= @audit_locale_tag %>
 <%   end -%>
 -w /etc/issue -p wa -k <%= @audit_locale_tag %>
 -w /etc/issue.net -p wa -k <%= @audit_locale_tag %>
 -w /etc/hosts -p wa -k <%= @audit_locale_tag %>
+-w /etc/hostname -p wa -k <%= @audit_locale_tag %>
 -w /etc/sysconfig/network -p wa -k <%= @audit_locale_tag %>
-<% end -%>
-
-<% if @audit_mount -%>
-# Mount options.
-# CCE-26573-6
-<%   if @hardwaremodel.eql?("x86_64") -%>
--a always,exit -F arch=b32 -S mount -S umount -S umount2 -k <%= @audit_mount_tag %>
--a always,exit -F arch=b64 -S mount -S umount2 -k <%= @audit_mount_tag %>
-<%   else -%>
--a always,exit -S mount -S umount -S umount2 -k <%= @audit_mount_tag %>
+<%   if @facts['os']['release']['major'] > '6' -%>
+-a always,exit -F dir=/etc/NetworkManager/ -F perm=wa -k <%= @audit_locale_tag %>
 <%   end -%>
 <% end -%>
+<% if @audit_mount -%>
 
+## Audit mount operations
+# CCE-26573-6
+#
+# RHEL-07-030740
+# RHEL-07-030750
+<%   if @facts['hardwaremodel'].eql?("x86_64") -%>
+-a always,exit -F arch=b32 -S mount,umount,umount2 -k <%= @audit_mount_tag %>
+-a always,exit -F arch=b64 -S mount,umount2 -k <%= @audit_mount_tag %>
+<%   else -%>
+-a always,exit -S mount,umount,umount2 -k <%= @audit_mount_tag %>
+<%   end -%>
+<%   if @facts['hardwaremodel'].eql?("x86_64") -%>
+<%     if @facts['os']['release']['major'] > '6' -%>
+-a always,exit -F arch=b64 -F path=/usr/bin/mount -k <%= @audit_mount_tag %>
+<%     end -%>
+-a always,exit -F arch=b64 -F path=/bin/mount -k <%= @audit_mount_tag %>
+<%   end -%>
+<%   if @facts['os']['release']['major'] > '6' -%>
+-a always,exit -F arch=b32 -F path=/usr/bin/mount -k <%= @audit_mount_tag %>
+<%   end -%>
+-a always,exit -F arch=b32 -F path=/bin/mount -k <%= @audit_mount_tag %>
+<%   if @facts['os']['release']['major'] > '6' -%>
+-a always,exit -F path=/usr/bin/umount -F perm=x -k <%= @audit_mount_tag %>
+<%   end -%>
+-a always,exit -F path=/bin/umount -F perm=x -k <%= @audit_mount_tag %>
+<% end -%>
 <% if @audit_umask -%>
-# audit umask changes.
+
+## Audit umask changes.
 # This is uselessly noisy.
--a always,exit -S umask -k <%= @audit_umask_tag %>
+<%   if @facts['hardwaremodel'].eql?("x86_64") -%>
+-a always,exit -F arch=b64 -S umask -k <%= @audit_umask_tag %>
+<%   end -%>
+-a always,exit -F arch=b32 -S umask -k <%= @audit_umask_tag %>
 <% end -%>
-
 <% if @audit_local_account -%>
-# CCE-26664-3
--w /etc/group -p wa -k <%= @audit_local_account_tag %>
--w /etc/group- -p wa -k <%= @audit_local_account_tag %>
--w /etc/passwd -p wa -k <%= @audit_local_account_tag %>
--w /etc/passwd- -p wa -k <%= @audit_local_account_tag %>
--w /etc/gshadow -p wa -k <%= @audit_local_account_tag %>
--w /etc/shadow -p wa -k <%= @audit_local_account_tag %>
--w /etc/shadow- -p wa -k <%= @audit_local_account_tag %>
--w /etc/security/opasswd -p wa -k <%= @audit_local_account_tag %>
-<% end -%>
 
+## Audit local accounts
+# CCE-26664-3
+#
+# RHEL-07-030870
+-w /etc/passwd -p wa -k <%= @audit_local_account_tag %>
+
+# RHEL-07-030871
+-w /etc/group -p wa -k <%= @audit_local_account_tag %>
+
+# RHEL-07-030872
+-w /etc/gshadow -p wa -k <%= @audit_local_account_tag %>
+
+# RHEL-07-030873
+-w /etc/shadow -p wa -k <%= @audit_local_account_tag %>
+
+# RHEL-07-030874
+-w /etc/security/opasswd -p wa -k <%= @audit_local_account_tag %>
+
+-w /etc/passwd- -p wa -k <%= @audit_local_account_tag %>
+-w /etc/group- -p wa -k <%= @audit_local_account_tag %>
+-w /etc/shadow- -p wa -k <%= @audit_local_account_tag %>
+<% end -%>
 <% if @audit_selinux_policy -%>
+
+## Audit selinux policy
 # CCE-26657-7
 -w /etc/selinux/ -p wa -k <%= @audit_selinux_policy_tag %>
 <% end -%>
-
 <% if @audit_login_files -%>
-# CCE-26691-6
--w /var/log/faillog -p wa -k <%= @audit_login_files_tag %>
--w /var/log/lastlog -p wa -k <%= @audit_login_files_tag %>
--w /var/run/faillock -p wa -k <%= @audit_login_files_tag %>
-<% end -%>
 
+## Audit login files
+# CCE-26691-6
+#
+# RHEL-07-030600
+-w /var/log/tallylog -p wa -k <%= @audit_login_files_tag %>
+
+# RHEL-07-030610
+-w /var/run/faillock -p wa -k <%= @audit_login_files_tag %>
+
+# RHEL-07-030620
+-w /var/log/lastlog -p wa -k <%= @audit_login_files_tag %>
+
+-w /var/log/faillog -p wa -k <%= @audit_login_files_tag %>
+<% end -%>
 <% if @audit_session_files -%>
+
+## Audit session files
 # CCE-26610-6
 -w /var/run/utmp -p wa -k <%= @audit_session_files_tag %>
 -w /var/log/btmp -p wa -k <%= @audit_session_files_tag %>
 -w /var/log/wtmp -p wa -k <%= @audit_session_files_tag %>
--w /var/log/tallylog -p wa -k <%= @audit_session_files_tag %>
 <% end -%>
+<% if @_audit_cfg_sudoers -%>
 
-<% if @audit_sudoers -%>
+## Audit sudoers configuration files
 # CCE-26662-7
--w /etc/sudoers -p wa -k <%= @audit_sudoers_tag %>
--w /etc/sudoers.d -p wa -k <%= @audit_sudoers_tag %>
+# RHEL-07-030700
+-w /etc/sudoers -p wa -k <%= @_audit_cfg_sudoers_tag %>
+-w /etc/sudoers.d/ -p wa -k <%= @_audit_cfg_sudoers_tag %>
 <% end -%>
 
-# Generally good things to audit.
-<% if @audit_grub -%>
+## Generally good things to audit.
+<% if @_audit_cfg_grub -%>
 <%   if scope.function_versioncmp([@grub_version,'2']) < 0 -%>
--w /boot/grub/grub.conf -p wa -k <%= @audit_grub_tag %>
+-w /boot/grub/grub.conf -p wa -k <%= @_audit_cfg_grub_tag %>
 <%   else -%>
--w /etc/grub.d -p wa -k <%= @audit_grub_tag %>
+-w /etc/grub.d -p wa -k <%= @_audit_cfg_grub_tag %>
 <%   end -%>
 <% end -%>
 <% if @audit_cfg_sys -%>
@@ -246,7 +481,7 @@
 -w /etc/shells -p wa -k <%= @audit_cfg_shell_tag %>
 <% end -%>
 <% if @audit_cfg_pam -%>
--w /etc/pam.d -p wa -k <%= @audit_cfg_pam %>
+-w /etc/pam.d -p wa -k <%= @audit_cfg_pam_tag %>
 -w /etc/pam_smb.conf -p wa -k <%= @audit_cfg_pam_tag %>
 <% end -%>
 <% if @audit_cfg_security -%>
@@ -259,21 +494,25 @@
 -w /etc/xinetd.conf -p wa -k <%= @audit_cfg_xinetd_tag %>
 -w /etc/xinetd.d -p wa -k <%= @audit_cfg_xinetd_tag %>
 <% end -%>
-<% if @audit_yum -%>
--w /etc/yum -p wa -k <%= @audit_yum_tag %>
--w /etc/yum.conf -p wa -k <%= @audit_yum_tag %>
--w /etc/yum.repos.d -p wa -k <%= @audit_yum_tag %>
+<% if @_audit_cfg_yum -%>
+-w /etc/yum -p wa -k <%= @_audit_cfg_yum_tag %>
+-w /etc/yum.conf -p wa -k <%= @_audit_cfg_yum_tag %>
+-w /etc/yum.repos.d -p wa -k <%= @_audit_cfg_yum_tag %>
 <% end -%>
 <% if @audit_yum_cmd -%>
--w /bin/yum -p x -k <%= @audit_yum_cmd_tag %>
 -w /usr/bin/yum -p x -k <%= @audit_yum_cmd_tag %>
+<%   if @facts['os']['release']['major'] > '6' -%>
+-w /bin/yum -p x -k <%= @audit_yum_cmd_tag %>
+<%   end -%>
 <% end -%>
 <% if @audit_rpm_cmd -%>
--w /bin/rpm -p x -k <%= @audit_rpm_cmd_tag %>
+<%   if @facts['os']['release']['major'] > '6' -%>
 -w /usr/bin/rpm -p x -k <%= @audit_rpm_cmd_tag %>
+<%   end -%>
+-w /bin/rpm -p x -k <%= @audit_rpm_cmd_tag %>
 <% end -%>
 <% if @audit_ptrace -%>
-<%   if @hardwaremodel.eql?("x86_64") -%>
+<%   if @facts['hardwaremodel'].eql?("x86_64") -%>
 -a always,exit -F arch=b32 -S ptrace -k <%= @audit_ptrace_tag %>
 -a always,exit -F arch=b64 -S ptrace -k <%= @audit_ptrace_tag %>
 <%   else -%>
@@ -281,7 +520,7 @@
 <%   end -%>
 <% end -%>
 <% if @audit_personality -%>
-<%   if @hardwaremodel.eql?("x86_64") -%>
+<%   if @facts['hardwaremodel'].eql?("x86_64") -%>
 -a always,exit -F arch=b32 -S personality -k <%= @audit_personality_tag %>
 -a always,exit -F arch=b64 -S personality -k <%= @audit_personality_tag %>
 <%   else -%>
