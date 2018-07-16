@@ -1,3 +1,6 @@
+* Fri Jul 13 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.0.2-0
+- Updated to work with Puppet 5 and OEL
+
 * Fri Jul 06 2018 Trey Dockendorf <tdockendorf@osc.edu> - 8.0.1-0
 - Allow lowercase values for several parameters in accordance with the man
   pages and SCAP expectations.

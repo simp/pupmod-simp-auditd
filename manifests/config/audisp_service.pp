@@ -1,3 +1,5 @@
+# NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
+#
 # Make sure the audispd process keeps running.
 #
 # Should only be called from audisp processing services.

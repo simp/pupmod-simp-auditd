@@ -6,12 +6,12 @@
   end
 -%>
 HOSTS:
-  el7:
+  oel7:
     roles:
       - default
       - el7
     platform:   el-7-x86_64
-    box:        centos/7
+    box:        elastic/oel-7-x86_64
     hypervisor: <%= hypervisor %>
     yum_repos:
       chef-current:
@@ -23,11 +23,11 @@ HOSTS:
         gpgkeys:
           - https://getfedora.org/static/352C64E5.txt
 
-  el6:
+  oel6:
     roles:
       - el6
     platform:   el-6-x86_64
-    box:        centos/6
+    box:        elastic/oel-6-x86_64
     hypervisor: <%= hypervisor %>
     yum_repos:
       chef-current:

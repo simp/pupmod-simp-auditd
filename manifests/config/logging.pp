@@ -1,4 +1,5 @@
-# This class is meant to be called from auditd.
+# NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
+#
 # It ensures that logging rules are defined.
 #
 class auditd::config::logging {
