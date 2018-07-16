@@ -14,16 +14,12 @@ class auditd::service (
 ){
   assert_private()
 
-  case $facts['os']['name'] {
-    'RedHat','CentOS','OracleLinux' : {
-      # CCE-27058-7
-      service { $::auditd::service_name:
-        ensure     => $ensure,
-        enable     => $enable,
-        hasrestart => true,
-        hasstatus  => true,
-        provider   => 'redhat'
-      }
-    }
+  # CCE-27058-7
+  service { $::auditd::service_name:
+    ensure     => $ensure,
+    enable     => $enable,
+    hasrestart => true,
+    hasstatus  => true,
+    provider   => 'redhat'
   }
 }
