@@ -16,39 +16,44 @@ class auditd::config {
     $profiles = $::auditd::default_audit_profiles
   }
 
+  $log_file_mode = $::auditd::log_group ? {
+    'root'  => '0600',
+    default => '0640',
+  }
+
   file { '/etc/audit/rules.d':
     ensure  => 'directory',
     owner   => 'root',
-    group   => 'root',
-    mode    => '0640',
+    group   => $::auditd::log_group,
+    mode    => $log_file_mode,
     recurse => true,
     purge   => true
   }
 
   file { '/etc/audit/audit.rules':
     owner => 'root',
-    group => 'root',
+    group => $::auditd::log_group,
     mode  => 'o-rwx'
   }
 
   file { '/etc/audit/auditd.conf':
     owner   => 'root',
-    group   => 'root',
-    mode    => '0600',
+    group   => $::auditd::log_group,
+    mode    => $log_file_mode,
     content => epp("${module_name}/etc/audit/auditd.conf.epp")
   }
 
   file { '/var/log/audit':
     ensure => 'directory',
     owner  => 'root',
-    group  => 'root',
+    group  => $::auditd::log_group,
     mode   => 'o-rwx'
   }
 
   file { $::auditd::log_file:
     owner => 'root',
-    group => 'root',
-    mode  => '0600'
+    group => $::auditd::log_group,
+    mode  => $log_file_mode
   }
 
   if ($facts['os']['release']['major'] < '7') {

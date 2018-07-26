@@ -61,7 +61,7 @@ describe 'auditd' do
               :mode   => '0600'
             })
           }
-
+          
           if facts[:os][:release][:major] == '6'
             it { is_expected.to contain_augeas('auditd/USE_AUGENRULES').with_changes(
               ['set /files/etc/sysconfig/auditd/USE_AUGENRULES yes'])
@@ -69,8 +69,56 @@ describe 'auditd' do
           else
             it { is_expected.to_not contain_augeas('auditd/USE_AUGENRULES') }
           end
-          it { is_expected.to contain_class('auditd::config::audit_profiles') }
-          it { is_expected.to contain_class('auditd::config::audit_profiles::simp') }
+            it { is_expected.to contain_class('auditd::config::audit_profiles') }
+            it { is_expected.to contain_class('auditd::config::audit_profiles::simp') }
+          end
+        end
+
+        context "with different log_group" do
+          let(:params) {{ log_group: 'rspec' }}
+  
+          it { is_expected.to compile.with_all_deps }
+          it {
+            is_expected.to contain_file('/etc/audit/rules.d').with({
+              :ensure  => 'directory',
+              :owner   => 'root',
+              :group   => 'rspec',
+              :mode    => '0640',
+              :recurse => true,
+              :purge   => true
+            })
+          }
+          it {
+            is_expected.to contain_file('/etc/audit/audit.rules').with({
+              :owner => 'root',
+              :group => 'rspec',
+              :mode  => 'o-rwx'
+            })
+          }
+  
+          it {
+            is_expected.to contain_file('/etc/audit/auditd.conf').with({
+              :owner => 'root',
+              :group => 'rsepc',
+              :mode  => '0640'
+            })
+  
+          it {
+            is_expected.to contain_file('/var/log/audit').with({
+              :ensure => 'directory',
+              :owner  => 'root',
+              :group  => 'rspec',
+              :mode   => 'o-rwx'
+            })
+          }
+  
+          it {
+            is_expected.to contain_file('/var/log/audit/audit.log').with({
+              :owner  => 'root',
+              :group  => 'rspec',
+              :mode   => '0640'
+            })
+          }
         end
 
         context 'with empty default_audit_profiles' do
