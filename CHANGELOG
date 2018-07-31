@@ -1,3 +1,7 @@
+* Fri Jul 27 2018 Brandon Ess <brandon.ess@gmail.com> - 8.0.3-0
+- Align group ownership of the auditd log directories with the setting for
+  auditd itself so that the designated group can access the log files.
+
 * Fri Jul 13 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.0.2-0
 - Updated to work with Puppet 5 and OEL
 
