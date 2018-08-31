@@ -41,12 +41,8 @@ class auditd::config::audisp::syslog (
   Auditd::LogPriority $priority        = 'LOG_INFO',
   Auditd::LogFacility $facility        = 'LOG_LOCAL5'
 ) {
-  if !defined('rsyslog') {
-    fail('Class `rsyslog` not found. Please install simp/rsyslog.')
-  }
-  else {
-    include '::rsyslog'
-  }
+  simplib::assert_optional_dependency($module_name, 'simp/rsyslog')
+  include '::rsyslog'
   include '::auditd::config::audisp_service'
 
   if $drop_audit_logs {
