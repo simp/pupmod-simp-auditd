@@ -1,8 +1,11 @@
-* Fri Jul 27 2018 Brandon Ess <brandon.ess@gmail.com> - 8.0.3-0
+* Fri Sep 07 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 8.1.0-0
+- Update Hiera 4 to Hiera 5
+
+* Fri Jul 27 2018 Brandon Ess <brandon.ess@gmail.com> - 8.1.0-0
 - Align group ownership of the auditd log directories with the setting for
   auditd itself so that the designated group can access the log files.
 
-* Fri Jul 13 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.0.2-0
+* Fri Jul 13 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.1.0-0
 - Updated to work with Puppet 5 and OEL
 
 * Fri Jul 06 2018 Trey Dockendorf <tdockendorf@osc.edu> - 8.0.1-0

@@ -1,6 +1,6 @@
 {
   "name": "simp-auditd",
-  "version": "8.0.3",
+  "version": "8.1.0",
   "author": "SIMP Team",
   "summary": "A SIMP puppet module for managing auditd and audispd",
   "license": "Apache-2.0",
@@ -56,8 +56,7 @@
   "requirements": [
     {
       "name": "puppet",
-      "version_requirement": ">= 4.7.0 < 6.0.0"
+      "version_requirement": ">= 4.10.4 < 6.0.0"
     }
-  ],
-  "data_provider": "hiera"
+  ]
 }
