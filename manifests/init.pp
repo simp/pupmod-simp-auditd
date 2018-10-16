@@ -133,7 +133,7 @@ class auditd (
   Array[Auditd::AuditProfile]             $default_audit_profiles  = [ 'simp' ],
   String[1]                               $service_name            = 'auditd',
   String[1]                               $package_name            = 'audit',
-  Simplib::PackageEnsure                  $package_ensure          = 'latest',
+  Simplib::PackageEnsure                  $package_ensure          = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' }),
   Boolean                                 $enable                  = true,
   Stdlib::Absolutepath                    $log_file                = '/var/log/audit/audit.log',
   Enum['RAW','NOLOG']                     $log_format              = 'RAW',

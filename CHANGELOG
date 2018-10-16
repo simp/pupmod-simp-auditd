@@ -1,3 +1,7 @@
+* Fri Oct 12 2018 Nick Miller <nick.miller@onyxpoint.com> - 8.1.0-0
+- Changed the $package_ensure parameter from 'latest' to 'installed'
+  - It will also respect `simp_options::package_ensure`
+
 * Fri Sep 07 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 8.1.0-0
 - Update Hiera 4 to Hiera 5
 
