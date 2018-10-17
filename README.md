@@ -6,17 +6,23 @@
 
 #### Table of Contents
 
-1. [Overview](#overview)
-2. [Module Description - What the module does and why it is useful](#module-description)
-3. [Setup - The basics of getting started with auditd](#setup)
-    * [What auditd affects](#what-auditd-affects)
-    * [Setup requirements](#setup-requirements)
-    * [Beginning with auditd](#beginning-with-auditd)
-4. [Usage - Configuration options and additional functionality](#usage)
-5. [Reference - An under-the-hood peek at what the module is doing and how](#reference)
-5. [Limitations - OS compatibility, etc.](#limitations)
-6. [Development - Guide for contributing to the module](#development)
-      * [Acceptance Tests - Beaker env variables](#acceptance-tests)
+<!-- vim-markdown-toc GFM -->
+
+  * [Overview](#overview)
+  * [This is a SIMP module](#this-is-a-simp-module)
+  * [Module Description](#module-description)
+  * [Setup](#setup)
+    * [Setup Requirements](#setup-requirements)
+    * [What Auditd Affects](#what-auditd-affects)
+  * [Usage](#usage)
+    * [Basic Usage](#basic-usage)
+    * [Disabling Auditd](#disabling-auditd)
+      * [Changing Key Values](#changing-key-values)
+* [Limitations](#limitations)
+  * [Development](#development)
+    * [Acceptance tests](#acceptance-tests)
+
+<!-- vim-markdown-toc -->
 
 ## Overview
 
@@ -50,7 +56,12 @@ rest of the module using the `::auditd::config::grub` class.
 
 ## Setup
 
-### What auditd affects
+### Setup Requirements
+
+If `auditd::syslog` is `true`, you will need to install
+[simp/rsyslog](https://forge.puppet.com/simp/rsyslog) as a dependency.
+
+### What Auditd Affects
 
 * The `audit` kernel parameter
   * NOTE: This will be applied to *all* kernels in your standard grub configuration
