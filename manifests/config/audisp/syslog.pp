@@ -41,6 +41,7 @@ class auditd::config::audisp::syslog (
   Auditd::LogPriority $priority        = 'LOG_INFO',
   Auditd::LogFacility $facility        = 'LOG_LOCAL5'
 ) {
+  simplib::assert_optional_dependency($module_name, 'simp/rsyslog')
   include '::rsyslog'
   include '::auditd::config::audisp_service'
 

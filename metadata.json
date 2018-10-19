@@ -14,22 +14,22 @@
   ],
   "dependencies": [
     {
-      "name": "herculesteam/augeasproviders_grub",
-      "version_requirement": ">= 2.3.1 < 4.0.0"
-    },
-    {
       "name": "puppetlabs/stdlib",
       "version_requirement": ">= 4.13.1 < 5.0.0"
-    },
-    {
-      "name": "simp/rsyslog",
-      "version_requirement": ">= 7.0.0 < 8.0.0"
     },
     {
       "name": "simp/simplib",
       "version_requirement": ">= 3.6.0 < 4.0.0"
     }
   ],
+  "simp": {
+    "optional_dependencies": [
+      {
+        "name": "simp/rsyslog",
+        "version_requirement": ">= 7.2.1 < 8.0.0"
+      }
+    ]
+  },
   "operatingsystem_support": [
     {
       "operatingsystem": "CentOS",
