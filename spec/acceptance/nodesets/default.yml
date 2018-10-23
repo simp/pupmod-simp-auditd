@@ -10,8 +10,8 @@ HOSTS:
     roles:
       - default
       - el7
-    platform:   el-7-x86_64
-    box:        centos/7
+    platform: el-7-x86_64
+    box: centos/7
     hypervisor: <%= hypervisor %>
     yum_repos:
       chef-current:
@@ -26,8 +26,8 @@ HOSTS:
   el6:
     roles:
       - el6
-    platform:   el-6-x86_64
-    box:        centos/6
+    platform: el-6-x86_64
+    box: centos/6
     hypervisor: <%= hypervisor %>
     yum_repos:
       chef-current:
@@ -41,7 +41,7 @@ HOSTS:
 
 CONFIG:
   log_level: verbose
-  type:      aio
+  type: aio
   vagrant_memsize: 256
 <% if ENV['BEAKER_PUPPET_ENVIRONMENT'] -%>
   puppet_environment: <%= ENV['BEAKER_PUPPET_ENVIRONMENT'] %>
