@@ -48,7 +48,7 @@ describe 'run inspec against the appropriate fixtures for simp audit profile' do
             # - 'The system must send rsyslog output to a log aggregation server':
             #    - inspec_profiles/profiles/disa_stig-el7-baseline/controls/V-72209.rb
             #    - inspec should skip, as rsyslog is not setup
-            pending 'inspec updates are not complete causing false alarms'
+
             if @inspec_report[:data][:failed] > 0
               puts @inspec_report[:data][:report]
             end

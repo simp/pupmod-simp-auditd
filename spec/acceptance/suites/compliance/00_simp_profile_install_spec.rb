@@ -27,7 +27,7 @@ compliance_markup::enforcement:
 version: 5
 hierarchy:
   - name: Common
-    path: default.yaml
+    path: common.yaml
   - name: Compliance
     lookup_key: compliance_markup::enforcement
 defaults:

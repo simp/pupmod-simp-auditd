@@ -35,7 +35,7 @@ auditd::config::audit_profiles::stig::suid_sgid_cmds:
 version: 5
 hierarchy:
   - name: Common
-    path: default.yaml
+    path: common.yaml
   - name: Compliance
     lookup_key: compliance_markup::enforcement
 defaults:

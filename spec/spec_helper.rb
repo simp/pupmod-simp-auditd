@@ -50,7 +50,7 @@ end
 # Then, create a YAML file at spec/fixtures/hieradata/some__class_v10.yaml.
 #
 # Hiera will use this file as it's base of information stacked on top of
-# 'default.yaml' and <module_name>.yaml per the defaults above.
+# 'common.yaml' and <module_name>.yaml per the defaults above.
 #
 # Note: Any colons (:) are replaced with underscores (_) in the class name.
 def set_hieradata(hieradata)
