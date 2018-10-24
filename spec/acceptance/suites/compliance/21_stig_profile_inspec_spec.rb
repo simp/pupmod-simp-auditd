@@ -40,7 +40,6 @@ describe 'run inspec against the appropriate fixtures for stig audit profile' do
           end
 
           it 'should not have any failing tests' do
-            pending 'inspec updates are not complete causing false alarms'
             # 1 test erroneously fails
             # - 'The system must send rsyslog output to a log aggregation server':
             #    - inspec_profiles/profiles/disa_stig-el7-baseline/controls/V-72209.rb
