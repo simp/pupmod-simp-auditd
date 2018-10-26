@@ -177,6 +177,12 @@ pup5.5-acceptance:
   script:
     - 'bundle exec rake beaker:suites'
 
+pup5.5-acceptance-oel:
+  <<: *pup_5_5_1
+  <<: *acceptance_base
+  script:
+    - 'bundle exec rake beaker:suites[default,oel]'
+
 pup5.5-fips-acceptance:
   <<: *pup_5_5_1
   <<: *acceptance_base
