@@ -1,3 +1,14 @@
+* Wed Oct 31 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.1.0-0
+- Allow users to opt-out of hooking the audit dispatchers into the SIMP rsyslog
+  module using `auditd::config::audisp::syslog::rsyslog = false` or,
+  alternatively, setting `simp_options::syslog = false`.
+- Add a `write_logs` opttion to the `auditd_class` and multiplex between the
+  `log_format = NOLOG` setting and `write_logs = false` since there were
+  breaking changes in these settings after `auditd` version `2.6.0`.
+- Add support for `log_format = ENHANCED` for `auditd` version >= `2.6.0`.
+  Older versions will simply fall back to `RAW`.
+
+
 * Tue Oct 16 2018 Nick Markowski <nicholas.markowski@onyxpoint.com> - 8.1.0-0
 - Removed unnecessary dependencies from metadata.json.  Now, when users install
   auditd stand-alone i.e. `puppet module install`, they will not have

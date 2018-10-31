@@ -35,7 +35,6 @@ describe 'auditd' do
           it { is_expected.to contain_class('auditd::config::grub').with_enable(true) }
           it { is_expected.to_not contain_class('auditd::config::logging') }
           it { is_expected.to_not contain_class('auditd::config::audisp::syslog') }
-          it { is_expected.to_not contain_class('rsyslog') }
         end
 
         context 'auditd with auditing disabled' do
@@ -56,7 +55,6 @@ describe 'auditd' do
           it { is_expected.to contain_class('auditd::config::logging') }
           it { is_expected.to contain_class('auditd::config::logging').that_notifies('Class[auditd::service]') }
           it { is_expected.to contain_class('auditd::config::audisp::syslog') }
-          it { is_expected.to contain_class('rsyslog') }
 
         end
       end

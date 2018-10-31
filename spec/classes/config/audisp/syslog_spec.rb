@@ -10,7 +10,7 @@ describe 'auditd::config::audisp::syslog' do
 
         let(:facts){ facts }
 
-        context "without any parameters" do
+        context 'without any parameters' do
           let(:params) {{ }}
           let(:expected_content) {
 <<EOM
@@ -27,12 +27,10 @@ EOM
           it {
             is_expected.to contain_file('/etc/audisp/plugins.d/syslog.conf').with_content(expected_content)
           }
-          it {
-            is_expected.to contain_rsyslog__rule__drop('audispd').with_rule(%r(\$programname == 'audispd'))
-          }
+          it { is_expected.to_not contain_rsyslog__rule__drop('audispd') }
         end
 
-        context "when setting syslog priority and facility" do
+        context 'when setting syslog priority and facility' do
           let(:params) {{
             :facility => 'LOG_LOCAL6',
             :priority => 'LOG_NOTICE'
@@ -52,12 +50,10 @@ EOM
           it {
             is_expected.to contain_file('/etc/audisp/plugins.d/syslog.conf').with_content(expected_content)
           }
-          it {
-            is_expected.to contain_rsyslog__rule__drop('audispd').with_rule(%r(\$programname == 'audispd'))
-          }
+          it { is_expected.to_not contain_rsyslog__rule__drop('audispd') }
         end
 
-        context "when allow audit messages" do
+        context 'when allow audit messages' do
           let(:params) {{
             :drop_audit_logs => false
           }}
@@ -69,7 +65,7 @@ EOM
           it { is_expected.to_not contain_rsyslog__rule__drop('audispd') }
         end
 
-        context "when syslog priority is invalid" do
+        context 'when syslog priority is invalid' do
           # appropriate priority for /usr/bin/logger, but not audisp
           let(:params) {{
             :priority => 'warn'
@@ -77,7 +73,7 @@ EOM
           it { is_expected.to_not compile.with_all_deps }
         end
 
-        context "when syslog facility is invalid" do
+        context 'when syslog facility is invalid' do
           # appropriate facility for /usr/bin/logger, but not audisp
           let(:params) {{
             :facility => 'local6'
@@ -85,6 +81,19 @@ EOM
           it { is_expected.to_not compile.with_all_deps }
         end
 
+        context 'when using the SIMP rsyslog module' do
+          let(:params) {{
+            :rsyslog => true
+          }}
+
+          it { is_expected.to compile.with_all_deps }
+
+          it { is_expected.to contain_class('rsyslog') }
+
+          it {
+            is_expected.to contain_rsyslog__rule__drop('audispd').with_rule(%r(\$programname == 'audispd'))
+          }
+        end
       end
     end
   end
