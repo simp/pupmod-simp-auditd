@@ -72,6 +72,11 @@
 #
 # @param log_file
 # @param log_format
+#   The output log format
+#
+#   * 'NOLOG' is deprecated as of auditd 2.5.2
+#   * 'ENRICHED' is only available in auditd >= 2.6.0
+#
 # @param log_group
 # @param priority_boost
 # @param flush
@@ -89,6 +94,13 @@
 # @param admin_space_left_action
 # @param disk_full_action
 # @param disk_error_action
+#
+# @param write_logs
+#   Whether or not to write logs to disk.
+#
+#   * The `NOLOG` option on `log_format` has been deprecated in newer versions
+#     of `auditd` so this attempts to do "the right thing" when `log_format` is
+#     set to `NOLOG` for legacy support.
 #
 # @param ignore_errors
 #   Whether to set the `auditctl` '-i' option
@@ -136,7 +148,7 @@ class auditd (
   Simplib::PackageEnsure                  $package_ensure          = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' }),
   Boolean                                 $enable                  = true,
   Stdlib::Absolutepath                    $log_file                = '/var/log/audit/audit.log',
-  Enum['RAW','NOLOG']                     $log_format              = 'RAW',
+  Enum['RAW','ENRICHED','NOLOG']          $log_format              = 'RAW',
   String                                  $log_group               = 'root',
   Integer[0]                              $priority_boost          = 3,
   Auditd::Flush                           $flush                   = 'INCREMENTAL',
@@ -154,6 +166,7 @@ class auditd (
   Auditd::SpaceLeftAction                 $admin_space_left_action = 'SUSPEND', # CCE-27239-3 : No guarantee of e-mail server so sending to syslog.
   Auditd::DiskFullAction                  $disk_full_action        = 'SUSPEND',
   Auditd::DiskErrorAction                 $disk_error_action       = 'SUSPEND',
+  Boolean                                 $write_logs              = $log_format ? { 'NOLOG' => false, default => true },
   Boolean                                 $ignore_errors           = true,
   Boolean                                 $ignore_failures         = true,
   Integer[0]                              $buffer_size             = 16384,
@@ -165,6 +178,43 @@ class auditd (
 ) {
 
   if $enable {
+    if $facts['auditd_version'] and ( versioncmp($facts['auditd_version'], '2.6.0') < 0 ) {
+      if ( versioncmp($facts['auditd_version'], '2.5.2') < 0 ) {
+        unless $write_logs {
+          $_log_format = 'NOLOG'
+        }
+      }
+      else {
+        # Versions > 2.5.2 do not handle NOLOG
+        if $log_format == 'NOLOG' {
+          $_log_format = 'RAW'
+        }
+
+        $_write_logs = $write_logs
+      }
+
+      unless defined('$_log_format') {
+        # ENRICHED was not added until 2.6.0
+        if $log_format == 'ENRICHED' {
+          $_log_format = 'RAW'
+        }
+        else {
+          $_log_format = $log_format
+        }
+      }
+    }
+    else {
+      # Versions >= 2.6.0 do not support NOLOG
+      if $log_format == 'NOLOG' {
+        $_log_format = 'RAW'
+      }
+      else {
+        $_log_format = $log_format
+      }
+
+      $_write_logs = $write_logs
+    }
+
     simplib::assert_metadata($module_name)
 
     # This is done here so that the kernel option can be properly removed if

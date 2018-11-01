@@ -36,21 +36,33 @@
 #     is the ONLY mechanism to specify that facility. No other facilities
 #     are allowed.
 #
+# @param rsyslog
+#     If set, enable the SIMP `rsyslog` module and set up the appropriate rules
+#     for the `auditd` services.
+#
+#     * Set to `false` if you are using some other `syslog` utility.
+#
 class auditd::config::audisp::syslog (
   Boolean             $drop_audit_logs = true,
   Auditd::LogPriority $priority        = 'LOG_INFO',
-  Auditd::LogFacility $facility        = 'LOG_LOCAL5'
+  Auditd::LogFacility $facility        = 'LOG_LOCAL5',
+  Boolean             $rsyslog         = simplib::lookup('simp_options::syslog', { 'default_value' => false }),
 ) {
-  simplib::assert_optional_dependency($module_name, 'simp/rsyslog')
-  include '::rsyslog'
+
   include '::auditd::config::audisp_service'
 
-  if $drop_audit_logs {
-    # This will prevent audit records from being forwarded to remote
-    # servers and/or written to local syslog files, but you still have
-    # access to the records in the local audit log files.
-    rsyslog::rule::drop { 'audispd':
-      rule   => '$programname == \'audispd\''
+  if $rsyslog {
+    simplib::assert_optional_dependency($module_name, 'simp/rsyslog')
+
+    include 'rsyslog'
+
+    if $drop_audit_logs {
+      # This will prevent audit records from being forwarded to remote
+      # servers and/or written to local syslog files, but you still have
+      # access to the records in the local audit log files.
+      rsyslog::rule::drop { 'audispd':
+        rule   => '$programname == \'audispd\''
+      }
     }
   }
 

@@ -340,6 +340,98 @@ describe 'auditd' do
         }
       end
 
+      context 'with auditd version' do
+        let(:auditd_conf) { catalogue.resource('File[/etc/audit/auditd.conf]') }
+
+        # EL 6
+        context '2.4.5' do
+          let(:facts) {
+            new_facts = Marshal.load(Marshal.dump(os_facts))
+            new_facts[:auditd_version] = '2.4.5'
+
+            new_facts
+          }
+
+          context 'default options' do
+            it do
+              expect(auditd_conf[:content]).to match(/log_format = RAW/)
+              expect(auditd_conf[:content]).to_not match(/write_logs/)
+            end
+          end
+
+          context 'write_logs = false' do
+            let(:params) {{ :write_logs => false }}
+
+            it do
+              expect(auditd_conf[:content]).to match(/log_format = NOLOG/)
+              expect(auditd_conf[:content]).to_not match(/write_logs/)
+            end
+          end
+
+          context 'log_format = NOLOG' do
+            let(:params) {{ :log_format => 'NOLOG' }}
+
+            it do
+              expect(auditd_conf[:content]).to match(/log_format = NOLOG/)
+              expect(auditd_conf[:content]).to_not match(/write_logs/)
+            end
+          end
+
+          context 'log_format = ENRICHED' do
+            let(:params) {{ :log_format => 'ENRICHED' }}
+
+            it do
+              expect(auditd_conf[:content]).to match(/log_format = RAW/)
+              expect(auditd_conf[:content]).to_not match(/write_logs/)
+            end
+          end
+        end
+
+        # EL 7.3
+        context '2.6.5' do
+          let(:facts) {
+            new_facts = Marshal.load(Marshal.dump(os_facts))
+            new_facts[:auditd_version] = '2.6.5'
+
+            new_facts
+          }
+
+          context 'default options' do
+            it do
+              expect(auditd_conf[:content]).to match(/log_format = RAW/)
+              expect(auditd_conf[:content]).to match(/write_logs = yes/)
+            end
+          end
+
+          context 'write_logs = false' do
+            let(:params) {{ :write_logs => false }}
+
+            it do
+              expect(auditd_conf[:content]).to match(/log_format = RAW/)
+              expect(auditd_conf[:content]).to match(/write_logs = no/)
+            end
+          end
+
+          context 'log_format = NOLOG' do
+            let(:params) {{ :log_format => 'NOLOG' }}
+
+            it do
+              expect(auditd_conf[:content]).to match(/log_format = RAW/)
+              expect(auditd_conf[:content]).to match(/write_logs = no/)
+            end
+          end
+
+          context 'log_format = ENRICHED' do
+            let(:params) {{ :log_format => 'ENRICHED' }}
+
+            it do
+              expect(auditd_conf[:content]).to match(/log_format = ENRICHED/)
+              expect(auditd_conf[:content]).to match(/write_logs = yes/)
+            end
+          end
+        end
+      end
+
       context 'with deprecated parameters' do
         context 'disable audit_cfg_sudoers using deprecated audit_sudoers' do
           let(:hieradata) { 'simp_audit_profile/disable__audit_sudoers' }
