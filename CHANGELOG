@@ -2,6 +2,9 @@
 - Fix an issue where trailing newlines may not be present on custom rule
   profiles, particularly with rules defined in an Array.
 
+* Thu Jun 06 2019 Steven Pritchard <steven.pritchard@onyxpoint.com> - 8.3.2-0
+- Add v2 compliance_markup data
+
 * Thu May 02 2019 Liz Nemsick <lnemsick.simp@gmail.com> - 8.3.1-0
 - Fix a breaking change inadvertantly introduced into auditd::rule
   in which the auditd class was no longer included when an auditd::rule

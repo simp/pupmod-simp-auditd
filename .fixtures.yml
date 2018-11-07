@@ -1,7 +1,9 @@
 ---
 fixtures:
   repositories:
-    compliance_markup: https://github.com/simp/pupmod-simp-compliance_markup
+    compliance_markup:
+      repo: "https://github.com/simp/pupmod-simp-compliance_markup"
+      branch: "testing_hotfix_06062019"
     augeasproviders_core: https://github.com/simp/augeasproviders_core
     augeasproviders_grub: https://github.com/simp/augeasproviders_grub
     concat: https://github.com/simp/puppetlabs-concat
