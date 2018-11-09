@@ -2,6 +2,10 @@
 - Revert back to using the native service provider for the auditd service since
   puppet fixed the service handling.
 
+* Wed Nov 09 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.1.1-0
+- Update to remove potentially redundant test code and use the updated
+  simp-beaker-helpers
+
 * Wed Oct 31 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.1.0-0
 - Allow users to opt-out of hooking the audit dispatchers into the SIMP rsyslog
   module using `auditd::config::audisp::syslog::rsyslog = false` or,

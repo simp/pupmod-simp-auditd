@@ -13,7 +13,9 @@ describe 'run inspec against the appropriate fixtures for stig audit profile' do
         context "on #{host}" do
           before(:all) do
             @inspec = Simp::BeakerHelpers::Inspec.new(host, profile)
-            @inspec_report = {:data => nil}
+
+            # If we don't do this, the variable gets reset
+            @inspec_report = { :data => nil }
           end
 
           it 'should run inspec' do
@@ -23,14 +25,7 @@ describe 'run inspec against the appropriate fixtures for stig audit profile' do
           it 'should have an inspec report' do
             @inspec_report[:data] = @inspec.process_inspec_results
 
-            info = [
-              'Results:',
-              "  * Passed: #{@inspec_report[:data][:passed]}",
-              "  * Failed: #{@inspec_report[:data][:failed]}",
-              "  * Skipped: #{@inspec_report[:data][:skipped]}"
-            ]
-
-            puts info.join("\n")
+            expect(@inspec_report[:data]).to_not be_nil
 
             @inspec.write_report(@inspec_report[:data])
           end
@@ -45,10 +40,11 @@ describe 'run inspec against the appropriate fixtures for stig audit profile' do
             #    - inspec_profiles/profiles/disa_stig-el7-baseline/controls/V-72209.rb
             #    - inspec should skip, as rsyslog is not setup
             if @inspec_report[:data][:failed] > 0
+              puts @inspec_report[:data][:global][:failed].join("\n")
               puts @inspec_report[:data][:report]
             end
 
-            expect( @inspec_report[:data][:failed] ).to eq(0)
+            expect(@inspec_report[:data][:score] ).to eq(100)
           end
         end
       end
