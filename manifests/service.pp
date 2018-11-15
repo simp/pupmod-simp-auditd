@@ -20,6 +20,5 @@ class auditd::service (
     enable     => $enable,
     hasrestart => true,
     hasstatus  => true,
-    provider   => 'redhat'
   }
 }
