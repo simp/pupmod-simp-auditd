@@ -25,10 +25,7 @@ describe 'auditd' do
               :ensure => 'running',
               :enable => true,
               :hasrestart => true,
-              :hasstatus => true,
-              # This is because the default provider for RHEL7 uses systemd
-              # which does not work for auditd at this time.
-              :provider => 'redhat'
+              :hasstatus => true
             })
           }
           it { is_expected.to contain_class('auditd::install').that_comes_before('Class[auditd::config::grub]') }
