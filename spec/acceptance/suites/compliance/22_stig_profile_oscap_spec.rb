@@ -40,6 +40,9 @@ describe 'run the SSG against the appropriate fixtures for stig audit profile' d
         end
 
         # TODO: Investigate these items. I think they're false positivies
+        #
+        # Leaving this as a regular test because we need to know if it changes
+        # from the expected value.
         expect(@ssg_report[:data][:score]).to eq(94)
       end
     end
