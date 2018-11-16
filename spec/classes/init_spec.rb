@@ -22,13 +22,11 @@ describe 'auditd' do
           it_behaves_like 'a structured module'
           it {
             is_expected.to contain_service('auditd').with({
-              :ensure => 'running',
-              :enable => true,
-              :hasrestart => true,
-              :hasstatus => true,
-              # This is because the default provider for RHEL7 uses systemd
-              # which does not work for auditd at this time.
-              :provider => 'redhat'
+              :ensure  => 'running',
+              :enable  => true,
+              :start   => "/sbin/service auditd start",
+              :stop    => "/sbin/service auditd stop",
+              :restart => "/sbin/service auditd restart"
             })
           }
           it { is_expected.to contain_class('auditd::install').that_comes_before('Class[auditd::config::grub]') }

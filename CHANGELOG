@@ -1,3 +1,7 @@
+* Thu Nov 15 2018 Mark Leary  <leary.mark@gmail.com> - 8.1.1-0
+- Revert back to using the native service provider for the auditd service since
+  puppet fixed the service handling.
+
 * Wed Oct 31 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.1.0-0
 - Allow users to opt-out of hooking the audit dispatchers into the SIMP rsyslog
   module using `auditd::config::audisp::syslog::rsyslog = false` or,
