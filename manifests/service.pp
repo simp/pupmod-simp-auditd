@@ -20,5 +20,8 @@ class auditd::service (
     enable     => $enable,
     hasrestart => true,
     hasstatus  => true,
+    start      => "/sbin/service ${::auditd::service_name} start",
+    stop       => "/sbin/service ${::auditd::service_name} stop",
+    restart    => "/sbin/service ${::auditd::service_name} restart",
   }
 }
