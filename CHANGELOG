@@ -1,3 +1,6 @@
+* Fri Jan 11 2019 Adam Yohrling <adam.yohrling@onyxpoint.com> - 8.1.2-0
+- Add restorecon audit for STIG profile
+
 * Fri Nov 16 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.1.2-0
 - Update to remove potentially redundant test code and use the updated
   simp-beaker-helpers
