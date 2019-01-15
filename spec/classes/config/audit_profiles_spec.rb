@@ -63,6 +63,22 @@ describe 'auditd' do
 
       end
 
+      context 'targeting specific SELinux types' do
+        let(:params){{
+          :target_selinux_types => ['unconfined_t', 'bob_t']
+        }}
+
+        it 'adds a rule to drop types not in the match list' do
+          is_expected.to contain_file('/etc/audit/rules.d/05_default_drop.rules').with_content(
+            %r(^-a\s+never,user\s+-F\s+subj_type!=unconfined_t$)
+          )
+
+          is_expected.to contain_file('/etc/audit/rules.d/05_default_drop.rules').with_content(
+            %r(^-a\s+never,user\s+-F\s+subj_type!=bob_t$)
+          )
+        end
+      end
+
       context 'setting the root audit level to aggressive' do
         let(:params) {{ :root_audit_level => 'aggressive' }}
 

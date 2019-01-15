@@ -134,6 +134,12 @@
 #   For built-in audit profiles, whether to drop events related to cron
 #   jobs. `cron` creates a lot of audit events that are not usually useful.
 #
+# @param target_selinux_types
+#   A list of SELinux types to target, all others will be dropped
+#
+#   For systems that require all users and processes to be an a confined
+#   namespace, you may find that only auditing unconfined types will be
+#   sufficient since all other invalid system actions are already audited.
 class auditd (
   String                                  $lname                   = $facts['fqdn'],
   Boolean                                 $immutable               = false,
@@ -175,6 +181,7 @@ class auditd (
   Boolean                                 $ignore_anonymous        = true,
   Boolean                                 $ignore_system_services  = true,
   Boolean                                 $ignore_crond            = true,
+  Optional[Array[Pattern['^.*_t$']]]      $target_selinux_types    = undef
 ) {
 
   if $enable {
