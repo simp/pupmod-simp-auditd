@@ -101,6 +101,9 @@
 # RHEL-07-030590
 -a always,exit -F path=/sbin/setfiles -F perm=x -F auid>=500 -F auid!=4294967295 -k privileged-priv_change
 
+# RHEL-07-030590
+-a always,exit -F path=/sbin/restorecon -F perm=x -F auid>=500 -F auid!=4294967295 -k privileged-priv_change
+
 ## Permissions auditing separated by chown, chmod, and attr
 # RHEL-07-030370
 -a always,exit -F arch=b64 -S chown -F auid>=500 -F auid!=4294967295 -k perm_mod
