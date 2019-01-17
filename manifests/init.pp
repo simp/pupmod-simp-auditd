@@ -137,7 +137,7 @@
 # @param target_selinux_types
 #   A list of SELinux types to target, all others will be dropped
 #
-#   For systems that require all users and processes to be an a confined
+#   For systems that require all users and processes to be in a confined
 #   namespace, you may find that only auditing unconfined types will be
 #   sufficient since all other invalid system actions are already audited.
 class auditd (
