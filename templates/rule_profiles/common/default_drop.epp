@@ -10,8 +10,14 @@
 # that just makes for more processing time.
 -a exit,never -F auid!=0 -F auid<<%= $::auditd::uid_min %>
 <% } -%>
-<% if $::auditd::ignore_crond {-%>
+<% if $::auditd::ignore_crond { -%>
 # Drop events related to cron jobs.  It creates a lot of logs that are not
 # usually useful
 -a never,user -F subj_type=crond_t
+<% } -%>
+<% if $::auditd::target_selinux_types { -%>
+# Drop the following SELinux types to aid performance
+<%   $::auditd::target_selinux_types.each |$sel_type| { -%>
+-a never,user -F subj_type!=<%= $sel_type %>
+<%   } -%>
 <% } -%>

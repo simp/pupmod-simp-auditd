@@ -1,7 +1,11 @@
-* Fri Jan 11 2019 Adam Yohrling <adam.yohrling@onyxpoint.com> - 8.1.2-0
+* Tue Jan 15 2019 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.2.0-0
+- Allow users to optimize their audit processing by only collecting on specific
+  SELinux types
+
+* Fri Jan 11 2019 Adam Yohrling <adam.yohrling@onyxpoint.com> - 8.2.0-0
 - Add restorecon audit for STIG profile
 
-* Fri Nov 16 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.1.2-0
+* Fri Nov 16 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.2.0-0
 - Update to remove potentially redundant test code and use the updated
   simp-beaker-helpers
 
