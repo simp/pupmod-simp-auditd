@@ -1,3 +1,7 @@
+* Mon Mar 04 2019 Liz Nemsick <lnemsick.simp@gmail.com> - 8.2.0-0
+- Expanded the upper limit of the stdlib Puppet module version
+- Updated a URL in the README.md
+
 * Tue Jan 15 2019 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.2.0-0
 - Allow users to optimize their audit processing by only collecting on specific
   SELinux types
