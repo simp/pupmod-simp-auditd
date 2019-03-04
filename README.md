@@ -29,9 +29,9 @@
 This module manages the Audit daemon, kernel parameters, and related subsystems.
 
 ## This is a SIMP module
-This module is a component of the [System Integrity Management
-Platform](https://github.com/NationalSecurityAgency/SIMP), a compliance
-management framework built on Puppet.
+
+This module is a component of the [System Integrity Management Platform](https://simp-project.com),
+a compliance-management framework built on Puppet.
 
 If you find any issues, they can be submitted to our [JIRA](https://simp-project.atlassian.net/).
 
@@ -118,7 +118,7 @@ SIMP Puppet modules are generally intended to be used on a Redhat Enterprise Lin
 
 ## Development
 
-Please read our [Contribution Guide](https://simp.readthedocs.io/en/master/contributors_guide/Contribution_Procedure.html)
+Please read our [Contribution Guide](https://simp.readthedocs.io/en/stable/contributors_guide/Contribution_Procedure.html)
 
 ### Acceptance tests
 
