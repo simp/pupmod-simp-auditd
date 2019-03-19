@@ -144,7 +144,7 @@ class auditd (
   String                                  $lname                   = $facts['fqdn'],
   Boolean                                 $immutable               = false,
   Auditd::RootAuditLevel                  $root_audit_level        = 'basic',
-  Integer[0]                              $uid_min                 = to_integer($facts['uid_min']),
+  Integer[0]                              $uid_min                 = Integer($facts['uid_min']),
   Boolean                                 $at_boot                 = true, # CCE-26785-6
   Boolean                                 $syslog                  = simplib::lookup('simp_options::syslog', {'default_value' => false }),  # CCE-26933-2
   Optional[Variant[Enum['simp'],Boolean]] $default_audit_profile   = undef,

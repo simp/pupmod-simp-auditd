@@ -1,3 +1,6 @@
+* Tue Mar 19 2019 Liz Nemsick <lnemsick.simp@gmail.com> - 8.2.1-0
+- Use Puppet Integer in lieu of simplib's deprecated Puppet 3 to_integer
+
 * Mon Mar 04 2019 Liz Nemsick <lnemsick.simp@gmail.com> - 8.2.0-0
 - Expanded the upper limit of the stdlib Puppet module version
 - Updated a URL in the README.md
@@ -26,7 +29,6 @@
   breaking changes in these settings after `auditd` version `2.6.0`.
 - Add support for `log_format = ENHANCED` for `auditd` version >= `2.6.0`.
   Older versions will simply fall back to `RAW`.
-
 
 * Tue Oct 16 2018 Nick Markowski <nicholas.markowski@onyxpoint.com> - 8.1.0-0
 - Removed unnecessary dependencies from metadata.json.  Now, when users install
