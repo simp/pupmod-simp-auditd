@@ -425,7 +425,7 @@
 
 ## Generally good things to audit.
 <% if @_audit_cfg_grub -%>
-<%   if scope.function_versioncmp([@grub_version,'2']) < 0 -%>
+<%   if scope.call_function('versioncmp',[@grub_version,'2']) < 0 -%>
 -w /boot/grub/grub.conf -p wa -k <%= @_audit_cfg_grub_tag %>
 <%   else -%>
 -w /etc/grub.d -p wa -k <%= @_audit_cfg_grub_tag %>

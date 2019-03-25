@@ -1,3 +1,6 @@
+* Mon Mar 25 2019 Joseph Sharkey <shark.bruhaha@gmail.com> - 8.2.1-0
+- Updated puppet template scope API from 3 to newer
+
 * Tue Mar 19 2019 Liz Nemsick <lnemsick.simp@gmail.com> - 8.2.1-0
 - Use Puppet Integer in lieu of simplib's deprecated Puppet 3 to_integer
 
