@@ -1,3 +1,8 @@
+* Sat Apr 06 2019 Jim Anderson <thesemicolons@protonmail.com> - 8.2.2-0
+- config.pp now managed /etc/audit in addition to /etc/audit/rules.d.
+  The permissions and ownership of the two directories should be the
+  same. Both directories use purge and recurse.
+
 * Mon Mar 25 2019 Joseph Sharkey <shark.bruhaha@gmail.com> - 8.2.1-0
 - Updated puppet template scope API from 3 to newer
 
