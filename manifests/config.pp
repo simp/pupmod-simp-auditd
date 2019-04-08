@@ -21,6 +21,15 @@ class auditd::config {
     default => '0640',
   }
 
+  file { '/etc/audit':
+    ensure  => 'directory',
+    owner   => 'root',
+    group   => $::auditd::log_group,
+    mode    => $log_file_mode,
+    recurse => true,
+    purge   => true
+  }
+
   file { '/etc/audit/rules.d':
     ensure  => 'directory',
     owner   => 'root',

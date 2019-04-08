@@ -16,6 +16,16 @@ describe 'auditd' do
 
           it { is_expected.to compile.with_all_deps }
           it {
+            is_expected.to contain_file('/etc/audit').with({
+              :ensure  => 'directory',
+              :owner   => 'root',
+              :group   => 'root',
+              :mode    => '0600',
+              :recurse => true,
+              :purge   => true
+            })
+          }
+          it {
             is_expected.to contain_file('/etc/audit/rules.d').with({
               :ensure  => 'directory',
               :owner   => 'root',
@@ -78,6 +88,16 @@ describe 'auditd' do
           let(:params) {{ log_group: 'rspec' }}
 
           it { is_expected.to compile.with_all_deps }
+          it {
+            is_expected.to contain_file('/etc/audit').with({
+              :ensure  => 'directory',
+              :owner   => 'root',
+              :group   => 'rspec',
+              :mode    => '0640',
+              :recurse => true,
+              :purge   => true
+            })
+          }
           it {
             is_expected.to contain_file('/etc/audit/rules.d').with({
               :ensure  => 'directory',
