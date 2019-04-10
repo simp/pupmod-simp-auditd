@@ -4,11 +4,12 @@
 # https://puppet.com/misc/puppet-enterprise-lifecycle
 # https://puppet.com/docs/pe/latest/overview/getting_support_for_pe.html#standard-releases-and-long-term-support-releases
 # ------------------------------------------------------------------------------
-# release     pup     ruby   eol
-# PE 2018.4   5.5.6   2.4.4  2020-05 (LTS)
-# SIMP 6.3    5.5.7   2.4.4
+# release       pup      ruby   eol
+# SIMP 6.3      5.5.10   2.4.5  TBD***
+# PE 2018.1     5.5.8    2.4.5  2020-05 (LTS)***
+# PE 2019.0     6.0      2.5.1  2019-08-31^^^
 #
-# *** = Modules created for SIMP 6.2+ are not required to support Puppet < 4.10
+# *** = Modules created for SIMP 6.3+ are not required to support Puppet < 4.10
 ---
 stages:
   - 'sanity'
@@ -17,11 +18,9 @@ stages:
   - 'compliance'
   - 'deployment'
 
-image: 'ruby:2.1'
-
 variables:
   PUPPET_VERSION:    'UNDEFINED' # <- Matrixed jobs MUST override this (or fail)
-  BUNDLER_VERSION:   '1.16.1'
+  BUNDLER_VERSION:   '1.17.1'
 
   # Force dependencies into a path the gitlab-runner user can write to.
   # (This avoids some failures on Runners with misconfigured ruby environments.)
@@ -44,7 +43,7 @@ variables:
     paths:
       - '.vendor'
   before_script:
-    - 'declare GEM_BUNDLER_VER=(-v "~> ${BUNDLER_VERSION:-1.16.0}")'
+    - 'declare GEM_BUNDLER_VER=(-v "~> ${BUNDLER_VERSION:-1.17.1}")'
     - 'declare GEM_INSTALL_CMD=(gem install --no-document)'
     - 'declare BUNDLER_INSTALL_CMD=(bundle install --no-binstubs --jobs $(nproc) "${FLAGS[@]}")'
     - 'mkdir -p ${GEM_HOME} ${BUNDLER_BIN}'
@@ -52,43 +51,34 @@ variables:
     - 'rm -rf pkg/ || :'
     - 'bundle check || rm -f Gemfile.lock && ("${BUNDLER_INSTALL_CMD[@]}" --local || "${BUNDLER_INSTALL_CMD[@]}" || bundle pristine ||  "${BUNDLER_INSTALL_CMD[@]}") || echo "PIPELNE: Bundler could not find everything"'
 
-# Puppet + testing environments
-# --------------------------------------
-.pup_4_10_X: &pup_4_10_X
-  image: 'ruby:2.1'
-  variables:
-    PUPPET_VERSION: '~> 4.10.4'
-    MATRIX_RUBY_VERSION: '2.1'
+# Puppet Versions
+#-----------------------------------------------------------------------
 
-.pup_4_latest: &pup_4_latest
-  image: 'ruby:2.1'
-  variables:
-    PUPPET_VERSION: '~> 4.0'
-    MATRIX_RUBY_VERSION: '2.1'
-
-.pup_5_5_6: &pup_5_5_6
-  image: 'ruby:2.4'
-  variables:
-    PUPPET_VERSION: '5.5.6'
-    BEAKER_PUPPET_COLLECTION: 'puppet5'
-    MATRIX_RUBY_VERSION: '2.4'
-
-.pup_5_5_7: &pup_5_5_7
-  image: 'ruby:2.4'
-  variables:
-    PUPPET_VERSION: '5.5.7'
-    BEAKER_PUPPET_COLLECTION: 'puppet5'
-    MATRIX_RUBY_VERSION: '2.4'
-
-.pup_5_latest: &pup_5_latest
+.pup_5: &pup_5
   image: 'ruby:2.4'
   variables:
     PUPPET_VERSION: '~> 5.0'
     BEAKER_PUPPET_COLLECTION: 'puppet5'
     MATRIX_RUBY_VERSION: '2.4'
 
-# jobs
-# --------------------------------------
+.pup_5_5_10: &pup_5_5_10
+  image: 'ruby:2.4'
+  variables:
+    PUPPET_VERSION: '5.5.10'
+    BEAKER_PUPPET_COLLECTION: 'puppet5'
+    MATRIX_RUBY_VERSION: '2.4'
+
+.pup_6: &pup_6
+  image: 'ruby:2.5'
+  variables:
+    PUPPET_VERSION: '~> 6.0'
+    BEAKER_PUPPET_COLLECTION: 'puppet6'
+    MATRIX_RUBY_VERSION: '2.5'
+
+
+# Testing Environments
+#-----------------------------------------------------------------------
+
 .lint_tests: &lint_tests
   stage: 'validation'
   tags: ['docker']
@@ -96,6 +86,7 @@ variables:
   script:
     - 'bundle exec rake syntax'
     - 'bundle exec rake lint'
+    - 'bundle exec rake metadata_lint'
 
 .unit_tests: &unit_tests
   stage: 'validation'
@@ -114,77 +105,86 @@ variables:
   tags: ['beaker']
   <<: *setup_bundler_env
 
+
 # Pipeline / testing matrix
 #=======================================================================
 
 sanity_checks:
-  <<: *pup_5_latest
+  <<: *pup_5
   <<: *setup_bundler_env
   stage: 'sanity'
   tags: ['docker']
   script:
+    - 'if `hash apt-get`; then apt-get update; fi'
+    - 'if `hash apt-get`; then apt-get install -y rpm; fi'
     - 'bundle exec rake check:dot_underscore'
     - 'bundle exec rake check:test_file'
     - 'bundle exec rake pkg:check_version'
     - 'bundle exec rake pkg:compare_latest_tag'
+    - 'bundle exec rake pkg:create_tag_changelog'
+    - 'bundle exec puppet module build'
 
-
-pup4-lint:
-  <<: *pup_4_latest
-  <<: *lint_tests
+# Linting
+#-----------------------------------------------------------------------
 
 pup5-lint:
-  <<: *pup_5_latest
+  <<: *pup_5
   <<: *lint_tests
 
-pup4.10-unit:
-  <<: *pup_4_10_X
+pup6-lint:
+  <<: *pup_6
+  <<: *lint_tests
+
+# Unit Tests
+#-----------------------------------------------------------------------
+
+pup5-unit:
+  <<: *pup_5
   <<: *unit_tests
 
-pup5.3-unit:
-  <<: *pup_5_5_6
+pup5.5.10-unit:
+  <<: *pup_5_5_10
   <<: *unit_tests
 
-pup5.5-unit:
-  <<: *pup_5_5_7
+pup6-unit:
+  <<: *pup_6
   <<: *unit_tests
 
-pup5.latest-unit:
-  <<: *pup_5_latest
-  <<: *unit_tests
-
-pup4.10-acceptance:
-  <<: *pup_4_10_X
+# Acceptance tests
+# ==============================================================================
+pup5.5.10:
+  <<: *pup_5_5_10
   <<: *acceptance_base
   script:
     - 'bundle exec rake beaker:suites'
 
-pup4.10-fips-acceptance:
-  <<: *pup_4_10_X
+pup5.5.10-fips:
+  <<: *pup_5_5_10
   <<: *acceptance_base
   script:
     - 'BEAKER_fips=yes bundle exec rake beaker:suites'
 
-pup5.5-acceptance:
-  <<: *pup_5_5_7
+pup5.5.10-oel-combined-x64:
+  <<: *pup_5_5_10
+  <<: *acceptance_base
+  script:
+    - 'bundle exec rake beaker:suites[default,oel-combined-x64]'
+
+pup5.5.10-oel-combined-x64-fips:
+  <<: *pup_5_5_10
+  <<: *acceptance_base
+  <<: *only_with_SIMP_FULL_MATRIX
+  script:
+    - 'BEAKER_fips=yes bundle exec rake beaker:suites[default,oel-combined-x64]'
+
+pup6:
+  <<: *pup_6
   <<: *acceptance_base
   script:
     - 'bundle exec rake beaker:suites'
 
-pup5.5-fips-acceptance:
-  <<: *pup_5_5_7
+pup6-fips:
+  <<: *pup_6
   <<: *acceptance_base
   script:
     - 'BEAKER_fips=yes bundle exec rake beaker:suites'
-
-pup5.5-oel-acceptance:
-  <<: *pup_5_5_7
-  <<: *acceptance_base
-  script:
-    - 'bundle exec rake beaker:suites[default,oel]'
-
-pup5.5-fips-compliance:
-  <<: *pup_5_5_7
-  <<: *compliance_base
-  script:
-    - 'BEAKER_fips=yes bundle exec rake beaker:suites[compliance]'

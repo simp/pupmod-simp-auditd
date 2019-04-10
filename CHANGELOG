@@ -1,3 +1,7 @@
+* Wed Apr 10 2019 Joseph Sharkey <shark.bruhaha@gmail.com> - 8.2.2-0
+- Ensure that space_left is always larger than admin_space_left
+- Updated tests in support of puppet6, and removed puppet4 support
+
 * Sat Apr 06 2019 Jim Anderson <thesemicolons@protonmail.com> - 8.2.2-0
 - config.pp now managed /etc/audit in addition to /etc/audit/rules.d.
   The permissions and ownership of the two directories should be the
