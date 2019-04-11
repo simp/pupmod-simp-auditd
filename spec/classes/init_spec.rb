@@ -35,6 +35,15 @@ describe 'auditd' do
           it { is_expected.to_not contain_class('auditd::config::audisp::syslog') }
         end
 
+        context 'auditd with space_left < admin_space_left' do
+          let(:params) {{
+            :space_left       => 20,
+            :admin_space_left => 25
+          }}
+
+          it { is_expected.to compile.and_raise_error(/Auditd requires \$space_left to be greater than \$admin_space_left, otherwise it will not start/) }
+        end
+
         context 'auditd with auditing disabled' do
           let(:params) {{
             :enable => false

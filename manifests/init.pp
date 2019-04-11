@@ -165,11 +165,11 @@ class auditd (
   Auditd::NameFormat                      $name_format             = 'USER',
   Integer[0]                              $max_log_file            = 24, # CCE-27550-3
   Auditd::MaxLogFileAction                $max_log_file_action     = 'ROTATE', # CCE-27237-7
-  Integer[0]                              $space_left              = 75,
-  Auditd::SpaceLeftAction                 $space_left_action       = 'SYSLOG', # CCE-27238-5 : No guarantee of e-mail server so sending to syslog.
-  String[1]                               $action_mail_acct        = 'root', # CCE-27241-9
   Integer[0]                              $admin_space_left        = 50,
   Auditd::SpaceLeftAction                 $admin_space_left_action = 'SUSPEND', # CCE-27239-3 : No guarantee of e-mail server so sending to syslog.
+  Integer[0]                              $space_left              = $admin_space_left + 25, # needs to be larger than $admin_space_left or auditd will not start
+  Auditd::SpaceLeftAction                 $space_left_action       = 'SYSLOG', # CCE-27238-5 : No guarantee of e-mail server so sending to syslog.
+  String[1]                               $action_mail_acct        = 'root', # CCE-27241-9
   Auditd::DiskFullAction                  $disk_full_action        = 'SUSPEND',
   Auditd::DiskErrorAction                 $disk_error_action       = 'SUSPEND',
   Boolean                                 $write_logs              = $log_format ? { 'NOLOG' => false, default => true },
@@ -185,6 +185,9 @@ class auditd (
 ) {
 
   if $enable {
+    unless $space_left > $admin_space_left {
+      fail('Auditd requires $space_left to be greater than $admin_space_left, otherwise it will not start')
+    }
     if $facts['auditd_version'] and ( versioncmp($facts['auditd_version'], '2.6.0') < 0 ) {
       if ( versioncmp($facts['auditd_version'], '2.5.2') < 0 ) {
         unless $write_logs {
