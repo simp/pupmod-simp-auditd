@@ -1,4 +1,4 @@
-# Configure the audit daemon for use with a specified audit profile
+# @summary Configure the audit daemon for use with a specified audit profile.
 #
 # Any variable that is not described here can be found in auditd.conf(5) and
 # auditctl(8).
@@ -140,6 +140,9 @@
 #   For systems that require all users and processes to be in a confined
 #   namespace, you may find that only auditing unconfined types will be
 #   sufficient since all other invalid system actions are already audited.
+#
+# @author https://github.com/simp/pupmod-simp-auditd/graphs/contributors
+#
 class auditd (
   String                                  $lname                   = $facts['fqdn'],
   Boolean                                 $immutable               = false,
@@ -167,7 +170,7 @@ class auditd (
   Auditd::MaxLogFileAction                $max_log_file_action     = 'ROTATE', # CCE-27237-7
   Integer[0]                              $admin_space_left        = 50,
   Auditd::SpaceLeftAction                 $admin_space_left_action = 'SUSPEND', # CCE-27239-3 : No guarantee of e-mail server so sending to syslog.
-  Integer[0]                              $space_left              = $admin_space_left + 25, # needs to be larger than $admin_space_left or auditd will not start
+  Integer[0]                              $space_left              = $admin_space_left + 25, # needs to be larger than     $admin_space_left or auditd will not start
   Auditd::SpaceLeftAction                 $space_left_action       = 'SYSLOG', # CCE-27238-5 : No guarantee of e-mail server so sending to syslog.
   String[1]                               $action_mail_acct        = 'root', # CCE-27241-9
   Auditd::DiskFullAction                  $disk_full_action        = 'SUSPEND',

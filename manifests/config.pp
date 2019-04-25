@@ -1,7 +1,10 @@
-# This class is called from auditd for service config.
+# NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
+#
+# @summary This class is called from auditd for service config.
+#
+# @author https://github.com/simp/pupmod-simp-auditd/graphs/contributors
 #
 class auditd::config {
-
   assert_private()
 
   if $::auditd::default_audit_profile != undef {

@@ -1,6 +1,7 @@
-# This define allows you to add rules to the auditd.rules file.  These rules
-# should be uniquely named.  See ``auditctl(8)`` for more information on how to
-# write the content for these rules.
+# @summary Add rules to the audit daemon.
+#
+# All rules must be uniquely named.  See ``auditctl(8)`` for more information
+# on how to write the content for these rules.
 #
 # @param name
 #   A unique identifier for the audit rules.
@@ -8,48 +9,60 @@
 # @param content
 #   The content of the rules that should be added.
 #
+#   * Arrays will be joined with a newline
+#
+# @param order
+#   An alphanumeric (file system ordering) order string
+#
+#  * Overridden by `first`, `absolute`, or `prepend`
+#
 # @param first
-#   Set this to 'true' if you want to prepend your custom rules.
-#     Default: false
+#   Set this to 'true' if you want to prepend your custom rules (numeric 10)
 #
 # @param absolute
-#   Set this to 'true' if you want the added rules to be absolutely first or
-#   last depending on the setting of $first.
-#     Default: false
+#   Set this to ``true`` if you want the added rules to be absolutely first or
+#   last depending on the setting of ``$first``.
 #
-# @author Trevor Vaughan <tvaughan@onyxpoint.com>
-# @author Chris Tessmer  <chris.tessmer@onyxpoint.com>
+# @param prepend
+#   Prepend this rule to all other rules (numeric 00).
+#
+# @author https://github.com/simp/pupmod-simp-auditd/graphs/contributors
 #
 define auditd::rule (
-  String  $content,
-  Boolean $first    = false,
-  Boolean $absolute = false,
-  Boolean $prepend  = false
+  Variant[Array[String[1]],String[1]] $content,
+  String[1]                           $order    = '10',
+  Boolean                             $first    = false,
+  Boolean                             $absolute = false,
+  Boolean                             $prepend  = false
 ) {
   include 'auditd'
 
   if $::auditd::enable {
 
+    $_safe_name = regsubst($name, '(/|\s)', '__')
+
     if $prepend {
-      $rule_id = "00.${name}.rules"
+      $_order = '00'
     }
     else {
       if $first {
         if $absolute {
-          $rule_id = "01.${name}.rules"
+          $_order = '01'
         }
         else {
-          $rule_id = "10.${name}.rules"
+          $_order = '10'
         }
       }
       else {
-        $rule_id = "75.${name}.rules"
+        $_order = '75'
       }
     }
 
-    file { "/etc/audit/rules.d/${rule_id}":
-      content => template('auditd/rule.erb'),
-      notify  => Class['::auditd::service']
+    $_rule_id = "${_order}.${_safe_name}.rules"
+
+    file { "/etc/audit/rules.d/${_rule_id}":
+      content => epp("${module_name}/rule.epp", { content => $content }),
+      notify  => Class['auditd::service']
     }
   }
   else {

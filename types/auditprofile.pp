@@ -1,1 +1,5 @@
-type Auditd::AuditProfile = Enum['simp','stig']
+type Auditd::AuditProfile = Enum[
+  'simp',
+  'stig',
+  'custom'
+]

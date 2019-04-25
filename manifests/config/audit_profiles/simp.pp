@@ -1,4 +1,4 @@
-# A set of audit rules that are configured to meet the general goals of SIMP
+# @summary A set of general purpose audit rules that should meet most security policy requirements
 #
 # The defaults for this profile generate a set of audit rules that are
 # both usable on most systems and conformant with standard auditing
@@ -460,14 +460,9 @@ class auditd::config::audit_profiles::simp (
   }
 
   $_short_name = 'simp'
-  if length($::auditd::config::profiles) == 1 {
-    $_rules_file = '/etc/audit/rules.d/50_base.rules'
-  } else {
-    $_index = auditd::get_array_index($_short_name, $::auditd::config::profiles)
-    $_rules_file = "/etc/audit/rules.d/50_${_index}_${_short_name}_base.rules"
-  }
+  $_idx = auditd::get_array_index($_short_name, $auditd::config::profiles)
 
-  file { $_rules_file:
-    content => template("${module_name}/rule_profiles/simp/base.erb")
+  file { "/etc/audit/rules.d/50_${_idx}_${_short_name}_base.rules":
+    content => epp("${module_name}/rule_profiles/simp/base.epp")
   }
 }

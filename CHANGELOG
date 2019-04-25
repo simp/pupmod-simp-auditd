@@ -1,3 +1,15 @@
+* Thu Apr 25 2019 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.3.0-0
+  - Added a `custom` audit profile that accepts either an Array of rules or a
+    template path for ease of setting full rulesets via Hiera.
+  - Updated all module components for `puppet strings`
+  - Fixed the README
+  - Added a REFERENCE.md
+  - Refactored the filename logic in the base profiles to be simpler
+  - Converted the rule template to EPP
+  - Converted the rotated_audit_logs template to EPP
+  - Converted STIG audit profile template to EPP
+  - Converted SIMP audit profile template to EPP
+
 * Wed Apr 10 2019 Joseph Sharkey <shark.bruhaha@gmail.com> - 8.2.1-0
 - Ensure that space_left is always larger than admin_space_left
 - Updated tests in support of puppet6, and removed puppet4 support
