@@ -8,19 +8,27 @@
 
 <!-- vim-markdown-toc GFM -->
 
-  * [Overview](#overview)
-  * [This is a SIMP module](#this-is-a-simp-module)
-  * [Module Description](#module-description)
-  * [Setup](#setup)
-    * [Setup Requirements](#setup-requirements)
-    * [What Auditd Affects](#what-auditd-affects)
-  * [Usage](#usage)
-    * [Basic Usage](#basic-usage)
-    * [Disabling Auditd](#disabling-auditd)
-      * [Changing Key Values](#changing-key-values)
-* [Limitations](#limitations)
-  * [Development](#development)
-    * [Acceptance tests](#acceptance-tests)
+* [Overview](#overview)
+* [This is a SIMP module](#this-is-a-simp-module)
+* [Module Description](#module-description)
+* [Setup](#setup)
+  * [Setup Requirements](#setup-requirements)
+  * [What Auditd Affects](#what-auditd-affects)
+* [Usage](#usage)
+  * [Basic Usage](#basic-usage)
+  * [Disabling Auditd](#disabling-auditd)
+  * [Changing Key Values](#changing-key-values)
+  * [Understanding Auditd Profiles](#understanding-auditd-profiles)
+    * [Stacking Profiles](#stacking-profiles)
+    * [The Custom Profile](#the-custom-profile)
+      * [Override All Other Profiles](#override-all-other-profiles)
+      * [Prepend Before the SIMP Profile](#prepend-before-the-simp-profile)
+      * [Append After the SIMP and STIG Profiles](#append-after-the-simp-and-stig-profiles)
+  * [Adding One-Off Rules](#adding-one-off-rules)
+    * [Adding Regular Filter Rules](#adding-regular-filter-rules)
+    * [Prepend and Drop Everything From a User](#prepend-and-drop-everything-from-a-user)
+* [Development](#development)
+  * [Acceptance tests](#acceptance-tests)
 
 <!-- vim-markdown-toc -->
 
@@ -76,11 +84,11 @@ If `auditd::syslog` is `true`, you will need to install
 ### Basic Usage
 
 ```puppet
-# Set up auditd with the default settings
+# Set up auditd with the default settings and SIMP default ruleset
 # A message will be printed indicating that you need to reboot for this option
 # to take full effect at each Puppet run until you reboot your system.
 
-include '::auditd'
+include 'auditd'
 ```
 
 ### Disabling Auditd
@@ -88,10 +96,10 @@ include '::auditd'
 To disable auditd at boot, set the following in hieradata:
 
 ```yaml
-auditd::at_boot : false
+auditd::at_boot: false
 ```
 
-#### Changing Key Values
+### Changing Key Values
 
 To override the default values included in the module, you can either
 include new values for the keys at the time that the classes are declared,
@@ -99,7 +107,7 @@ or set the values in hieradata:
 
 ```puppet
 
-class { '::auditd':
+class { 'auditd':
   ignore_failures => true,
   log_group       => 'root',
   flush           => 'INCREMENTAL'
@@ -112,9 +120,139 @@ auditd::log_group: 'root'
 auditd::flush: 'INCREMENTAL'
 ```
 
-# Limitations
+### Understanding Auditd Profiles
 
-SIMP Puppet modules are generally intended to be used on a Redhat Enterprise Linux-compatible distribution such as EL6 and EL7.
+This module supports various configurations both independently and
+simultaneously to meet varying end user requirements.
+
+> NOTE: The default behavior of this module is to ignore any invalid rules and
+> apply as much of the rule set as possible. This is done so that you end up
+> with an effective level of auditing regardless of a simply typo or
+> conflicting rule.  Please test your final rule sets to ensure that your
+> system is auditing as expected.
+
+The ``auditd::default_audit_profiles`` parameter determines which profiles are
+included, and in what order the rules are added to the system.
+
+The ``auditd::default_audit_profiles`` has a default setting of ``[ 'simp' ]``
+which applies the optimized SIMP auditing profile which is suitable for meeting
+most generally available compliance requirements. It does not, however,
+generally appease the scanning utilities since it optimizes the rules for
+performance and most scanners cannot handle audit rule optimizations.
+
+There are two other profiles available in the system by default:
+
+* ``stig``   => Applies the rules as defined in the latest covered DISA STIG
+* ``custom`` => Allows users to define their own rules easily via Hiera
+
+There are a large number of parameters exposed for each profile that are meant
+to be set via Hiera and you should take a look at the REFERENCE.md file to
+understand the full capabilities of each profile.
+
+#### Stacking Profiles
+
+In some cases, you may want to combine profiles in different orders. This may
+either be done in order to pass a particular scanning engine or to ensure that
+items that are not caught by the first profile are caught by the second.
+
+Profiles are included and ordered by passing an Array to the
+``auditd::default_audit_profiles`` parameter and are added to auditd in the
+order in which they are defined in the Array.
+
+For example, this (the default) would only add the ``simp`` profile:
+
+```yaml
+auditd::default_audit_profiles:
+  - "simp"
+```
+
+Likewise, this would add the ``stig`` rules prior to the ``simp`` profile:
+
+```yaml
+auditd::default_audit_profiles:
+  - "stig"
+  - "simp"
+```
+
+#### The Custom Profile
+
+Users may wish to either completely override the default profiles or
+prepend/append their own rules to the stack for compliance purposes.
+
+You can easily do this via Hiera as shown in the following example:
+
+```yaml
+auditd::config::audit_profiles::custom::rules:
+  - '-w /etc/passwd -wa -k passwd_files'
+  - '-w /etc/shadow -wa -k passwd_files'
+```
+
+To activate the custom profile, you will need to set the
+``auditd::default_audit_profiles`` parameter as shown in the following
+examples:
+
+##### Override All Other Profiles
+
+```yaml
+auditd::default_audit_profiles:
+  - "custom"
+```
+
+##### Prepend Before the SIMP Profile
+
+```yaml
+auditd::default_audit_profiles:
+  - "custom"
+  - "simp"
+```
+
+##### Append After the SIMP and STIG Profiles
+
+```yaml
+auditd::default_audit_profiles:
+  - "simp"
+  - "stig"
+  - "custom"
+```
+
+### Adding One-Off Rules
+
+Rules are alphanumerically ordered based on file-system globbing. It is
+recommended that users use the ``auditd::rule`` defined type for adding rules.
+
+Other options are available with ``auditd::rule`` but these are the most
+commonly used.
+
+#### Adding Regular Filter Rules
+
+```puppet
+
+auditd::rule { 'failed_file_creation':
+  content => '-a always,exit -F arch=b64 -S creat -F exit=-EACCES -k failed_file_creation'
+}
+```
+
+```puppet
+
+auditd::rule { 'passwd_file_watches':
+  content => [
+    '-w /etc/passwd -wa -k passwd_files',
+    '-w /etc/shadow -wa -k passwd_files'
+  ]
+}
+```
+
+#### Prepend and Drop Everything From a User
+
+This will make your rule land in the ``00`` set of rules.
+
+```puppet
+
+auditd::rule { 'pre_drop_user_5000':
+  content => '-a exit,never -F auid=5000',
+  prepend => true
+}
+```
 
 ## Development
 

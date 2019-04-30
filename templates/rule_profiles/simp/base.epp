@@ -1,0 +1,531 @@
+#### auditd::config::audit_profiles::simp Audit Rules ####
+<% if $auditd::config::audit_profiles::simp::audit_unsuccessful_file_operations  { -%>
+
+## Audit unsuccessful file operations
+# CCE-26712-0
+# CCE-26651-0
+# RHEL-07-030500
+# RHEL-07-030510
+# RHEL-07-030520
+# RHEL-07-030530
+# RHEL-07-030540
+# RHEL-07-030550
+<%   if $facts['hardwaremodel'] == "x86_64"  { -%>
+-a always,exit -F arch=b64 -S creat,mkdir,mknod,link,symlink,mkdirat,mknodat,linkat,symlinkat,openat,open_by_handle_at,open,close,rename,renameat,truncate,ftruncate,rmdir,unlink,unlinkat -F exit=-EACCES -k <%= $auditd::config::audit_profiles::simp::audit_unsuccessful_file_operations_tag %>
+-a always,exit -F arch=b64 -S creat,mkdir,mknod,link,symlink,mkdirat,mknodat,linkat,symlinkat,openat,open_by_handle_at,open,close,rename,renameat,truncate,ftruncate,rmdir,unlink,unlinkat -F exit=-EPERM -k <%= $auditd::config::audit_profiles::simp::audit_unsuccessful_file_operations_tag %>
+<%   } -%>
+-a always,exit -F arch=b32 -S creat,mkdir,mknod,link,symlink,mkdirat,mknodat,linkat,symlinkat,openat,open_by_handle_at,open,close,rename,renameat,truncate,ftruncate,rmdir,unlink,unlinkat -F exit=-EACCES -k <%= $auditd::config::audit_profiles::simp::audit_unsuccessful_file_operations_tag %>
+-a always,exit -F arch=b32 -S creat,mkdir,mknod,link,symlink,mkdirat,mknodat,linkat,symlinkat,openat,open_by_handle_at,open,close,rename,renameat,truncate,ftruncate,rmdir,unlink,unlinkat -F exit=-EPERM -k <%= $auditd::config::audit_profiles::simp::audit_unsuccessful_file_operations_tag %>
+
+-a always,exit -F perm=a -F exit=-EACCES -k <%= $auditd::config::audit_profiles::simp::audit_unsuccessful_file_operations_tag %>
+-a always,exit -F perm=a -F exit=-EPERM -k <%= $auditd::config::audit_profiles::simp::audit_unsuccessful_file_operations_tag %>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::audit_passwd_cmds  { -%>
+
+## Audit the execution of password commands
+# RHEL-07-030630
+-a always,exit -F path=/usr/bin/passwd -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
+<%   if $facts['os']['release']['major'] > '6'  { -%>
+-a always,exit -F path=/bin/passwd -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
+<%   } -%>
+
+# RHEL-07-030640
+<%   if $facts['os']['release']['major'] > '6'  { -%>
+-a always,exit -F path=/usr/sbin/unix_chkpwd -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
+<%   } -%>
+-a always,exit -F path=/sbin/unix_chkpwd -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
+
+# RHEL-07-030650
+-a always,exit -F path=/usr/bin/gpasswd -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
+<%   if $facts['os']['release']['major'] > '6'  { -%>
+-a always,exit -F path=/bin/gpasswd -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
+<%   } -%>
+
+# RHEL-07-030660
+-a always,exit -F path=/usr/bin/chage -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
+<%   if $facts['os']['release']['major'] > '6'  { -%>
+-a always,exit -F path=/bin/chage -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
+<%   } -%>
+
+# RHEL-07-030670
+-a always,exit -F path=/usr/sbin/userhelper -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
+<%   if $facts['os']['release']['major'] > '6'  { -%>
+-a always,exit -F path=/sbin/userhelper -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
+<%   } -%>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::audit_priv_cmds  { -%>
+
+## Audit the execution of privilege-related commands
+# RHEL-07-030680
+<%   if $facts['os']['release']['major'] > '6'  { -%>
+-a always,exit -F path=/usr/bin/su -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
+<%   } -%>
+-a always,exit -F path=/bin/su -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
+
+# RHEL-07-030690
+-a always,exit -F path=/usr/bin/sudo -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
+<%   if $facts['os']['release']['major'] > '6'  { -%>
+-a always,exit -F path=/bin/sudo -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
+<%   } -%>
+
+# RHEL-07-030710
+-a always,exit -F path=/usr/bin/newgrp -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
+<%   if $facts['os']['release']['major'] > '6'  { -%>
+-a always,exit -F path=/bin/newgrp -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
+<%   } -%>
+
+# RHEL-07-030720
+-a always,exit -F path=/usr/bin/chsh -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
+<%   if $facts['os']['release']['major'] > '6'  { -%>
+-a always,exit -F path=/bin/chsh -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
+<%   } -%>
+
+# RHEL-07-030730
+-a always,exit -F path=/usr/bin/sudoedit -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
+<%   if $facts['os']['release']['major'] > '6'  { -%>
+-a always,exit -F path=/bin/sudoedit -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
+<%   } -%>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::audit_postfix_cmds  { -%>
+
+## Audit the execution of postfix-related commands
+# RHEL-07-030760
+-a always,exit -F path=/usr/sbin/postdrop -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_postfix_cmds_tag %>
+<%   if $facts['os']['release']['major'] > '6'  { -%>
+-a always,exit -F path=/sbin/postdrop -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_postfix_cmds_tag %>
+<%   } -%>
+
+# RHEL-07-030770
+-a always,exit -F path=/usr/sbin/postqueue -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_postfix_cmds_tag %>
+<%   if $facts['os']['release']['major'] > '6'  { -%>
+-a always,exit -F path=/sbin/postqueue -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_postfix_cmds_tag %>
+<%   } -%>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::audit_ssh_keysign_cmd  { -%>
+
+## Audit the execution of the ssh-keysign command
+# RHEL-07-030780
+-a always,exit -F path=/usr/libexec/openssh/ssh-keysign -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_ssh_keysign_cmd_tag %>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::audit_crontab_cmd  { -%>
+
+## Audit the execution of the crontab command
+# RHEL-07-030800
+-a always,exit -F path=/usr/bin/crontab -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_crontab_cmd_tag %>
+<%   if $facts['os']['release']['major'] > '6'  { -%>
+-a always,exit -F path=/bin/crontab -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_crontab_cmd_tag %>
+<%   } -%>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::audit_pam_timestamp_check_cmd  { -%>
+
+## Audit the execution of the pam_timestamp_check command
+# RHEL-07-030810
+<%   if $facts['os']['release']['major'] > '6'  { -%>
+-a always,exit -F path=/usr/sbin/pam_timestamp_check -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_pam_timestamp_check_cmd_tag %>
+<%   } -%>
+-a always,exit -F path=/sbin/pam_timestamp_check -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_pam_timestamp_check_cmd_tag %>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::audit_selinux_cmds  { -%>
+
+## Audit selinux commands
+# NOTE:  These rules come before the *xattr* checks, to ensure the
+#        correct tag is recorded.
+#
+# RHEL-07-030560
+-a always,exit -F path=/usr/sbin/semanage -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_selinux_cmds_tag %>
+<%   if $facts['os']['release']['major'] > '6'  { -%>
+-a always,exit -F path=/sbin/semanage -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_selinux_cmds_tag %>
+<%   } -%>
+
+# RHEL-07-030570
+-a always,exit -F path=/usr/sbin/setsebool -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_selinux_cmds_tag %>
+<%   if $facts['os']['release']['major'] > '6'  { -%>
+-a always,exit -F path=/sbin/setsebool -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_selinux_cmds_tag %>
+<%   } -%>
+
+# RHEL-07-030580
+-a always,exit -F path=/usr/bin/chcon -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_selinux_cmds_tag %>
+<%   if $facts['os']['release']['major'] > '6'  { -%>
+-a always,exit -F path=/bin/chcon -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_selinux_cmds_tag %>
+<%   } -%>
+
+# RHEL-07-030590
+<%   if $facts['os']['release']['major'] > '6'  { -%>
+-a always,exit -F path=/usr/sbin/setfiles -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_selinux_cmds_tag %>
+<%   } -%>
+-a always,exit -F path=/sbin/setfiles -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_selinux_cmds_tag %>
+<% } -%>
+
+## Permissions auditing separated by chown, chmod, and attr
+# CCE-26280-8
+# CCE-27173-4
+# CCE-27174-2
+# CCE-27175-9
+# CCE-27177-5
+# CCE-27178-3
+# CCE-27179-1
+# CCE-27180-9
+# CCE-27181-7
+# CCE-27182-5
+# CCE-27183-3
+# CCE-27184-1
+# CCE-27185-8
+<% if $auditd::config::audit_profiles::simp::audit_chown  { -%>
+
+# RHEL-07-030370
+# RHEL-07-030380
+# RHEL-07-030390
+# RHEL-07-030400
+<%   if $facts['hardwaremodel'] == "x86_64"  { -%>
+-a always,exit -F arch=b64 -S chown,fchown,fchownat,lchown -k <%= $auditd::config::audit_profiles::simp::audit_chown_tag %>
+<%   } -%>
+-a always,exit -F arch=b32 -S chown,fchown,fchownat,lchown -k <%= $auditd::config::audit_profiles::simp::audit_chown_tag %>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::audit_chmod  { -%>
+
+# RHEL-07-030410
+# RHEL-07-030420
+# RHEL-07-030430
+<%   if $facts['hardwaremodel'] == "x86_64"  { -%>
+-a always,exit -F arch=b64 -S chmod,fchmod,fchmodat -k <%= $auditd::config::audit_profiles::simp::audit_chmod_tag %>
+<%   } -%>
+-a always,exit -F arch=b32 -S chmod,fchmod,fchmodat -k <%= $auditd::config::audit_profiles::simp::audit_chmod_tag %>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::audit_attr  { -%>
+
+# RHEL-07-030440
+# RHEL-07-030450
+# RHEL-07-030460
+# RHEL-07-030470
+# RHEL-07-030480
+# RHEL-07-030490
+<%   if $facts['hardwaremodel'] == "x86_64"  { -%>
+-a always,exit -F arch=b64 -S setxattr,lsetxattr,fsetxattr,removexattr,lremovexattr,fremovexattr -k <%= $auditd::config::audit_profiles::simp::audit_attr_tag %>
+<%   } -%>
+-a always,exit -F arch=b32 -S setxattr,lsetxattr,fsetxattr,removexattr,lremovexattr,fremovexattr -k <%= $auditd::config::audit_profiles::simp::audit_attr_tag %>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::audit_rename_remove  { -%>
+
+## Audit rename/removal operations
+# RHEL-07-030880
+# RHEL-07-030890
+# RHEL-07-030900
+# RHEL-07-030910
+# RHEL-07-030920
+<%   if $facts['hardwaremodel'] == "x86_64"  { -%>
+-a always,exit -F arch=b64 -S rename,renameat,rmdir,unlink,unlinkat -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_rename_remove_tag %>
+<%   } -%>
+-a always,exit -F arch=b32 -S rename,renameat,rmdir,unlink,unlinkat -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_rename_remove_tag %>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::audit_su_root_activity  { -%>
+
+## Audit useful items that someone does when su'ing to root.
+# Had to add an entry in the default_drop rules file for getting rid of
+# anonymous records.  They are only moderately useful and contain *way*
+# too much noise since this covers things like cron as well.
+<%
+    if $auditd::config::audit_profiles::simp::root_audit_level =~ /^bas.*/ {
+      $_su_rules = join($auditd::config::audit_profiles::simp::basic_root_audit_syscalls, ',')
+    }
+    elsif $auditd::config::audit_profiles::simp::root_audit_level =~ /^agg.*/ {
+      $_su_rules = join($auditd::config::audit_profiles::simp::aggressive_root_audit_syscalls, ',')
+    }
+    else {
+      $_su_rules = join($auditd::config::audit_profiles::simp::insane_root_audit_syscalls, ',')
+    }
+-%>
+<%   if $facts['hardwaremodel'] == "x86_64"  { -%>
+-a always,exit -F arch=b64 -F auid!=0 -F uid=0 -S <%= $_su_rules %> -k <%= $auditd::config::audit_profiles::simp::audit_su_root_activity_tag %>
+<%   } -%>
+-a always,exit -F arch=b32 -F auid!=0 -F uid=0 -S <%= $_su_rules %> -k <%= $auditd::config::audit_profiles::simp::audit_su_root_activity_tag %>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::audit_suid_sgid  { -%>
+
+## Audit the execution of suid and sgid binaries.
+# CCE-26457-2
+# RHEL-07-030360
+<%   if $facts['hardwaremodel'] == "x86_64"  { -%>
+-a always,exit -F arch=b64 -F euid=0 -F uid!=0 -S execve -k <%= $auditd::config::audit_profiles::simp::audit_suid_sgid_tag %>
+<%   } -%>
+-a always,exit -F arch=b32 -F euid=0 -F uid!=0 -S execve -k <%= $auditd::config::audit_profiles::simp::audit_suid_sgid_tag %>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::audit_kernel_modules  { -%>
+
+## Audit the loading and unloading of kernel modules.
+# CCE-26611-4
+<%   if $facts['os']['release']['major'] > '6'  { -%>
+-w /usr/bin/kmod -p x -k <%= $auditd::config::audit_profiles::simp::audit_kernel_modules_tag %>
+-w /bin/kmod -p x -k <%= $auditd::config::audit_profiles::simp::audit_kernel_modules_tag %>
+<%   } -%>
+
+# RHEL-07-030840
+<%   if $facts['os']['release']['major'] > '6'  { -%>
+-w /usr/sbin/insmod -p x -k <%= $auditd::config::audit_profiles::simp::audit_kernel_modules_tag %>
+<%   } -%>
+-w /sbin/insmod -p x -k <%= $auditd::config::audit_profiles::simp::audit_kernel_modules_tag %>
+
+# RHEL-07-030850
+<%   if $facts['os']['release']['major'] > '6'  { -%>
+-w /usr/sbin/rmmod -p x -k <%= $auditd::config::audit_profiles::simp::audit_kernel_modules_tag %>
+<%   } -%>
+-w /sbin/rmmod -p x -k <%= $auditd::config::audit_profiles::simp::audit_kernel_modules_tag %>
+
+# RHEL-07-030860
+<%   if $facts['os']['release']['major'] > '6'  { -%>
+-w /usr/sbin/modprobe -p x -k <%= $auditd::config::audit_profiles::simp::audit_kernel_modules_tag %>
+<%   } -%>
+-w /sbin/modprobe -p x -k <%= $auditd::config::audit_profiles::simp::audit_kernel_modules_tag %>
+
+<%   if $facts['hardwaremodel'] == "x86_64"  { -%>
+# RHEL-07-030819
+# RHEL-07-030820
+# RHEL-07-030821
+# RHEL-07-030830
+-a always,exit -F arch=b64 -S create_module,init_module,finit_module,delete_module -k <%= $auditd::config::audit_profiles::simp::audit_kernel_modules_tag %>
+-a always,exit -F arch=b32 -S create_module,init_module,finit_module,delete_module -k <%= $auditd::config::audit_profiles::simp::audit_kernel_modules_tag %>
+<%   } else { -%>
+-a always,exit -S create_module,init_module,finit_module,delete_module -k <%= $auditd::config::audit_profiles::simp::audit_kernel_modules_tag %>
+<%   } -%>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::audit_time  { -%>
+
+## Audit things that could affect time
+# CCE-27172-6
+# CCE-27203-9
+# CCE-27169-2
+# CCE-27170-0
+<%   if $facts['hardwaremodel'] == "x86_64"  { -%>
+-a always,exit -F arch=b32 -S adjtimex,stime,settimeofday -k <%= $auditd::config::audit_profiles::simp::audit_time_tag %>
+-a always,exit -F arch=b64 -S adjtimex,settimeofday -k <%= $auditd::config::audit_profiles::simp::audit_time_tag %>
+-a always,exit -F arch=b32 -S clock_settime -F a0=0x0 -k <%= $auditd::config::audit_profiles::simp::audit_time_tag %>
+-a always,exit -F arch=b64 -S clock_settime -F a0=0x0 -k <%= $auditd::config::audit_profiles::simp::audit_time_tag %>
+<%   } else { -%>
+-a always,exit -S adjtimex,stime,clock_settime,settimeofday -k <%= $auditd::config::audit_profiles::simp::audit_time_tag %>
+<%   } -%>
+
+# CCE-27172-6
+-w /etc/localtime -p wa -k <%= $auditd::config::audit_profiles::simp::audit_time_tag %>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::audit_locale  { -%>
+
+## Audit things that could affect system locale
+# CCE-26648-6
+<%   if $facts['hardwaremodel'] == "x86_64"  { -%>
+-a always,exit -F arch=b32 -S sethostname,setdomainname -k <%= $auditd::config::audit_profiles::simp::audit_locale_tag %>
+-a always,exit -F arch=b64 -S sethostname,setdomainname -k <%= $auditd::config::audit_profiles::simp::audit_locale_tag %>
+<%   } else { -%>
+-a always,exit -S sethostname -k <%= $auditd::config::audit_profiles::simp::audit_locale_tag %>
+<%   } -%>
+-w /etc/issue -p wa -k <%= $auditd::config::audit_profiles::simp::audit_locale_tag %>
+-w /etc/issue.net -p wa -k <%= $auditd::config::audit_profiles::simp::audit_locale_tag %>
+-w /etc/hosts -p wa -k <%= $auditd::config::audit_profiles::simp::audit_locale_tag %>
+-w /etc/hostname -p wa -k <%= $auditd::config::audit_profiles::simp::audit_locale_tag %>
+-w /etc/sysconfig/network -p wa -k <%= $auditd::config::audit_profiles::simp::audit_locale_tag %>
+<%   if $facts['os']['release']['major'] > '6'  { -%>
+-a always,exit -F dir=/etc/NetworkManager/ -F perm=wa -k <%= $auditd::config::audit_profiles::simp::audit_locale_tag %>
+<%   } -%>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::audit_mount  { -%>
+
+## Audit mount operations
+# CCE-26573-6
+#
+# RHEL-07-030740
+# RHEL-07-030750
+<%   if $facts['hardwaremodel'] == "x86_64"  { -%>
+-a always,exit -F arch=b32 -S mount,umount,umount2 -k <%= $auditd::config::audit_profiles::simp::audit_mount_tag %>
+-a always,exit -F arch=b64 -S mount,umount2 -k <%= $auditd::config::audit_profiles::simp::audit_mount_tag %>
+<%   } else { -%>
+-a always,exit -S mount,umount,umount2 -k <%= $auditd::config::audit_profiles::simp::audit_mount_tag %>
+<%   } -%>
+<%   if $facts['hardwaremodel'] == "x86_64"  { -%>
+<%     if $facts['os']['release']['major'] > '6'  { -%>
+-a always,exit -F arch=b64 -F path=/usr/bin/mount -k <%= $auditd::config::audit_profiles::simp::audit_mount_tag %>
+<%     } -%>
+-a always,exit -F arch=b64 -F path=/bin/mount -k <%= $auditd::config::audit_profiles::simp::audit_mount_tag %>
+<%   } -%>
+<%   if $facts['os']['release']['major'] > '6'  { -%>
+-a always,exit -F arch=b32 -F path=/usr/bin/mount -k <%= $auditd::config::audit_profiles::simp::audit_mount_tag %>
+<%   } -%>
+-a always,exit -F arch=b32 -F path=/bin/mount -k <%= $auditd::config::audit_profiles::simp::audit_mount_tag %>
+<%   if $facts['os']['release']['major'] > '6'  { -%>
+-a always,exit -F path=/usr/bin/umount -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_mount_tag %>
+<%   } -%>
+-a always,exit -F path=/bin/umount -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_mount_tag %>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::audit_umask  { -%>
+
+## Audit umask changes.
+# This is uselessly noisy.
+<%   if $facts['hardwaremodel'] == "x86_64"  { -%>
+-a always,exit -F arch=b64 -S umask -k <%= $auditd::config::audit_profiles::simp::audit_umask_tag %>
+<%   } -%>
+-a always,exit -F arch=b32 -S umask -k <%= $auditd::config::audit_profiles::simp::audit_umask_tag %>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::audit_local_account  { -%>
+
+## Audit local accounts
+# CCE-26664-3
+#
+# RHEL-07-030870
+-w /etc/passwd -p wa -k <%= $auditd::config::audit_profiles::simp::audit_local_account_tag %>
+
+# RHEL-07-030871
+-w /etc/group -p wa -k <%= $auditd::config::audit_profiles::simp::audit_local_account_tag %>
+
+# RHEL-07-030872
+-w /etc/gshadow -p wa -k <%= $auditd::config::audit_profiles::simp::audit_local_account_tag %>
+
+# RHEL-07-030873
+-w /etc/shadow -p wa -k <%= $auditd::config::audit_profiles::simp::audit_local_account_tag %>
+
+# RHEL-07-030874
+-w /etc/security/opasswd -p wa -k <%= $auditd::config::audit_profiles::simp::audit_local_account_tag %>
+
+-w /etc/passwd- -p wa -k <%= $auditd::config::audit_profiles::simp::audit_local_account_tag %>
+-w /etc/group- -p wa -k <%= $auditd::config::audit_profiles::simp::audit_local_account_tag %>
+-w /etc/shadow- -p wa -k <%= $auditd::config::audit_profiles::simp::audit_local_account_tag %>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::audit_selinux_policy  { -%>
+
+## Audit selinux policy
+# CCE-26657-7
+-w /etc/selinux/ -p wa -k <%= $auditd::config::audit_profiles::simp::audit_selinux_policy_tag %>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::audit_login_files  { -%>
+
+## Audit login files
+# CCE-26691-6
+#
+# RHEL-07-030600
+-w /var/log/tallylog -p wa -k <%= $auditd::config::audit_profiles::simp::audit_login_files_tag %>
+
+# RHEL-07-030610
+-w /var/run/faillock -p wa -k <%= $auditd::config::audit_profiles::simp::audit_login_files_tag %>
+
+# RHEL-07-030620
+-w /var/log/lastlog -p wa -k <%= $auditd::config::audit_profiles::simp::audit_login_files_tag %>
+
+-w /var/log/faillog -p wa -k <%= $auditd::config::audit_profiles::simp::audit_login_files_tag %>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::audit_session_files  { -%>
+
+## Audit session files
+# CCE-26610-6
+-w /var/run/utmp -p wa -k <%= $auditd::config::audit_profiles::simp::audit_session_files_tag %>
+-w /var/log/btmp -p wa -k <%= $auditd::config::audit_profiles::simp::audit_session_files_tag %>
+-w /var/log/wtmp -p wa -k <%= $auditd::config::audit_profiles::simp::audit_session_files_tag %>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::_audit_cfg_sudoers  { -%>
+
+## Audit sudoers configuration files
+# CCE-26662-7
+# RHEL-07-030700
+-w /etc/sudoers -p wa -k <%= $auditd::config::audit_profiles::simp::_audit_cfg_sudoers_tag %>
+-w /etc/sudoers.d/ -p wa -k <%= $auditd::config::audit_profiles::simp::_audit_cfg_sudoers_tag %>
+<% } -%>
+
+## Generally good things to audit.
+<% if $auditd::config::audit_profiles::simp::_audit_cfg_grub  { -%>
+<%   if versioncmp($facts['grub_version'], '2') < 0  { -%>
+-w /boot/grub/grub.conf -p wa -k <%= $auditd::config::audit_profiles::simp::_audit_cfg_grub_tag %>
+<%   } else { -%>
+-w /etc/grub.d -p wa -k <%= $auditd::config::audit_profiles::simp::_audit_cfg_grub_tag %>
+<%   } -%>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::audit_cfg_sys  { -%>
+-w /etc/default -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_sys_tag %>
+-w /etc/exports -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_sys_tag %>
+-w /etc/fstab -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_sys_tag %>
+-w /etc/host.conf -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_sys_tag %>
+-w /etc/hosts.allow -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_sys_tag %>
+-w /etc/hosts.deny -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_sys_tag %>
+-w /etc/initlog.conf -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_sys_tag %>
+-w /etc/inittab -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_sys_tag %>
+-w /etc/issue -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_sys_tag %>
+-w /etc/issue.net -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_sys_tag %>
+-w /etc/krb5.conf -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_sys_tag %>
+-w /etc/ld.so.conf -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_sys_tag %>
+-w /etc/ld.so.conf.d -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_sys_tag %>
+-w /etc/login.defs -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_sys_tag %>
+-w /etc/modprobe.conf.d -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_sys_tag %>
+-w /etc/modprobe.d/00_simp_blacklist.conf -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_sys_tag %>
+-w /etc/nsswitch.conf -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_sys_tag %>
+-w /etc/aliases -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_sys_tag %>
+-w /etc/at.deny -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_sys_tag %>
+-w /etc/rc.d/init.d -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_sys_tag %>
+-w /etc/rc.local -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_sys_tag %>
+-w /etc/rc.sysinit -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_sys_tag %>
+-w /etc/resolv.conf -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_sys_tag %>
+-w /etc/securetty -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_sys_tag %>
+-w /etc/snmp/snmpd.conf -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_sys_tag %>
+-w /etc/ssh/sshd_config -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_sys_tag %>
+-w /etc/sysconfig -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_sys_tag %>
+-w /etc/sysctl.conf -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_sys_tag %>
+-w /lib/firmware/microcode.dat -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_sys_tag %>
+-w /var/spool/at -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_sys_tag %>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::audit_cfg_cron  { -%>
+-w /etc/cron.d -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_cron_tag %>
+-w /etc/anacrontab -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_cron_tag %>
+-w /etc/cron.daily -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_cron_tag %>
+-w /etc/cron.deny -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_cron_tag %>
+-w /etc/cron.hourly -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_cron_tag %>
+-w /etc/cron.monthly -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_cron_tag %>
+-w /etc/cron.weekly -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_cron_tag %>
+-w /etc/crontab -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_cron_tag %>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::audit_cfg_shell  { -%>
+-w /etc/csh.cshrc -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_shell_tag %>
+-w /etc/bashrc -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_shell_tag %>
+-w /etc/csh.login -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_shell_tag %>
+-w /etc/profile -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_shell_tag %>
+-w /etc/shells -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_shell_tag %>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::audit_cfg_pam  { -%>
+-w /etc/pam.d -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_pam_tag %>
+-w /etc/pam_smb.conf -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_pam_tag %>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::audit_cfg_security  { -%>
+-w /etc/security -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_security_tag %>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::audit_cfg_services  { -%>
+-w /etc/services -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_services_tag %>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::audit_cfg_xinetd  { -%>
+-w /etc/xinetd.conf -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_xinetd_tag %>
+-w /etc/xinetd.d -p wa -k <%= $auditd::config::audit_profiles::simp::audit_cfg_xinetd_tag %>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::_audit_cfg_yum  { -%>
+-w /etc/yum -p wa -k <%= $auditd::config::audit_profiles::simp::_audit_cfg_yum_tag %>
+-w /etc/yum.conf -p wa -k <%= $auditd::config::audit_profiles::simp::_audit_cfg_yum_tag %>
+-w /etc/yum.repos.d -p wa -k <%= $auditd::config::audit_profiles::simp::_audit_cfg_yum_tag %>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::audit_yum_cmd  { -%>
+-w /usr/bin/yum -p x -k <%= $auditd::config::audit_profiles::simp::audit_yum_cmd_tag %>
+<%   if $facts['os']['release']['major'] > '6'  { -%>
+-w /bin/yum -p x -k <%= $auditd::config::audit_profiles::simp::audit_yum_cmd_tag %>
+<%   } -%>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::audit_rpm_cmd  { -%>
+<%   if $facts['os']['release']['major'] > '6'  { -%>
+-w /usr/bin/rpm -p x -k <%= $auditd::config::audit_profiles::simp::audit_rpm_cmd_tag %>
+<%   } -%>
+-w /bin/rpm -p x -k <%= $auditd::config::audit_profiles::simp::audit_rpm_cmd_tag %>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::audit_ptrace  { -%>
+<%   if $facts['hardwaremodel'] == "x86_64"  { -%>
+-a always,exit -F arch=b32 -S ptrace -k <%= $auditd::config::audit_profiles::simp::audit_ptrace_tag %>
+-a always,exit -F arch=b64 -S ptrace -k <%= $auditd::config::audit_profiles::simp::audit_ptrace_tag %>
+<%   } else { -%>
+-a always,exit -S ptrace -k <%= $auditd::config::audit_profiles::simp::audit_ptrace_tag %>
+<%   } -%>
+<% } -%>
+<% if $auditd::config::audit_profiles::simp::audit_personality  { -%>
+<%   if $facts['hardwaremodel'] == "x86_64"  { -%>
+-a always,exit -F arch=b32 -S personality -k <%= $auditd::config::audit_profiles::simp::audit_personality_tag %>
+-a always,exit -F arch=b64 -S personality -k <%= $auditd::config::audit_profiles::simp::audit_personality_tag %>
+<%   } else  {-%>
+-a always,exit -S personality -k <%= $auditd::config::audit_profiles::simp::audit_personality_tag %>
+<%   } -%>
+<% } -%>

@@ -1,4 +1,4 @@
-# This class utilizes rsyslog to send all audit records to syslog.
+# @summary Utilizes rsyslog to send all audit records to syslog.
 #
 # This capability is most useful for forwarding audit records to
 # remote servers as syslog messages, since these records are already
@@ -41,6 +41,8 @@
 #     for the `auditd` services.
 #
 #     * Set to `false` if you are using some other `syslog` utility.
+#
+# @author https://github.com/simp/pupmod-simp-auditd/graphs/contributors
 #
 class auditd::config::audisp::syslog (
   Boolean             $drop_audit_logs = true,

@@ -21,7 +21,7 @@ describe 'auditd' do
           else
             expected = File.read('spec/classes/config/audit_profiles/expected/stig_el7_base_rules.txt')
           end
-          is_expected.to contain_file('/etc/audit/rules.d/50_base.rules').with_content(expected)
+          is_expected.to contain_file('/etc/audit/rules.d/50_00_stig_base.rules').with_content(expected)
         }
       end
 
@@ -45,7 +45,7 @@ describe 'auditd' do
           let(:hieradata) { hiera_file }
 
           it {
-            is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
+            is_expected.not_to contain_file('/etc/audit/rules.d/50_00_stig_base.rules').with_content(
               %r{^.* -k #{key}$}
             )
           }
@@ -57,7 +57,7 @@ describe 'auditd' do
         let(:hieradata) { 'stig_audit_profile/disable__audit_chown' }
 
         it {
-          is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
+          is_expected.not_to contain_file('/etc/audit/rules.d/50_00_stig_base.rules').with_content(
             %r(^-a always,exit -F arch=b\d\d -S \w*chown\w* -F auid>=\d+ -F auid!=4294967295 -k perm_mod$)
           )
         }
@@ -68,7 +68,7 @@ describe 'auditd' do
         let(:hieradata) { 'stig_audit_profile/disable__audit_chmod' }
 
         it {
-          is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
+          is_expected.not_to contain_file('/etc/audit/rules.d/50_00_stig_base.rules').with_content(
             %r(^-a always,exit -F arch=b\d\d -S \w*chmod\w* -F auid>=\d+ -F auid!=4294967295 -k perm_mod$)
           )
         }
@@ -79,7 +79,7 @@ describe 'auditd' do
         let(:hieradata) { 'stig_audit_profile/disable__audit_attr' }
 
         it {
-          is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
+          is_expected.not_to contain_file('/etc/audit/rules.d/50_00_stig_base.rules').with_content(
             %r(^-a always,exit -F arch=b\d\d -S \w*attr -F auid>=\d+ -F auid!=4294967295 -k perm_mod$)
           )
         }
@@ -90,11 +90,11 @@ describe 'auditd' do
         let(:hieradata) { 'stig_audit_profile/disable__audit_selinux_cmds' }
 
         it {
-          is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
+          is_expected.not_to contain_file('/etc/audit/rules.d/50_00_stig_base.rules').with_content(
             %r{^-a always,exit -F path=/usr/bin/(chcon|semanage|setsebool) -F perm=x -F auid>=\d+ -F auid!=4294967295 -k privileged-priv_change}
           )
 
-          is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').with_content(
+          is_expected.not_to contain_file('/etc/audit/rules.d/50_00_stig_base.rules').with_content(
             %r(^-a always,exit -F path=/(usr/)?sbin/setfiles -F perm=x -F auid>=\d+ -F auid!=4294967295 -k privileged-priv_change)
           )
         }
@@ -111,7 +111,7 @@ describe 'auditd' do
           %r{^-a always,exit -F path=/(usr/)?bin/sudoedit -F perm=x -F auid>=\d+ -F auid!=4294967295 -k privileged-priv_change$}
         ].each do |command_regex|
           it {
-            is_expected.not_to contain_file('/etc/audit/rules.d/50_base.rules').
+            is_expected.not_to contain_file('/etc/audit/rules.d/50_00_stig_base.rules').
               with_content(command_regex)
           }
         end
@@ -127,7 +127,7 @@ describe 'auditd' do
           else
             expected = File.read('spec/classes/config/audit_profiles/expected/stig_el7_all_custom_tags.txt')
           end
-          is_expected.to contain_file('/etc/audit/rules.d/50_base.rules').with_content(expected)
+          is_expected.to contain_file('/etc/audit/rules.d/50_00_stig_base.rules').with_content(expected)
         end
       end
 

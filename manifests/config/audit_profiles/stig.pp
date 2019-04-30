@@ -1,5 +1,4 @@
-# A set of audit rules that are configured to satisfy automated DISA STIG
-# compliance checks for RHEL7.
+# @summary A set of audit rules that are configured to satisfy DISA STIG compliance checks for EL7.
 #
 # The defaults for this profile generate a set of audit rules that conform to
 # automated DISA STIG compliance checks for RHEL7. Satisfying the checks,
@@ -201,15 +200,9 @@ class auditd::config::audit_profiles::stig (
   $_suid_sgid_cmds = unique($default_suid_sgid_cmds + $suid_sgid_cmds)
 
   $_short_name = 'stig'
-  if length($::auditd::config::profiles) == 1 {
-    $_rules_file = '/etc/audit/rules.d/50_base.rules'
-  } else {
-    $_index = auditd::get_array_index($_short_name, $::auditd::config::profiles)
-    $_rules_file = "/etc/audit/rules.d/50_${_index}_${_short_name}_base.rules"
-  }
+  $_idx = auditd::get_array_index($_short_name, $auditd::config::profiles)
 
-  file { $_rules_file:
-    content => template("${module_name}/rule_profiles/stig/base.erb")
+  file { "/etc/audit/rules.d/50_${_idx}_${_short_name}_base.rules":
+    content => epp("${module_name}/rule_profiles/stig/base.epp")
   }
-
 }

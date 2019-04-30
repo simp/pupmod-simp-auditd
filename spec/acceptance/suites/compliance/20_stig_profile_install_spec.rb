@@ -58,6 +58,13 @@ defaults:
         host.reboot
       end
 
+      # Some versions of auditd leave a backup rules file in place when they
+      # recompile. This is caught by our 'purge' setting in the directory
+      # management and will cause subsequent activity.
+      it 'will apply to cleanup' do
+        apply_manifest_on(host, manifest, :catch_failures => true)
+      end
+
       it 'should be idempotent' do
         apply_manifest_on(host, manifest, :catch_changes => true)
       end

@@ -1,5 +1,4 @@
-# Returns a string that represents the first index of the specified
-# element within the array.
+# @summary Returns a string that represents the first index of the specified element within the Array.
 #
 # Terminates catalog compilation if the element is not found within
 # the array.

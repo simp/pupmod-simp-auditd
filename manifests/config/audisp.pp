@@ -1,10 +1,16 @@
-# This class configures the audit dispatcher primarily for sending audit logs
-# directly to syslog without intervention.
+# @summary Configures the audit dispatcher primarily for sending audit logs directly to syslog without intervention.
 #
 # All parameters are documented in audispd.conf(5) with the exception
 # of $specific_name which maps to the audispd.conf 'name' variable.
 #
-# @author Trevor Vaughan <tvaugan@onyxpoint.com>
+# @param q_depth
+# @param overflow_action
+# @param priority_boost
+# @param max_restarts
+# @param name_format
+# @param specific_name
+#
+# @author https://github.com/simp/pupmod-simp-auditd/graphs/contributors
 #
 class auditd::config::audisp (
   Integer                $q_depth         = 160,

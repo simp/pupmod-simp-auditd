@@ -1,12 +1,14 @@
 # NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
 #
-# Ensure that the service is running
+# @summary Ensure that the auditd service is running
 #
 # @param ensure
 #   ``ensure`` state from the service resource
 #
 # @param enable
 #   ``enable`` state from the service resource
+#
+# @author https://github.com/simp/pupmod-simp-auditd/graphs/contributors
 #
 class auditd::service (
   $ensure = 'running',

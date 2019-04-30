@@ -1,4 +1,4 @@
-# Configure the audit daemon for use with a specified audit profile
+# @summary Configure the audit daemon for use with a specified audit profile.
 #
 # Any variable that is not described here can be found in auditd.conf(5) and
 # auditctl(8).
@@ -140,11 +140,14 @@
 #   For systems that require all users and processes to be in a confined
 #   namespace, you may find that only auditing unconfined types will be
 #   sufficient since all other invalid system actions are already audited.
+#
+# @author https://github.com/simp/pupmod-simp-auditd/graphs/contributors
+#
 class auditd (
   String                                  $lname                   = $facts['fqdn'],
   Boolean                                 $immutable               = false,
   Auditd::RootAuditLevel                  $root_audit_level        = 'basic',
-  Integer[0]                              $uid_min                 = Integer($facts['uid_min']),
+  Integer[0]                              $uid_min                 = Integer(pick(fact('uid_min'), 1000)),
   Boolean                                 $at_boot                 = true, # CCE-26785-6
   Boolean                                 $syslog                  = simplib::lookup('simp_options::syslog', {'default_value' => false }),  # CCE-26933-2
   Optional[Variant[Enum['simp'],Boolean]] $default_audit_profile   = undef,
