@@ -91,7 +91,7 @@ is inserted *before* the UID-limiting rule in the rules list.  When using
 `auditd::rule`, you can create such a rule by setting the `absolute`
 parameter to be 'first'.
 
-Default value: Integer($facts['uid_min'])
+Default value: Integer(pick(fact('uid_min'), 1000))
 
 ##### `at_boot`
 
@@ -569,13 +569,11 @@ file. The generated files are as follows:
   - Rules to drop prolific events of low-utility
   - Rules to restrict events based on `auid` constraints that would
     normally be applied to all rules
-- `40_custom.rules`: Custom rules as defined by the ``auditd::custom_rules``
-  parameter if prepended or overriding
 - `50_*base.rules`:
   - Nominal base rules for one or more built-in profiles.
   - One file will exist for each desired, built-in profile
   - Files are named so that the ordering of profiles listed
-    in `$::auditd::default_audit_profiles` is preserved
+    in `$auditd::default_audit_profiles` is preserved
   - The corresponding class for each profile is
    `auditd::config::audit_profiles::<profile name>`
 - `60_custom.rules`: Custom rules as defined by the ``auditd::custom_rules``
@@ -586,7 +584,7 @@ file. The generated files are as follows:
 - `75.rotated_audit_logs.rules`
    - Watch rules for permissions changes to the rotated `auditd` log files
 - `99_tail.rules`
-  - `auditctl` immutable option, when `$::auditd::immutable` is 'true'
+  - `auditctl` immutable option, when `$auditd::immutable` is 'true'
 
 ### auditd::config::audit_profiles::custom
 
@@ -1798,7 +1796,7 @@ Default value: `true`
 All rules must be uniquely named.  See ``auditctl(8)`` for more information
 on how to write the content for these rules.
 
- * Overridden by `first`, `absolute`, or `prepend`
+ * Overrides all other ordering parameters
 
 #### Parameters
 
@@ -1818,11 +1816,11 @@ The content of the rules that should be added.
 
 ##### `order`
 
-Data type: `String[1]`
+Data type: `Optional[String[1]]`
 
 An alphanumeric (file system ordering) order string
 
-Default value: '10'
+Default value: `undef`
 
 ##### `first`
 

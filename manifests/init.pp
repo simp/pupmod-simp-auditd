@@ -147,7 +147,7 @@ class auditd (
   String                                  $lname                   = $facts['fqdn'],
   Boolean                                 $immutable               = false,
   Auditd::RootAuditLevel                  $root_audit_level        = 'basic',
-  Integer[0]                              $uid_min                 = Integer($facts['uid_min']),
+  Integer[0]                              $uid_min                 = Integer(pick(fact('uid_min'), 1000)),
   Boolean                                 $at_boot                 = true, # CCE-26785-6
   Boolean                                 $syslog                  = simplib::lookup('simp_options::syslog', {'default_value' => false }),  # CCE-26933-2
   Optional[Variant[Enum['simp'],Boolean]] $default_audit_profile   = undef,
@@ -170,7 +170,7 @@ class auditd (
   Auditd::MaxLogFileAction                $max_log_file_action     = 'ROTATE', # CCE-27237-7
   Integer[0]                              $admin_space_left        = 50,
   Auditd::SpaceLeftAction                 $admin_space_left_action = 'SUSPEND', # CCE-27239-3 : No guarantee of e-mail server so sending to syslog.
-  Integer[0]                              $space_left              = $admin_space_left + 25, # needs to be larger than     $admin_space_left or auditd will not start
+  Integer[0]                              $space_left              = $admin_space_left + 25, # needs to be larger than $admin_space_left or auditd will not start
   Auditd::SpaceLeftAction                 $space_left_action       = 'SYSLOG', # CCE-27238-5 : No guarantee of e-mail server so sending to syslog.
   String[1]                               $action_mail_acct        = 'root', # CCE-27241-9
   Auditd::DiskFullAction                  $disk_full_action        = 'SUSPEND',

@@ -19,6 +19,7 @@
   * [Disabling Auditd](#disabling-auditd)
   * [Changing Key Values](#changing-key-values)
   * [Understanding Auditd Profiles](#understanding-auditd-profiles)
+    * [Stacking Profiles](#stacking-profiles)
     * [The Custom Profile](#the-custom-profile)
       * [Override All Other Profiles](#override-all-other-profiles)
       * [Prepend Before the SIMP Profile](#prepend-before-the-simp-profile)
@@ -124,14 +125,14 @@ auditd::flush: 'INCREMENTAL'
 This module supports various configurations both independently and
 simultaneously to meet varying end user requirements.
 
-The ``auditd::default_audit_profiles`` parameter determines which profiles are
-included, and in what order the rules are added to the system.
-
 > NOTE: The default behavior of this module is to ignore any invalid rules and
 > apply as much of the rule set as possible. This is done so that you end up
 > with an effective level of auditing regardless of a simply typo or
 > conflicting rule.  Please test your final rule sets to ensure that your
 > system is auditing as expected.
+
+The ``auditd::default_audit_profiles`` parameter determines which profiles are
+included, and in what order the rules are added to the system.
 
 The ``auditd::default_audit_profiles`` has a default setting of ``[ 'simp' ]``
 which applies the optimized SIMP auditing profile which is suitable for meeting
@@ -147,6 +148,31 @@ There are two other profiles available in the system by default:
 There are a large number of parameters exposed for each profile that are meant
 to be set via Hiera and you should take a look at the REFERENCE.md file to
 understand the full capabilities of each profile.
+
+#### Stacking Profiles
+
+In some cases, you may want to combine profiles in different orders. This may
+either be done in order to pass a particular scanning engine or to ensure that
+items that are not caught by the first profile are caught by the second.
+
+Profiles are included and ordered by passing an Array to the
+``auditd::default_audit_profiles`` parameter and are added to auditd in the
+order in which they are defined in the Array.
+
+For example, this (the default) would only add the ``simp`` profile:
+
+```yaml
+auditd::default_audit_profiles:
+  - "simp"
+```
+
+Likewise, this would add the ``stig`` rules prior to the ``simp`` profile:
+
+```yaml
+auditd::default_audit_profiles:
+  - "stig"
+  - "simp"
+```
 
 #### The Custom Profile
 

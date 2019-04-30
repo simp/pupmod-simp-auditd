@@ -14,8 +14,6 @@
 #   - Rules to drop prolific events of low-utility
 #   - Rules to restrict events based on `auid` constraints that would
 #     normally be applied to all rules
-# - `40_custom.rules`: Custom rules as defined by the ``auditd::custom_rules``
-#   parameter if prepended or overriding
 # - `50_*base.rules`:
 #   - Nominal base rules for one or more built-in profiles.
 #   - One file will exist for each desired, built-in profile
@@ -42,8 +40,10 @@ class auditd::config::audit_profiles {
   $_common_template_path = "${module_name}/rule_profiles/common"
 
   auditd::rule { 'init.d_auditd':
-    content => "-w /etc/rc.d/init.d/auditd -p wa -k auditd
-                -w ${$auditd::log_file} -p wa -k audit-logs"
+    content => [
+      '-w /etc/rc.d/init.d/auditd -p wa -k auditd',
+      "-w ${$auditd::log_file} -p wa -k audit-logs"
+    ]
   }
 
   auditd::rule { 'rotated_audit_logs':

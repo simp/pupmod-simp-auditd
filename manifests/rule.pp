@@ -14,7 +14,7 @@
 # @param order
 #   An alphanumeric (file system ordering) order string
 #
-#  * Overridden by `first`, `absolute`, or `prepend`
+#  * Overrides all other ordering parameters
 #
 # @param first
 #   Set this to 'true' if you want to prepend your custom rules (numeric 10)
@@ -30,18 +30,19 @@
 #
 define auditd::rule (
   Variant[Array[String[1]],String[1]] $content,
-  String[1]                           $order    = '10',
+  Optional[String[1]]                 $order    = undef,
   Boolean                             $first    = false,
   Boolean                             $absolute = false,
   Boolean                             $prepend  = false
 ) {
-  include 'auditd'
-
-  if $::auditd::enable {
+  if defined('$auditd::enable') and $auditd::enable {
 
     $_safe_name = regsubst($name, '(/|\s)', '__')
 
-    if $prepend {
+    if $order {
+      $_order = $order
+    }
+    elsif $prepend {
       $_order = '00'
     }
     else {
