@@ -35,7 +35,9 @@ define auditd::rule (
   Boolean                             $absolute = false,
   Boolean                             $prepend  = false
 ) {
-  if defined('$auditd::enable') and $auditd::enable {
+  include 'auditd'
+
+  if $auditd::enable {
 
     $_safe_name = regsubst($name, '(/|\s)', '__')
 
