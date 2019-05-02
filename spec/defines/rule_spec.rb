@@ -8,14 +8,11 @@ describe 'auditd::rule' do
         let(:params) {{ :content => 'rspec_audit_message' }}
         let(:facts) { os_facts }
 
-        let(:pre_condition) {
-          'include auditd'
-        }
-
         it { is_expected.to compile.with_all_deps }
 
         context "without any parameters" do
           it {
+            is_expected.to contain_class('auditd')
             is_expected.to contain_file("/etc/audit/rules.d/75.#{title}.rules").with_content(%r(#{params[:content]}))
           }
         end
