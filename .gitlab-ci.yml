@@ -201,4 +201,4 @@ pup6-compliance:
   <<: *pup_6
   <<: *compliance_base
   script:
-    - 'bundle exec rake beaker:suites[compliance]
+    - 'bundle exec rake beaker:suites[compliance]'
