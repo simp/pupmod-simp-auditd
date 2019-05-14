@@ -15,7 +15,7 @@ describe 'run the SSG against the appropriate fixtures for stig audit profile' d
 
       it 'should run the SSG' do
         os = pfact_on(host, 'operatingsystemmajrelease')
-        profile = "rhel#{os}-disa"
+        profile = 'xccdf_org.ssgproject.content_profile_stig'
 
         @ssg.evaluate(profile)
       end
