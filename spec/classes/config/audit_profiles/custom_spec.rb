@@ -25,7 +25,7 @@ describe 'auditd::config::audit_profiles::custom' do
         }}
 
         it { is_expected.to compile.with_all_deps }
-        it { is_expected.to contain_file('/etc/audit/rules.d/50_00_custom_base.rules').with_content(params[:rules].join("\n")) }
+        it { is_expected.to contain_file('/etc/audit/rules.d/50_00_custom_base.rules').with_content(params[:rules].join("\n") + "\n") }
       end
 
       context 'when using templates' do
@@ -43,7 +43,7 @@ describe 'auditd::config::audit_profiles::custom' do
           }
 
           it { is_expected.to compile.with_all_deps }
-          it { is_expected.to contain_file('/etc/audit/rules.d/50_00_custom_base.rules').with_content('EPP!') }
+          it { is_expected.to contain_file('/etc/audit/rules.d/50_00_custom_base.rules').with_content("EPP!\n") }
         end
 
         context 'with ERB template specified' do
@@ -60,7 +60,7 @@ describe 'auditd::config::audit_profiles::custom' do
           }
 
           it { is_expected.to compile.with_all_deps }
-          it { is_expected.to contain_file('/etc/audit/rules.d/50_00_custom_base.rules').with_content('ERB!') }
+          it { is_expected.to contain_file('/etc/audit/rules.d/50_00_custom_base.rules').with_content("ERB!\n") }
         end
 
         context 'with an invalid template name specified' do
@@ -107,7 +107,7 @@ describe 'auditd::config::audit_profiles::custom' do
         }}
 
         it { is_expected.to compile.with_all_deps }
-        it { is_expected.to contain_file('/etc/audit/rules.d/50_01_custom_base.rules').with_content(params[:rules].join("\n")) }
+        it { is_expected.to contain_file('/etc/audit/rules.d/50_01_custom_base.rules').with_content(params[:rules].join("\n") + "\n") }
       end
     end
   end
