@@ -656,33 +656,7 @@ checks:
       - SRG-OS-000042-GPOS-00021
       - CCI-000131
       - CCI-000126
-  oval:com.puppet.forge.simp.auditd.syslog:
-    settings:
-      parameter: auditd::syslog
-      value: true
-    type: puppet-class-parameter
-    controls:
-      nist_800_53:rev4: true
-      nist_800_53:rev4:AU-3:2: true
-      nist_800_53:rev4:AU-4:1: true
-      nist_800_53:rev4:AU-9: true
-      disa_stig: true
-      RHEL-07-030770: true
-      SRG-OS-000480-GPOS-00227: true
-      cci:CCI-000366: true
-    identifiers:
-      nist_800_53:rev4:
-      - AU-3:2
-      - AU-4:1
-      - AU-9
-      disa_stig:
-      - RHEL-07-030770
-      - SRG-OS-000480-GPOS-00227
-      - CCI-000366
-    oval-ids:
-    - auditd_audispd_syslog_plugin_activated
-    - xccdf_org:ssgproject:content_rule_auditd_audispd_syslog_plugin_activated
-  oval:com.puppet.forge.simp.auditd.default_audit_profile.el6:
+  oval:com.puppet.forge.simp.auditd.default_audit_profile:
     settings:
       parameter: auditd::default_audit_profile
       value: simp
@@ -705,25 +679,6 @@ checks:
       - AU-12:c
     confine:
       osfamily: RedHat
-      operatingsystemmajrelease: '6'
-  oval:com.puppet.forge.simp.auditd.space_left_action.el6:
-    settings:
-      parameter: auditd::space_left_action
-      value: SYSLOG
-    type: puppet-class-parameter
-    controls:
-      nist_800_53:rev4: true
-      nist_800_53:rev4:AU-4: true
-      nist_800_53:rev4:AU-5:a: true
-      nist_800_53:rev4:AU-11: true
-    identifiers:
-      nist_800_53:rev4:
-      - AU-4
-      - AU-5:a
-      - AU-11
-    confine:
-      osfamily: RedHat
-      operatingsystemmajrelease: '6'
   oval:com.puppet.forge.simp.auditd.action_mail_acct:
     settings:
       parameter: auditd::action_mail_acct
@@ -1882,31 +1837,7 @@ checks:
       operatingsystemmajrelease: '7'
     oval-ids:
     - auditd_data_retention_space_left_action
-  oval:com.puppet.forge.simp.auditd.default_audit_profile.nist_800_53:rev4:
-    settings:
-      parameter: auditd::default_audit_profile
-      value: simp
-    type: puppet-class-parameter
-    controls:
-      nist_800_53:rev4: true
-      nist_800_53:rev4:AU-2:a: true
-      nist_800_53:rev4:AU-2:c: true
-      nist_800_53:rev4:AU-2:d: true
-      nist_800_53:rev4:AC-6:9: true
-      nist_800_53:rev4:AU-12:a: true
-      nist_800_53:rev4:AU-12:c: true
-    identifiers:
-      nist_800_53:rev4:
-      - AU-2:a
-      - AU-2:c
-      - AU-2:d
-      - AC-6:9
-      - AU-12:a
-      - AU-12:c
-    confine:
-      osfamily: RedHat
-      operatingsystemmajrelease: '7'
-  oval:com.puppet.forge.simp.auditd.space_left_action.nist_800_53:rev4:
+  oval:com.puppet.forge.simp.auditd.space_left_action:
     settings:
       parameter: auditd::space_left_action
       value: SYSLOG
@@ -1923,6 +1854,5 @@ checks:
       - AU-11
     confine:
       osfamily: RedHat
-      operatingsystemmajrelease: '7'
     oval-ids:
     - auditd_data_retention_space_left_action
