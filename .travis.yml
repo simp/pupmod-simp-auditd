@@ -35,6 +35,7 @@ addons:
 
 before_install:
   - rm -f Gemfile.lock
+  - for x in ${HOME}/.rvm/gems/*; do gem uninstall -I -x -i "${x}" -v '>= 1.17' bundler || true; gem uninstall -I -x -i "${x}@global" -v '>= 1.17' bundler || true; done
   - gem install -v '~> 1.17' bundler
 
 global:
@@ -91,11 +92,10 @@ jobs:
       before_deploy:
         - "export PUPMOD_METADATA_VERSION=`ruby -r json -e \"puts JSON.parse(File.read('metadata.json')).fetch('version')\"`"
         - '[[ $TRAVIS_TAG =~ ^simp-${PUPMOD_METADATA_VERSION}$|^${PUPMOD_METADATA_VERSION}$ ]]'
-
       deploy:
         - provider: releases
           api_key:
-              secure: "W6tT4dtCZl6eqtno0hLC3BBEmZacd3Aj/wMsmI1pOka20/ju7HIHOEcCDY9UMG2gwdORhwOK5rkG87yoFb2hGDvGF6syN0YSjWAqHvEzbB4xbznZwIrby3CumPEeUcK9zx1mEwcEwLJH3dsyrfcTQVfN+4WFlJxb0PYMjzCGwhDaG5YIS1a1WyEjKzdnO+Yt3R+/laBq4U5FoEYjYGEgPf62W9Mh2G056fZkTfiIeSp5We56NByXmM46k0QN1LTnjRhMeAoS9Qg2XaDyefcpLn6fSzVoXgowU/O4Z23ONdBtX5a0zIPNKDm8Wh7o0IUYgx1bVIUlsKY7GyDwsOAKJhklocgCZyi6LwhKKJb7oS9bAEeZSS3wEAp5flBvI2lT5yHvg2zqEvVEI2vw0BMj1soN+r7Oba3+1cdnJtlQrBCrn5xBawMnlFHxX/gQho7zmju/65uzM7lwCN0grb4unpy+iS7XKXjkJC3PRRJJCnE0Hwj9ALPbyPKF+mVH20I/qAaGopUeriwjyHJeG2QRoD2FPgaZRZKRQ+YkNdRjdWnECUvcHSwTkFI9CXdyAjb34/sCdjP9aYfyzcrBWEG3FickO+i3GVfc0lJ5J9oyHDUPkbPkB0qSFeBa92V/XMHcz7ismJSYNbVVs5sxdEbs2xgAMAyUYEb9zE/fYx15xq0="
+            secure: "W6tT4dtCZl6eqtno0hLC3BBEmZacd3Aj/wMsmI1pOka20/ju7HIHOEcCDY9UMG2gwdORhwOK5rkG87yoFb2hGDvGF6syN0YSjWAqHvEzbB4xbznZwIrby3CumPEeUcK9zx1mEwcEwLJH3dsyrfcTQVfN+4WFlJxb0PYMjzCGwhDaG5YIS1a1WyEjKzdnO+Yt3R+/laBq4U5FoEYjYGEgPf62W9Mh2G056fZkTfiIeSp5We56NByXmM46k0QN1LTnjRhMeAoS9Qg2XaDyefcpLn6fSzVoXgowU/O4Z23ONdBtX5a0zIPNKDm8Wh7o0IUYgx1bVIUlsKY7GyDwsOAKJhklocgCZyi6LwhKKJb7oS9bAEeZSS3wEAp5flBvI2lT5yHvg2zqEvVEI2vw0BMj1soN+r7Oba3+1cdnJtlQrBCrn5xBawMnlFHxX/gQho7zmju/65uzM7lwCN0grb4unpy+iS7XKXjkJC3PRRJJCnE0Hwj9ALPbyPKF+mVH20I/qAaGopUeriwjyHJeG2QRoD2FPgaZRZKRQ+YkNdRjdWnECUvcHSwTkFI9CXdyAjb34/sCdjP9aYfyzcrBWEG3FickO+i3GVfc0lJ5J9oyHDUPkbPkB0qSFeBa92V/XMHcz7ismJSYNbVVs5sxdEbs2xgAMAyUYEb9zE/fYx15xq0="
           skip_cleanup: true
           on:
             tags: true
@@ -103,7 +103,7 @@ jobs:
         - provider: puppetforge
           user: simp
           password:
-              secure: "C3OPqmBFwv7sz0jJLctYM1hVZuAmTBa9+K9v8pdWf24csOcSKrQ76D/OgAHEhQZltTTvKqswThoVltBsTLd7xZ5CLWuv2L227unU3hgbfKTsP+xOmZi0OGIw6wO/b22zxbLBiw6OgY2WFIXemLPFffLHTf99pCW1FK8+cdwoz/NknrQApiSKbzWw7iIBhgIE2efF4/mbLofGITKvCA2aMTU0dZm16l7o8U5zvOjKJ++FkOaCVKBGJX+2YwKj/g7KNO4h6CitfjJHgW45SJWSPJVwY5kGWzAXMNHIUlkH1LKt3mqIbZeuCQJjoYzUO0Z3x8DKFMrzsHFyA7uffHxy5kWOn5HdAmtAPdy3BS6SU+0XL3gWutQHPUDp12+jtccOFWlDUvn20kaIj4B6CP4SoXNCFMVfZqoeAr23TZMJHlzHVcQpHEKi2T9hw7ZBVMOq/jJl9Wll9FVz3xO7aaCpH6yAJXCVCujdoL0jfEchsa7kyObMku/sMDDXIkj2K1jUXTa71m2TS+dOXoAeBmMSnzszUq8+yP4Fss8Qwqc87ymg6mVs5HI3E/JHy1Z3QsLRuJfU3ZqU7YiH7PYUiBKCVSQhxLSd9S6HElgcnEMNWYKrGVX9q9P4fiaLpm/sRZqDO20vLQ22DeZUcnzWR7EWh+95YFHF3gybKvvChfWjA5w="
+            secure: "C3OPqmBFwv7sz0jJLctYM1hVZuAmTBa9+K9v8pdWf24csOcSKrQ76D/OgAHEhQZltTTvKqswThoVltBsTLd7xZ5CLWuv2L227unU3hgbfKTsP+xOmZi0OGIw6wO/b22zxbLBiw6OgY2WFIXemLPFffLHTf99pCW1FK8+cdwoz/NknrQApiSKbzWw7iIBhgIE2efF4/mbLofGITKvCA2aMTU0dZm16l7o8U5zvOjKJ++FkOaCVKBGJX+2YwKj/g7KNO4h6CitfjJHgW45SJWSPJVwY5kGWzAXMNHIUlkH1LKt3mqIbZeuCQJjoYzUO0Z3x8DKFMrzsHFyA7uffHxy5kWOn5HdAmtAPdy3BS6SU+0XL3gWutQHPUDp12+jtccOFWlDUvn20kaIj4B6CP4SoXNCFMVfZqoeAr23TZMJHlzHVcQpHEKi2T9hw7ZBVMOq/jJl9Wll9FVz3xO7aaCpH6yAJXCVCujdoL0jfEchsa7kyObMku/sMDDXIkj2K1jUXTa71m2TS+dOXoAeBmMSnzszUq8+yP4Fss8Qwqc87ymg6mVs5HI3E/JHy1Z3QsLRuJfU3ZqU7YiH7PYUiBKCVSQhxLSd9S6HElgcnEMNWYKrGVX9q9P4fiaLpm/sRZqDO20vLQ22DeZUcnzWR7EWh+95YFHF3gybKvvChfWjA5w="
           on:
             tags: true
             condition: '($SKIP_FORGE_PUBLISH != true)'

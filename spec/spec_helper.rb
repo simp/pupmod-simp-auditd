@@ -9,16 +9,34 @@ require 'pathname'
 fixture_path = File.expand_path(File.join(__FILE__, '..', 'fixtures'))
 module_name = File.basename(File.expand_path(File.join(__FILE__,'../..')))
 
+# Add fixture lib dirs to LOAD_PATH. Work-around for PUP-3336
+if Puppet.version < "4.0.0"
+  Dir["#{fixture_path}/modules/*/lib"].entries.each do |lib_dir|
+    $LOAD_PATH << lib_dir
+  end
+end
+
+
+if !ENV.key?( 'TRUSTED_NODE_DATA' )
+  warn '== WARNING: TRUSTED_NODE_DATA is unset, using TRUSTED_NODE_DATA=yes'
+  ENV['TRUSTED_NODE_DATA']='yes'
+end
+
 default_hiera_config =<<-EOM
 ---
-:backends:
-  - "yaml"
-:yaml:
-  :datadir: "stub"
-:hierarchy:
-  - "%{custom_hiera}"
-  - "%{module_name}"
-  - "default"
+version: 5
+hierarchy:
+  - name: SIMP Compliance Engine
+    lookup_key: compliance_markup::enforcement
+  - name: Custom Test Hiera
+    path: "%{custom_hiera}.yaml"
+  - name: "%{module_name}"
+    path: "%{module_name}.yaml"
+  - name: Common
+    path: default.yaml
+defaults:
+  data_hash: yaml_data
+  datadir: "stub"
 EOM
 
 # This can be used from inside your spec tests to set the testable environment.
@@ -50,7 +68,7 @@ end
 # Then, create a YAML file at spec/fixtures/hieradata/some__class_v10.yaml.
 #
 # Hiera will use this file as it's base of information stacked on top of
-# 'common.yaml' and <module_name>.yaml per the defaults above.
+# 'default.yaml' and <module_name>.yaml per the defaults above.
 #
 # Note: Any colons (:) are replaced with underscores (_) in the class name.
 def set_hieradata(hieradata)
@@ -97,7 +115,15 @@ RSpec.configure do |c|
 
   c.before(:all) do
     data = YAML.load(default_hiera_config)
-    data[:yaml][:datadir] = File.join(fixture_path, 'hieradata')
+    data.keys.each do |key|
+      next unless data[key].is_a?(Hash)
+
+      if data[key][:datadir] == 'stub'
+        data[key][:datadir] = File.join(fixture_path, 'hieradata')
+      elsif data[key]['datadir'] == 'stub'
+        data[key]['datadir'] = File.join(fixture_path, 'hieradata')
+      end
+    end
 
     File.open(c.hiera_config, 'w') do |f|
       f.write data.to_yaml
