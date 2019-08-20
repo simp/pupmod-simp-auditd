@@ -213,6 +213,7 @@
 ## Audit selinux policy
 # CCE-26657-7
 -w /etc/selinux/ -p wa -k MAC-policy
+-w /usr/share/selinux/ -p wa -k MAC-policy
 
 ## Audit login files
 # CCE-26691-6

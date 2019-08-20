@@ -391,6 +391,7 @@
 ## Audit selinux policy
 # CCE-26657-7
 -w /etc/selinux/ -p wa -k <%= $auditd::config::audit_profiles::simp::audit_selinux_policy_tag %>
+-w /usr/share/selinux/ -p wa -k <%= $auditd::config::audit_profiles::simp::audit_selinux_policy_tag %>
 <% } -%>
 <% if $auditd::config::audit_profiles::simp::audit_login_files  { -%>
 
