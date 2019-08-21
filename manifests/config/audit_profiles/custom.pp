@@ -5,23 +5,19 @@
 # @example Passing an Array of Rules
 #
 #  ---
-#  auditd::config::audit_profiles::user_specified:
+#  auditd::config::audit_profiles::custom::rules:
 #    - "-a always,exit -F arch=b64 -S creat -F exit=-EACCES -k unsuccessful_file_operations"
 #    - "-w /etc/passwd -p wa -k passwd_changes"
 #
 # @example Passing an EPP Template
 #
 #  ---
-#  auditd::config::audit_profiles::user_specified:
-#    - "my_templates_module/auditd/my_audit_rules.epp"
-#    - "This will be ignored"
+#  auditd::config::audit_profiles::custom::template: "my_templates_module/auditd/my_audit_rules.epp"
 #
 # @example Passing an ERB Template
 #
 #  ---
-#  auditd::config::audit_profiles::user_specified:
-#    - "my_templates_module/auditd/my_audit_rules.erb"
-#    - "This will be ignored"
+#  auditd::config::audit_profiles::custom::template: "my_templates_module/auditd/my_audit_rules.erb"
 #
 # @param rules
 #   An Array of rules that will be joined with a ``\n`` and inserted as the
