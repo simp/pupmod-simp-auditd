@@ -8,7 +8,10 @@ require 'spec_helper'
 describe 'auditd' do
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
-      let(:facts) { os_facts }
+
+      let(:facts){
+        os_facts
+      }
 
       it { is_expected.to compile.with_all_deps }
 
@@ -341,7 +344,7 @@ describe 'auditd' do
       end
 
       context 'with auditd version' do
-        let(:auditd_conf) { catalogue.resource('File[/etc/audit/auditd.conf]') }
+        let(:auditd_conf) { catalogue.resource('Concat::Fragment[auditd_conf_common]') }
 
         # EL 6
         context '2.4.5' do

@@ -1,4 +1,41 @@
-* Mon Aug 19 2019 Robert Vincent <pillarsdotnet@gmail.com> - 8.4.1-0
+* Fri Oct 11 2019 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 9.0.0-0
+- Added support for auditd v3.0 which is used by RedHat 8.
+- A fact that determines the major version of auditd that is running on the system
+  was added, auditd_major_version.  This is used in hiera.yaml hierarchy to add
+  module data specific to the versions.
+- Most of the changes in auditd v3.0 were related to how the plugins are handled but there
+  are a few new parameters added to auditd.conf.  They were set to their
+  defaults according to man of auditd.conf.
+- Renamed 'auditd::syslog' parameter to auditd::manage_syslog_plugin to indicate that
+  it manages the syslog plugin.  This will not turn on and off logging to
+  syslog.  (That is explained below)
+- Auditd V3.0 moved the handling of plugins into auditd from audispd.
+  The following changes were made to accomodate that:
+  - To make sure the parameters used to handle plugins where defined in
+    one place no matter what version of auditd was used,
+    they were moved to init.pp and referenced from there by the audisp manifest.
+    When updating to the latest version of the auditd puppet module, even if you are
+    still using auditd version 2 (RedHat 7 and 6),  custom hiera settings
+    for auditd::config::audisp:* will need to changed to auditd::* hiera.
+    For example;  auditd::config::max_restarts has been moved to auditd::max_restarts.
+  - The plugin configuration has been moved to  config/plugins from config/audisp.
+  - Syslog is currently the only plugin managed by the auditd module.  Any parameters
+    set for this in hiera have been changed from auditd::config::auditsp::syslog::* to
+    auditd::config::plugins::syslog::*.  Update custom hiera settings accordingly.
+  - By default the syslog plugin is not managed. It will use the existing configuration.
+     - To enable logging to syslog set the following in hiera:
+          auditd::manage_syslog_plugin: true
+          auditd::config::plugins::syslog::enable: true.
+     - To stop logging to syslog and ensure it is not enabled, set the following in hiera:
+          auditd::manage_syslog_plugin: true
+          auditd::config::plugins::syslog::enable: false.
+  - The option to have rsyslog  drop anything labeled audispd  has
+    been removed.  Disable the syslog plugin as described above.
+  - The settings for syslog.conf were updated and to work for new and old
+    versions of auditd.
+  - Added installation of audisp-syslog package when using auditd v3.
+
+ Mon Aug 19 2019 Robert Vincent <pillarsdotnet@gmail.com> - 8.4.1-0
 - Add rules to monitor /usr/share/selinux
 
 * Fri Jul 05 2019 Steven Pritchard <steven.pritchard@onyxpoint.com> - 8.4.0-0

@@ -41,9 +41,8 @@
 #   If true, modify the Grub settings to enable auditing at boot time.
 #   Meets CCE-26785-6
 #
-# @param syslog
-#   If true, set up audispd to send logs to syslog.
-#   Meets CCE-26933-2
+# @param manage_syslog_plugin
+#   If true, manage the setting for the syslog plugin
 #
 # @param default_audit_profile
 #   Deprecated by `$default_audit_profiles`
@@ -82,13 +81,15 @@
 # @param flush
 # @param freq
 # @param num_logs
-# @param disp_qos
-# @param dispatcher
+# @param disp_qos   auditd version 2 only
+# @param dispatcher   auditd version 2 only
+# @param local_events   auditd version 3 only
 # @param name_format
 # @param max_log_file
 # @param max_log_file_action
 # @param space_left
 # @param space_left_action
+# @param verify_email auditd version 3 only
 # @param action_mail_acct
 # @param admin_space_left
 # @param admin_space_left_action
@@ -141,50 +142,69 @@
 #   namespace, you may find that only auditing unconfined types will be
 #   sufficient since all other invalid system actions are already audited.
 #
+# @param q_depth
+#  how big to make the internal queue of the audit event dispatcher
+#
+# @param  overflow_action
+#  sets the overflow action.
+#
+# @param max_restarts
+#  sets the number of times a plugin will be restart.
+#
+# @param plugin_dir
+#  sets the directory for the plugin configuration files.
+# 
+#
 # @author https://github.com/simp/pupmod-simp-auditd/graphs/contributors
 #
 class auditd (
-  String                                  $lname                   = $facts['fqdn'],
-  Boolean                                 $immutable               = false,
-  Auditd::RootAuditLevel                  $root_audit_level        = 'basic',
-  Integer[0]                              $uid_min                 = Integer(pick(fact('uid_min'), 1000)),
+  Boolean                                 $enable                  = true,
+  String[1]                               $action_mail_acct        = 'root', # CCE-27241-9
+  Integer[0]                              $admin_space_left        = 50,
+  Auditd::SpaceLeftAction                 $admin_space_left_action = 'SUSPEND', # CCE-27239-3 : No guarantee of e-mail server so sending to syslog.
   Boolean                                 $at_boot                 = true, # CCE-26785-6
-  Boolean                                 $syslog                  = simplib::lookup('simp_options::syslog', {'default_value' => false }),  # CCE-26933-2
+  Integer[0]                              $buffer_size             = 16384,
   Optional[Variant[Enum['simp'],Boolean]] $default_audit_profile   = undef,
   Array[Auditd::AuditProfile]             $default_audit_profiles  = [ 'simp' ],
-  String[1]                               $service_name            = 'auditd',
-  String[1]                               $package_name            = 'audit',
-  Simplib::PackageEnsure                  $package_ensure          = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' }),
-  Boolean                                 $enable                  = true,
+  Auditd::DiskFullAction                  $disk_full_action        = 'SUSPEND',
+  Auditd::DiskErrorAction                 $disk_error_action       = 'SUSPEND',
+  Enum['lossy','lossless']                $disp_qos                = 'lossy',
+  Stdlib::Absolutepath                    $dispatcher              = '/sbin/audispd',
+  Integer[0]                              $failure_mode            = 1,
+  Auditd::Flush                           $flush                   = 'INCREMENTAL',
+  Integer[0]                              $freq                    = 20,
+  Boolean                                 $ignore_anonymous        = true,
+  Boolean                                 $ignore_crond            = true,
+  Boolean                                 $ignore_errors           = true,
+  Boolean                                 $ignore_failures         = true,
+  Boolean                                 $ignore_system_services  = true,
+  Boolean                                 $immutable               = false,
+  Optional[Boolean]                       $local_events            = undef,
   Stdlib::Absolutepath                    $log_file                = '/var/log/audit/audit.log',
   Enum['RAW','ENRICHED','NOLOG']          $log_format              = 'RAW',
   String                                  $log_group               = 'root',
-  Integer[0]                              $priority_boost          = 3,
-  Auditd::Flush                           $flush                   = 'INCREMENTAL',
-  Integer[0]                              $freq                    = 20,
-  Integer[0]                              $num_logs                = 5, # CCE-27522-2
-  Enum['lossy','lossless']                $disp_qos                = 'lossy',
-  Stdlib::Absolutepath                    $dispatcher              = '/sbin/audispd',
-  Auditd::NameFormat                      $name_format             = 'USER',
+  String                                  $lname                   = $facts['fqdn'],
   Integer[0]                              $max_log_file            = 24, # CCE-27550-3
   Auditd::MaxLogFileAction                $max_log_file_action     = 'ROTATE', # CCE-27237-7
-  Integer[0]                              $admin_space_left        = 50,
-  Auditd::SpaceLeftAction                 $admin_space_left_action = 'SUSPEND', # CCE-27239-3 : No guarantee of e-mail server so sending to syslog.
+  Optional[Integer[1]]                    $max_restarts            = undef,           #data            = 10, #auditd version 3.0 and later
+  Auditd::NameFormat                      $name_format             = 'USER',
+  Integer[0]                              $num_logs                = 5, # CCE-27522-2
+  Optional[Auditd::Overflowaction]        $overflow_action          = undef,         # data in module
+  String[1]                               $package_name            = 'audit',
+  Simplib::PackageEnsure                  $package_ensure          = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' }),
+  Stdlib::Absolutepath                    $plugin_dir,             # data in module
+  Integer[0]                              $priority_boost          = 3,
+  Integer[0]                              $q_depth                 = 400,
+  Integer[0]                              $rate                    = 0,
+  Auditd::RootAuditLevel                  $root_audit_level        = 'basic',
+  String[1]                               $service_name            = 'auditd',
   Integer[0]                              $space_left              = $admin_space_left + 25, # needs to be larger than $admin_space_left or auditd will not start
   Auditd::SpaceLeftAction                 $space_left_action       = 'SYSLOG', # CCE-27238-5 : No guarantee of e-mail server so sending to syslog.
-  String[1]                               $action_mail_acct        = 'root', # CCE-27241-9
-  Auditd::DiskFullAction                  $disk_full_action        = 'SUSPEND',
-  Auditd::DiskErrorAction                 $disk_error_action       = 'SUSPEND',
+  Boolean                                 $manage_syslog_plugin    = false,   # CCE-26933-2
+  Optional[Array[Pattern['^.*_t$']]]      $target_selinux_types    = undef,
+  Integer[0]                              $uid_min                 = Integer(pick(fact('uid_min'), 1000)),
+  Optional[Boolean]                       $verify_email            = undef,
   Boolean                                 $write_logs              = $log_format ? { 'NOLOG' => false, default => true },
-  Boolean                                 $ignore_errors           = true,
-  Boolean                                 $ignore_failures         = true,
-  Integer[0]                              $buffer_size             = 16384,
-  Integer[0]                              $failure_mode            = 1,
-  Integer[0]                              $rate                    = 0,
-  Boolean                                 $ignore_anonymous        = true,
-  Boolean                                 $ignore_system_services  = true,
-  Boolean                                 $ignore_crond            = true,
-  Optional[Array[Pattern['^.*_t$']]]      $target_selinux_types    = undef
 ) {
 
   if $enable {
@@ -250,11 +270,10 @@ class auditd (
 
     Class['auditd::install'] -> Class['::auditd::config::grub']
 
-    if $syslog {
+    if $manage_syslog_plugin {
       include 'auditd::config::logging'
 
-      Class['auditd::config::logging']
-      ~> Class['auditd::service']
+      Class['auditd::config::logging'] ~> Class['auditd::service']
     }
   }
   else {
@@ -265,5 +284,5 @@ class auditd (
   # auditd::config::grub with an include somewhere else. auditd::config::grub
   # would normally be a private class but may be used independently if
   # necessary.
-  class { '::auditd::config::grub': enable => $_grub_enable }
+  class { 'auditd::config::grub': enable => $_grub_enable }
 }

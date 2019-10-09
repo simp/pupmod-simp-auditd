@@ -1,0 +1,5 @@
+---
+auditd::plugin_dir: '/etc/audit/plugins.d'
+auditd::config::plugins::syslog::type: 'always'
+auditd::config::plugins::syslog::syslog_path: '/sbin/audisp-syslog'
+auditd::config::plugins::syslog::pkg_name: 'audispd-plugins'

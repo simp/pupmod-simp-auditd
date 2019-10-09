@@ -18,10 +18,10 @@ class auditd::service (
 
   # CCE-27058-7
   service { $::auditd::service_name:
-    ensure     => $ensure,
-    enable     => $enable,
-    start      => "/sbin/service ${auditd::service_name} start",
-    stop       => "/sbin/service ${auditd::service_name} stop",
-    restart    => "/sbin/service ${auditd::service_name} restart"
+    ensure  => $ensure,
+    enable  => $enable,
+    start   => "/sbin/service ${auditd::service_name} start",
+    stop    => "/sbin/service ${auditd::service_name} stop",
+    restart => "/sbin/service ${auditd::service_name} restart"
   }
 }

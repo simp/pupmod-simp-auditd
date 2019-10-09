@@ -1,0 +1,7 @@
+---
+auditd::dispatcher: '/sbin/audispd'
+auditd::disp_qos: 'lossy'
+auditd::plugin_dir: '/etc/audisp/plugins.d'
+
+auditd::config::plugins::syslog::type: 'builtin'
+auditd::config::plugins::syslog::syslog_path: 'builtin_syslog'

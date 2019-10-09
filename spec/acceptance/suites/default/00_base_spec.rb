@@ -14,8 +14,18 @@ describe 'auditd class with simp audit profile' do
 
   let(:enable_audit_messages) {
     {
-      'auditd::config::audisp::syslog::drop_audit_logs' => false,
-      'auditd::config::audisp::syslog::syslog_priority' => 'LOG_NOTICE'
+      'auditd::q_depth' => 900,
+      'auditd::config::plugins::syslog::enable' => true,
+      'auditd::config::plugins::syslog::priority' => 'LOG_NOTICE',
+      'auditd::manage_syslog_plugin' => true
+    }.merge(hieradata)
+  }
+
+  let(:disable_audit_messages) {
+    {
+      'auditd::config::plugins::syslog::enable' => false,
+      'auditd::config::plugins::syslog::syslog_priority' => 'LOG_NOTICE',
+      'auditd::manage_syslog_plugin' => true
     }.merge(hieradata)
   }
 
@@ -55,10 +65,6 @@ describe 'auditd class with simp audit profile' do
           expect(result.output).to include("enable => 'true'")
         end
 
-        it 'should be running the audit dispatcher' do
-          on(host, 'pgrep audispd')
-        end
-
         it 'should load valid rules' do
           on(host, 'cat /etc/audit/audit.rules')
           result = on(host, 'auditctl -l')
@@ -82,19 +88,15 @@ describe 'auditd class with simp audit profile' do
           expect(rule_warnings.size).to eq 0
         end
 
-        it 'should restart the audit dispatcher if it is killed' do
-          on(host, 'pkill audispd')
-          apply_manifest_on(host, manifest, :catch_failures => true)
-          on(host, 'pgrep audispd')
-        end
 
         it 'should not send audit logs to syslog' do
           # log rotate so any audit messages present before the apply turned off
           # audit record logging are no longer in /var/log/secure
-          on(host, 'logrotate --force /etc/logrotate.d/syslog')
+          on(host, 'logrotate --force /etc/logrotate.d/syslog; service rsyslog restart; sleep 2')
           # cause an auditable event
           on(host,'useradd thing1')
-          on(host, %(grep -qe 'audispd:.*msg=audit' /var/log/secure), :acceptable_exit_codes => [1,2])
+          on(host, %q(grep -qe 'acct="thing1".*exe="/usr/sbin/useradd"' /var/log/audit/audit.log))
+          on(host, %q(grep -qe 'audispd.*msg=audit' /var/log/messages), :acceptable_exit_codes => [1,2])
         end
 
         it 'should fix incorrect permissions' do
@@ -103,17 +105,34 @@ describe 'auditd class with simp audit profile' do
           result = on(host, "/bin/find /var/log/audit/audit.log -perm 0600")
           expect(result.output).to include('/var/log/audit/audit.log')
         end
+
       end
 
       context 'allowing audit syslog messages' do
+        result = on(host, 'rpm -q --qf "%{VERSION}\n" audit')
+        audit_version = result.stdout
+        audit_major_version = audit_version.split(".")[0].to_i
+
+        if audit_major_version < 3
+          dispatcher = 'audispd'
+        else
+          dispatcher = 'audisp-syslog'
+        end
+
         it 'should work with no errors' do
           set_hieradata_on(host, enable_audit_messages)
           apply_manifest_on(host, manifest, :catch_failures => true)
         end
 
+        it 'should be running the audit dispatcher' do
+          on(host, "pgrep #{dispatcher}")
+        end
+
+
         it 'should send audit logs to syslog' do
+          on(host, 'logrotate --force /etc/logrotate.d/syslog; service rsyslog restart; sleep 2')
           # spot check that audit.rules has been generated with SIMP rules
-          on(host, %(grep -qe '^-c$' /etc/audit/audit.rules))
+          on(host, %q(grep -qe '^-c$' /etc/audit/audit.rules))
           on(host, %q(grep -qe '\-a exit,never \-F auid=-1' /etc/audit/audit.rules))
           on(host, %q(grep -qe '\-a always,exit \-F perm=a \-F exit=-EACCES \-k access' /etc/audit/audit.rules))
           on(host, %q(grep -qe '\-w /var/log/audit/audit.log -p wa \-k audit-logs' /etc/audit/audit.rules))
@@ -131,10 +150,34 @@ describe 'auditd class with simp audit profile' do
           expect(result.output).to include('-w /var/log/audit/audit.log.5 -p rwa -k audit-logs')
 
           # cause an auditable event and verify it is logged
+          # log rotate so any audit messages present before the apply turned off
+          # audit record logging are no longer in /var/log/secure
           on(host,'useradd thing2')
-          on(host, %(grep -qe 'audispd:.*type=SYSCALL msg=audit.*comm="useradd.*key="audit_account_changes"' /var/log/secure))
+          on(host, %q(grep -qe 'acct="thing2".*exe="/usr/sbin/useradd"' /var/log/audit/audit.log))
+          on(host, %q(grep -qe 'audispd.*type=SYSCALL msg=audit.*comm="useradd.*key="audit_account_changes"' /var/log/messages))
+        end
+
+        it 'should restart the dispatcher if killed' do
+          on(host, "pkill #{dispatcher}")
+          apply_manifest_on(host, manifest, :catch_failures => true)
+          on(host, "pgrep #{dispatcher}")
         end
       end
+      context 'disable audit syslog messages' do
+        it 'should work with no errors' do
+          set_hieradata_on(host, disable_audit_messages)
+          apply_manifest_on(host, manifest, :catch_failures => true)
+        end
+        it 'should not be logging messages to syslog' do
+          # log rotate so any audit messages present before the apply turned off
+          # audit record logging are no longer in /var/log/secure
+          on(host, 'logrotate --force /etc/logrotate.d/syslog; service rsyslog restart')
+          on(host,'useradd notathing')
+          on(host, %q(grep -qe 'audispd.*acct="notathing"' /var/log/messages), :acceptable_exit_codes => [1,2])
+          on(host, %q(grep -qe 'acct="notathing".*exe="/usr/sbin/useradd"' /var/log/audit/audit.log))
+        end
+      end
+
     end
   end
 end

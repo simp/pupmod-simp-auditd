@@ -9,3 +9,10 @@ Facter.add("auditd_version") do
     %x{/sbin/auditctl -v}.chomp.split(/\s+/)[-1]
   end
 end
+
+Facter.add("auditd_major_version") do
+  confine { File.exist?('/sbin/auditctl') && File.executable?("/sbin/auditctl") }
+  setcode do
+    Facter.value(:auditd_version).split('.')[0]
+  end
+end

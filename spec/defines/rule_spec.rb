@@ -6,7 +6,16 @@ describe 'auditd::rule' do
       context "on #{os}" do
         let(:title) { 'test' }
         let(:params) {{ :content => 'rspec_audit_message' }}
-        let(:facts) { os_facts }
+        let(:facts){
+          if ! os_facts[:auditd_major_version]
+             if os_facts[:os][:release][:major] < '8'
+               os_facts[:auditd_major_version] = '2'
+             else
+               os_facts[:auditd_major_version] = '3'
+             end
+          end
+          os_facts
+        }
 
         it { is_expected.to compile.with_all_deps }
 

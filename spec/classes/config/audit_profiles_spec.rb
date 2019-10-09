@@ -7,7 +7,16 @@ require 'spec_helper'
 describe 'auditd' do
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
-      let(:facts) { os_facts }
+      let(:facts){
+        if ! os_facts[:auditd_major_version]
+           if os_facts[:os][:release][:major] < '8'
+             os_facts[:auditd_major_version] = '2'
+           else
+             os_facts[:auditd_major_version] = '3'
+           end
+        end
+        os_facts
+      }
 
       context 'with default parameters' do
         it { is_expected.to compile.with_all_deps }

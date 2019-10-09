@@ -12,7 +12,13 @@ describe 'auditd::config::grub' do
             facts[:apache_version] = '2.4'
             facts[:grub_version] = '2.0~beta'
           end
-
+          if ! facts[:auditd_major_version]
+             if facts[:os][:release][:major] < '8'
+               facts[:auditd_major_version] = '2'
+             else
+               facts[:auditd_major_version] = '3'
+             end
+          end
           facts
         end
 

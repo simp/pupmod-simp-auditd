@@ -77,7 +77,9 @@ If `auditd::syslog` is `true`, you will need to install
 * The audid configuration in /etc/auditd.conf
 * The auditd rules in /etc/audit/rules.d
 * The audispd configuration in /etc/audisp/audispd.conf
-* The audispd `syslog` configuration in /etc/audisp/plugins.d/syslog.conf
+* The audispd `syslog` configuration if manage_syslog_plugin is enabled.
+     audit version 2 : /etc/audisp/plugins.d/syslog.conf
+     audit version 3 : /etc/audiitd/plugins.d/syslog.conf
 
 ## Usage
 
@@ -97,6 +99,32 @@ To disable auditd at boot, set the following in hieradata:
 
 ```yaml
 auditd::at_boot: false
+```
+
+### Enable/Disable sending audit event to syslog:
+
+This capability is most useful for forwarding audit records to
+remote servers as syslog messages, since these records are already
+persisted locally in audit logs.  For most sites, however, using
+this capability for all audit records can quickly overwhelm host
+and/or network resources, especially if the messages are forwarded
+to multiple remote syslog servers or persisted
+locally. Site-specific, rsyslog actions to implement filtering will
+likely be required to reduce this message traffic.
+
+NOTE: By default the auditd module does not manage the syslog plugin and
+whatever settings it was installed with, if it was installed, will be used.
+
+To enable:
+```yaml
+auditd::manage_syslog_plugin: true
+auditd::config::plugins::syslog::enable: true.
+```
+
+To disable:
+```yaml
+auditd::manage_syslog_plugin: true
+auditd::config::plugins::syslog::enable: false.
 ```
 
 ### Changing Key Values

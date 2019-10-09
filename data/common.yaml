@@ -1,4 +1,11 @@
 ---
+
+auditd::q_depth: 160
+auditd::overflow_action: 'SYSLOG'
+auditd::priority_boost: 4
+auditd::max_restarts: 10
+auditd::name_format: 'USER'
+
 auditd::config::audit_profiles::simp::basic_root_audit_syscalls:
   - 'capset'
   - 'mknod'

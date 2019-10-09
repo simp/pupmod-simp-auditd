@@ -33,6 +33,14 @@ describe 'compliance_markup', type: :class do
       compliance_profiles.each do |target_profile|
         context "with compliance profile '#{target_profile}'" do
           let(:facts){
+            if ! os_facts[:auditd_major_version]
+               if os_facts[:os][:release][:major] < '8'
+                 os_facts[:auditd_major_version] = '2'
+               else
+                 os_facts[:auditd_major_version] = '3'
+               end
+            end
+
             os_facts.merge({
               :target_compliance_profile => target_profile
             })

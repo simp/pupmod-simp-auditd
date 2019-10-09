@@ -1,0 +1,28 @@
+---
+auditd::config::audit_profiles::stig::default_suid_sgid_cmds:
+  - "/usr/bin/at"
+  - "/usr/bin/chfn"
+  - "/usr/bin/fusermount"
+  - "/usr/bin/incrontab"
+  - "/usr/bin/ksu"
+  - "/usr/bin/locate"
+  - "/usr/bin/pkexec"
+  - "/usr/bin/ssh-agent"
+  - "/usr/bin/wall"
+  - "/usr/bin/write"
+  - "/usr/bin/Xorg"
+  - "/usr/lib64/dbus-1/dbus-daemon-launch-helper"
+  - "/usr/libexec/sssd/krb5_child"
+  - "/usr/libexec/sssd/ldap_child"
+  - "/usr/libexec/sssd/proxy_child"
+  - "/usr/libexec/sssd/selinux_child"
+  - "/usr/libexec/utempter/utempter"
+  - "/usr/lib/polkit-1/polkit-agent-helper-1"
+  - "/usr/sbin/mount.nfs"
+  - "/usr/sbin/netreport"
+  - "/usr/sbin/usernetctl"
+
+auditd::plugin_dir: '/etc/audit/plugins.d'
+auditd::config::plugins::syslog::type: 'always'
+auditd::config::plugins::syslog::syslog_path: '/sbin/audisp-syslog'
+auditd::config::plugins::syslog::pkg_name: 'audispd-plugins'

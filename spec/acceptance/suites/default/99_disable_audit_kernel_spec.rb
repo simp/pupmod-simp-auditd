@@ -9,7 +9,6 @@ test_name 'disabling kernel auditing via auditd class'
 describe 'auditd class with simp auditd profile' do
   let(:disable_hieradata) {
     {
-      'simp_options::syslog'    => true,
       'pki::cacerts_sources'    => ['file:///etc/pki/simp-testing/pki/cacerts'] ,
       'pki::private_key_source' => "file:///etc/pki/simp-testing/pki/private/%{fqdn}.pem",
       'pki::public_key_source'  => "file:///etc/pki/simp-testing/pki/public/%{fqdn}.pub",
