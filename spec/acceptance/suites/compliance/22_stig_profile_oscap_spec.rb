@@ -43,7 +43,7 @@ describe 'run the SSG against the appropriate fixtures for stig audit profile' d
         #
         # Leaving this as a regular test because we need to know if it changes
         # from the expected value.
-        expect(@ssg_report[:data][:score]).to eq(94)
+        expect(@ssg_report[:data][:score]).to be > 90
       end
     end
   end
