@@ -21,3 +21,5 @@ auditd::config::audit_profiles::stig::default_suid_sgid_cmds:
   - "/usr/sbin/mount.nfs"
   - "/usr/sbin/netreport"
   - "/usr/sbin/usernetctl"
+  - "/usr/bin/screen"
+  - "/usr/libexec/dbus-1/dbus-daemon-launch-helper"

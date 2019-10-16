@@ -22,3 +22,5 @@ auditd::config::audit_profiles::stig::default_suid_sgid_cmds:
   - "/usr/libexec/utempter/utempter"
   - "/usr/sbin/suexec"
   - "/usr/sbin/usernetctl"
+  - "/usr/bin/screen"
+  - "/usr/libexec/dbus-1/dbus-daemon-launch-helper"

@@ -1,4 +1,6 @@
-skips = {}
+skips = {
+  'V-72209' => 'Cannot guarantee a remote syslog server during test'
+}
 overrides = []
 subsystems = [ 'audit' ]
 
