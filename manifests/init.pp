@@ -41,8 +41,16 @@
 #   If true, modify the Grub settings to enable auditing at boot time.
 #   Meets CCE-26785-6
 #
-# @param manage_syslog_plugin
-#   If true, manage the setting for the syslog plugin
+# @param syslog
+#   If true, manage the settings for the syslog plugin
+#   It was left defaulted to  simp_options::syslog value for backwards
+#   compatability.
+#   This does not  activate/deactivate the plugin.  That setting is
+#   in the auditd::config::audisp::syslog::enable setting.  If syslog
+#   is set to true, by default it will enable the syslog plugin in order
+#   to be backwards compatable.  If you want to ensure the plugin is disabled,
+#   set auditd::config::audisp::syslog::enable to false.
+#   If this is set to false the plugin settings are not managed by puppet.
 #
 # @param default_audit_profile
 #   Deprecated by `$default_audit_profiles`
@@ -153,7 +161,7 @@
 #
 # @param plugin_dir
 #  sets the directory for the plugin configuration files.
-# 
+#
 #
 # @author https://github.com/simp/pupmod-simp-auditd/graphs/contributors
 #
@@ -200,7 +208,7 @@ class auditd (
   String[1]                               $service_name            = 'auditd',
   Integer[0]                              $space_left              = $admin_space_left + 25, # needs to be larger than $admin_space_left or auditd will not start
   Auditd::SpaceLeftAction                 $space_left_action       = 'SYSLOG', # CCE-27238-5 : No guarantee of e-mail server so sending to syslog.
-  Boolean                                 $manage_syslog_plugin    = false,   # CCE-26933-2
+  Boolean                                 $syslog                  = simplib::lookup('simp_options::syslog', {'default_value' => false }),   # CCE-26933-2
   Optional[Array[Pattern['^.*_t$']]]      $target_selinux_types    = undef,
   Integer[0]                              $uid_min                 = Integer(pick(fact('uid_min'), 1000)),
   Optional[Boolean]                       $verify_email            = undef,
@@ -270,11 +278,6 @@ class auditd (
 
     Class['auditd::install'] -> Class['::auditd::config::grub']
 
-    if $manage_syslog_plugin {
-      include 'auditd::config::logging'
-
-      Class['auditd::config::logging'] ~> Class['auditd::service']
-    }
   }
   else {
     $_grub_enable = false

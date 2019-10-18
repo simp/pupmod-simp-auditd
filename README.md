@@ -79,7 +79,7 @@ If `auditd::syslog` is `true`, you will need to install
 * The audispd configuration in /etc/audisp/audispd.conf
 * The audispd `syslog` configuration if manage_syslog_plugin is enabled.
      audit version 2 : /etc/audisp/plugins.d/syslog.conf
-     audit version 3 : /etc/audiitd/plugins.d/syslog.conf
+     audit version 3 : /etc/auditd/plugins.d/syslog.conf
 
 ## Usage
 
@@ -112,19 +112,27 @@ to multiple remote syslog servers or persisted
 locally. Site-specific, rsyslog actions to implement filtering will
 likely be required to reduce this message traffic.
 
-NOTE: By default the auditd module does not manage the syslog plugin and
-whatever settings it was installed with, if it was installed, will be used.
+The setting auditd::syslog, defaults to false or syslog_options::syslog
+if you include simp_options.  If you set auditd::syslog: false, it will
+not necessarily disable auditd logging to syslog, puppet  will just no
+longer  manage the syslog.conf plugin file.
+
+The settings needed for enabling/disabing sending audit log
+messages to syslog are described below.
 
 To enable:
 ```yaml
-auditd::manage_syslog_plugin: true
-auditd::config::plugins::syslog::enable: true.
+auditd::syslog: true
+auditd::config::audisp::syslog::enable: true
+auditd::config::audisp::syslog::drop_audit_logs: false
+# The setting for drop_audit_logs enabled for backwards compatability
+# but should be set to false if you want auditd to log to syslog.
 ```
 
 To disable:
 ```yaml
-auditd::manage_syslog_plugin: true
-auditd::config::plugins::syslog::enable: false.
+auditd::syslog: true
+auditd::config::audisp::syslog::enable: false.
 ```
 
 ### Changing Key Values

@@ -1,5 +1,5 @@
 ---
-# Default for version 2.0 settings
+# Default to version 2 settings
 auditd::dispatcher: '/sbin/audispd'
 auditd::disp_qos: 'lossy'
 auditd::plugin_dir: '/etc/audisp/plugins.d'

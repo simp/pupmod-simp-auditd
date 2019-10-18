@@ -112,6 +112,11 @@ class auditd::config {
     }
   }
 
+  if $auditd::syslog {
+    include 'auditd::config::logging'
+    Class['auditd::config::logging'] ~> Class['auditd::service']
+  }
+
   unless empty($profiles) {
     # use contain instead of include so that config file changes can
     # notify auditd::service class

@@ -3,11 +3,164 @@ require 'spec_helper'
 # We have to test auditd::config via auditd, because auditd::config is
 # private.  To take advantage of hooks built into puppet-rspec, the
 # class described needs to be the class instantiated, i.e., auditd.
-#
+# This test also includes tests for private class auditd::config::logging
+
 describe 'auditd' do
   context 'supported operating systems' do
     on_supported_os.each do |os, os_facts|
       context "on #{os}" do
+        let (:facts) {os_facts}
+
+        context "with default parameters" do
+          let (:params) {{ }}
+
+          it { is_expected.to compile.with_all_deps }
+          it {
+            is_expected.to contain_file('/etc/audit/rules.d').with({
+              :ensure  => 'directory',
+              :owner   => 'root',
+              :group   => 'root',
+              :mode    => '0600',
+              :recurse => true,
+              :purge   => true
+            })
+          }
+          it {
+            is_expected.to contain_file('/etc/audit/audit.rules').with({
+              :owner => 'root',
+              :group => 'root',
+              :mode  => 'o-rwx'
+            })
+          }
+          it {
+            is_expected.to contain_file('/etc/audit').with({
+              :ensure  => 'directory',
+              :owner   => 'root',
+              :group   => 'root',
+              :mode    => '0600',
+              :recurse => true,
+              :purge   => true
+            })
+          }
+          it {
+            if facts[:os][:release][:major] == '6'
+             is_expected.to contain_augeas('auditd/USE_AUGENRULES').with_changes(
+              ['set /files/etc/sysconfig/auditd/USE_AUGENRULES yes'])
+            else
+              is_expected.to_not contain_augeas('auditd/USE_AUGENRULES')
+            end
+          }
+          it { is_expected.to_not contain_class('auditd::config::logging').that_notifies('Class[auditd::service]') }
+          it {
+            is_expected.to contain_file('/var/log/audit').with({
+              :ensure => 'directory',
+              :owner  => 'root',
+              :group  => 'root',
+              :mode   => 'o-rwx'
+            })
+          }
+          it {
+            is_expected.to contain_file('/var/log/audit/audit.log').with({
+              :owner  => 'root',
+              :group  => 'root',
+              :mode   => '0600'
+            })
+          }
+          it { is_expected.to contain_class('auditd::config::audit_profiles') }
+          it { is_expected.to contain_class('auditd::config::audit_profiles::simp') }
+          it { is_expected.to_not contain_class('auditd::config::audisp') }
+          it { is_expected.to_not contain_class('auditd::config::audisp::syslog') }
+        end   # Default params
+
+        context 'with empty default_audit_profiles' do
+          let(:params) {{ :default_audit_profiles => [] }}
+
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to_not contain_class('auditd::config::audit_profiles') }
+        end
+
+        context 'with different log_group' do
+          let(:params) {{ log_group: 'rspec' }}
+
+          it { is_expected.to compile.with_all_deps }
+          it {
+            is_expected.to contain_file('/etc/audit').with({
+              :ensure  => 'directory',
+              :owner   => 'root',
+              :group   => 'rspec',
+              :mode    => '0640',
+              :recurse => true,
+              :purge   => true
+            })
+          }
+          it {
+            is_expected.to contain_file('/etc/audit/rules.d').with({
+              :ensure  => 'directory',
+              :owner   => 'root',
+              :group   => 'rspec',
+              :mode    => '0640',
+              :recurse => true,
+              :purge   => true
+            })
+          }
+          it {
+            is_expected.to contain_file('/etc/audit/audit.rules').with({
+              :owner => 'root',
+              :group => 'rspec',
+              :mode  => 'o-rwx'
+            })
+          }
+
+          it {
+            is_expected.to contain_concat('auditd.conf').with({
+              :owner => 'root',
+              :group => 'rspec',
+              :mode  => '0640'
+            })
+          }
+
+          it {
+            is_expected.to contain_file('/var/log/audit').with({
+              :ensure => 'directory',
+              :owner  => 'root',
+              :group  => 'rspec',
+              :mode   => 'o-rwx'
+            })
+          }
+
+          it {
+            is_expected.to contain_file('/var/log/audit/audit.log').with({
+              :owner  => 'root',
+              :group  => 'rspec',
+              :mode   => '0640'
+            })
+          }
+        end
+
+        context 'with deprecated parameters' do
+          context 'with default_audit_profile = true' do
+            let(:params) {{ :default_audit_profile => true }}
+
+            it { is_expected.to contain_class('auditd::config::audit_profiles') }
+            it { is_expected.to contain_class('auditd::config::audit_profiles::simp') }
+          end
+
+          context 'with default_audit_profile = false' do
+            let(:params) {{ :default_audit_profile => false }}
+
+            it { is_expected.to compile.with_all_deps }
+            it { is_expected.to_not contain_class('auditd::config::audit_profiles') }
+            it { is_expected.to_not contain_class('auditd::config::audit_profiles::simp') }
+          end
+        end
+
+        context "with default_audit_profile = 'simp'" do
+          let(:params) {{ :default_audit_profile => 'simp' }}
+
+          it { is_expected.to contain_class('auditd::config::audit_profiles') }
+          it { is_expected.to contain_class('auditd::config::audit_profiles::simp') }
+        end
+
         # I have it go through both version on each os because right now the facts are not
         # created for rhel 8 and I need the audit version 3.0 tested.  Auditd version is the
         # default for rhel 8 but version 2 is the default for el6 and el7.
@@ -48,34 +201,6 @@ describe 'auditd' do
             context "with default parameters" do
               let(:params) {{ }}
 
-              it { is_expected.to compile.with_all_deps }
-              it {
-                is_expected.to contain_file('/etc/audit').with({
-                  :ensure  => 'directory',
-                  :owner   => 'root',
-                  :group   => 'root',
-                  :mode    => '0600',
-                  :recurse => true,
-                  :purge   => true
-                })
-              }
-              it {
-                is_expected.to contain_file('/etc/audit/rules.d').with({
-                  :ensure  => 'directory',
-                  :owner   => 'root',
-                  :group   => 'root',
-                  :mode    => '0600',
-                  :recurse => true,
-                  :purge   => true
-                })
-              }
-              it {
-                is_expected.to contain_file('/etc/audit/audit.rules').with({
-                  :owner => 'root',
-                  :group => 'root',
-                  :mode  => 'o-rwx'
-                })
-              }
 
               it {
                 is_expected.to contain_concat('auditd.conf').with({
@@ -102,128 +227,27 @@ describe 'auditd' do
                 end
               }
 
-              it {
-                is_expected.to contain_file('/var/log/audit').with({
-                  :ensure => 'directory',
-                  :owner  => 'root',
-                  :group  => 'root',
-                  :mode   => 'o-rwx'
-                })
-              }
+            end
 
-              it {
-                is_expected.to contain_file('/var/log/audit/audit.log').with({
-                  :owner  => 'root',
-                  :group  => 'root',
-                  :mode   => '0600'
-                })
-              }
+            context 'with syslog enabled' do
+              let(:params) {{ :syslog => true }}
 
+              it { is_expected.to contain_class('auditd::config::logging').that_notifies('Class[auditd::service]') }
+              # Test private class config::logging
               it {
-                if facts[:os][:release][:major] == '6'
-                 is_expected.to contain_augeas('auditd/USE_AUGENRULES').with_changes(
-                  ['set /files/etc/sysconfig/auditd/USE_AUGENRULES yes'])
+                if facts[:auditd_major_version] >= '3'
+                  is_expected.to_not contain_class('auditd::config::audisp')
                 else
-                  is_expected.to_not contain_augeas('auditd/USE_AUGENRULES')
+                  is_expected.to contain_class('auditd::config::audisp')
                 end
               }
-
-              it { is_expected.to contain_class('auditd::config::audit_profiles') }
-              it { is_expected.to contain_class('auditd::config::audit_profiles::simp') }
+              it { is_expected.to contain_class('auditd::config::audisp::syslog') }
             end
 
-            context 'with different log_group' do
-              let(:params) {{ log_group: 'rspec' }}
+          end  # End auditd version context
+        end  # End auditd version loop
 
-              it { is_expected.to compile.with_all_deps }
-              it {
-                is_expected.to contain_file('/etc/audit').with({
-                  :ensure  => 'directory',
-                  :owner   => 'root',
-                  :group   => 'rspec',
-                  :mode    => '0640',
-                  :recurse => true,
-                  :purge   => true
-                })
-              }
-              it {
-                is_expected.to contain_file('/etc/audit/rules.d').with({
-                  :ensure  => 'directory',
-                  :owner   => 'root',
-                  :group   => 'rspec',
-                  :mode    => '0640',
-                  :recurse => true,
-                  :purge   => true
-                })
-              }
-              it {
-                is_expected.to contain_file('/etc/audit/audit.rules').with({
-                  :owner => 'root',
-                  :group => 'rspec',
-                  :mode  => 'o-rwx'
-                })
-              }
-
-              it {
-                is_expected.to contain_concat('auditd.conf').with({
-                  :owner => 'root',
-                  :group => 'rspec',
-                  :mode  => '0640'
-                })
-              }
-
-              it {
-                is_expected.to contain_file('/var/log/audit').with({
-                  :ensure => 'directory',
-                  :owner  => 'root',
-                  :group  => 'rspec',
-                  :mode   => 'o-rwx'
-                })
-              }
-
-              it {
-                is_expected.to contain_file('/var/log/audit/audit.log').with({
-                  :owner  => 'root',
-                  :group  => 'rspec',
-                  :mode   => '0640'
-                })
-              }
-            end
-
-            context 'with empty default_audit_profiles' do
-              let(:params) {{ :default_audit_profiles => [] }}
-
-              it { is_expected.to compile.with_all_deps }
-              it { is_expected.to_not contain_class('auditd::config::audit_profiles') }
-            end
-
-            context 'with deprecated parameters' do
-              context 'with default_audit_profile = true' do
-                let(:params) {{ :default_audit_profile => true }}
-
-                it { is_expected.to contain_class('auditd::config::audit_profiles') }
-                it { is_expected.to contain_class('auditd::config::audit_profiles::simp') }
-              end
-
-              context 'with default_audit_profile = false' do
-                let(:params) {{ :default_audit_profile => false }}
-
-                it { is_expected.to compile.with_all_deps }
-                it { is_expected.to_not contain_class('auditd::config::audit_profiles') }
-                it { is_expected.to_not contain_class('auditd::config::audit_profiles::simp') }
-              end
-            end
-
-            context "with default_audit_profile = 'simp'" do
-              let(:params) {{ :default_audit_profile => 'simp' }}
-
-              it { is_expected.to contain_class('auditd::config::audit_profiles') }
-              it { is_expected.to contain_class('auditd::config::audit_profiles::simp') }
-            end
-
-          end
-        end
-      end
-    end
+      end # End OS Context
+    end # End OS loop
   end
 end

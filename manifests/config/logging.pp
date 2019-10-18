@@ -13,5 +13,5 @@ class auditd::config::logging {
   if  versioncmp($facts['auditd_version'], '3.0') < 0 {
     contain 'auditd::config::audisp'
   }
-  contain 'auditd::config::plugins::syslog'
+  contain 'auditd::config::audisp::syslog'
 }

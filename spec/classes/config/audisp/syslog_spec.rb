@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'auditd::config::plugins::syslog' do
+describe 'auditd::config::audisp::syslog' do
   context 'supported operating systems' do
     on_supported_os.each do |os, os_facts|
       context "on #{os}" do
@@ -50,11 +50,13 @@ EOM
                   is_expected.to_not contain_package('audisp-syslog')
                 end
               }
+              it { is_expected.to_not contain_rsyslog__rule__drop('audispd') }
             end
 
-            context 'when setting syslog priority and facility' do
+            context 'when setting rsyslog, syslog priority and facility' do
               let(:params) {{
                 :enable   => false,
+                :rsyslog  => true,
                 :facility => 'LOG_LOCAL6',
                 :priority => 'LOG_NOTICE'
               }}
@@ -95,6 +97,8 @@ EOM
                   is_expected.to_not contain_package('audisp-syslog')
                 end
               }
+              it { is_expected.to contain_class('rsyslog')}
+              it { is_expected.to contain_rsyslog__rule__drop('audispd')}
             end
 
             context 'when syslog priority is invalid' do
@@ -112,7 +116,7 @@ EOM
               }}
               it { is_expected.to_not compile.with_all_deps }
             end
-          end 
+          end
         end
       end
     end
