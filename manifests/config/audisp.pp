@@ -5,13 +5,14 @@
 # These settings are deprecated and will be removed in the next major release
 # of auditd and are here for backwards compatability.
 #
-# In auditd version 3.0  these settings were moved to auditd.conf
-# from audispd.conf.  For this reason they are set in the init.pp
-# module with the other auditd.conf values.
+# In auditd version 3  these settings were moved to auditd.conf
+# and audisp.conf was deprecated.  For this reason they are set in the init.pp
+# module with the other auditd.conf values also.  If you are trying to set these values
+# for auditd version 3 then you must set them there.
 # These settings are aliased in
 # hiera to auditd settings so you can move your settings
 # for these parameters to auditd::* now to ensure compatability with
-# future major releases but your current hiera settings will still work.
+# future major releases but settings in hiera that are already exist will still work.
 # @param q_depth
 #        (deprecated)
 # @param overflow_action
@@ -29,11 +30,11 @@
 # @author https://github.com/simp/pupmod-simp-auditd/graphs/contributors
 #
 class auditd::config::audisp (
-  Integer                $q_depth         = 160,
-  Auditd::OverflowAction $overflow_action = 'SYSLOG',
-  Integer                $priority_boost  = 4,
-  Integer                $max_restarts    = 10,
-  Auditd::NameFormat     $name_format     = 'USER',
+  Integer                $q_depth,
+  Auditd::OverflowAction $overflow_action,
+  Integer                $priority_boost,
+  Integer                $max_restarts,
+  Auditd::NameFormat     $name_format,
   String                 $specific_name   = $facts['fqdn']
 ) {
 

@@ -7,6 +7,7 @@ describe 'auditd::rule' do
         let(:title) { 'test' }
         let(:params) {{ :content => 'rspec_audit_message' }}
         let(:facts){
+          os_facts = os_facts.dup
           if ! os_facts[:auditd_major_version]
              if os_facts[:os][:release][:major] < '8'
                os_facts[:auditd_major_version] = '2'

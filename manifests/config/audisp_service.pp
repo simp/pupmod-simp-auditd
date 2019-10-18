@@ -7,8 +7,7 @@
 #
 # @author https://github.com/simp/pupmod-simp-auditd/graphs/contributors
 #
-class auditd::config::audisp_service (
-){
+class auditd::config::audisp_service {
   assert_private()
 
   # This is needed just in case the audit dispatcher fails at some point.

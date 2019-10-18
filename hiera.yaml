@@ -5,7 +5,7 @@ defaults:
   data_hash: yaml_data
 hierarchy:
   - name: "Auditd Major Version"
-    path: "auditd-v%{facts.auditd_major_version}.yaml"
+    path: "auditd/version-%{facts.auditd_major_version}.yaml"
   - name: "OS + Release"
     path: "os/%{facts.os.name}-%{facts.os.release.major}.yaml"
   - name: "OS"

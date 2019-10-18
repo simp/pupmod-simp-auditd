@@ -168,6 +168,7 @@ describe 'auditd' do
           context "with auditd version #{more_facts[:auditd_major_version]}" do
 
             let(:facts) {
+              os_facts = os_facts.dup
               os_facts[:auditd_version] = more_facts[:auditd_version]
               os_facts[:auditd_major_version] = more_facts[:auditd_major_version]
               os_facts

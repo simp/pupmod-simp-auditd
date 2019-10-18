@@ -98,7 +98,7 @@ class auditd::config::audisp::syslog (
   #  To disable logging audit events to syslog you should set
   #  auditd::syslog to true (to enable management of the syslog plugin).
   #  auditd::config::audisp::syslog::enable to false (to make sure the plugin is not
-  #     active.
+  #     active.)
   #  auditd::config::audisp::syslog::rsyslog to false ( so it does not install
   #     unnecessary rsyslog rules.)
   #

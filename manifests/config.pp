@@ -89,6 +89,15 @@ class auditd::config {
     order   => 99
   }
 
+  if defined('$auditd::plugin_dir') {
+    file { $auditd::plugin_dir:
+      ensure => 'directory',
+      owner  => 'root',
+      group  => $auditd::log_group,
+      mode   => '0750'
+    }
+  }
+
   file { '/var/log/audit':
     ensure => 'directory',
     owner  => 'root',

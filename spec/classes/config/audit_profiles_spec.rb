@@ -8,6 +8,7 @@ describe 'auditd' do
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
       let(:facts){
+        os_facts = os_facts.dup
         if ! os_facts[:auditd_major_version]
            if os_facts[:os][:release][:major] < '8'
              os_facts[:auditd_major_version] = '2'

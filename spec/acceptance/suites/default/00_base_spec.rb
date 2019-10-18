@@ -50,6 +50,10 @@ describe 'auditd class with simp audit profile' do
           host.reboot
         end
 
+        it 'should be idempotent' do
+          apply_manifest_on(host, manifest, :catch_changes => true)
+        end
+
         it 'should have kernel-level audit enabled on reboot' do
           on(host, 'grep "audit=1" /proc/cmdline')
         end
