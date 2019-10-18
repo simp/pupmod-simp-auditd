@@ -17,15 +17,15 @@
     value of simp_options::syslog although the two are not really the same thing.
     You might want to review this setting and set auditd::syslog to a setting that
     is appropriate for your system.
-     - To enable iauditd logging to syslog set the following in hiera:
-          auditd::syslog: true
-          auditd::config::audisp::syslog::enable: true.
-          # The drop_audit_logs is still there for backwards compatabiility and
-          # needs to be disabled.
-          auditd::config::audisp::syslog::drop_audit_logs: false
-     - To stop auditd logging to syslog  set the following in hiera:
-          auditd::syslog: true
-          auditd::config::plugins::syslog::enable: false.
+    - To enable iauditd logging to syslog set the following in hiera:
+        auditd::syslog: true
+        auditd::config::audisp::syslog::enable: true.
+        # The drop_audit_logs is still there for backwards compatabiility and
+        # needs to be disabled.
+        auditd::config::audisp::syslog::drop_audit_logs: false
+    - To stop auditd logging to syslog  set the following in hiera:
+        auditd::syslog: true
+        auditd::config::plugins::syslog::enable: false.
     Setting auditd::syslog to false will stop Puppet from managing the syslog.conf,
     it will not disable auditd logging to syslog.
     been removed.  Disable the syslog plugin as described above.
