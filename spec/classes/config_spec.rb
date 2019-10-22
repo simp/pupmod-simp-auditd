@@ -112,7 +112,7 @@ describe 'auditd' do
           }
 
           it {
-            is_expected.to contain_concat('auditd.conf').with({
+            is_expected.to contain_file('/etc/audit/auditd.conf').with({
               :owner => 'root',
               :group => 'rspec',
               :mode  => '0640'
@@ -168,10 +168,10 @@ describe 'auditd' do
           context "with auditd version #{more_facts[:auditd_major_version]}" do
 
             let(:facts) {
-              os_facts = os_facts.dup
-              os_facts[:auditd_version] = more_facts[:auditd_version]
-              os_facts[:auditd_major_version] = more_facts[:auditd_major_version]
-              os_facts
+              _facts = Marshal.load(Marshal.dump(os_facts))
+              _facts[:auditd_version] = more_facts[:auditd_version]
+              _facts[:auditd_major_version] = more_facts[:auditd_major_version]
+              _facts
               }
             let(:expected_content){ <<-EOM.gsub(/^\s+/,'')
               # This file is managed by Puppet (module 'auditd')
@@ -198,33 +198,52 @@ describe 'auditd' do
               write_logs = yes
               EOM
             }
+            let(:v2_content){<<-EOM.gsub(/^\s+/,'')
+              disp_qos = lossy
+              dispatcher = /sbin/audispd
+              EOM
+            }
+            let(:v3_content){<<-EOM.gsub(/^\s+/,'')
+              # Auditd Version 3.0 or later specific options
+              local_events = yes
+              verify_email = yes
+              q_depth = 160
+              max_restarts = 10
+              plugin_dir = /etc/audit/plugins.d
+              EOM
+            }
+            let(:end_content){<<-EOM.gsub(/^\s+/,'')
+              # This entry must be after verify_email if verify_email is to work
+              # Note: verify_email is only an auditd version 3 option
+              action_mail_acct = root
+              EOM
+            }
 
             context "with default parameters" do
               let(:params) {{ }}
 
-
               it {
-                is_expected.to contain_concat('auditd.conf').with({
-                  :owner => 'root',
-                  :group => 'root',
-                  :mode  => '0600'
-                })
                 if (facts[:auditd_major_version] == '2' )
                   if ( facts[:auditd_version] < '2.5.2' )
                     # If version 2.5.2 does not have option write_logs
-                    complete_content = expected_content
+                    complete_content = expected_content + v2_content + end_content
                   else
-                    complete_content = expected_content + extra_content
+                    complete_content = expected_content + extra_content + v2_content + end_content
                   end
                 else
-                    complete_content = expected_content + extra_content
+                  complete_content = expected_content + extra_content + v3_content + end_content
                 end
-                is_expected.to contain_concat__fragment('auditd_conf_common').with_content(complete_content)
+                is_expected.to contain_file('/etc/audit/auditd.conf').with({
+                  :owner   => 'root',
+                  :group   => 'root',
+                  :mode    => '0600',
+                  :content => complete_content + "\n"
+                })
 
                 if (facts[:auditd_major_version] == '3' )
-                  is_expected.to contain_concat__fragment('auditd_conf_version_specific_settings').with_content(%r(^local_events = .*$))
+                  is_expected.to contain_file('/etc/audit/auditd.conf').with_content(%r(^local_events = .*$))
                 else
-                  is_expected.to contain_concat__fragment('auditd_conf_version_specific_settings').with_content(%r(^disp_qos = .*$))
+                  is_expected.to contain_file('/etc/audit/auditd.conf').with_content(%r(^disp_qos = .*$))
                 end
               }
 

@@ -1,14 +1,15 @@
 ---
 
 auditd::q_depth: 160
-auditd::config::audisp::q_depth: "%{alias('auditd::q_depth')}"
 auditd::overflow_action: 'SYSLOG'
-auditd::config::audisp::overflow_action: "%{alias('auditd::overflow_action')}"
 auditd::priority_boost: 4
-auditd::config::audisp::priority_boost: "%{alias('auditd::priority_boost')}"
 auditd::max_restarts: 10
-auditd::config::audisp::max_restarts: "%{alias('auditd::max_restarts')}"
 auditd::name_format: 'USER'
+
+auditd::config::audisp::q_depth: "%{alias('auditd::q_depth')}"
+auditd::config::audisp::overflow_action: "%{alias('auditd::overflow_action')}"
+auditd::config::audisp::priority_boost: "%{alias('auditd::priority_boost')}"
+auditd::config::audisp::max_restarts: "%{alias('auditd::max_restarts')}"
 auditd::config::audisp::name_format: "%{alias('auditd::name_format')}"
 
 auditd::config::audit_profiles::simp::basic_root_audit_syscalls:

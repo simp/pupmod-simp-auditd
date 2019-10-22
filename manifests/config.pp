@@ -48,45 +48,32 @@ class auditd::config {
     mode  => 'o-rwx'
   }
 
-  concat {'auditd.conf':
-    ensure => present,
-    path   => '/etc/audit/auditd.conf',
-    owner  => 'root',
-    group  => $auditd::log_group,
-    mode   => $log_file_mode,
-    notify => Service['auditd'],
-    order  => 'numeric'
-  }
+  # Build the auditd.conf from parts
 
-  concat::fragment { 'auditd_conf_common':
-    target  => '/etc/audit/auditd.conf',
-    content => epp("${module_name}/etc/audit/auditd.conf.epp"),
-    order   => 0
-  }
+  $_auditd_conf_common = epp("${module_name}/etc/audit/auditd.conf.epp")
 
   if $facts['auditd_version'] {
     if (versioncmp($facts['auditd_version'], '3.0') < 0) {
-      $_template = "${module_name}/etc/audit/auditd.2.conf.epp"
+      $_auditd_conf_main = epp("${module_name}/etc/audit/auditd.2.conf.epp")
     } else  {
-      $_template = "${module_name}/etc/audit/auditd.3.conf.epp"
+      $_auditd_conf_main = epp("${module_name}/etc/audit/auditd.3.conf.epp")
     }
   } else {
-    #if auditd version is unknown use default version that comes with the OS.
-    $_template =  $facts['os']['release']['major'] < '8' ? {
-      false   => "${module_name}/etc/audit/auditd.3.conf.epp",
-      default => "${module_name}/etc/audit/auditd.2.conf.epp"
+    # If auditd version is unknown use 'best guess' at default OS version
+    $_auditd_conf_main = $facts['os']['release']['major'] < '8' ? {
+      false   => epp("${module_name}/etc/audit/auditd.3.conf.epp"),
+      default => epp("${module_name}/etc/audit/auditd.2.conf.epp")
     }
   }
-  concat::fragment { 'auditd_conf_version_specific_settings':
-    target  => '/etc/audit/auditd.conf',
-    content => epp($_template),
-    order   => 10
-  }
 
-  concat::fragment { 'auditd_conf_last':
-    target  => '/etc/audit/auditd.conf',
-    content => epp("${module_name}/etc/audit/auditd.last.conf.epp"),
-    order   => 99
+  $_auditd_conf_last = epp("${module_name}/etc/audit/auditd.last.conf.epp")
+
+  file { '/etc/audit/auditd.conf':
+    owner   => 'root',
+    group   => $auditd::log_group,
+    mode    => $log_file_mode,
+    content => "${_auditd_conf_common}${_auditd_conf_main}${_auditd_conf_last}\n",
+    notify  => Service['auditd']
   }
 
   if defined('$auditd::plugin_dir') {

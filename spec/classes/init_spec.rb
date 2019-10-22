@@ -59,11 +59,11 @@ describe 'auditd' do
   context 'unsupported operating system' do
     describe 'auditd without any parameters on Solaris/Nexenta' do
       let(:facts) {
-        os_facts = {}
-        os_facts[:os]         = {}
-        os_facts[:os]['name'] = 'Solaris'
-
-        os_facts
+        {
+          :os => {
+            'name' => 'Solaris'
+          }
+        }
       }
 
      it { expect { is_expected.to contain_package('auditd') }.to raise_error(Puppet::Error) }

@@ -344,7 +344,7 @@ describe 'auditd' do
       end
 
       context 'with auditd version' do
-        let(:auditd_conf) { catalogue.resource('Concat::Fragment[auditd_conf_common]') }
+        let(:auditd_conf) { catalogue.resource('File[/etc/audit/auditd.conf]') }
 
         # EL 6
         context '2.4.5' do

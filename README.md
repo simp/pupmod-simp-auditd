@@ -112,13 +112,13 @@ to multiple remote syslog servers or persisted
 locally. Site-specific, rsyslog actions to implement filtering will
 likely be required to reduce this message traffic.
 
-The setting auditd::syslog, defaults to false or syslog_options::syslog
-if you include simp_options.  If you set auditd::syslog: false, it will
-not necessarily disable auditd logging to syslog, puppet  will just no
-longer  manage the syslog.conf plugin file.
+The setting ``auditd::syslog``, defaults to ``false`` or
+``syslog_options::syslog`` if you include ``simp_options``.  If you set
+``auditd::syslog: false``, it will not necessarily disable auditd logging to
+syslog, puppet will just no longer manage the ``syslog.conf`` plugin file.
 
-The settings needed for enabling/disabing sending audit log
-messages to syslog are described below.
+The settings needed for enabling/disabling sending audit log messages to syslog
+are shown below.
 
 To enable:
 ```yaml
@@ -132,7 +132,7 @@ auditd::config::audisp::syslog::drop_audit_logs: false
 To disable:
 ```yaml
 auditd::syslog: true
-auditd::config::audisp::syslog::enable: false.
+auditd::config::audisp::syslog::enable: false
 ```
 
 ### Changing Key Values
