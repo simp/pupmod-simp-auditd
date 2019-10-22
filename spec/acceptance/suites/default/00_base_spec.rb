@@ -9,6 +9,7 @@ describe 'auditd class with simp audit profile' do
       'pki::cacerts_sources'    => ['file:///etc/pki/simp-testing/pki/cacerts'] ,
       'pki::private_key_source' => "file:///etc/pki/simp-testing/pki/private/%{fqdn}.pem",
       'pki::public_key_source'  => "file:///etc/pki/simp-testing/pki/public/%{fqdn}.pub",
+      'rsyslog::config::main_msg_queue_size' => 4321,
     }
   }
 
