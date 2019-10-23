@@ -47,7 +47,9 @@ describe 'auditd class with simp auditd profile' do
         end
 
         it 'should have kernel-level audit disabled on reboot' do
-          on(host, 'grep "audit=0" /proc/cmdline')
+          retry_on(host, 'grep "audit=0" /proc/cmdline',
+            { :max_retries => 30, :verbose => true }
+          )
         end
       end
     end
