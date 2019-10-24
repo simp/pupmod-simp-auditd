@@ -12,6 +12,9 @@ auditd::config::audisp::priority_boost: "%{alias('auditd::priority_boost')}"
 auditd::config::audisp::max_restarts: "%{alias('auditd::max_restarts')}"
 auditd::config::audisp::name_format: "%{alias('auditd::name_format')}"
 
+auditd::config::audisp::syslog::type: 'builtin'
+auditd::config::audisp::syslog::syslog_path: 'builtin_syslog'
+
 auditd::config::audit_profiles::simp::basic_root_audit_syscalls:
   - 'capset'
   - 'mknod'

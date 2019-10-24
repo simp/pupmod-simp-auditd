@@ -8,6 +8,15 @@ describe 'auditd::config::audisp::syslog' do
           'include "auditd"'
         end
 
+        #Test if auditd version is not defined that it finds defaults.
+        #This will be the case first time it is run if auditd is not installed
+        #already. 
+        context 'if auditd version is unknown' do
+          let(:facts) { os_facts.reject { |k,v| k == :auditd_major_version }}
+          it { is_expected.to compile.with_all_deps }
+        end
+
+
         context 'for all versions of auditd' do
           [{ :auditd_version => "3.0", :auditd_major_version => "3"}, { :auditd_version => "2.8.4", :auditd_major_version => "2"}].each do |  more_facts |
             let(:facts) {os_facts.merge(more_facts)}
