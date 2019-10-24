@@ -1,3 +1,6 @@
+* Thu Oct 24 2019 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 8.5.0-0
+- Set defaults for syslog parameters if auditd version is unknown.
+
 * Fri Oct 11 2019 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 8.5.0-0
 - Added support for auditd v3.0 which is used by RedHat 8.
 - A fact that determines the major version of auditd that is running on the system
