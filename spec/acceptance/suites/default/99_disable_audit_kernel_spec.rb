@@ -9,7 +9,6 @@ test_name 'disabling kernel auditing via auditd class'
 describe 'auditd class with simp auditd profile' do
   let(:disable_hieradata) {
     {
-      'simp_options::syslog'    => true,
       'pki::cacerts_sources'    => ['file:///etc/pki/simp-testing/pki/cacerts'] ,
       'pki::private_key_source' => "file:///etc/pki/simp-testing/pki/private/%{fqdn}.pem",
       'pki::public_key_source'  => "file:///etc/pki/simp-testing/pki/public/%{fqdn}.pub",
@@ -48,7 +47,9 @@ describe 'auditd class with simp auditd profile' do
         end
 
         it 'should have kernel-level audit disabled on reboot' do
-          on(host, 'grep "audit=0" /proc/cmdline')
+          retry_on(host, 'grep "audit=0" /proc/cmdline',
+            { :max_retries => 30, :verbose => true }
+          )
         end
       end
     end

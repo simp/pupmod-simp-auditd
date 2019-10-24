@@ -77,7 +77,9 @@ If `auditd::syslog` is `true`, you will need to install
 * The audid configuration in /etc/auditd.conf
 * The auditd rules in /etc/audit/rules.d
 * The audispd configuration in /etc/audisp/audispd.conf
-* The audispd `syslog` configuration in /etc/audisp/plugins.d/syslog.conf
+* The audispd `syslog` configuration if manage_syslog_plugin is enabled.
+     audit version 2 : /etc/audisp/plugins.d/syslog.conf
+     audit version 3 : /etc/auditd/plugins.d/syslog.conf
 
 ## Usage
 
@@ -97,6 +99,40 @@ To disable auditd at boot, set the following in hieradata:
 
 ```yaml
 auditd::at_boot: false
+```
+
+### Enable/Disable sending audit event to syslog:
+
+This capability is most useful for forwarding audit records to
+remote servers as syslog messages, since these records are already
+persisted locally in audit logs.  For most sites, however, using
+this capability for all audit records can quickly overwhelm host
+and/or network resources, especially if the messages are forwarded
+to multiple remote syslog servers or persisted
+locally. Site-specific, rsyslog actions to implement filtering will
+likely be required to reduce this message traffic.
+
+The setting ``auditd::syslog``, defaults to ``false`` or
+``syslog_options::syslog`` if you include ``simp_options``.  If you set
+``auditd::syslog: false``, it will not necessarily disable auditd logging to
+syslog, puppet will just no longer manage the ``syslog.conf`` plugin file.
+
+The settings needed for enabling/disabling sending audit log messages to syslog
+are shown below.
+
+To enable:
+```yaml
+auditd::syslog: true
+auditd::config::audisp::syslog::enable: true
+auditd::config::audisp::syslog::drop_audit_logs: false
+# The setting for drop_audit_logs enabled for backwards compatability
+# but should be set to false if you want auditd to log to syslog.
+```
+
+To disable:
+```yaml
+auditd::syslog: true
+auditd::config::audisp::syslog::enable: false
 ```
 
 ### Changing Key Values

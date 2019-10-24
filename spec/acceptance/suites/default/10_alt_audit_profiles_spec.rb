@@ -62,7 +62,6 @@ test_name 'auditd class with alternative auditd profiles'
 describe 'auditd class with alternative audit profiles' do
   let(:hieradata) {
     {
-      'simp_options::syslog'    => true,
       'pki::cacerts_sources'    => ['file:///etc/pki/simp-testing/pki/cacerts'] ,
       'pki::private_key_source' => "file:///etc/pki/simp-testing/pki/private/%{fqdn}.pem",
       'pki::public_key_source'  => "file:///etc/pki/simp-testing/pki/public/%{fqdn}.pub",
@@ -119,10 +118,6 @@ describe 'auditd class with alternative audit profiles' do
           expect(result.output).to include("ensure => 'running'")
         end
 
-        it 'should be running the audit dispatcher' do
-          on(host, 'pgrep audispd')
-        end
-
         it 'should load valid rules' do
           # make sure the rules have been regenerated
           # (search for rule only contained in new rule set)
@@ -155,9 +150,6 @@ describe 'auditd class with alternative audit profiles' do
           expect(result.output).to include("ensure => 'running'")
         end
 
-        it 'should be running the audit dispatcher' do
-          on(host, 'pgrep audispd')
-        end
 
         it 'should load valid rules' do
           # make sure the rules have been regenerated
@@ -190,10 +182,6 @@ describe 'auditd class with alternative audit profiles' do
         it 'should be running the auditd service' do
           result = on(host, 'puppet resource service auditd')
           expect(result.output).to include("ensure => 'running'")
-        end
-
-        it 'should be running the audit dispatcher' do
-          on(host, 'pgrep audispd')
         end
 
         it 'should load valid rules' do

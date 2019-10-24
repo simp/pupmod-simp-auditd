@@ -6,7 +6,18 @@ describe 'auditd::rule' do
       context "on #{os}" do
         let(:title) { 'test' }
         let(:params) {{ :content => 'rspec_audit_message' }}
-        let(:facts) { os_facts }
+        let(:facts){
+          _facts = Marshal.load(Marshal.dump(os_facts))
+          unless _facts[:auditd_major_version]
+            if _facts[:os][:release][:major] < '8'
+              _facts[:auditd_major_version] = '2'
+            else
+              _facts[:auditd_major_version] = '3'
+            end
+          end
+
+          _facts
+        }
 
         it { is_expected.to compile.with_all_deps }
 

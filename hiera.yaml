@@ -4,12 +4,14 @@ defaults:
   datadir: data
   data_hash: yaml_data
 hierarchy:
+  - name: "Auditd Major Version"
+    path: "auditd/version-%{facts.auditd_major_version}.yaml"
   - name: "OS + Release"
-    path: "os/%{facts.operatingsystem}-%{facts.operatingsystemmajrelease}.yaml"
+    path: "os/%{facts.os.name}-%{facts.os.release.major}.yaml"
   - name: "OS"
-    path: "os/%{facts.operatingsystem}.yaml"
+    path: "os/%{facts.os.name}.yaml"
   - name: "OSFamily"
-    path: "os/%{facts.osfamily}.yaml"
+    path: "os/%{facts.os.family}.yaml"
   - name: "Kernel"
     path: "os/%{facts.kernel}.yaml"
   - name: "Common"

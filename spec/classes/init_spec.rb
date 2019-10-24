@@ -13,9 +13,7 @@ describe 'auditd' do
   context 'supported operating systems' do
     on_supported_os.each do |os, os_facts|
       context "on #{os}" do
-        let(:facts) do
-          os_facts
-        end
+        let(:facts) {os_facts}
 
         context 'auditd with default parameters' do
           let(:params) {{ }}
@@ -32,7 +30,6 @@ describe 'auditd' do
           it { is_expected.to contain_class('auditd::install').that_comes_before('Class[auditd::config::grub]') }
           it { is_expected.to contain_class('auditd::config::grub').with_enable(true) }
           it { is_expected.to_not contain_class('auditd::config::logging') }
-          it { is_expected.to_not contain_class('auditd::config::audisp::syslog') }
         end
 
         context 'auditd with space_left < admin_space_left' do
@@ -55,15 +52,6 @@ describe 'auditd' do
           it { is_expected.to_not contain_class('auditd::service') }
         end
 
-        context 'auditd with logging enabled' do
-          let(:params) {{
-            :syslog => true
-          }}
-          it { is_expected.to contain_class('auditd::config::logging') }
-          it { is_expected.to contain_class('auditd::config::logging').that_notifies('Class[auditd::service]') }
-          it { is_expected.to contain_class('auditd::config::audisp::syslog') }
-
-        end
       end
     end
   end
@@ -71,14 +59,14 @@ describe 'auditd' do
   context 'unsupported operating system' do
     describe 'auditd without any parameters on Solaris/Nexenta' do
       let(:facts) {
-        os_facts = {}
-        os_facts[:os]         = {}
-        os_facts[:os]['name'] = 'Solaris'
-
-        os_facts
+        {
+          :os => {
+            'name' => 'Solaris'
+          }
+        }
       }
 
-      it { expect { is_expected.to contain_package('auditd') }.to raise_error(Puppet::Error) }
+     it { expect { is_expected.to contain_package('auditd') }.to raise_error(Puppet::Error) }
     end
   end
 end

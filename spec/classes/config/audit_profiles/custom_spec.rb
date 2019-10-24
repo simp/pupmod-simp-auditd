@@ -3,7 +3,7 @@ require 'spec_helper'
 describe 'auditd::config::audit_profiles::custom' do
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
-      let(:facts) { os_facts }
+      let(:facts){ os_facts }
 
       let(:common_pre_condition) {
         <<-EOM

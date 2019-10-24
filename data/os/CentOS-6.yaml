@@ -1,4 +1,10 @@
 ---
+
+# Default to auditd version 2 settings
+auditd::dispatcher: '/sbin/audispd'
+auditd::disp_qos: 'lossy'
+auditd::plugin_dir: '/etc/audisp/plugins.d'
+
 auditd::config::audit_profiles::stig::default_suid_sgid_cmds:
   - "/bin/cgclassify"
   - "/bin/cgexec"
