@@ -22,7 +22,7 @@ describe 'auditd' do
 
       context 'with default parameters' do
         it { is_expected.to compile.with_all_deps }
-        it { is_expected.to contain_auditd__rule('init.d_auditd') }
+        it { is_expected.to contain_auditd__rule('audit_auditd_config').with_content( %r(-w /var/log/audit -p wa -k audit-logs)) }
         it {
           is_expected.to contain_auditd__rule('rotated_audit_logs').with_content(
             %r(-w /var/log/audit/audit.log.5 -p rwa -k audit-logs)
@@ -54,7 +54,7 @@ describe 'auditd' do
 
         it 'adds a drop rule to ignore anonymous and daemon events' do
           is_expected.to contain_file('/etc/audit/rules.d/05_default_drop.rules').with_content(
-            %r(^-a\s+exit,never\s+-F\s+auid=-1$)
+            %r(^-a\s+never,exit\s+-F\s+auid=-1$)
           )
         end
 
@@ -66,7 +66,7 @@ describe 'auditd' do
 
         it 'adds a rule to drop events from system services' do
           is_expected.to contain_file('/etc/audit/rules.d/05_default_drop.rules').with_content(
-            %r(^-a\s+exit,never\s+-F\s+auid!=0\s+-F\s+auid<#{facts[:uid_min]}$)
+            %r(^-a\s+never,exit\s+-F\s+auid!=0\s+-F\s+auid<#{facts[:uid_min]}$)
           )
         end
 

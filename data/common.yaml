@@ -1,4 +1,25 @@
 ---
+lookup_options:
+  auditd::config::audit_profiles::simp::audit_auditd_cmds_list:
+    merge:
+      strategy: deep
+      knockout_prefix: --
+  auditd::config::audit_profiles::simp::basic_root_audit_syscalls:
+    merge:
+      strategy: deep
+      knockout_prefix: --
+  auditd::config::audit_profiles::simp::aggressive_root_audit_syscalls:
+    merge:
+      strategy: deep
+      knockout_prefix: --
+  auditd::config::audit_profiles::simp::insane_root_audit_syscalls:
+    merge:
+      strategy: deep
+      knockout_prefix: --
+  auditd::config::audit_profiles::simp::audit_suspicious_apps_list:
+    merge:
+      strategy: deep
+      knockout_prefix: --
 
 auditd::q_depth: 160
 auditd::overflow_action: 'SYSLOG'
@@ -79,3 +100,21 @@ auditd::config::audit_profiles::simp::insane_root_audit_syscalls:
   - 'symlinkat'
   - 'mkdir'
   - 'mkdirat'
+
+auditd::config::audit_profiles::simp::audit_suspicious_apps_list:
+  - '/usr/bin/nc'
+  - '/usr/bin/ncat'
+  - '/usr/bin/nmap'
+  - '/usr/bin/rawshark'
+  - '/usr/bin/socat'
+  - '/usr/bin/wireshark'
+  - '/usr/sbin/tcpdump'
+  - '/usr/sbin/traceroute'
+  - '/usr/sbin/traceroute6'
+
+auditd::config::audit_profiles::simp::audit_auditd_cmds_list:
+  - '/usr/sbin/aulast'
+  - '/usr/sbin/aulastlogin'
+  - '/usr/sbin/aureport'
+  - '/usr/sbin/ausearch'
+  - '/usr/sbin/auvirt'

@@ -38,6 +38,22 @@
 #    - Insane: Adds syscall rules for write, creat and variants of chown,
 #      fork, link and mkdir
 #
+# @param audit_32bit_operations
+#   In general, any 32bit system calls on a 64bit systems should be seen as
+#   suspicious.
+#
+# @param audit_32bit_operations_tag
+#   Tag to be added to entries triggered by `audit_32bit_operations`
+#
+# @param audit_auditd_cmds
+#   Audit calls to the auditd management CLI commands
+#
+# @param audit_auditd_cmds_tag
+#   Tag to be added to entries triggered by `audit_auditd_cmds`
+#
+# @param audit_auditd_cmds_list
+#   Commands to be audited if enabled by `audit_auditd_cmds`
+#
 # @param basic_root_audit_syscalls
 #   Basic syscalls to audit for su-root activity
 #
@@ -128,6 +144,30 @@
 #
 # @param audit_locale_tag
 #   The tag to identify system locale operations in an audit record
+#
+# @param audit_network_ipv4_accept
+#   Audit **incoming** IPv4 connections
+#
+# @param audit_network_ipv4_accept_tag
+#   Tag to be added to entries triggered by `audit_network_ipv4_accept`
+#
+# @param audit_network_ipv6_accept
+#   Audit **incoming** IPv6 connections
+#
+# @param audit_network_ipv6_accept_tag
+#   Tag to be added to entries triggered by `audit_network_ipv6_accept`
+#
+# @param audit_network_ipv4_connect
+#   Audit **outgoing** IPv4 connections
+#
+# @param audit_network_ipv4_connect_tag
+#   Tag to be added to entries triggered by `audit_network_ipv4_connect`
+#
+# @param audit_network_ipv6_connect
+#   Audit **outgoing** IPv6 connections
+#
+# @param audit_network_ipv6_connect_tag
+#   Tag to be added to entries triggered by `audit_network_ipv6_connect`
 #
 # @param audit_mount
 #   Whether to audit mount operations
@@ -224,10 +264,10 @@
 #   audit record
 #
 # @param audit_cfg_pam
-#   Whether to audit changes to pam configuration files
+#   Whether to audit changes to PAM configuration files
 #
 # @param audit_cfg_pam_tag
-#   The tag to identify pam configuration file changes in an audit record
+#   The tag to identify PAM configuration file changes in an audit record
 #
 # @param audit_cfg_security
 #   Whether to audit changes to `/etc/security`
@@ -310,6 +350,23 @@
 # @param audit_ssh_keysign_cmd_tag
 #   The tag to identify `ssh-keysign` command execution in an audit record
 #
+# @param audit_suspicious_apps
+#   Audit various applications that generally represent suspicious host activity
+#
+# @param audit_suspicious_apps_tag
+#   Tag to be added to entries triggered by `audit_suspicious_apps`
+#
+# @param audit_suspicious_apps_list
+#   List of applications to be audited when `audit_suspicious_apps` is enabled
+#
+# @param audit_systemd
+#   Audit systemd components
+#
+#   * Only takes effect on systems with systemd present
+#
+# @param audit_systemd_tag
+#   Tag to be added to entries triggered by `audit_systemd`
+#
 # @param audit_crontab_cmd
 #   Whether to audit the execution of the `crontab` command
 #
@@ -324,90 +381,108 @@
 #   record
 #
 class auditd::config::audit_profiles::simp (
-  Auditd::RootAuditLevel $root_audit_level                       = $::auditd::root_audit_level,
-  Boolean                $audit_unsuccessful_file_operations     = true,
-  String[1]              $audit_unsuccessful_file_operations_tag = 'access',
-  Boolean                $audit_chown                            = true,
-  String[1]              $audit_chown_tag                        = 'chown',
-  Boolean                $audit_chmod                            = false,
-  String[1]              $audit_chmod_tag                        = 'chmod',
-  Boolean                $audit_attr                             = true,
-  String[1]              $audit_attr_tag                         = 'attr',
-  Boolean                $audit_rename_remove                    = false,
-  String[1]              $audit_rename_remove_tag                = 'delete',
-  Boolean                $audit_su_root_activity                 = true,
-  String[1]              $audit_su_root_activity_tag             = 'su-root-activity',
-  Boolean                $audit_suid_sgid                        = true,
-  String[1]              $audit_suid_sgid_tag                    = 'suid-root-exec',
-  Boolean                $audit_kernel_modules                   = true,
-  String[1]              $audit_kernel_modules_tag               = 'modules',
-  Boolean                $audit_time                             = true,
-  String[1]              $audit_time_tag                         = 'audit_time_rules',
-  Boolean                $audit_locale                           = true,
-  String[1]              $audit_locale_tag                       = 'audit_network_modifications',
-  Boolean                $audit_mount                            = true,
-  String[1]              $audit_mount_tag                        = 'mount',
-  Boolean                $audit_umask                            = false,
-  String[1]              $audit_umask_tag                        = 'umask',
-  Boolean                $audit_local_account                    = true,
-  String[1]              $audit_local_account_tag                = 'audit_account_changes',
-  Boolean                $audit_selinux_policy                   = true,
-  String[1]              $audit_selinux_policy_tag               = 'MAC-policy',
-  Boolean                $audit_selinux_cmds                     = false,
-  String[1]              $audit_selinux_cmds_tag                 = 'privileged-priv_change',
-  Boolean                $audit_login_files                      = true,
-  String[1]              $audit_login_files_tag                  = 'logins',
-  Boolean                $audit_session_files                    = true,
-  String[1]              $audit_session_files_tag                = 'session',
-  Optional[Boolean]      $audit_sudoers                          = undef,
-  Optional[String[1]]    $audit_sudoers_tag                      = undef,
-  Boolean                $audit_cfg_sudoers                      = true,
-  String[1]              $audit_cfg_sudoers_tag                  = 'CFG_sys',
-  Optional[Boolean]      $audit_grub                             = undef,
-  Optional[String[1]]    $audit_grub_tag                         = undef,
-  Boolean                $audit_cfg_grub                         = true,
-  String[1]              $audit_cfg_grub_tag                     = 'CFG_grub',
-  Boolean                $audit_cfg_sys                          = true,
-  String[1]              $audit_cfg_sys_tag                      = 'CFG_sys',
-  Boolean                $audit_cfg_cron                         = true,
-  String[1]              $audit_cfg_cron_tag                     = 'CFG_cron',
-  Boolean                $audit_cfg_shell                        = true,
-  String[1]              $audit_cfg_shell_tag                    = 'CFG_shell',
-  Boolean                $audit_cfg_pam                          = true,
-  String[1]              $audit_cfg_pam_tag                      = 'CFG_pam',
-  Boolean                $audit_cfg_security                     = true,
-  String[1]              $audit_cfg_security_tag                 = 'CFG_security',
-  Boolean                $audit_cfg_services                     = true,
-  String[1]              $audit_cfg_services_tag                 = 'CFG_services',
-  Boolean                $audit_cfg_xinetd                       = true,
-  String[1]              $audit_cfg_xinetd_tag                   = 'CFG_xinetd',
-  Optional[Boolean]      $audit_yum                              = undef,
-  Optional[String[1]]    $audit_yum_tag                          = undef,
-  Boolean                $audit_cfg_yum                          = true,
-  String[1]              $audit_cfg_yum_tag                      = 'yum-config',
-  Boolean                $audit_yum_cmd                          = false,
-  String[1]              $audit_yum_cmd_tag                      = 'package_changes',
-  Boolean                $audit_rpm_cmd                          = false,
-  String[1]              $audit_rpm_cmd_tag                      = 'package_changes',
-  Boolean                $audit_ptrace                           = true,
-  String[1]              $audit_ptrace_tag                       = 'paranoid',
-  Boolean                $audit_personality                      = true,
-  String[1]              $audit_personality_tag                  = 'paranoid',
-  Boolean                $audit_passwd_cmds                      = true,
-  String[1]              $audit_passwd_cmds_tag                  = 'privileged-passwd',
-  Boolean                $audit_priv_cmds                        = true,
-  String[1]              $audit_priv_cmds_tag                    = 'privileged-priv_change',
-  Boolean                $audit_postfix_cmds                     = true,
-  String[1]              $audit_postfix_cmds_tag                 = 'privileged-postfix',
-  Boolean                $audit_ssh_keysign_cmd                  = true,
-  String[1]              $audit_ssh_keysign_cmd_tag              = 'privileged-ssh',
-  Boolean                $audit_crontab_cmd                      = true,
-  String[1]              $audit_crontab_cmd_tag                  = 'privileged-cron',
-  Boolean                $audit_pam_timestamp_check_cmd          = true,
-  String[1]              $audit_pam_timestamp_check_cmd_tag      = 'privileged-pam',
-  Array[String[1]]       $basic_root_audit_syscalls,             # data in modules
-  Array[String[1]]       $aggressive_root_audit_syscalls,        # data in modules
-  Array[String[1]]       $insane_root_audit_syscalls             # data in modules
+  Auditd::RootAuditLevel      $root_audit_level                                         = $::auditd::root_audit_level,
+  Boolean                     $audit_32bit_operations                                   = $facts['hardwaremodel'] ? { 'x86_64' => true, default => false },
+  String[1]                   $audit_32bit_operations_tag                               = '32bit-api',
+  Boolean                     $audit_auditd_cmds                                        = true,
+  String[1]                   $audit_auditd_cmds_tag                                    = 'access-audit-trail',
+  Array[String[1]]            $audit_auditd_cmds_list,                                  # data in modules
+  Boolean                     $audit_unsuccessful_file_operations                       = true,
+  String[1]                   $audit_unsuccessful_file_operations_tag                   = 'access',
+  Boolean                     $audit_chown                                              = true,
+  String[1]                   $audit_chown_tag                                          = 'chown',
+  Boolean                     $audit_chmod                                              = false,
+  String[1]                   $audit_chmod_tag                                          = 'chmod',
+  Boolean                     $audit_attr                                               = true,
+  String[1]                   $audit_attr_tag                                           = 'attr',
+  Boolean                     $audit_rename_remove                                      = false,
+  String[1]                   $audit_rename_remove_tag                                  = 'delete',
+  Boolean                     $audit_su_root_activity                                   = true,
+  String[1]                   $audit_su_root_activity_tag                               = 'su-root-activity',
+  Boolean                     $audit_suid_sgid                                          = true,
+  String[1]                   $audit_suid_sgid_tag                                      = 'suid-root-exec',
+  Boolean                     $audit_kernel_modules                                     = true,
+  String[1]                   $audit_kernel_modules_tag                                 = 'modules',
+  Boolean                     $audit_time                                               = true,
+  String[1]                   $audit_time_tag                                           = 'audit_time_rules',
+  Boolean                     $audit_locale                                             = true,
+  String[1]                   $audit_locale_tag                                         = 'audit_network_modifications',
+  Boolean                     $audit_network_ipv4_accept                                = true,
+  String[1]                   $audit_network_ipv4_accept_tag                            = 'ipv4_in',
+  Boolean                     $audit_network_ipv6_accept                                = true,
+  String[1]                   $audit_network_ipv6_accept_tag                            = 'ipv6_in',
+  Boolean                     $audit_network_ipv4_connect                               = false,
+  String[1]                   $audit_network_ipv4_connect_tag                           = 'ipv4_in',
+  Boolean                     $audit_network_ipv6_connect                               = false,
+  String[1]                   $audit_network_ipv6_connect_tag                           = 'ipv6_in',
+  Boolean                     $audit_mount                                              = true,
+  String[1]                   $audit_mount_tag                                          = 'mount',
+  Boolean                     $audit_umask                                              = false,
+  String[1]                   $audit_umask_tag                                          = 'umask',
+  Boolean                     $audit_local_account                                      = true,
+  String[1]                   $audit_local_account_tag                                  = 'audit_account_changes',
+  Boolean                     $audit_selinux_policy                                     = true,
+  String[1]                   $audit_selinux_policy_tag                                 = 'MAC-policy',
+  Boolean                     $audit_selinux_cmds                                       = false,
+  String[1]                   $audit_selinux_cmds_tag                                   = 'privileged-priv_change',
+  Boolean                     $audit_login_files                                        = true,
+  String[1]                   $audit_login_files_tag                                    = 'logins',
+  Boolean                     $audit_session_files                                      = true,
+  String[1]                   $audit_session_files_tag                                  = 'session',
+  Optional[Boolean]           $audit_sudoers                                            = undef,
+  Optional[String[1]]         $audit_sudoers_tag                                        = undef,
+  Boolean                     $audit_cfg_sudoers                                        = true,
+  String[1]                   $audit_cfg_sudoers_tag                                    = 'CFG_sys',
+  Optional[Boolean]           $audit_grub                                               = undef,
+  Optional[String[1]]         $audit_grub_tag                                           = undef,
+  Boolean                     $audit_cfg_grub                                           = true,
+  String[1]                   $audit_cfg_grub_tag                                       = 'CFG_grub',
+  Boolean                     $audit_cfg_sys                                            = true,
+  String[1]                   $audit_cfg_sys_tag                                        = 'CFG_sys',
+  Boolean                     $audit_cfg_cron                                           = true,
+  String[1]                   $audit_cfg_cron_tag                                       = 'CFG_cron',
+  Boolean                     $audit_cfg_shell                                          = true,
+  String[1]                   $audit_cfg_shell_tag                                      = 'CFG_shell',
+  Boolean                     $audit_cfg_pam                                            = true,
+  String[1]                   $audit_cfg_pam_tag                                        = 'CFG_pam',
+  Boolean                     $audit_cfg_security                                       = true,
+  String[1]                   $audit_cfg_security_tag                                   = 'CFG_security',
+  Boolean                     $audit_cfg_services                                       = true,
+  String[1]                   $audit_cfg_services_tag                                   = 'CFG_services',
+  Boolean                     $audit_cfg_xinetd                                         = true,
+  String[1]                   $audit_cfg_xinetd_tag                                     = 'CFG_xinetd',
+  Optional[Boolean]           $audit_yum                                                = undef,
+  Optional[String[1]]         $audit_yum_tag                                            = undef,
+  Boolean                     $audit_cfg_yum                                            = true,
+  String[1]                   $audit_cfg_yum_tag                                        = 'yum-config',
+  Boolean                     $audit_yum_cmd                                            = false,
+  String[1]                   $audit_yum_cmd_tag                                        = 'package_changes',
+  Boolean                     $audit_rpm_cmd                                            = false,
+  String[1]                   $audit_rpm_cmd_tag                                        = 'package_changes',
+  Boolean                     $audit_ptrace                                             = true,
+  String[1]                   $audit_ptrace_tag                                         = 'paranoid',
+  Boolean                     $audit_personality                                        = true,
+  String[1]                   $audit_personality_tag                                    = 'paranoid',
+  Boolean                     $audit_passwd_cmds                                        = true,
+  String[1]                   $audit_passwd_cmds_tag                                    = 'privileged-passwd',
+  Boolean                     $audit_priv_cmds                                          = true,
+  String[1]                   $audit_priv_cmds_tag                                      = 'privileged-priv_change',
+  Boolean                     $audit_postfix_cmds                                       = true,
+  String[1]                   $audit_postfix_cmds_tag                                   = 'privileged-postfix',
+  Boolean                     $audit_ssh_keysign_cmd                                    = true,
+  String[1]                   $audit_ssh_keysign_cmd_tag                                = 'privileged-ssh',
+  Boolean                     $audit_suspicious_apps                                    = true,
+  String[1]                   $audit_suspicious_apps_tag                                = 'suspicious_apps',
+  Array[Stdlib::Absolutepath] $audit_suspicious_apps_list,                              # data in modules
+  Boolean                     $audit_systemd                                            = true,
+  String[1]                   $audit_systemd_tag                                        = 'systemd',
+  Boolean                     $audit_crontab_cmd                                        = true,
+  String[1]                   $audit_crontab_cmd_tag                                    = 'privileged-cron',
+  Boolean                     $audit_pam_timestamp_check_cmd                            = true,
+  String[1]                   $audit_pam_timestamp_check_cmd_tag                        = 'privileged-pam',
+  Array[String[1]]            $basic_root_audit_syscalls,                               # data in modules
+  Array[String[1]]            $aggressive_root_audit_syscalls,                          # data in modules
+  Array[String[1]]            $insane_root_audit_syscalls                               # data in modules
 ) {
   assert_private()
 

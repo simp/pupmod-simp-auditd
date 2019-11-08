@@ -1,7 +1,21 @@
+* Thu Oct 31 2019 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.5.0-0
+- Allow users to knockout entries from arrays specified in Hiera
+- Multiple rules added based on best practices mostly pulled from
+  /usr/share/doc/auditd:
+  - Audit 32 bit operations on 64 bit systems
+  - Audit calls to the auditd CLI commands
+  - Audit IPv4 and IPv6 inbound connections
+  - Optionally audit IPv4 and IPv6 outbound connections
+  - Audit suspicious applications
+  - Audit systemd
+  - Audit the auditd configuration space
+  - Ignore time daemon logs (clutter)
+  - Ignore CRYPTO_KEY_USER logs (clutter)
+  - Add ability to set the backlog_wait_time
+  - Set loginuid_immutable
+
 * Thu Oct 24 2019 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 8.5.0-0
 - Set defaults for syslog parameters if auditd version is unknown.
-
-* Fri Oct 11 2019 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 8.5.0-0
 - Added support for auditd v3.0 which is used by RedHat 8.
 - A fact that determines the major version of auditd that is running on the system
   was added, auditd_major_version.  This is used in hiera.yaml hierarchy to add

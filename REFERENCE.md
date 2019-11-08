@@ -9,13 +9,15 @@
 * [`auditd::config`](#auditdconfig): This class is called from auditd for service config.
 * [`auditd::config::audisp`](#auditdconfigaudisp): Configures the audit dispatcher primarily for sending audit logs directly to syslog without intervention.
 * [`auditd::config::audisp::syslog`](#auditdconfigaudispsyslog): Utilizes rsyslog to send all audit records to syslog.
-* [`auditd::config::audisp_service`](#auditdconfigaudisp_service): Make sure the audispd process keeps running.
+* [`auditd::config::audisp_service`](#auditdconfigaudisp_service): Notify auditd to restart to ensure the process for audisp
+is running.
 * [`auditd::config::audit_profiles`](#auditdconfigaudit_profiles): Provides global audit rule configuration and a base set of audit rules based on the built-in audit profile(s).
 * [`auditd::config::audit_profiles::custom`](#auditdconfigaudit_profilescustom): A set of user specified rules in a form that is easy to manipulate via Hiera
 * [`auditd::config::audit_profiles::simp`](#auditdconfigaudit_profilessimp): A set of general purpose audit rules that should meet most security policy requirements
 * [`auditd::config::audit_profiles::stig`](#auditdconfigaudit_profilesstig): A set of audit rules that are configured to satisfy DISA STIG compliance checks for EL7.
 * [`auditd::config::grub`](#auditdconfiggrub): Enables/disables auditing at boot time.
-* [`auditd::config::logging`](#auditdconfiglogging): Ensures that logging rules are defined.
+* [`auditd::config::logging`](#auditdconfiglogging): Ensures that plugin for syslog is installed so audit events
+can be sent to syslog in addition the audit partition.
 * [`auditd::install`](#auditdinstall): Install the auditd packages
 * [`auditd::service`](#auditdservice): Ensure that the auditd service is running
 
@@ -26,6 +28,20 @@
 **Functions**
 
 * [`auditd::get_array_index`](#auditdget_array_index): Returns a string that represents the first index of the specified element within the Array.
+
+**Data types**
+
+* [`Auditd::AuditProfile`](#auditdauditprofile): Matches the types of auditd profiles allowed
+* [`Auditd::DiskErrorAction`](#auditddiskerroraction): Matches disk error actions in auditd.conf
+* [`Auditd::DiskFullAction`](#auditddiskfullaction): Matches actions to take when disk is full (see auditd.conf)
+* [`Auditd::Flush`](#auditdflush): Matches actions flush in auditd.conf
+* [`Auditd::LogFacility`](#auditdlogfacility): Matches log facility that can be used in syslog.conf plugin
+* [`Auditd::LogPriority`](#auditdlogpriority): Matches log priorities that can be used in syslog.conf plugin
+* [`Auditd::MaxLogFileAction`](#auditdmaxlogfileaction): Matches available matches for maxlogfileaction in auditd.conf
+* [`Auditd::NameFormat`](#auditdnameformat): Matche s available name formats in audotd.conf
+* [`Auditd::OverflowAction`](#auditdoverflowaction): Matches overflow_action settings in auditd.conf or audisp.conf
+* [`Auditd::RootAuditLevel`](#auditdrootauditlevel): Matches root audit level settings in auditd.conf
+* [`Auditd::SpaceLeftAction`](#auditdspaceleftaction): Matches spaceleftaction for auditd.conf
 
 ## Classes
 
@@ -42,74 +58,13 @@ auditctl(8)
 
 The following parameters are available in the `auditd` class.
 
-##### `lname`
-
-Data type: `String`
-
-An alias for the ``name`` variable in the configuration file. This is used
-since ``$name`` is a reserved keyword in Puppet.
-
-Default value: $facts['fqdn']
-
-##### `immutable`
+##### `enable`
 
 Data type: `Boolean`
 
-Whether or not to make the configuration immutable when using built-in
-audit profiles.  Be aware that, should you choose to make the
-configuration immutable, you will not be able to change your audit
-rules without a reboot.
-
-Default value: `false`
-
-##### `root_audit_level`
-
-Data type: `Auditd::RootAuditLevel`
-
-What level of auditing should be used for su-root activity in built-in
-audit profiles that provide su-root rules. Be aware that setting this to
-anything besides 'basic' may overwhelm your system and/or log server.
-Options can be, 'basic', 'aggressive', 'insane'.  For the 'simp' audit
-profile, these options are as follows:
- - Basic: Safe syscall rules, should not follow program execution outside
-   of the base app
- - Aggressive: Adds syscall rules for execve, rmdir and variants of rename
-   and unlink
- - Insane: Adds syscall rules for write, creat and variants of chown,
-   fork, link and mkdir
-
-Default value: 'basic'
-
-##### `uid_min`
-
-Data type: `Integer[0]`
-
-The minimum UID for human users on the system. For built-in audit profiles
-when `$ignore_system_services` is true, any audit events generated
-by users below this number will be ignored, unless a corresponding rule
-is inserted *before* the UID-limiting rule in the rules list.  When using
-`auditd::rule`, you can create such a rule by setting the `absolute`
-parameter to be 'first'.
-
-Default value: Integer(pick(fact('uid_min'), 1000))
-
-##### `at_boot`
-
-Data type: `Boolean`
-
-If true, modify the Grub settings to enable auditing at boot time.
-Meets CCE-26785-6
+If true, enable auditing.
 
 Default value: `true`
-
-##### `syslog`
-
-Data type: `Boolean`
-
-If true, set up audispd to send logs to syslog.
-Meets CCE-26933-2
-
-Default value: simplib::lookup('simp_options::syslog', {'default_value' => false })
 
 ##### `default_audit_profile`
 
@@ -135,152 +90,87 @@ of audit rules.
 
 Default value: [ 'simp' ]
 
-##### `service_name`
-
-Data type: `String[1]`
-
-The name of the auditd service.
-
-Default value: 'auditd'
-
-##### `package_name`
-
-Data type: `String[1]`
-
-The name of the auditd package.
-
-Default value: 'audit'
-
-##### `package_ensure`
-
-Data type: `Simplib::PackageEnsure`
-
-
-
-Default value: simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' })
-
-##### `enable`
+##### `audit_auditd_config`
 
 Data type: `Boolean`
 
-If true, enable auditing.
+Set up an audit rule to audit the `auditd` configuration files.
 
 Default value: `true`
 
-##### `log_file`
-
-Data type: `Stdlib::Absolutepath`
-
-
-
-Default value: '/var/log/audit/audit.log'
-
-##### `log_format`
-
-Data type: `Enum['RAW','ENRICHED','NOLOG']`
-
-The output log format
-
-* 'NOLOG' is deprecated as of auditd 2.5.2
-* 'ENRICHED' is only available in auditd >= 2.6.0
-
-Default value: 'RAW'
-
-##### `log_group`
+##### `lname`
 
 Data type: `String`
 
+An alias for the ``name`` variable in the configuration file. This is used
+since ``$name`` is a reserved keyword in Puppet.
 
+Default value: $facts['fqdn']
 
-Default value: 'root'
+##### `ignore_anonymous`
 
-##### `priority_boost`
+Data type: `Boolean`
 
-Data type: `Integer[0]`
+For built-in audit profiles, whether to drop anonymous and daemon
+events, i.e., events for which ``auid`` is '-1' (aka '4294967295').
+Audit records from these events are prolific but not useful.
 
+Default value: `true`
 
+##### `ignore_crond`
 
-Default value: 3
+Data type: `Boolean`
 
-##### `flush`
+For built-in audit profiles, whether to drop events related to cron
+jobs. `cron` creates a lot of audit events that are not usually useful.
 
-Data type: `Auditd::Flush`
+Default value: `true`
 
+##### `ignore_time_daemons`
 
+Data type: `Boolean`
 
-Default value: 'INCREMENTAL'
+Ignore time modifications by time daemons that are running on the system
+since this is valid activity.
 
-##### `freq`
+Default value: `true`
 
-Data type: `Integer[0]`
+##### `ignore_crypto_key_user`
 
+Data type: `Boolean`
 
+Ignore CRYPTO_KEY_USER logs since these are generally noise.
 
-Default value: 20
+Default value: `true`
 
-##### `num_logs`
+##### `ignore_errors`
 
-Data type: `Integer[0]`
+Data type: `Boolean`
 
+Whether to set the `auditctl` '-i' option
 
+Default value: `true`
 
-Default value: 5
+##### `ignore_failures`
 
-##### `disp_qos`
+Data type: `Boolean`
 
-Data type: `Enum['lossy','lossless']`
+Whether to set the `auditctl` '-c' option
 
+Default value: `true`
 
+##### `ignore_system_services`
 
-Default value: 'lossy'
+Data type: `Boolean`
 
-##### `dispatcher`
+For built-in audit profiles, whether to ignore system service events,
+i.e., events for which the ``auid`` is set but is less than the
+minimum UID for human users on the system.  In most security guides,
+this filter is attached to every system call rule.  So, by implementing
+the filter in an upfront drop rule, this feature provides optimization
+of that filtering.
 
-Data type: `Stdlib::Absolutepath`
-
-
-
-Default value: '/sbin/audispd'
-
-##### `name_format`
-
-Data type: `Auditd::NameFormat`
-
-
-
-Default value: 'USER'
-
-##### `max_log_file`
-
-Data type: `Integer[0]`
-
-
-
-Default value: 24
-
-##### `max_log_file_action`
-
-Data type: `Auditd::MaxLogFileAction`
-
-
-
-Default value: 'ROTATE'
-
-##### `space_left`
-
-Data type: `Integer[0]`
-
-
-
-Default value: +
-
-##### `space_left_action`
-
-Data type: `Auditd::SpaceLeftAction`
-
-
-
-Default value: 'SYSLOG'
+Default value: `true`
 
 ##### `action_mail_acct`
 
@@ -306,47 +196,11 @@ Data type: `Auditd::SpaceLeftAction`
 
 Default value: 'SUSPEND'
 
-##### `disk_full_action`
-
-Data type: `Auditd::DiskFullAction`
-
-
-
-Default value: 'SUSPEND'
-
-##### `disk_error_action`
-
-Data type: `Auditd::DiskErrorAction`
-
-
-
-Default value: 'SUSPEND'
-
-##### `write_logs`
+##### `at_boot`
 
 Data type: `Boolean`
 
-Whether or not to write logs to disk.
-
-* The `NOLOG` option on `log_format` has been deprecated in newer versions
-  of `auditd` so this attempts to do "the right thing" when `log_format` is
-  set to `NOLOG` for legacy support.
-
-Default value: $log_format
-
-##### `ignore_errors`
-
-Data type: `Boolean`
-
-Whether to set the `auditctl` '-i' option
-
-Default value: `true`
-
-##### `ignore_failures`
-
-Data type: `Boolean`
-
-Whether to set the `auditctl` '-c' option
+If true, modify the Grub settings to enable auditing at boot time.
 
 Default value: `true`
 
@@ -358,6 +212,46 @@ Value of the `auditctl` '-b' option
 
 Default value: 16384
 
+##### `backlog_wait_time`
+
+Data type: `Integer[1,600000]`
+
+
+
+Default value: 60000
+
+##### `disk_error_action`
+
+Data type: `Auditd::DiskErrorAction`
+
+
+
+Default value: 'SUSPEND'
+
+##### `disk_full_action`
+
+Data type: `Auditd::DiskFullAction`
+
+
+
+Default value: 'SUSPEND'
+
+##### `disp_qos`
+
+Data type: `Enum['lossy','lossless']`
+
+`auditd` version 2 only
+
+Default value: 'lossy'
+
+##### `dispatcher`
+
+Data type: `Stdlib::Absolutepath`
+
+`auditd` version 2 only
+
+Default value: '/sbin/audispd'
+
 ##### `failure_mode`
 
 Data type: `Integer[0]`
@@ -365,6 +259,166 @@ Data type: `Integer[0]`
 Value of the `auditctl` '-f' option
 
 Default value: 1
+
+##### `flush`
+
+Data type: `Auditd::Flush`
+
+
+
+Default value: 'INCREMENTAL'
+
+##### `freq`
+
+Data type: `Integer[0]`
+
+
+
+Default value: 20
+
+##### `immutable`
+
+Data type: `Boolean`
+
+Whether or not to make the configuration immutable when using built-in
+audit profiles.  Be aware that, should you choose to make the
+configuration immutable, you will not be able to change your audit
+rules without a reboot.
+
+Default value: `false`
+
+##### `log_file`
+
+Data type: `Stdlib::Absolutepath`
+
+
+
+Default value: '/var/log/audit/audit.log'
+
+##### `local_events`
+
+Data type: `Optional[Boolean]`
+
+`auditd` version 3 only
+
+Default value: `undef`
+
+##### `log_format`
+
+Data type: `Enum['RAW','ENRICHED','NOLOG']`
+
+The output log format
+
+* 'NOLOG' is deprecated as of auditd 2.5.2
+* 'ENRICHED' is only available in auditd >= 2.6.0
+
+Default value: 'RAW'
+
+##### `log_group`
+
+Data type: `String`
+
+
+
+Default value: 'root'
+
+##### `loginuid_immutable`
+
+Data type: `Boolean`
+
+Sets the --loginuid-immutable option
+
+* This has been noted to potentially cause issues with some types of
+  containers but a concrete explanation of what types has not yet been
+  found.
+
+Default value: `true`
+
+##### `max_log_file`
+
+Data type: `Integer[0]`
+
+
+
+Default value: 24
+
+##### `max_log_file_action`
+
+Data type: `Auditd::MaxLogFileAction`
+
+
+
+Default value: 'ROTATE'
+
+##### `max_restarts`
+
+Data type: `Optional[Integer[1]]`
+
+sets the number of times a plugin will be restart.
+
+Default value: `undef`
+
+##### `name_format`
+
+Data type: `Auditd::NameFormat`
+
+
+
+Default value: 'USER'
+
+##### `num_logs`
+
+Data type: `Integer[0]`
+
+
+
+Default value: 5
+
+##### `overflow_action`
+
+Data type: `Optional[Auditd::Overflowaction]`
+
+sets the overflow action.
+
+Default value: `undef`
+
+##### `package_name`
+
+Data type: `String[1]`
+
+The name of the auditd package.
+
+Default value: 'audit'
+
+##### `package_ensure`
+
+Data type: `Simplib::PackageEnsure`
+
+
+
+Default value: simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' })
+
+##### `plugin_dir`
+
+Data type: `Stdlib::Absolutepath`
+
+sets the directory for the plugin configuration files.
+
+##### `priority_boost`
+
+Data type: `Integer[0]`
+
+
+
+Default value: 3
+
+##### `q_depth`
+
+Data type: `Integer[0]`
+
+how big to make the internal queue of the audit event dispatcher
+
+Default value: 400
 
 ##### `rate`
 
@@ -374,37 +428,63 @@ Value of the `auditctl` '-r' option
 
 Default value: 0
 
-##### `ignore_anonymous`
+##### `root_audit_level`
+
+Data type: `Auditd::RootAuditLevel`
+
+What level of auditing should be used for su-root activity in built-in
+audit profiles that provide su-root rules. Be aware that setting this to
+anything besides 'basic' may overwhelm your system and/or log server.
+Options can be, 'basic', 'aggressive', 'insane'.  For the 'simp' audit
+profile, these options are as follows:
+ - Basic: Safe syscall rules, should not follow program execution outside
+   of the base app
+ - Aggressive: Adds syscall rules for execve, rmdir and variants of rename
+   and unlink
+ - Insane: Adds syscall rules for write, creat and variants of chown,
+   fork, link and mkdir
+
+Default value: 'basic'
+
+##### `service_name`
+
+Data type: `String[1]`
+
+The name of the auditd service.
+
+Default value: 'auditd'
+
+##### `space_left`
+
+Data type: `Integer[0]`
+
+
+
+Default value: +
+
+##### `space_left_action`
+
+Data type: `Auditd::SpaceLeftAction`
+
+
+
+Default value: 'SYSLOG'
+
+##### `syslog`
 
 Data type: `Boolean`
 
-For built-in audit profiles, whether to drop anonymous and daemon
-events, i.e., events for which ``auid`` is '-1' (aka '4294967295').
-Audit records from these events are prolific but not useful.
+If true, manage the settings for the syslog plugin
+It was left defaulted to  simp_options::syslog value for backwards
+compatability.
+This does not  activate/deactivate the plugin.  That setting is
+in the auditd::config::audisp::syslog::enable setting.  If syslog
+is set to true, by default it will enable the syslog plugin in order
+to be backwards compatable.  If you want to ensure the plugin is disabled,
+set auditd::config::audisp::syslog::enable to false.
+If this is set to false the plugin settings are not managed by puppet.
 
-Default value: `true`
-
-##### `ignore_system_services`
-
-Data type: `Boolean`
-
-For built-in audit profiles, whether to ignore system service events,
-i.e., events for which the ``auid`` is set but is less than the
-minimum UID for human users on the system.  In most security guides,
-this filter is attached to every system call rule.  So, by implementing
-the filter in an upfront drop rule, this feature provides optimization
-of that filtering.
-
-Default value: `true`
-
-##### `ignore_crond`
-
-Data type: `Boolean`
-
-For built-in audit profiles, whether to drop events related to cron
-jobs. `cron` creates a lot of audit events that are not usually useful.
-
-Default value: `true`
+Default value: simplib::lookup('simp_options::syslog', {'default_value' => false })
 
 ##### `target_selinux_types`
 
@@ -418,14 +498,59 @@ sufficient since all other invalid system actions are already audited.
 
 Default value: `undef`
 
+##### `uid_min`
+
+Data type: `Integer[0]`
+
+The minimum UID for human users on the system. For built-in audit profiles
+when `$ignore_system_services` is true, any audit events generated
+by users below this number will be ignored, unless a corresponding rule
+is inserted *before* the UID-limiting rule in the rules list.  When using
+`auditd::rule`, you can create such a rule by setting the `absolute`
+parameter to be 'first'.
+
+Default value: Integer(pick(fact('uid_min'), 1000))
+
+##### `verify_email`
+
+Data type: `Optional[Boolean]`
+
+auditd version 3 only
+
+Default value: `undef`
+
+##### `write_logs`
+
+Data type: `Boolean`
+
+Whether or not to write logs to disk.
+
+* The `NOLOG` option on `log_format` has been deprecated in newer versions
+  of `auditd` so this attempts to do "the right thing" when `log_format` is
+  set to `NOLOG` for legacy support.
+
+Default value: $log_format
+
 ### auditd::config
 
 NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
 
 ### auditd::config::audisp
 
-All parameters are documented in audispd.conf(5) with the exception
-of $specific_name which maps to the audispd.conf 'name' variable.
+The following parameters are documented in audispd.conf(5).
+
+These settings are deprecated and will be removed in the next major release
+of auditd and are here for backwards compatability.
+
+In auditd version 3  these settings were moved to auditd.conf
+and audisp.conf was deprecated.  For this reason they are set in the init.pp
+module with the other auditd.conf values also.  If you are trying to set these values
+for auditd version 3 then you must set them there.
+These settings are aliased in
+hiera to auditd settings so you can move your settings
+for these parameters to auditd::* now to ensure compatability with
+future major releases but settings in hiera that are already exist will still work.
+The following setting maps to the name variable in audisp.conf.
 
 #### Parameters
 
@@ -435,41 +560,31 @@ The following parameters are available in the `auditd::config::audisp` class.
 
 Data type: `Integer`
 
-
-
-Default value: 160
+(deprecated)
 
 ##### `overflow_action`
 
 Data type: `Auditd::OverflowAction`
 
-
-
-Default value: 'SYSLOG'
+(deprecated)
 
 ##### `priority_boost`
 
 Data type: `Integer`
 
-
-
-Default value: 4
+(deprecated)
 
 ##### `max_restarts`
 
 Data type: `Integer`
 
-
-
-Default value: 10
+(deprecated)
 
 ##### `name_format`
 
 Data type: `Auditd::NameFormat`
 
-
-
-Default value: 'USER'
+(deprecated)
 
 ##### `specific_name`
 
@@ -490,12 +605,12 @@ to multiple remote syslog servers or (inadvertently) persisted
 locally. Site-specific, rsyslog actions to implement filtering will
 likely be required to reduce this message traffic.
 
-As a precaution, to prevent the above overload scenario, this class,
-by default, inserts a rsyslog action to drop these messages, prior to
-forwarding to remote syslog servers or writing to local syslog files.
-You can disable this drop behavior via configuration, but are strongly
-advised to apply appropriate syslog message filtering before doing so.
-We also recommend you ensure any forwarded, audit messages are
+If you are using simp_rsyslog, it, by default, sets up a
+rsyslog rule to drop the audispd messages from being written locally
+to prevent duplication of logging audit events on the local system.
+See simp_rsyslog::local for more information.
+
+It is also recommend you ensure any forwarded, audit messages are
 encrypted using the stunnel module, due to the nature of the
 information carried by these messages.
 
@@ -503,13 +618,37 @@ information carried by these messages.
 
 The following parameters are available in the `auditd::config::audisp::syslog` class.
 
+##### `rsyslog`
+
+Data type: `Boolean`
+
+(deprecated)
+If set, enable the SIMP `rsyslog` module and set up the appropriate rules
+for the `auditd` services.
+
+Default value: simplib::lookup('simp_options::syslog', { 'default_value' => false })
+
 ##### `drop_audit_logs`
 
 Data type: `Boolean`
 
+(deprecated)
 When set to false, auditd records will be forwarded to remote
 servers and/or written to local syslog files, as directed by the
 site rsyslog configuration.
+This setting is not needed any more.  If you want to
+disable/enable sending audit records to syslog, set
+the 'enable' parameter in this module to false/true as appropriate.
+It is left here for backwards compatability but will not
+be in the next major release.
+
+Default value: `true`
+
+##### `enable`
+
+Data type: `Boolean`
+
+Enable or disable sending audit mesages to syslog.
 
 Default value: `true`
 
@@ -536,16 +675,34 @@ are allowed.
 
 Default value: 'LOG_LOCAL5'
 
-##### `rsyslog`
+##### `syslog_path`
 
-Data type: `Boolean`
+Data type: `String`
 
-If set, enable the SIMP `rsyslog` module and set up the appropriate rules
-for the `auditd` services.
+The path to the syslog plugin executable.
 
-* Set to `false` if you are using some other `syslog` utility.
+##### `type`
 
-Default value: simplib::lookup('simp_options::syslog', { 'default_value' => false })
+Data type: `String`
+
+The type of auditd plugin.
+
+##### `pkg_name`
+
+Data type: `Optional[String]`
+
+The name of the plugin package to install.  Only needed for
+auditd version 3 and later.
+
+Default value: `undef`
+
+##### `package_ensure`
+
+Data type: `String`
+
+The default ensure parmeter for packages.
+
+Default value: simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' })
 
 ### auditd::config::audisp_service
 
@@ -597,7 +754,7 @@ file. The generated files are as follows:
 ```puppet
 
 ---
-auditd::config::audit_profiles::user_specified:
+auditd::config::audit_profiles::custom::rules:
   - "-a always,exit -F arch=b64 -S creat -F exit=-EACCES -k unsuccessful_file_operations"
   - "-w /etc/passwd -p wa -k passwd_changes"
 ```
@@ -607,9 +764,7 @@ auditd::config::audit_profiles::user_specified:
 ```puppet
 
 ---
-auditd::config::audit_profiles::user_specified:
-  - "my_templates_module/auditd/my_audit_rules.epp"
-  - "This will be ignored"
+auditd::config::audit_profiles::custom::template: "my_templates_module/auditd/my_audit_rules.epp"
 ```
 
 ##### Passing an ERB Template
@@ -617,9 +772,7 @@ auditd::config::audit_profiles::user_specified:
 ```puppet
 
 ---
-auditd::config::audit_profiles::user_specified:
-  - "my_templates_module/auditd/my_audit_rules.erb"
-  - "This will be ignored"
+auditd::config::audit_profiles::custom::template: "my_templates_module/auditd/my_audit_rules.erb"
 ```
 
 #### Parameters
@@ -694,6 +847,45 @@ Options can be, 'basic', 'aggressive', 'insane'
    fork, link and mkdir
 
 Default value: $::auditd::root_audit_level
+
+##### `audit_32bit_operations`
+
+Data type: `Boolean`
+
+In general, any 32bit system calls on a 64bit systems should be seen as
+suspicious.
+
+Default value: $facts['hardwaremodel']
+
+##### `audit_32bit_operations_tag`
+
+Data type: `String[1]`
+
+Tag to be added to entries triggered by `audit_32bit_operations`
+
+Default value: '32bit-api'
+
+##### `audit_auditd_cmds`
+
+Data type: `Boolean`
+
+Audit calls to the auditd management CLI commands
+
+Default value: `true`
+
+##### `audit_auditd_cmds_tag`
+
+Data type: `String[1]`
+
+Tag to be added to entries triggered by `audit_auditd_cmds`
+
+Default value: 'access-audit-trail'
+
+##### `audit_auditd_cmds_list`
+
+Data type: `Array[String[1]]`
+
+Commands to be audited if enabled by `audit_auditd_cmds`
 
 ##### `basic_root_audit_syscalls`
 
@@ -894,6 +1086,70 @@ Data type: `String[1]`
 The tag to identify system locale operations in an audit record
 
 Default value: 'audit_network_modifications'
+
+##### `audit_network_ipv4_accept`
+
+Data type: `Boolean`
+
+Audit **incoming** IPv4 connections
+
+Default value: `true`
+
+##### `audit_network_ipv4_accept_tag`
+
+Data type: `String[1]`
+
+Tag to be added to entries triggered by `audit_network_ipv4_accept`
+
+Default value: 'ipv4_in'
+
+##### `audit_network_ipv6_accept`
+
+Data type: `Boolean`
+
+Audit **incoming** IPv6 connections
+
+Default value: `true`
+
+##### `audit_network_ipv6_accept_tag`
+
+Data type: `String[1]`
+
+Tag to be added to entries triggered by `audit_network_ipv6_accept`
+
+Default value: 'ipv6_in'
+
+##### `audit_network_ipv4_connect`
+
+Data type: `Boolean`
+
+Audit **outgoing** IPv4 connections
+
+Default value: `false`
+
+##### `audit_network_ipv4_connect_tag`
+
+Data type: `String[1]`
+
+Tag to be added to entries triggered by `audit_network_ipv4_connect`
+
+Default value: 'ipv4_in'
+
+##### `audit_network_ipv6_connect`
+
+Data type: `Boolean`
+
+Audit **outgoing** IPv6 connections
+
+Default value: `false`
+
+##### `audit_network_ipv6_connect_tag`
+
+Data type: `String[1]`
+
+Tag to be added to entries triggered by `audit_network_ipv6_connect`
+
+Default value: 'ipv6_in'
 
 ##### `audit_mount`
 
@@ -1133,7 +1389,7 @@ Default value: 'CFG_shell'
 
 Data type: `Boolean`
 
-Whether to audit changes to pam configuration files
+Whether to audit changes to PAM configuration files
 
 Default value: `true`
 
@@ -1141,7 +1397,7 @@ Default value: `true`
 
 Data type: `String[1]`
 
-The tag to identify pam configuration file changes in an audit record
+The tag to identify PAM configuration file changes in an audit record
 
 Default value: 'CFG_pam'
 
@@ -1355,6 +1611,46 @@ Data type: `String[1]`
 The tag to identify `ssh-keysign` command execution in an audit record
 
 Default value: 'privileged-ssh'
+
+##### `audit_suspicious_apps`
+
+Data type: `Boolean`
+
+Audit various applications that generally represent suspicious host activity
+
+Default value: `true`
+
+##### `audit_suspicious_apps_tag`
+
+Data type: `String[1]`
+
+Tag to be added to entries triggered by `audit_suspicious_apps`
+
+Default value: 'suspicious_apps'
+
+##### `audit_suspicious_apps_list`
+
+Data type: `Array[Stdlib::Absolutepath]`
+
+List of applications to be audited when `audit_suspicious_apps` is enabled
+
+##### `audit_systemd`
+
+Data type: `Boolean`
+
+Audit systemd components
+
+* Only takes effect on systems with systemd present
+
+Default value: `true`
+
+##### `audit_systemd_tag`
+
+Data type: `String[1]`
+
+Tag to be added to entries triggered by `audit_systemd`
+
+Default value: 'systemd'
 
 ##### `audit_crontab_cmd`
 
@@ -1885,4 +2181,72 @@ Data type: `Optional[Integer]`
 
 The minimum number of digits the index should be. 
 It will be '0'-padded to meet this number.
+
+## Data types
+
+### Auditd::AuditProfile
+
+Matches the types of auditd profiles allowed
+
+Alias of `Enum['simp', 'stig', 'custom']`
+
+### Auditd::DiskErrorAction
+
+Matches disk error actions in auditd.conf
+
+Alias of `Enum['IGNORE', 'SYSLOG', 'EXEC', 'SUSPEND', 'SINGLE', 'HALT', 'ignore', 'syslog', 'exec', 'suspend', 'single', 'halt']`
+
+### Auditd::DiskFullAction
+
+Matches actions to take when disk is full (see auditd.conf)
+
+Alias of `Enum['IGNORE', 'SYSLOG', 'ROTATE', 'EXEC', 'SUSPEND', 'SINGLE', 'HALT', 'ignore', 'syslog', 'rotate', 'exec', 'suspend', 'single', 'halt']`
+
+### Auditd::Flush
+
+Matches actions flush in auditd.conf
+
+Alias of `Enum['NONE', 'INCREMENTAL', 'DATA', 'SYNC', 'none', 'incremental', 'data', 'sync']`
+
+### Auditd::LogFacility
+
+Matches log facility that can be used in syslog.conf plugin
+
+Alias of `Enum['', 'LOG_LOCAL0', 'LOG_LOCAL1', 'LOG_LOCAL2', 'LOG_LOCAL3', 'LOG_LOCAL4', 'LOG_LOCAL5', 'LOG_LOCAL6', 'LOG_LOCAL7']`
+
+### Auditd::LogPriority
+
+Matches log priorities that can be used in syslog.conf plugin
+
+Alias of `Enum['LOG_DEBUG', 'LOG_INFO', 'LOG_NOTICE', 'LOG_WARNING', 'LOG_ERR', 'LOG_CRIT', 'LOG_ALERT', 'LOG_EMERG', 'LOG_AUTHPRIV']`
+
+### Auditd::MaxLogFileAction
+
+Matches available matches for maxlogfileaction in auditd.conf
+
+Alias of `Enum['IGNORE', 'SYSLOG', 'SUSPEND', 'ROTATE', 'KEEP_LOGS', 'ignore', 'syslog', 'suspend', 'rotate', 'keep_logs']`
+
+### Auditd::NameFormat
+
+Matche s available name formats in audotd.conf
+
+Alias of `Enum['NONE', 'HOSTNAME', 'FQD', 'NUMERIC', 'USER', 'none', 'hostname', 'fqd', 'numeric', 'user']`
+
+### Auditd::OverflowAction
+
+Matches overflow_action settings in auditd.conf or audisp.conf
+
+Alias of `Enum['IGNORE', 'SYSLOG', 'SUSPEND', 'SINGLE', 'HALT', 'ignore', 'syslog', 'suspend', 'single', 'halt']`
+
+### Auditd::RootAuditLevel
+
+Matches root audit level settings in auditd.conf
+
+Alias of `Enum['basic', 'aggressive', 'insane']`
+
+### Auditd::SpaceLeftAction
+
+Matches spaceleftaction for auditd.conf
+
+Alias of `Enum['IGNORE', 'SYSLOG', 'ROTATE', 'EMAIL', 'EXEC', 'SUSPEND', 'SINGLE', 'HALT', 'ignore', 'syslog', 'rotate', 'email', 'exec', 'suspend', 'single', 'halt']`
 

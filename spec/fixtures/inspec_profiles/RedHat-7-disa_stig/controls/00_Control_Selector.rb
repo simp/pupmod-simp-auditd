@@ -1,7 +1,7 @@
 skips = {
   'V-72209' => 'Cannot guarantee a remote syslog server during test'
 }
-overrides = []
+overrides = [ 'V-72091' ]
 subsystems = [ 'audit' ]
 
 require_controls 'disa_stig-el7-baseline' do
@@ -29,11 +29,13 @@ require_controls 'disa_stig-el7-baseline' do
 
   ## Overrides ##
 
-# # USEFUL DESCRIPTION
-# control 'V-IDENTIFIER' do
-#   # Enhancement, leave this out if you just want to add a different test
-#   overrides << self.to_s
-#
-#   only_if { file('whatever').exist? }
-# end
+  # There's no email server to send anything to by default so syslog is a safer
+  # default for processing.
+  control 'V-72091' do
+    overrides << self.to_s
+
+    describe auditd_conf do
+      its('space_left_action.downcase') { should cmp 'syslog' }
+    end
+  end
 end

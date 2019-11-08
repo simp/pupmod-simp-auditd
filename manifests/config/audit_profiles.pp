@@ -39,11 +39,21 @@ class auditd::config::audit_profiles {
 
   $_common_template_path = "${module_name}/rule_profiles/common"
 
-  auditd::rule { 'init.d_auditd':
-    content => [
-      '-w /etc/rc.d/init.d/auditd -p wa -k auditd',
-      "-w ${$auditd::log_file} -p wa -k audit-logs"
-    ]
+  if $auditd::audit_auditd_config {
+    $_audit_log_dir = dirname($auditd::log_file)
+
+    auditd::rule { 'audit_auditd_config':
+      content => [
+        '-w /etc/rc.d/init.d/auditd -p wa -k auditd',
+        "-w ${$_audit_log_dir} -p wa -k audit-logs",
+        '-w /etc/audit/ -p wa -k auditconfig',
+        '-w /etc/libaudit.conf -p wa -k auditconfig',
+        '-w /sbin/auditctl -p x -k audittools',
+        '-w /usr/sbin/auditctl -p x -k audittools',
+        '-w /sbin/auditd -p x -k audittools',
+        '-w /usr/sbin/auditd -p x -k audittools'
+      ]
+    }
   }
 
   auditd::rule { 'rotated_audit_logs':
