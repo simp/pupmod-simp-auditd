@@ -1,208 +1,208 @@
 #### auditd::config::audit_profiles::stig Audit Rules ####
 
 ## Audit unsuccessful file operations
--a always,exit -F arch=b64 -S creat -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access
--a always,exit -F arch=b64 -S creat -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access
--a always,exit -F arch=b32 -S creat -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access
--a always,exit -F arch=b32 -S creat -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access
+-a exit,always -F arch=b64 -S creat -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access
+-a exit,always -F arch=b64 -S creat -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access
+-a exit,always -F arch=b32 -S creat -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access
+-a exit,always -F arch=b32 -S creat -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access
 
--a always,exit -F arch=b64 -S open -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access
--a always,exit -F arch=b64 -S open -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access
--a always,exit -F arch=b32 -S open -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access
--a always,exit -F arch=b32 -S open -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access
+-a exit,always -F arch=b64 -S open -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access
+-a exit,always -F arch=b64 -S open -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access
+-a exit,always -F arch=b32 -S open -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access
+-a exit,always -F arch=b32 -S open -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access
 
--a always,exit -F arch=b64 -S openat -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access
--a always,exit -F arch=b64 -S openat -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access
--a always,exit -F arch=b32 -S openat -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access
--a always,exit -F arch=b32 -S openat -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access
+-a exit,always -F arch=b64 -S openat -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access
+-a exit,always -F arch=b64 -S openat -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access
+-a exit,always -F arch=b32 -S openat -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access
+-a exit,always -F arch=b32 -S openat -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access
 
--a always,exit -F arch=b64 -S open_by_handle_at -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access
--a always,exit -F arch=b64 -S open_by_handle_at -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access
--a always,exit -F arch=b32 -S open_by_handle_at -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access
--a always,exit -F arch=b32 -S open_by_handle_at -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access
+-a exit,always -F arch=b64 -S open_by_handle_at -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access
+-a exit,always -F arch=b64 -S open_by_handle_at -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access
+-a exit,always -F arch=b32 -S open_by_handle_at -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access
+-a exit,always -F arch=b32 -S open_by_handle_at -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access
 
--a always,exit -F arch=b64 -S truncate -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access
--a always,exit -F arch=b64 -S truncate -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access
--a always,exit -F arch=b32 -S truncate -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access
--a always,exit -F arch=b32 -S truncate -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access
+-a exit,always -F arch=b64 -S truncate -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access
+-a exit,always -F arch=b64 -S truncate -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access
+-a exit,always -F arch=b32 -S truncate -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access
+-a exit,always -F arch=b32 -S truncate -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access
 
--a always,exit -F arch=b64 -S ftruncate -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access
--a always,exit -F arch=b64 -S ftruncate -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access
--a always,exit -F arch=b32 -S ftruncate -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access
--a always,exit -F arch=b32 -S ftruncate -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access
+-a exit,always -F arch=b64 -S ftruncate -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access
+-a exit,always -F arch=b64 -S ftruncate -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access
+-a exit,always -F arch=b32 -S ftruncate -F exit=-EPERM -F auid>=1000 -F auid!=4294967295 -k access
+-a exit,always -F arch=b32 -S ftruncate -F exit=-EACCES -F auid>=1000 -F auid!=4294967295 -k access
 
 ## Audit the execution of password commands
--a always,exit -F path=/usr/bin/passwd -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-passwd
--a always,exit -F path=/bin/passwd -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-passwd
+-a exit,always -F path=/usr/bin/passwd -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-passwd
+-a exit,always -F path=/bin/passwd -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-passwd
 
--a always,exit -F path=/usr/sbin/unix_chkpwd -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-passwd
--a always,exit -F path=/sbin/unix_chkpwd -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-passwd
+-a exit,always -F path=/usr/sbin/unix_chkpwd -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-passwd
+-a exit,always -F path=/sbin/unix_chkpwd -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-passwd
 
--a always,exit -F path=/usr/bin/gpasswd -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-passwd
--a always,exit -F path=/bin/gpasswd -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-passwd
+-a exit,always -F path=/usr/bin/gpasswd -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-passwd
+-a exit,always -F path=/bin/gpasswd -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-passwd
 
--a always,exit -F path=/usr/bin/chage -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-passwd
--a always,exit -F path=/bin/chage -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-passwd
+-a exit,always -F path=/usr/bin/chage -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-passwd
+-a exit,always -F path=/bin/chage -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-passwd
 
--a always,exit -F path=/usr/sbin/userhelper -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-passwd
--a always,exit -F path=/sbin/userhelper -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-passwd
+-a exit,always -F path=/usr/sbin/userhelper -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-passwd
+-a exit,always -F path=/sbin/userhelper -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-passwd
 
 ## Audit the execution of privilege-related commands
--a always,exit -F path=/usr/bin/su -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
--a always,exit -F path=/bin/su -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
+-a exit,always -F path=/usr/bin/su -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
+-a exit,always -F path=/bin/su -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
 
--a always,exit -F path=/usr/bin/sudo -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
--a always,exit -F path=/bin/sudo -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
+-a exit,always -F path=/usr/bin/sudo -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
+-a exit,always -F path=/bin/sudo -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
 
--a always,exit -F path=/usr/bin/newgrp -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
--a always,exit -F path=/bin/newgrp -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
+-a exit,always -F path=/usr/bin/newgrp -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
+-a exit,always -F path=/bin/newgrp -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
 
--a always,exit -F path=/usr/bin/chsh -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
--a always,exit -F path=/bin/chsh -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
+-a exit,always -F path=/usr/bin/chsh -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
+-a exit,always -F path=/bin/chsh -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
 
--a always,exit -F path=/usr/bin/sudoedit -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
--a always,exit -F path=/bin/sudoedit -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
+-a exit,always -F path=/usr/bin/sudoedit -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
+-a exit,always -F path=/bin/sudoedit -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
 
 ## Audit the execution of postfix-related commands
--a always,exit -F path=/usr/sbin/postdrop -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-postfix
--a always,exit -F path=/sbin/postdrop -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-postfix
+-a exit,always -F path=/usr/sbin/postdrop -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-postfix
+-a exit,always -F path=/sbin/postdrop -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-postfix
 
--a always,exit -F path=/usr/sbin/postqueue -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-postfix
--a always,exit -F path=/sbin/postqueue -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-postfix
+-a exit,always -F path=/usr/sbin/postqueue -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-postfix
+-a exit,always -F path=/sbin/postqueue -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-postfix
 
 ## Audit the execution of the ssh-keysign command
--a always,exit -F path=/usr/libexec/openssh/ssh-keysign -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-ssh
+-a exit,always -F path=/usr/libexec/openssh/ssh-keysign -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-ssh
 
 ## Audit the execution of the crontab command
--a always,exit -F path=/usr/bin/crontab -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-cron
--a always,exit -F path=/bin/crontab -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-cron
+-a exit,always -F path=/usr/bin/crontab -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-cron
+-a exit,always -F path=/bin/crontab -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-cron
 
 ## Audit the execution of the pam_timestamp_check command
--a always,exit -F path=/usr/sbin/pam_timestamp_check -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-pam
--a always,exit -F path=/sbin/pam_timestamp_check -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-pam
+-a exit,always -F path=/usr/sbin/pam_timestamp_check -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-pam
+-a exit,always -F path=/sbin/pam_timestamp_check -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-pam
 
 ## Audit selinux commands
--a always,exit -F path=/usr/sbin/semanage -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
--a always,exit -F path=/sbin/semanage -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
+-a exit,always -F path=/usr/sbin/semanage -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
+-a exit,always -F path=/sbin/semanage -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
 
--a always,exit -F path=/usr/sbin/setsebool -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
--a always,exit -F path=/sbin/setsebool -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
+-a exit,always -F path=/usr/sbin/setsebool -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
+-a exit,always -F path=/sbin/setsebool -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
 
--a always,exit -F path=/usr/bin/chcon -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
--a always,exit -F path=/bin/chcon -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
+-a exit,always -F path=/usr/bin/chcon -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
+-a exit,always -F path=/bin/chcon -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
 
--a always,exit -F path=/usr/sbin/setfiles -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
--a always,exit -F path=/sbin/setfiles -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
+-a exit,always -F path=/usr/sbin/setfiles -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
+-a exit,always -F path=/sbin/setfiles -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
 
--a always,exit -F path=/sbin/restorecon -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
--a always,exit -F path=/usr/sbin/restorecon -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
+-a exit,always -F path=/sbin/restorecon -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
+-a exit,always -F path=/usr/sbin/restorecon -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-priv_change
 
 ## Permissions auditing separated by chown, chmod, and attr
--a always,exit -F arch=b64 -S chown -F auid>=1000 -F auid!=4294967295 -k perm_mod
--a always,exit -F arch=b32 -S chown -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a exit,always -F arch=b64 -S chown -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a exit,always -F arch=b32 -S chown -F auid>=1000 -F auid!=4294967295 -k perm_mod
 
--a always,exit -F arch=b64 -S fchown -F auid>=1000 -F auid!=4294967295 -k perm_mod
--a always,exit -F arch=b32 -S fchown -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a exit,always -F arch=b64 -S fchown -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a exit,always -F arch=b32 -S fchown -F auid>=1000 -F auid!=4294967295 -k perm_mod
 
--a always,exit -F arch=b64 -S lchown -F auid>=1000 -F auid!=4294967295 -k perm_mod
--a always,exit -F arch=b32 -S lchown -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a exit,always -F arch=b64 -S lchown -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a exit,always -F arch=b32 -S lchown -F auid>=1000 -F auid!=4294967295 -k perm_mod
 
--a always,exit -F arch=b64 -S fchownat -F auid>=1000 -F auid!=4294967295 -k perm_mod
--a always,exit -F arch=b32 -S fchownat -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a exit,always -F arch=b64 -S fchownat -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a exit,always -F arch=b32 -S fchownat -F auid>=1000 -F auid!=4294967295 -k perm_mod
 
--a always,exit -F arch=b64 -S chmod -F auid>=1000 -F auid!=4294967295 -k perm_mod
--a always,exit -F arch=b32 -S chmod -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a exit,always -F arch=b64 -S chmod -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a exit,always -F arch=b32 -S chmod -F auid>=1000 -F auid!=4294967295 -k perm_mod
 
--a always,exit -F arch=b64 -S fchmod -F auid>=1000 -F auid!=4294967295 -k perm_mod
--a always,exit -F arch=b32 -S fchmod -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a exit,always -F arch=b64 -S fchmod -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a exit,always -F arch=b32 -S fchmod -F auid>=1000 -F auid!=4294967295 -k perm_mod
 
--a always,exit -F arch=b64 -S fchmodat -F auid>=1000 -F auid!=4294967295 -k perm_mod
--a always,exit -F arch=b32 -S fchmodat -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a exit,always -F arch=b64 -S fchmodat -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a exit,always -F arch=b32 -S fchmodat -F auid>=1000 -F auid!=4294967295 -k perm_mod
 
--a always,exit -F arch=b64 -S setxattr -F auid>=1000 -F auid!=4294967295 -k perm_mod
--a always,exit -F arch=b32 -S setxattr -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a exit,always -F arch=b64 -S setxattr -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a exit,always -F arch=b32 -S setxattr -F auid>=1000 -F auid!=4294967295 -k perm_mod
 
--a always,exit -F arch=b64 -S fsetxattr -F auid>=1000 -F auid!=4294967295 -k perm_mod
--a always,exit -F arch=b32 -S fsetxattr -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a exit,always -F arch=b64 -S fsetxattr -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a exit,always -F arch=b32 -S fsetxattr -F auid>=1000 -F auid!=4294967295 -k perm_mod
 
--a always,exit -F arch=b64 -S lsetxattr -F auid>=1000 -F auid!=4294967295 -k perm_mod
--a always,exit -F arch=b32 -S lsetxattr -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a exit,always -F arch=b64 -S lsetxattr -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a exit,always -F arch=b32 -S lsetxattr -F auid>=1000 -F auid!=4294967295 -k perm_mod
 
--a always,exit -F arch=b64 -S removexattr -F auid>=1000 -F auid!=4294967295 -k perm_mod
--a always,exit -F arch=b32 -S removexattr -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a exit,always -F arch=b64 -S removexattr -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a exit,always -F arch=b32 -S removexattr -F auid>=1000 -F auid!=4294967295 -k perm_mod
 
--a always,exit -F arch=b64 -S fremovexattr -F auid>=1000 -F auid!=4294967295 -k perm_mod
--a always,exit -F arch=b32 -S fremovexattr -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a exit,always -F arch=b64 -S fremovexattr -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a exit,always -F arch=b32 -S fremovexattr -F auid>=1000 -F auid!=4294967295 -k perm_mod
 
--a always,exit -F arch=b64 -S lremovexattr -F auid>=1000 -F auid!=4294967295 -k perm_mod
--a always,exit -F arch=b32 -S lremovexattr -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a exit,always -F arch=b64 -S lremovexattr -F auid>=1000 -F auid!=4294967295 -k perm_mod
+-a exit,always -F arch=b32 -S lremovexattr -F auid>=1000 -F auid!=4294967295 -k perm_mod
 
 ## Audit rename/removal operations
--a always,exit -F arch=b64 -S rename -F perm=x -F auid>=1000 -F auid!=4294967295 -k delete
--a always,exit -F arch=b32 -S rename -F perm=x -F auid>=1000 -F auid!=4294967295 -k delete
+-a exit,always -F arch=b64 -S rename -F perm=x -F auid>=1000 -F auid!=4294967295 -k delete
+-a exit,always -F arch=b32 -S rename -F perm=x -F auid>=1000 -F auid!=4294967295 -k delete
 
--a always,exit -F arch=b64 -S renameat -F perm=x -F auid>=1000 -F auid!=4294967295 -k delete
--a always,exit -F arch=b32 -S renameat -F perm=x -F auid>=1000 -F auid!=4294967295 -k delete
+-a exit,always -F arch=b64 -S renameat -F perm=x -F auid>=1000 -F auid!=4294967295 -k delete
+-a exit,always -F arch=b32 -S renameat -F perm=x -F auid>=1000 -F auid!=4294967295 -k delete
 
--a always,exit -F arch=b64 -S rmdir -F perm=x -F auid>=1000 -F auid!=4294967295 -k delete
--a always,exit -F arch=b32 -S rmdir -F perm=x -F auid>=1000 -F auid!=4294967295 -k delete
+-a exit,always -F arch=b64 -S rmdir -F perm=x -F auid>=1000 -F auid!=4294967295 -k delete
+-a exit,always -F arch=b32 -S rmdir -F perm=x -F auid>=1000 -F auid!=4294967295 -k delete
 
--a always,exit -F arch=b64 -S unlink -F perm=x -F auid>=1000 -F auid!=4294967295 -k delete
--a always,exit -F arch=b32 -S unlink -F perm=x -F auid>=1000 -F auid!=4294967295 -k delete
+-a exit,always -F arch=b64 -S unlink -F perm=x -F auid>=1000 -F auid!=4294967295 -k delete
+-a exit,always -F arch=b32 -S unlink -F perm=x -F auid>=1000 -F auid!=4294967295 -k delete
 
--a always,exit -F arch=b64 -S unlinkat -F perm=x -F auid>=1000 -F auid!=4294967295 -k delete
--a always,exit -F arch=b32 -S unlinkat -F perm=x -F auid>=1000 -F auid!=4294967295 -k delete
+-a exit,always -F arch=b64 -S unlinkat -F perm=x -F auid>=1000 -F auid!=4294967295 -k delete
+-a exit,always -F arch=b32 -S unlinkat -F perm=x -F auid>=1000 -F auid!=4294967295 -k delete
 
 ## Audit the execution of suid and sgid binaries.
--a always,exit -F path=/usr/bin/at -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/bin/chage -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/bin/chcon -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/bin/chfn -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/bin/chsh -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/bin/crontab -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/bin/fusermount -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/bin/gpasswd -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/bin/incrontab -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/bin/ksu -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/bin/locate -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/bin/mount -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/bin/newgidmap -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/bin/newgrp -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/bin/newuidmap -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/bin/passwd -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/bin/pkexec -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/bin/screen -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/bin/ssh-agent -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/bin/su -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/bin/sudo -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/bin/sudoedit -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/bin/umount -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/bin/wall -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/bin/write -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/bin/Xorg -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/lib64/dbus-1/dbus-daemon-launch-helper -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/libexec/dbus-1/dbus-daemon-launch-helper -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/libexec/openssh/ssh-keysign -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/libexec/pt_chown -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/libexec/sssd/krb5_child -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/libexec/sssd/ldap_child -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/libexec/sssd/proxy_child -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/libexec/sssd/selinux_child -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/libexec/utempter/utempter -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/lib/polkit-1/polkit-agent-helper-1 -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/sbin/mount.nfs -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/sbin/netreport -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/sbin/pam_timestamp_check -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/sbin/postdrop -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/sbin/postqueue -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/sbin/restorecon -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/sbin/semanage -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/sbin/setfiles -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/sbin/setsebool -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/sbin/seunshare -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/sbin/unix_chkpwd -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/sbin/userhelper -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
--a always,exit -F path=/usr/sbin/usernetctl -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/bin/at -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/bin/chage -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/bin/chcon -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/bin/chfn -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/bin/chsh -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/bin/crontab -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/bin/fusermount -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/bin/gpasswd -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/bin/incrontab -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/bin/ksu -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/bin/locate -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/bin/mount -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/bin/newgidmap -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/bin/newgrp -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/bin/newuidmap -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/bin/passwd -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/bin/pkexec -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/bin/screen -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/bin/ssh-agent -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/bin/su -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/bin/sudo -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/bin/sudoedit -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/bin/umount -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/bin/wall -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/bin/write -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/bin/Xorg -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/lib64/dbus-1/dbus-daemon-launch-helper -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/libexec/dbus-1/dbus-daemon-launch-helper -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/libexec/openssh/ssh-keysign -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/libexec/pt_chown -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/libexec/sssd/krb5_child -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/libexec/sssd/ldap_child -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/libexec/sssd/proxy_child -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/libexec/sssd/selinux_child -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/libexec/utempter/utempter -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/lib/polkit-1/polkit-agent-helper-1 -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/sbin/mount.nfs -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/sbin/netreport -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/sbin/pam_timestamp_check -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/sbin/postdrop -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/sbin/postqueue -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/sbin/restorecon -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/sbin/semanage -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/sbin/setfiles -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/sbin/setsebool -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/sbin/seunshare -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/sbin/unix_chkpwd -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/sbin/userhelper -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
+-a exit,always -F path=/usr/sbin/usernetctl -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
 
 ## Audit the loading and unloading of kernel modules.
 -w /usr/sbin/insmod -p x -F auid!=4294967295 -k module-change
@@ -214,28 +214,28 @@
 -w /usr/sbin/modprobe -p x -F auid!=4294967295 -k module-change
 -w /sbin/modprobe -p x -F auid!=4294967295 -k module-change
 
--a always,exit -F arch=b64 -S create_module -k module-change
--a always,exit -F arch=b32 -S create_module -k module-change
+-a exit,always -F arch=b64 -S create_module -k module-change
+-a exit,always -F arch=b32 -S create_module -k module-change
 
--a always,exit -F arch=b64 -S init_module -k module-change
--a always,exit -F arch=b32 -S init_module -k module-change
+-a exit,always -F arch=b64 -S init_module -k module-change
+-a exit,always -F arch=b32 -S init_module -k module-change
 
--a always,exit -F arch=b64 -S finit_module -k module-change
--a always,exit -F arch=b32 -S finit_module -k module-change
+-a exit,always -F arch=b64 -S finit_module -k module-change
+-a exit,always -F arch=b32 -S finit_module -k module-change
 
--a always,exit -F arch=b64 -S delete_module -k module-change
--a always,exit -F arch=b32 -S delete_module -k module-change
+-a exit,always -F arch=b64 -S delete_module -k module-change
+-a exit,always -F arch=b32 -S delete_module -k module-change
 
 ## Audit mount operations
--a always,exit -F arch=b64 -S mount -F auid>=1000 -F auid!=4294967295 -k privileged-mount
--a always,exit -F arch=b64 -F path=/usr/bin/mount -F auid>=1000 -F auid!=4294967295 -k privileged-mount
--a always,exit -F arch=b64 -F path=/bin/mount -F auid>=1000 -F auid!=4294967295 -k privileged-mount
--a always,exit -F arch=b32 -S mount -F auid>=1000 -F auid!=4294967295 -k privileged-mount
--a always,exit -F arch=b32 -F path=/usr/bin/mount -F auid>=1000 -F auid!=4294967295 -k privileged-mount
--a always,exit -F arch=b32 -F path=/bin/mount -F auid>=1000 -F auid!=4294967295 -k privileged-mount
+-a exit,always -F arch=b64 -S mount -F auid>=1000 -F auid!=4294967295 -k privileged-mount
+-a exit,always -F arch=b64 -F path=/usr/bin/mount -F auid>=1000 -F auid!=4294967295 -k privileged-mount
+-a exit,always -F arch=b64 -F path=/bin/mount -F auid>=1000 -F auid!=4294967295 -k privileged-mount
+-a exit,always -F arch=b32 -S mount -F auid>=1000 -F auid!=4294967295 -k privileged-mount
+-a exit,always -F arch=b32 -F path=/usr/bin/mount -F auid>=1000 -F auid!=4294967295 -k privileged-mount
+-a exit,always -F arch=b32 -F path=/bin/mount -F auid>=1000 -F auid!=4294967295 -k privileged-mount
 
--a always,exit -F path=/usr/bin/umount -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-mount
--a always,exit -F path=/bin/umount -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-mount
+-a exit,always -F path=/usr/bin/umount -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-mount
+-a exit,always -F path=/bin/umount -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged-mount
 
 ## Audit local accounts
 -w /etc/passwd -p wa -k identity

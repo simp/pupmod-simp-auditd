@@ -34,17 +34,17 @@
     {
       "operatingsystem": "CentOS",
       "operatingsystemrelease": [
-        "6",
+        "8",
         "7",
-        "8"
+        "6"
       ]
     },
     {
       "operatingsystem": "RedHat",
       "operatingsystemrelease": [
-        "6",
+        "8",
         "7",
-        "8"
+        "6"
       ]
     },
     {

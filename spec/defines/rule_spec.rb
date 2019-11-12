@@ -31,16 +31,16 @@ describe 'auditd::rule' do
         context 'when :content is an Array' do
           let(:params) {{
             :content => [
-              '-a always,exit -F dir=${confdir} -F uid!=puppet -p wa -k Puppet_Config',
-              '-a always,exit -F dir=${logdir} -F uid!=puppet -p wa -k Puppet_Log',
-              '-a always,exit -F dir=${rundir} -F uid!=puppet -p wa -k Puppet_Run',
-              '-a always,exit -F dir=${ssldir} -F uid!=puppet -p wa -k Puppet_SSL'
+              '-a exit,always -F dir=${confdir} -F uid!=puppet -p wa -k Puppet_Config',
+              '-a exit,always -F dir=${logdir} -F uid!=puppet -p wa -k Puppet_Log',
+              '-a exit,always -F dir=${rundir} -F uid!=puppet -p wa -k Puppet_Run',
+              '-a exit,always -F dir=${ssldir} -F uid!=puppet -p wa -k Puppet_SSL'
             ]
           }}
 
           it {
            is_expected.to compile.with_all_deps
-           is_expected.to create_file("/etc/audit/rules.d/75.#{title}.rules").with_content(%r(^-a always,exit -F dir=))
+           is_expected.to create_file("/etc/audit/rules.d/75.#{title}.rules").with_content(%r(^-a exit,always -F dir=))
            is_expected.to create_file("/etc/audit/rules.d/75.#{title}.rules").without_content(%r(^[^-]))
           }
         end
@@ -49,16 +49,16 @@ describe 'auditd::rule' do
           # :content string mocks a common pattern of declaring readable auditd rules.
           let(:params) {{
             :content => '
-              -a always,exit -F dir=${confdir} -F uid!=puppet -p wa -k Puppet_Config
-              -a always,exit -F dir=${logdir} -F uid!=puppet -p wa -k Puppet_Log
-              -a always,exit -F dir=${rundir} -F uid!=puppet -p wa -k Puppet_Run
-              -a always,exit -F dir=${ssldir} -F uid!=puppet -p wa -k Puppet_SSL
+              -a exit,always -F dir=${confdir} -F uid!=puppet -p wa -k Puppet_Config
+              -a exit,always -F dir=${logdir} -F uid!=puppet -p wa -k Puppet_Log
+              -a exit,always -F dir=${rundir} -F uid!=puppet -p wa -k Puppet_Run
+              -a exit,always -F dir=${ssldir} -F uid!=puppet -p wa -k Puppet_SSL
             '
           }}
 
           it {
            is_expected.to compile.with_all_deps
-           is_expected.to create_file("/etc/audit/rules.d/75.#{title}.rules").with_content(%r(^-a always,exit -F dir=))
+           is_expected.to create_file("/etc/audit/rules.d/75.#{title}.rules").with_content(%r(^-a exit,always -F dir=))
            is_expected.to create_file("/etc/audit/rules.d/75.#{title}.rules").without_content(%r(^[^-]))
           }
         end
@@ -66,7 +66,7 @@ describe 'auditd::rule' do
         context 'with :order specified' do
           let(:params) {{
             :order   => '10',
-            :content => '-a always,exit -F dir=${confdir} -F uid!=puppet -p wa -k Puppet_Config'
+            :content => '-a exit,always -F dir=${confdir} -F uid!=puppet -p wa -k Puppet_Config'
           }}
 
           it {

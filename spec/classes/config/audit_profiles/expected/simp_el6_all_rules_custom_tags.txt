@@ -1,105 +1,105 @@
 #### auditd::config::audit_profiles::simp Audit Rules ####
 # 64-bit systems should generally never call the 32-bit API. 32-bit syscalls
 # may be a sign of someone exploiting a hole in the API.
--a always,exit -F arch=b32 -S all -F key=32bit-api
--a always,exit -F arch=b64 -S accept -F a0=2 -F key=ipv4_in
--a always,exit -F arch=b32 -S accept -F a0=2 -F key=ipv4_in
--a always,exit -F arch=b64 -S accept -F a0=10 -F key=ipv6_in
--a always,exit -F arch=b32 -S accept -F a0=10 -F key=ipv6_in
+-a exit,always -F arch=b32 -S all -F key=32bit-api
+-a exit,always -F arch=b64 -S accept -F a0=2 -F key=ipv4_in
+-a exit,always -F arch=b32 -S accept -F a0=2 -F key=ipv4_in
+-a exit,always -F arch=b64 -S accept -F a0=10 -F key=ipv6_in
+-a exit,always -F arch=b32 -S accept -F a0=10 -F key=ipv6_in
 
 ## Audit unsuccessful file operations
--a always,exit -F arch=b64 -S creat,mkdir,mknod,link,symlink,mkdirat,mknodat,linkat,symlinkat,openat,open_by_handle_at,open,close,rename,renameat,truncate,ftruncate,rmdir,unlink,unlinkat -F exit=-EACCES -k my_unsuccessful_file_operations
--a always,exit -F arch=b64 -S creat,mkdir,mknod,link,symlink,mkdirat,mknodat,linkat,symlinkat,openat,open_by_handle_at,open,close,rename,renameat,truncate,ftruncate,rmdir,unlink,unlinkat -F exit=-EPERM -k my_unsuccessful_file_operations
--a always,exit -F arch=b32 -S creat,mkdir,mknod,link,symlink,mkdirat,mknodat,linkat,symlinkat,openat,open_by_handle_at,open,close,rename,renameat,truncate,ftruncate,rmdir,unlink,unlinkat -F exit=-EACCES -k my_unsuccessful_file_operations
--a always,exit -F arch=b32 -S creat,mkdir,mknod,link,symlink,mkdirat,mknodat,linkat,symlinkat,openat,open_by_handle_at,open,close,rename,renameat,truncate,ftruncate,rmdir,unlink,unlinkat -F exit=-EPERM -k my_unsuccessful_file_operations
+-a exit,always -F arch=b64 -S creat,mkdir,mknod,link,symlink,mkdirat,mknodat,linkat,symlinkat,openat,open_by_handle_at,open,close,rename,renameat,truncate,ftruncate,rmdir,unlink,unlinkat -F exit=-EACCES -k my_unsuccessful_file_operations
+-a exit,always -F arch=b64 -S creat,mkdir,mknod,link,symlink,mkdirat,mknodat,linkat,symlinkat,openat,open_by_handle_at,open,close,rename,renameat,truncate,ftruncate,rmdir,unlink,unlinkat -F exit=-EPERM -k my_unsuccessful_file_operations
+-a exit,always -F arch=b32 -S creat,mkdir,mknod,link,symlink,mkdirat,mknodat,linkat,symlinkat,openat,open_by_handle_at,open,close,rename,renameat,truncate,ftruncate,rmdir,unlink,unlinkat -F exit=-EACCES -k my_unsuccessful_file_operations
+-a exit,always -F arch=b32 -S creat,mkdir,mknod,link,symlink,mkdirat,mknodat,linkat,symlinkat,openat,open_by_handle_at,open,close,rename,renameat,truncate,ftruncate,rmdir,unlink,unlinkat -F exit=-EPERM -k my_unsuccessful_file_operations
 
--a always,exit -F perm=a -F exit=-EACCES -k my_unsuccessful_file_operations
--a always,exit -F perm=a -F exit=-EPERM -k my_unsuccessful_file_operations
+-a exit,always -F perm=a -F exit=-EACCES -k my_unsuccessful_file_operations
+-a exit,always -F perm=a -F exit=-EPERM -k my_unsuccessful_file_operations
 
 ## Audit the execution of password commands
--a always,exit -F path=/usr/bin/passwd -F perm=x -k my_passwd_cmds
+-a exit,always -F path=/usr/bin/passwd -F perm=x -k my_passwd_cmds
 
--a always,exit -F path=/sbin/unix_chkpwd -F perm=x -k my_passwd_cmds
+-a exit,always -F path=/sbin/unix_chkpwd -F perm=x -k my_passwd_cmds
 
--a always,exit -F path=/usr/bin/gpasswd -F perm=x -k my_passwd_cmds
+-a exit,always -F path=/usr/bin/gpasswd -F perm=x -k my_passwd_cmds
 
--a always,exit -F path=/usr/bin/chage -F perm=x -k my_passwd_cmds
+-a exit,always -F path=/usr/bin/chage -F perm=x -k my_passwd_cmds
 
--a always,exit -F path=/usr/sbin/userhelper -F perm=x -k my_passwd_cmds
+-a exit,always -F path=/usr/sbin/userhelper -F perm=x -k my_passwd_cmds
 
 ## Audit the execution of privilege-related commands
--a always,exit -F path=/bin/su -F perm=x -k my_priv_cmds
+-a exit,always -F path=/bin/su -F perm=x -k my_priv_cmds
 
--a always,exit -F path=/usr/bin/sudo -F perm=x -k my_priv_cmds
+-a exit,always -F path=/usr/bin/sudo -F perm=x -k my_priv_cmds
 
--a always,exit -F path=/usr/bin/newgrp -F perm=x -k my_priv_cmds
+-a exit,always -F path=/usr/bin/newgrp -F perm=x -k my_priv_cmds
 
--a always,exit -F path=/usr/bin/chsh -F perm=x -k my_priv_cmds
+-a exit,always -F path=/usr/bin/chsh -F perm=x -k my_priv_cmds
 
--a always,exit -F path=/usr/bin/sudoedit -F perm=x -k my_priv_cmds
+-a exit,always -F path=/usr/bin/sudoedit -F perm=x -k my_priv_cmds
 
 ## Audit the execution of postfix-related commands
--a always,exit -F path=/usr/sbin/postdrop -F perm=x -k my_postfix_cmds
+-a exit,always -F path=/usr/sbin/postdrop -F perm=x -k my_postfix_cmds
 
--a always,exit -F path=/usr/sbin/postqueue -F perm=x -k my_postfix_cmds
+-a exit,always -F path=/usr/sbin/postqueue -F perm=x -k my_postfix_cmds
 
 ## Audit the execution of the ssh-keysign command
--a always,exit -F path=/usr/libexec/openssh/ssh-keysign -F perm=x -k my_ssh_keysign_cmd
+-a exit,always -F path=/usr/libexec/openssh/ssh-keysign -F perm=x -k my_ssh_keysign_cmd
 
 ## Audit the execution of the crontab command
--a always,exit -F path=/usr/bin/crontab -F perm=x -k my_crontab_cmd
+-a exit,always -F path=/usr/bin/crontab -F perm=x -k my_crontab_cmd
 
 ## Audit the execution of the pam_timestamp_check command
--a always,exit -F path=/sbin/pam_timestamp_check -F perm=x -k my_pam_timestamp_check_cmd
+-a exit,always -F path=/sbin/pam_timestamp_check -F perm=x -k my_pam_timestamp_check_cmd
 
 ## Audit selinux commands
--a always,exit -F path=/usr/sbin/semanage -F perm=x -k my_selinux_cmds
--a always,exit -F path=/usr/sbin/setsebool -F perm=x -k my_selinux_cmds
--a always,exit -F path=/usr/bin/chcon -F perm=x -k my_selinux_cmds
--a always,exit -F path=/sbin/setfiles -F perm=x -k my_selinux_cmds
+-a exit,always -F path=/usr/sbin/semanage -F perm=x -k my_selinux_cmds
+-a exit,always -F path=/usr/sbin/setsebool -F perm=x -k my_selinux_cmds
+-a exit,always -F path=/usr/bin/chcon -F perm=x -k my_selinux_cmds
+-a exit,always -F path=/sbin/setfiles -F perm=x -k my_selinux_cmds
 
 ## Permissions auditing separated by chown, chmod, and attr
 
--a always,exit -F arch=b64 -S chown,fchown,fchownat,lchown -k my_chown
--a always,exit -F arch=b32 -S chown,fchown,fchownat,lchown -k my_chown
+-a exit,always -F arch=b64 -S chown,fchown,fchownat,lchown -k my_chown
+-a exit,always -F arch=b32 -S chown,fchown,fchownat,lchown -k my_chown
 
--a always,exit -F arch=b64 -S chmod,fchmod,fchmodat -k my_chmod
--a always,exit -F arch=b32 -S chmod,fchmod,fchmodat -k my_chmod
+-a exit,always -F arch=b64 -S chmod,fchmod,fchmodat -k my_chmod
+-a exit,always -F arch=b32 -S chmod,fchmod,fchmodat -k my_chmod
 
--a always,exit -F arch=b64 -S setxattr,lsetxattr,fsetxattr,removexattr,lremovexattr,fremovexattr -k my_attr
--a always,exit -F arch=b32 -S setxattr,lsetxattr,fsetxattr,removexattr,lremovexattr,fremovexattr -k my_attr
+-a exit,always -F arch=b64 -S setxattr,lsetxattr,fsetxattr,removexattr,lremovexattr,fremovexattr -k my_attr
+-a exit,always -F arch=b32 -S setxattr,lsetxattr,fsetxattr,removexattr,lremovexattr,fremovexattr -k my_attr
 
 ## Audit rename/removal operations
--a always,exit -F arch=b64 -S rename,renameat,rmdir,unlink,unlinkat -F perm=x -k my_rename_remove
--a always,exit -F arch=b32 -S rename,renameat,rmdir,unlink,unlinkat -F perm=x -k my_rename_remove
+-a exit,always -F arch=b64 -S rename,renameat,rmdir,unlink,unlinkat -F perm=x -k my_rename_remove
+-a exit,always -F arch=b32 -S rename,renameat,rmdir,unlink,unlinkat -F perm=x -k my_rename_remove
 
 ## Audit useful items that someone does when su'ing to root.
--a always,exit -F arch=b64 -F auid!=0 -F uid=0 -S capset,mknod,mknodat,pivot_root,quotactl,setsid,adjtimex,settimeofday,setuid,swapoff,swapon,execve,rename,renameat,rmdir,unlink,unlinkat,write,chown,fchown,fchownat,lchown,creat,fork,vfork,link,linkat,symlink,symlinkat,mkdir,mkdirat -k my_su_root_activity
--a always,exit -F arch=b32 -F auid!=0 -F uid=0 -S capset,mknod,mknodat,pivot_root,quotactl,setsid,adjtimex,settimeofday,setuid,swapoff,swapon,execve,rename,renameat,rmdir,unlink,unlinkat,write,chown,fchown,fchownat,lchown,creat,fork,vfork,link,linkat,symlink,symlinkat,mkdir,mkdirat -k my_su_root_activity
+-a exit,always -F arch=b64 -F auid!=0 -F uid=0 -S capset,mknod,mknodat,pivot_root,quotactl,setsid,adjtimex,settimeofday,setuid,swapoff,swapon,execve,rename,renameat,rmdir,unlink,unlinkat,write,chown,fchown,fchownat,lchown,creat,fork,vfork,link,linkat,symlink,symlinkat,mkdir,mkdirat -k my_su_root_activity
+-a exit,always -F arch=b32 -F auid!=0 -F uid=0 -S capset,mknod,mknodat,pivot_root,quotactl,setsid,adjtimex,settimeofday,setuid,swapoff,swapon,execve,rename,renameat,rmdir,unlink,unlinkat,write,chown,fchown,fchownat,lchown,creat,fork,vfork,link,linkat,symlink,symlinkat,mkdir,mkdirat -k my_su_root_activity
 
 ## Audit the execution of suid and sgid binaries.
--a always,exit -F arch=b64 -F euid=0 -F uid!=0 -S execve -k my_suid_sgid
--a always,exit -F arch=b32 -F euid=0 -F uid!=0 -S execve -k my_suid_sgid
+-a exit,always -F arch=b64 -F euid=0 -F uid!=0 -S execve -k my_suid_sgid
+-a exit,always -F arch=b32 -F euid=0 -F uid!=0 -S execve -k my_suid_sgid
 
 ## Audit the loading and unloading of kernel modules.
 -w /sbin/insmod -p x -k my_kernel_modules
 -w /sbin/rmmod -p x -k my_kernel_modules
 -w /sbin/modprobe -p x -k my_kernel_modules
 
--a always,exit -F arch=b64 -S create_module,init_module,finit_module,delete_module -k my_kernel_modules
--a always,exit -F arch=b32 -S create_module,init_module,finit_module,delete_module -k my_kernel_modules
+-a exit,always -F arch=b64 -S create_module,init_module,finit_module,delete_module -k my_kernel_modules
+-a exit,always -F arch=b32 -S create_module,init_module,finit_module,delete_module -k my_kernel_modules
 
 ## Audit things that could affect time
--a always,exit -F arch=b64 -S adjtimex,settimeofday -k my_time
--a always,exit -F arch=b64 -S clock_settime -F a0=0x0 -k my_time
--a always,exit -F arch=b32 -S adjtimex,stime,settimeofday -k my_time
--a always,exit -F arch=b32 -S clock_settime -F a0=0x0 -k my_time
+-a exit,always -F arch=b64 -S adjtimex,settimeofday -k my_time
+-a exit,always -F arch=b64 -S clock_settime -F a0=0x0 -k my_time
+-a exit,always -F arch=b32 -S adjtimex,stime,settimeofday -k my_time
+-a exit,always -F arch=b32 -S clock_settime -F a0=0x0 -k my_time
 
 -w /etc/localtime -p wa -k my_time
 
 ## Audit things that could affect system locale
--a always,exit -F arch=b64 -S sethostname,setdomainname -k my_locale
--a always,exit -F arch=b32 -S sethostname,setdomainname -k my_locale
+-a exit,always -F arch=b64 -S sethostname,setdomainname -k my_locale
+-a exit,always -F arch=b32 -S sethostname,setdomainname -k my_locale
 
 -w /etc/issue -p wa -k my_locale
 -w /etc/issue.net -p wa -k my_locale
@@ -108,16 +108,16 @@
 -w /etc/sysconfig/network -p wa -k my_locale
 
 ## Audit mount operations
--a always,exit -F arch=b64 -S mount,umount2 -k my_mount
--a always,exit -F arch=b32 -S mount,umount,umount2 -k my_mount
+-a exit,always -F arch=b64 -S mount,umount2 -k my_mount
+-a exit,always -F arch=b32 -S mount,umount,umount2 -k my_mount
 
--a always,exit -F arch=b64 -F path=/bin/mount -k my_mount
--a always,exit -F arch=b32 -F path=/bin/mount -k my_mount
--a always,exit -F path=/bin/umount -F perm=x -k my_mount
+-a exit,always -F arch=b64 -F path=/bin/mount -k my_mount
+-a exit,always -F arch=b32 -F path=/bin/mount -k my_mount
+-a exit,always -F path=/bin/umount -F perm=x -k my_mount
 
 ## Audit umask changes.
--a always,exit -F arch=b64 -S umask -k my_umask
--a always,exit -F arch=b32 -S umask -k my_umask
+-a exit,always -F arch=b64 -S umask -k my_umask
+-a exit,always -F arch=b32 -S umask -k my_umask
 
 ## Audit local accounts
 -w /etc/passwd -p wa -k my_local_account
@@ -220,13 +220,13 @@
 -w /etc/yum.repos.d -p wa -k my_cfg_yum
 -w /usr/bin/yum -p x -k my_yum_cmd
 -w /bin/rpm -p x -k my_rpm_cmd
--a always,exit -F arch=b64 -S ptrace -F a0=0x4 -k paranoid_code_injection
--a always,exit -F arch=b64 -S ptrace -F a0=0x5 -k paranoid_data_injection
--a always,exit -F arch=b64 -S ptrace -F a0=0x6 -k paranoid_register_injection
--a always,exit -F arch=b64 -S ptrace -k my_ptrace
--a always,exit -F arch=b32 -S ptrace -F a0=0x4 -k paranoid_code_injection
--a always,exit -F arch=b32 -S ptrace -F a0=0x5 -k paranoid_data_injection
--a always,exit -F arch=b32 -S ptrace -F a0=0x6 -k paranoid_register_injection
--a always,exit -F arch=b32 -S ptrace -k my_ptrace
--a always,exit -F arch=b64 -S personality -k my_personality
--a always,exit -F arch=b32 -S personality -k my_personality
+-a exit,always -F arch=b64 -S ptrace -F a0=0x4 -k paranoid_code_injection
+-a exit,always -F arch=b64 -S ptrace -F a0=0x5 -k paranoid_data_injection
+-a exit,always -F arch=b64 -S ptrace -F a0=0x6 -k paranoid_register_injection
+-a exit,always -F arch=b64 -S ptrace -k my_ptrace
+-a exit,always -F arch=b32 -S ptrace -F a0=0x4 -k paranoid_code_injection
+-a exit,always -F arch=b32 -S ptrace -F a0=0x5 -k paranoid_data_injection
+-a exit,always -F arch=b32 -S ptrace -F a0=0x6 -k paranoid_register_injection
+-a exit,always -F arch=b32 -S ptrace -k my_ptrace
+-a exit,always -F arch=b64 -S personality -k my_personality
+-a exit,always -F arch=b32 -S personality -k my_personality

@@ -1,86 +1,86 @@
 #### auditd::config::audit_profiles::simp Audit Rules ####
 # 64-bit systems should generally never call the 32-bit API. 32-bit syscalls
 # may be a sign of someone exploiting a hole in the API.
--a always,exit -F arch=b32 -S all -F key=32bit-api
--a always,exit -F arch=b64 -S accept -F a0=2 -F key=ipv4_in
--a always,exit -F arch=b32 -S accept -F a0=2 -F key=ipv4_in
--a always,exit -F arch=b64 -S accept -F a0=10 -F key=ipv6_in
--a always,exit -F arch=b32 -S accept -F a0=10 -F key=ipv6_in
+-a exit,always -F arch=b32 -S all -F key=32bit-api
+-a exit,always -F arch=b64 -S accept -F a0=2 -F key=ipv4_in
+-a exit,always -F arch=b32 -S accept -F a0=2 -F key=ipv4_in
+-a exit,always -F arch=b64 -S accept -F a0=10 -F key=ipv6_in
+-a exit,always -F arch=b32 -S accept -F a0=10 -F key=ipv6_in
 
 ## Audit unsuccessful file operations
--a always,exit -F arch=b64 -S creat,mkdir,mknod,link,symlink,mkdirat,mknodat,linkat,symlinkat,openat,open_by_handle_at,open,close,rename,renameat,truncate,ftruncate,rmdir,unlink,unlinkat -F exit=-EACCES -k access
--a always,exit -F arch=b64 -S creat,mkdir,mknod,link,symlink,mkdirat,mknodat,linkat,symlinkat,openat,open_by_handle_at,open,close,rename,renameat,truncate,ftruncate,rmdir,unlink,unlinkat -F exit=-EPERM -k access
--a always,exit -F arch=b32 -S creat,mkdir,mknod,link,symlink,mkdirat,mknodat,linkat,symlinkat,openat,open_by_handle_at,open,close,rename,renameat,truncate,ftruncate,rmdir,unlink,unlinkat -F exit=-EACCES -k access
--a always,exit -F arch=b32 -S creat,mkdir,mknod,link,symlink,mkdirat,mknodat,linkat,symlinkat,openat,open_by_handle_at,open,close,rename,renameat,truncate,ftruncate,rmdir,unlink,unlinkat -F exit=-EPERM -k access
+-a exit,always -F arch=b64 -S creat,mkdir,mknod,link,symlink,mkdirat,mknodat,linkat,symlinkat,openat,open_by_handle_at,open,close,rename,renameat,truncate,ftruncate,rmdir,unlink,unlinkat -F exit=-EACCES -k access
+-a exit,always -F arch=b64 -S creat,mkdir,mknod,link,symlink,mkdirat,mknodat,linkat,symlinkat,openat,open_by_handle_at,open,close,rename,renameat,truncate,ftruncate,rmdir,unlink,unlinkat -F exit=-EPERM -k access
+-a exit,always -F arch=b32 -S creat,mkdir,mknod,link,symlink,mkdirat,mknodat,linkat,symlinkat,openat,open_by_handle_at,open,close,rename,renameat,truncate,ftruncate,rmdir,unlink,unlinkat -F exit=-EACCES -k access
+-a exit,always -F arch=b32 -S creat,mkdir,mknod,link,symlink,mkdirat,mknodat,linkat,symlinkat,openat,open_by_handle_at,open,close,rename,renameat,truncate,ftruncate,rmdir,unlink,unlinkat -F exit=-EPERM -k access
 
--a always,exit -F perm=a -F exit=-EACCES -k access
--a always,exit -F perm=a -F exit=-EPERM -k access
+-a exit,always -F perm=a -F exit=-EACCES -k access
+-a exit,always -F perm=a -F exit=-EPERM -k access
 
 ## Audit the execution of password commands
--a always,exit -F path=/usr/bin/passwd -F perm=x -k privileged-passwd
--a always,exit -F path=/bin/passwd -F perm=x -k privileged-passwd
+-a exit,always -F path=/usr/bin/passwd -F perm=x -k privileged-passwd
+-a exit,always -F path=/bin/passwd -F perm=x -k privileged-passwd
 
--a always,exit -F path=/usr/sbin/unix_chkpwd -F perm=x -k privileged-passwd
--a always,exit -F path=/sbin/unix_chkpwd -F perm=x -k privileged-passwd
+-a exit,always -F path=/usr/sbin/unix_chkpwd -F perm=x -k privileged-passwd
+-a exit,always -F path=/sbin/unix_chkpwd -F perm=x -k privileged-passwd
 
--a always,exit -F path=/usr/bin/gpasswd -F perm=x -k privileged-passwd
--a always,exit -F path=/bin/gpasswd -F perm=x -k privileged-passwd
+-a exit,always -F path=/usr/bin/gpasswd -F perm=x -k privileged-passwd
+-a exit,always -F path=/bin/gpasswd -F perm=x -k privileged-passwd
 
--a always,exit -F path=/usr/bin/chage -F perm=x -k privileged-passwd
--a always,exit -F path=/bin/chage -F perm=x -k privileged-passwd
+-a exit,always -F path=/usr/bin/chage -F perm=x -k privileged-passwd
+-a exit,always -F path=/bin/chage -F perm=x -k privileged-passwd
 
--a always,exit -F path=/usr/sbin/userhelper -F perm=x -k privileged-passwd
--a always,exit -F path=/sbin/userhelper -F perm=x -k privileged-passwd
+-a exit,always -F path=/usr/sbin/userhelper -F perm=x -k privileged-passwd
+-a exit,always -F path=/sbin/userhelper -F perm=x -k privileged-passwd
 
 ## Audit the execution of privilege-related commands
--a always,exit -F path=/usr/bin/su -F perm=x -k privileged-priv_change
--a always,exit -F path=/bin/su -F perm=x -k privileged-priv_change
+-a exit,always -F path=/usr/bin/su -F perm=x -k privileged-priv_change
+-a exit,always -F path=/bin/su -F perm=x -k privileged-priv_change
 
--a always,exit -F path=/usr/bin/sudo -F perm=x -k privileged-priv_change
--a always,exit -F path=/bin/sudo -F perm=x -k privileged-priv_change
+-a exit,always -F path=/usr/bin/sudo -F perm=x -k privileged-priv_change
+-a exit,always -F path=/bin/sudo -F perm=x -k privileged-priv_change
 
--a always,exit -F path=/usr/bin/newgrp -F perm=x -k privileged-priv_change
--a always,exit -F path=/bin/newgrp -F perm=x -k privileged-priv_change
+-a exit,always -F path=/usr/bin/newgrp -F perm=x -k privileged-priv_change
+-a exit,always -F path=/bin/newgrp -F perm=x -k privileged-priv_change
 
--a always,exit -F path=/usr/bin/chsh -F perm=x -k privileged-priv_change
--a always,exit -F path=/bin/chsh -F perm=x -k privileged-priv_change
+-a exit,always -F path=/usr/bin/chsh -F perm=x -k privileged-priv_change
+-a exit,always -F path=/bin/chsh -F perm=x -k privileged-priv_change
 
--a always,exit -F path=/usr/bin/sudoedit -F perm=x -k privileged-priv_change
--a always,exit -F path=/bin/sudoedit -F perm=x -k privileged-priv_change
+-a exit,always -F path=/usr/bin/sudoedit -F perm=x -k privileged-priv_change
+-a exit,always -F path=/bin/sudoedit -F perm=x -k privileged-priv_change
 
 ## Audit the execution of postfix-related commands
--a always,exit -F path=/usr/sbin/postdrop -F perm=x -k privileged-postfix
--a always,exit -F path=/sbin/postdrop -F perm=x -k privileged-postfix
+-a exit,always -F path=/usr/sbin/postdrop -F perm=x -k privileged-postfix
+-a exit,always -F path=/sbin/postdrop -F perm=x -k privileged-postfix
 
--a always,exit -F path=/usr/sbin/postqueue -F perm=x -k privileged-postfix
--a always,exit -F path=/sbin/postqueue -F perm=x -k privileged-postfix
+-a exit,always -F path=/usr/sbin/postqueue -F perm=x -k privileged-postfix
+-a exit,always -F path=/sbin/postqueue -F perm=x -k privileged-postfix
 
 ## Audit the execution of the ssh-keysign command
--a always,exit -F path=/usr/libexec/openssh/ssh-keysign -F perm=x -k privileged-ssh
+-a exit,always -F path=/usr/libexec/openssh/ssh-keysign -F perm=x -k privileged-ssh
 
 ## Audit the execution of the crontab command
--a always,exit -F path=/usr/bin/crontab -F perm=x -k privileged-cron
--a always,exit -F path=/bin/crontab -F perm=x -k privileged-cron
+-a exit,always -F path=/usr/bin/crontab -F perm=x -k privileged-cron
+-a exit,always -F path=/bin/crontab -F perm=x -k privileged-cron
 
 ## Audit the execution of the pam_timestamp_check command
--a always,exit -F path=/usr/sbin/pam_timestamp_check -F perm=x -k privileged-pam
--a always,exit -F path=/sbin/pam_timestamp_check -F perm=x -k privileged-pam
+-a exit,always -F path=/usr/sbin/pam_timestamp_check -F perm=x -k privileged-pam
+-a exit,always -F path=/sbin/pam_timestamp_check -F perm=x -k privileged-pam
 
 ## Permissions auditing separated by chown, chmod, and attr
 
--a always,exit -F arch=b64 -S chown,fchown,fchownat,lchown -k chown
--a always,exit -F arch=b32 -S chown,fchown,fchownat,lchown -k chown
+-a exit,always -F arch=b64 -S chown,fchown,fchownat,lchown -k chown
+-a exit,always -F arch=b32 -S chown,fchown,fchownat,lchown -k chown
 
--a always,exit -F arch=b64 -S setxattr,lsetxattr,fsetxattr,removexattr,lremovexattr,fremovexattr -k attr
--a always,exit -F arch=b32 -S setxattr,lsetxattr,fsetxattr,removexattr,lremovexattr,fremovexattr -k attr
+-a exit,always -F arch=b64 -S setxattr,lsetxattr,fsetxattr,removexattr,lremovexattr,fremovexattr -k attr
+-a exit,always -F arch=b32 -S setxattr,lsetxattr,fsetxattr,removexattr,lremovexattr,fremovexattr -k attr
 
 ## Audit useful items that someone does when su'ing to root.
--a always,exit -F arch=b64 -F auid!=0 -F uid=0 -S capset,mknod,mknodat,pivot_root,quotactl,setsid,adjtimex,settimeofday,setuid,swapoff,swapon,execve,rename,renameat,rmdir,unlink,unlinkat,write,chown,fchown,fchownat,lchown,creat,fork,vfork,link,linkat,symlink,symlinkat,mkdir,mkdirat -k su-root-activity
--a always,exit -F arch=b32 -F auid!=0 -F uid=0 -S capset,mknod,mknodat,pivot_root,quotactl,setsid,adjtimex,settimeofday,setuid,swapoff,swapon,execve,rename,renameat,rmdir,unlink,unlinkat,write,chown,fchown,fchownat,lchown,creat,fork,vfork,link,linkat,symlink,symlinkat,mkdir,mkdirat -k su-root-activity
+-a exit,always -F arch=b64 -F auid!=0 -F uid=0 -S capset,mknod,mknodat,pivot_root,quotactl,setsid,adjtimex,settimeofday,setuid,swapoff,swapon,execve,rename,renameat,rmdir,unlink,unlinkat,write,chown,fchown,fchownat,lchown,creat,fork,vfork,link,linkat,symlink,symlinkat,mkdir,mkdirat -k su-root-activity
+-a exit,always -F arch=b32 -F auid!=0 -F uid=0 -S capset,mknod,mknodat,pivot_root,quotactl,setsid,adjtimex,settimeofday,setuid,swapoff,swapon,execve,rename,renameat,rmdir,unlink,unlinkat,write,chown,fchown,fchownat,lchown,creat,fork,vfork,link,linkat,symlink,symlinkat,mkdir,mkdirat -k su-root-activity
 
 ## Audit the execution of suid and sgid binaries.
--a always,exit -F arch=b64 -F euid=0 -F uid!=0 -S execve -k suid-root-exec
--a always,exit -F arch=b32 -F euid=0 -F uid!=0 -S execve -k suid-root-exec
+-a exit,always -F arch=b64 -F euid=0 -F uid!=0 -S execve -k suid-root-exec
+-a exit,always -F arch=b32 -F euid=0 -F uid!=0 -S execve -k suid-root-exec
 
 ## Audit the loading and unloading of kernel modules.
 -w /usr/bin/kmod -p x -k modules
@@ -92,38 +92,38 @@
 -w /usr/sbin/modprobe -p x -k modules
 -w /sbin/modprobe -p x -k modules
 
--a always,exit -F arch=b64 -S create_module,init_module,finit_module,delete_module -k modules
--a always,exit -F arch=b32 -S create_module,init_module,finit_module,delete_module -k modules
+-a exit,always -F arch=b64 -S create_module,init_module,finit_module,delete_module -k modules
+-a exit,always -F arch=b32 -S create_module,init_module,finit_module,delete_module -k modules
 
 ## Audit things that could affect time
--a always,exit -F arch=b64 -S adjtimex,settimeofday -k audit_time_rules
--a always,exit -F arch=b64 -S clock_settime -F a0=0x0 -k audit_time_rules
--a always,exit -F arch=b32 -S adjtimex,stime,settimeofday -k audit_time_rules
--a always,exit -F arch=b32 -S clock_settime -F a0=0x0 -k audit_time_rules
+-a exit,always -F arch=b64 -S adjtimex,settimeofday -k audit_time_rules
+-a exit,always -F arch=b64 -S clock_settime -F a0=0x0 -k audit_time_rules
+-a exit,always -F arch=b32 -S adjtimex,stime,settimeofday -k audit_time_rules
+-a exit,always -F arch=b32 -S clock_settime -F a0=0x0 -k audit_time_rules
 
 -w /etc/localtime -p wa -k audit_time_rules
 
 ## Audit things that could affect system locale
--a always,exit -F arch=b64 -S sethostname,setdomainname -k audit_network_modifications
--a always,exit -F arch=b32 -S sethostname,setdomainname -k audit_network_modifications
+-a exit,always -F arch=b64 -S sethostname,setdomainname -k audit_network_modifications
+-a exit,always -F arch=b32 -S sethostname,setdomainname -k audit_network_modifications
 
 -w /etc/issue -p wa -k audit_network_modifications
 -w /etc/issue.net -p wa -k audit_network_modifications
 -w /etc/hosts -p wa -k audit_network_modifications
 -w /etc/hostname -p wa -k audit_network_modifications
 -w /etc/sysconfig/network -p wa -k audit_network_modifications
--a always,exit -F dir=/etc/NetworkManager/ -F perm=wa -k audit_network_modifications
+-a exit,always -F dir=/etc/NetworkManager/ -F perm=wa -k audit_network_modifications
 
 ## Audit mount operations
--a always,exit -F arch=b64 -S mount,umount2 -k mount
--a always,exit -F arch=b32 -S mount,umount,umount2 -k mount
+-a exit,always -F arch=b64 -S mount,umount2 -k mount
+-a exit,always -F arch=b32 -S mount,umount,umount2 -k mount
 
--a always,exit -F arch=b64 -F path=/usr/bin/mount -k mount
--a always,exit -F arch=b64 -F path=/bin/mount -k mount
--a always,exit -F arch=b32 -F path=/usr/bin/mount -k mount
--a always,exit -F arch=b32 -F path=/bin/mount -k mount
--a always,exit -F path=/usr/bin/umount -F perm=x -k mount
--a always,exit -F path=/bin/umount -F perm=x -k mount
+-a exit,always -F arch=b64 -F path=/usr/bin/mount -k mount
+-a exit,always -F arch=b64 -F path=/bin/mount -k mount
+-a exit,always -F arch=b32 -F path=/usr/bin/mount -k mount
+-a exit,always -F arch=b32 -F path=/bin/mount -k mount
+-a exit,always -F path=/usr/bin/umount -F perm=x -k mount
+-a exit,always -F path=/bin/umount -F perm=x -k mount
 
 ## Audit local accounts
 -w /etc/passwd -p wa -k audit_account_changes
@@ -229,13 +229,13 @@
 -w /etc/yum -p wa -k yum-config
 -w /etc/yum.conf -p wa -k yum-config
 -w /etc/yum.repos.d -p wa -k yum-config
--a always,exit -F arch=b64 -S ptrace -F a0=0x4 -k paranoid_code_injection
--a always,exit -F arch=b64 -S ptrace -F a0=0x5 -k paranoid_data_injection
--a always,exit -F arch=b64 -S ptrace -F a0=0x6 -k paranoid_register_injection
--a always,exit -F arch=b64 -S ptrace -k paranoid
--a always,exit -F arch=b32 -S ptrace -F a0=0x4 -k paranoid_code_injection
--a always,exit -F arch=b32 -S ptrace -F a0=0x5 -k paranoid_data_injection
--a always,exit -F arch=b32 -S ptrace -F a0=0x6 -k paranoid_register_injection
--a always,exit -F arch=b32 -S ptrace -k paranoid
--a always,exit -F arch=b64 -S personality -k paranoid
--a always,exit -F arch=b32 -S personality -k paranoid
+-a exit,always -F arch=b64 -S ptrace -F a0=0x4 -k paranoid_code_injection
+-a exit,always -F arch=b64 -S ptrace -F a0=0x5 -k paranoid_data_injection
+-a exit,always -F arch=b64 -S ptrace -F a0=0x6 -k paranoid_register_injection
+-a exit,always -F arch=b64 -S ptrace -k paranoid
+-a exit,always -F arch=b32 -S ptrace -F a0=0x4 -k paranoid_code_injection
+-a exit,always -F arch=b32 -S ptrace -F a0=0x5 -k paranoid_data_injection
+-a exit,always -F arch=b32 -S ptrace -F a0=0x6 -k paranoid_register_injection
+-a exit,always -F arch=b32 -S ptrace -k paranoid
+-a exit,always -F arch=b64 -S personality -k paranoid
+-a exit,always -F arch=b32 -S personality -k paranoid

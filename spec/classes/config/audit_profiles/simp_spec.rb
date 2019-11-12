@@ -38,19 +38,19 @@ describe 'auditd' do
         it 'disables chmod auditing by default' do
           # chmod is disabled by default (SIMP-2250)
           is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-            %r(^-a always,exit -F arch=b\d\d -S chmod,fchmod,fchmodat -k chmod$)
+            %r(^-a exit,always -F arch=b\d\d -S chmod,fchmod,fchmodat -k chmod$)
           )
         end
 
         it 'disables rename/remove auditing by default' do
           is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-            %r(^-a always,exit -F arch=b\d\d -S rename,renameat,rmdir,unlink,unlinkat -F perm=x -k delete)
+            %r(^-a exit,always -F arch=b\d\d -S rename,renameat,rmdir,unlink,unlinkat -F perm=x -k delete)
           )
         end
 
         it 'disables umask auditing by default' do
           is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-            %r(^-a always,exit -F arch=b\d\d -S umask -k umask)
+            %r(^-a exit,always -F arch=b\d\d -S umask -k umask)
           )
         end
 
@@ -63,11 +63,11 @@ describe 'auditd' do
 
         it 'disables selinux commands auditing by default' do
           is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-            %r{^-a always,exit -F path=/usr/bin/(chcon|semanage|setsebool) -F perm=x -k privileged-priv_change}
+            %r{^-a exit,always -F path=/usr/bin/(chcon|semanage|setsebool) -F perm=x -k privileged-priv_change}
           )
 
           is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-            %r(^-a always,exit -F path=/(usr/)?sbin/setfiles -F perm=x -k privileged-priv_change)
+            %r(^-a exit,always -F path=/(usr/)?sbin/setfiles -F perm=x -k privileged-priv_change)
           )
         end
       end
@@ -140,11 +140,11 @@ describe 'auditd' do
       context 'with privilege-related command auditing disabled' do
         let(:hieradata) { 'simp_audit_profile/disable__audit_priv_cmds' }
         [
-          %r{^-a always,exit -F path=/(usr/)?bin/su -F perm=x -k privileged-priv_change$},
-          %r{^-a always,exit -F path=/usr/bin/sudo -F perm=x -k privileged-priv_change$},
-          %r{^-a always,exit -F path=/usr/bin/newgrp -F perm=x -k privileged-priv_change$},
-          %r{^-a always,exit -F path=/usr/bin/chsh -F perm=x -k privileged-priv_change$},
-          %r{^-a always,exit -F path=/(usr/)?bin/sudoedit -F perm=x -k privileged-priv_change$}
+          %r{^-a exit,always -F path=/(usr/)?bin/su -F perm=x -k privileged-priv_change$},
+          %r{^-a exit,always -F path=/usr/bin/sudo -F perm=x -k privileged-priv_change$},
+          %r{^-a exit,always -F path=/usr/bin/newgrp -F perm=x -k privileged-priv_change$},
+          %r{^-a exit,always -F path=/usr/bin/chsh -F perm=x -k privileged-priv_change$},
+          %r{^-a exit,always -F path=/(usr/)?bin/sudoedit -F perm=x -k privileged-priv_change$}
         ].each do |command_regex|
           it {
             is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').
@@ -213,7 +213,7 @@ describe 'auditd' do
 
         it {
           is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules'). with_content(
-            %r{^-a always,exit -F arch=b\d\d -S ptrace -k paranoid$}
+            %r{^-a exit,always -F arch=b\d\d -S ptrace -k paranoid$}
           )
         }
       end
@@ -223,7 +223,7 @@ describe 'auditd' do
 
         it {
           is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-            %r{^-a always,exit -F arch=b\d\d -S personality -k paranoid$}
+            %r{^-a exit,always -F arch=b\d\d -S personality -k paranoid$}
           )
         }
       end
@@ -233,7 +233,7 @@ describe 'auditd' do
 
         it {
           is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-            %r(^-a always,exit -F arch=b\d\d -S chmod,fchmod,fchmodat -k chmod$)
+            %r(^-a exit,always -F arch=b\d\d -S chmod,fchmod,fchmodat -k chmod$)
           )
         }
       end
@@ -243,13 +243,13 @@ describe 'auditd' do
 
         it {
           is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-            %r(^-a always,exit -F arch=b64 -S rename,renameat,rmdir,unlink,unlinkat -F perm=x -k delete)
+            %r(^-a exit,always -F arch=b64 -S rename,renameat,rmdir,unlink,unlinkat -F perm=x -k delete)
           )
         }
 
         it {
           is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-            %r(^-a always,exit -F arch=b32 -S rename,renameat,rmdir,unlink,unlinkat -F perm=x -k delete)
+            %r(^-a exit,always -F arch=b32 -S rename,renameat,rmdir,unlink,unlinkat -F perm=x -k delete)
           )
         }
       end
@@ -259,7 +259,7 @@ describe 'auditd' do
 
         it {
           is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-            %r(^-a always,exit -F arch=b\d\d -S umask -k umask)
+            %r(^-a exit,always -F arch=b\d\d -S umask -k umask)
           )
         }
       end
@@ -269,25 +269,25 @@ describe 'auditd' do
 
         it {
           is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-            %r(^-a always,exit -F path=/usr/bin/chcon -F perm=x -k privileged-priv_change)
+            %r(^-a exit,always -F path=/usr/bin/chcon -F perm=x -k privileged-priv_change)
           )
         }
 
         it {
           is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-            %r(^-a always,exit -F path=/usr/sbin/semanage -F perm=x -k privileged-priv_change)
+            %r(^-a exit,always -F path=/usr/sbin/semanage -F perm=x -k privileged-priv_change)
           )
         }
 
         it {
           is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-            %r(^-a always,exit -F path=/usr/sbin/setsebool -F perm=x -k privileged-priv_change)
+            %r(^-a exit,always -F path=/usr/sbin/setsebool -F perm=x -k privileged-priv_change)
           )
         }
 
         it {
           is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-            %r(^-a always,exit -F path=/(usr/)?sbin/setfiles -F perm=x -k privileged-priv_change)
+            %r(^-a exit,always -F path=/(usr/)?sbin/setfiles -F perm=x -k privileged-priv_change)
           )
         }
       end
