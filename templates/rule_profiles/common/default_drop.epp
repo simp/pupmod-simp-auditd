@@ -18,11 +18,11 @@
 <% if $::auditd::ignore_time_daemons { -%>
 # Time daemons can be quite noisy
 <%   if $facts['hardwaremodel'] == 'x86_64' { -%>
--a never,exit -F arch=b64 -S adjtimex -F auid=-1 -F uid=chrony -F subj_typ=chronyd_t
--a never,exit -F arch=b64 -S adjtimex -F auid=-1 -F uid=ntp -F subj_typ=ntpd_t
+-a never,exit -F arch=b64 -S adjtimex -F auid=-1 -F uid=chrony -F subj_type=chronyd_t
+-a never,exit -F arch=b64 -S adjtimex -F auid=-1 -F uid=ntp -F subj_type=ntpd_t
 <%   } -%>
--a never,exit -F arch=b32 -S adjtimex -F auid=-1 -F uid=chrony -F subj_typ=chronyd_t
--a never,exit -F arch=b32 -S adjtimex -F auid=-1 -F uid=ntp -F subj_typ=ntpd_t
+-a never,exit -F arch=b32 -S adjtimex -F auid=-1 -F uid=chrony -F subj_type=chronyd_t
+-a never,exit -F arch=b32 -S adjtimex -F auid=-1 -F uid=ntp -F subj_type=ntpd_t
 <% } -%>
 <% if $::auditd::ignore_crypto_key_user { -%>
 -a always,exclude -F msgtype=CRYPTO_KEY_USER

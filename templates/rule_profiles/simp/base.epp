@@ -9,13 +9,11 @@
 <%   if $facts['hardwaremodel'] == "x86_64"  { -%>
 -a exit,always -F arch=b64 -S accept -F a0=2 -F key=<%= $auditd::config::audit_profiles::simp::audit_network_ipv4_accept_tag %>
 <%   } -%>
--a exit,always -F arch=b32 -S accept -F a0=2 -F key=<%= $auditd::config::audit_profiles::simp::audit_network_ipv4_accept_tag %>
 <% } -%>
 <% if $auditd::config::audit_profiles::simp::audit_network_ipv6_accept { -%>
 <%   if $facts['hardwaremodel'] == "x86_64"  { -%>
 -a exit,always -F arch=b64 -S accept -F a0=10 -F key=<%= $auditd::config::audit_profiles::simp::audit_network_ipv6_accept_tag %>
 <%   } -%>
--a exit,always -F arch=b32 -S accept -F a0=10 -F key=<%= $auditd::config::audit_profiles::simp::audit_network_ipv6_accept_tag %>
 <% } -%>
 <% if $auditd::config::audit_profiles::simp::audit_network_ipv4_connect { -%>
 <%   if $facts['hardwaremodel'] == "x86_64"  { -%>

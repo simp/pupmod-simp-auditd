@@ -136,10 +136,9 @@ describe 'auditd class with simp audit profile' do
         it 'should have audit.rules has been generated with SIMP rules' do
           # spot check that audit.rules has been generated with SIMP rules
           on(host, %q(grep -qe '^-c$' /etc/audit/audit.rules))
-          on(host, %q(grep -qe '\-a exit,never \-F auid=-1' /etc/audit/audit.rules))
+          on(host, %q(grep -qe '\-a never,exit \-F auid=-1' /etc/audit/audit.rules))
           on(host, %q(grep -qe '\-a exit,always \-F perm=a \-F exit=-EACCES \-k access' /etc/audit/audit.rules))
-          on(host, %q(grep -qe '\-w /var/log/audit/audit.log -p wa \-k audit-logs' /etc/audit/audit.rules))
-          on(host, %q(grep -qe '\-w /var/log/audit/audit.log.5 \-p rwa \-k audit-logs' /etc/audit/audit.rules))
+          on(host, %q(grep -qe '\-w /var/log/audit -p wa \-k audit-logs' /etc/audit/audit.rules))
           # spot check that loaded audit rules contain SIMP rules
           # NOTE:  Loaded rules are normalized as follows:
           #   - Implicit '-S all' is included in '-a' rules without a '-S' option
@@ -147,9 +146,8 @@ describe 'auditd class with simp audit profile' do
           #   - '-k keyname' arguments are expanded to '-F key=keyname' for '-a' rules
           result = on(host, "auditctl -l")
           expect(result.output).to include('-a never,exit -S all -F auid=-1')
-          expect(result.output).to include('-a exit,always -S all -F perm=a -F exit=-EACCES -F key=access')
-          expect(result.output).to include('-w /var/log/audit/audit.log -p wa -k audit-logs')
-          expect(result.output).to include('-w /var/log/audit/audit.log.5 -p rwa -k audit-logs')
+          expect(result.output).to include('-a always,exit -S all -F perm=a -F exit=-EACCES -F key=access')
+          expect(result.output).to include('-w /var/log/audit -p wa -k audit-logs')
         end
 
         it 'should send audit logs to syslog' do

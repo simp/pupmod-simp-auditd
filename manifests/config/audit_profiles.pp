@@ -56,10 +56,6 @@ class auditd::config::audit_profiles {
     }
   }
 
-  auditd::rule { 'rotated_audit_logs':
-    content => epp("${_common_template_path}/rotated_audit_logs.epp", { num_logs => $auditd::num_logs, log_file => $auditd::log_file } )
-  }
-
   if ( $auditd::root_audit_level == 'aggressive' ) and ( $auditd::buffer_size < 32788 ) {
     $_buffer_size = 32788
   } elsif ( $auditd::root_audit_level == 'insane' ) and ( $auditd::buffer_size < 65576 ) {

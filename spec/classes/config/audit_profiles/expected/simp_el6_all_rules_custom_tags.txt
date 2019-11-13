@@ -3,9 +3,7 @@
 # may be a sign of someone exploiting a hole in the API.
 -a exit,always -F arch=b32 -S all -F key=32bit-api
 -a exit,always -F arch=b64 -S accept -F a0=2 -F key=ipv4_in
--a exit,always -F arch=b32 -S accept -F a0=2 -F key=ipv4_in
 -a exit,always -F arch=b64 -S accept -F a0=10 -F key=ipv6_in
--a exit,always -F arch=b32 -S accept -F a0=10 -F key=ipv6_in
 
 ## Audit unsuccessful file operations
 -a exit,always -F arch=b64 -S creat,mkdir,mknod,link,symlink,mkdirat,mknodat,linkat,symlinkat,openat,open_by_handle_at,open,close,rename,renameat,truncate,ftruncate,rmdir,unlink,unlinkat -F exit=-EACCES -k my_unsuccessful_file_operations
