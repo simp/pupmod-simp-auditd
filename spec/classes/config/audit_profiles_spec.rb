@@ -23,11 +23,6 @@ describe 'auditd' do
       context 'with default parameters' do
         it { is_expected.to compile.with_all_deps }
         it { is_expected.to contain_auditd__rule('audit_auditd_config').with_content( %r(-w /var/log/audit -p wa -k audit-logs)) }
-        it {
-          is_expected.to contain_auditd__rule('rotated_audit_logs').with_content(
-            %r(-w /var/log/audit/audit.log.5 -p rwa -k audit-logs)
-          )
-        }
 
         it 'configures auditd to ignore rule failures' do
           is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r(^-i$))

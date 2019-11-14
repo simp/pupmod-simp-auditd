@@ -78,13 +78,14 @@ describe 'auditd class with simp audit profile' do
           result = on(host, 'augenrules --load', :accept_all_exit_codes => true)
           rule_errors = result.stderr.split("\n").delete_if { |line| !line.include?('error in line') }
           rule_errors.map! { |line| line=line.match(%r{error in line (.+) of /etc/audit/audit.rules})[1] }
+          file_not_found_errors = result.stderr.split("\n").delete_if { |line| !line.include?('(No such file or directory)')}
           rule_errors.uniq!
 
           # We expect one rule to be rejected: the watch for
           # /etc/snmp/snmpd.conf changes.  This rule should be rejected
           # because the watched file's parent directory does not exist.
           # (net-snmp package is not installed.)
-          expect(rule_errors.size).to eq 1
+          expect(rule_errors.size).to eq file_not_found_errors.size
           result = on(host, "sed -n #{rule_errors[0]}p /etc/audit/audit.rules")
           expect(result.stdout).to match(%r{/etc/snmp/snmpd.conf})
 
@@ -147,7 +148,8 @@ describe 'auditd class with simp audit profile' do
           result = on(host, "auditctl -l")
           expect(result.output).to include('-a never,exit -S all -F auid=-1')
           expect(result.output).to include('-a always,exit -S all -F perm=a -F exit=-EACCES -F key=access')
-          expect(result.output).to include('-w /var/log/audit -p wa -k audit-logs')
+          # On El6 it adds / to the end of directories but not on later versions.
+          expect(result.output).to match(/-w \/var\/log\/audit[\/]* \-p wa \-k audit\-logs/)
         end
 
         it 'should send audit logs to syslog' do
