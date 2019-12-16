@@ -110,6 +110,9 @@ variables:
 .compliance_base: &compliance_base
   stage: 'compliance'
   tags: ['beaker']
+  # There is a bug in inspec that is going to always cause this to fail until it
+  # is fixed: https://github.com/inspec/inspec/pull/4665
+  allow_failure: true
   <<: *setup_bundler_env
 
 
