@@ -3,6 +3,8 @@ require 'spec_helper_acceptance'
 test_name 'auditd class with simp audit profile'
 
 describe 'auditd class with simp audit profile' do
+  require_relative('lib/util')
+
   let(:hieradata) {
     {
       'simp_options::syslog'    => true,
@@ -71,29 +73,12 @@ describe 'auditd class with simp audit profile' do
         end
 
         it 'should load valid rules' do
-          on(host, 'cat /etc/audit/audit.rules')
-          result = on(host, 'auditctl -l')
-          expect(result.stdout).to_not match(/No rules/)
+          results = AuditdTestUtil::AuditdRules.new(host)
 
-          result = on(host, 'augenrules --load', :accept_all_exit_codes => true)
-          rule_errors = result.stderr.split("\n").delete_if { |line| !line.include?('error in line') }
-          rule_errors.map! { |line| line=line.match(%r{error in line (.+) of /etc/audit/audit.rules})[1] }
-          file_not_found_errors = result.stderr.split("\n").delete_if { |line| !line.include?('(No such file or directory)')}
-          rule_errors.uniq!
-
-          # We expect one rule to be rejected: the watch for
-          # /etc/snmp/snmpd.conf changes.  This rule should be rejected
-          # because the watched file's parent directory does not exist.
-          # (net-snmp package is not installed.)
-          expect(rule_errors.size).to eq file_not_found_errors.size
-          result = on(host, "sed -n #{rule_errors[0]}p /etc/audit/audit.rules")
-          expect(result.stdout).to match(%r{/etc/snmp/snmpd.conf})
-
-          # No rule warnings should be emitted
-          rule_warnings = result.stderr.split("\n").delete_if { |line| !line.include?('WARNING') }
-          expect(rule_warnings.size).to eq 0
+          expect(results.rules).to_not be_empty
+          expect(results.warnings).to eq([])
+          expect(results.errors).to eq([])
         end
-
 
         it 'should not send audit logs to syslog' do
           # log rotate so any audit messages present before the apply turned off
@@ -111,7 +96,6 @@ describe 'auditd class with simp audit profile' do
           result = on(host, "/bin/find /var/log/audit/audit.log -perm 0600")
           expect(result.output).to include('/var/log/audit/audit.log')
         end
-
       end
 
       context 'allowing audit syslog messages' do
@@ -184,7 +168,6 @@ describe 'auditd class with simp audit profile' do
           on(host, %q(grep -qe 'acct="notathing".*exe="/usr/sbin/useradd"' /var/log/audit/audit.log))
         end
       end
-
     end
   end
 end
