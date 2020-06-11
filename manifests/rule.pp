@@ -39,7 +39,7 @@ define auditd::rule (
 
   if $auditd::enable {
 
-    $_safe_name = regsubst($name, '(/|\s)', '__')
+    $_safe_name = regsubst($name, '(/+|\s)', '__')
 
     if $order {
       $_order = $order
