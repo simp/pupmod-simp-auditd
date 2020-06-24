@@ -273,6 +273,10 @@
 
 ## Audit the loading and unloading of kernel modules.
 <%   if $facts['os']['release']['major'] > '6' { -%>
+-w /usr/bin/kmod -p x -F auid!=4294967295 -k <%= $auditd::config::audit_profiles::stig::audit_kernel_modules_tag %>
+-w /bin/kmod -p x -F auid!=4294967295 -k <%= $auditd::config::audit_profiles::stig::audit_kernel_modules_tag %>
+<%   } -%>
+<%   if $facts['os']['release']['major'] > '6' { -%>
 -w /usr/sbin/insmod -p x -F auid!=4294967295 -k <%= $auditd::config::audit_profiles::stig::audit_kernel_modules_tag %>
 <%   } -%>
 -w /sbin/insmod -p x -F auid!=4294967295 -k <%= $auditd::config::audit_profiles::stig::audit_kernel_modules_tag %>

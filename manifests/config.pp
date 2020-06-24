@@ -42,7 +42,10 @@ class auditd::config {
     purge   => true
   }
 
-  file { '/etc/audit/audit.rules':
+  file { [
+    '/etc/audit/audit.rules',
+    '/etc/audit/audit.rules.prev'
+  ]:
     owner => 'root',
     group => $auditd::log_group,
     mode  => 'o-rwx'

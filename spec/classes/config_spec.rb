@@ -33,6 +33,13 @@ describe 'auditd' do
             })
           }
           it {
+            is_expected.to contain_file('/etc/audit/audit.rules.prev').with({
+              :owner => 'root',
+              :group => 'root',
+              :mode  => 'o-rwx'
+            })
+          }
+          it {
             is_expected.to contain_file('/etc/audit').with({
               :ensure  => 'directory',
               :owner   => 'root',
@@ -105,6 +112,13 @@ describe 'auditd' do
           }
           it {
             is_expected.to contain_file('/etc/audit/audit.rules').with({
+              :owner => 'root',
+              :group => 'rspec',
+              :mode  => 'o-rwx'
+            })
+          }
+          it {
+            is_expected.to contain_file('/etc/audit/audit.rules.prev').with({
               :owner => 'root',
               :group => 'rspec',
               :mode  => 'o-rwx'

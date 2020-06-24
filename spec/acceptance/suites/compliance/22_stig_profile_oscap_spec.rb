@@ -26,9 +26,17 @@ describe 'run the SSG against the appropriate fixtures for stig audit profile' d
 
         # TODO: Check this periodically to see if it has been fixed upstream
         # These appear to be broken in the ComplianceAsCode content
+        #
+        # https://github.com/ComplianceAsCode/content/issues/4935
         exclusions = [
           'audit_rules_privileged_',
-          'audit_rules_execution_'
+          'audit_rules_execution_',
+          'audit_rules_kernel_',
+          'audit_rules_dac_',
+          'audit_rules_unsuccessful_',
+          'audit_rules_file_',
+          'audit_rules_media_export',
+          'audit_rules_for_ospp' # Dragged in by EL8 but we're not applying an OSPP profile
         ]
 
         @ssg_report[:data] = @ssg.process_ssg_results(filter, exclusions)
