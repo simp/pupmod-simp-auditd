@@ -33,9 +33,10 @@ describe 'auditd class with simp auditd profile' do
         # Note: In SIMP, svckill will take care of actually disabling auditd if
         # it is no longer managed. Here, we're not including svckill by default.
         it 'should not kill the auditd service' do
-          result = on(host, 'puppet resource service auditd')
-          expect(result.output).to include("ensure => 'running'")
-          expect(result.output).to include("enable => 'true'")
+          result = YAML.safe_load(on(host, 'puppet resource service auditd --to_yaml').stdout)
+
+          expect(result['service']['auditd']['ensure']).to eq('running')
+          expect(result['service']['auditd']['enable']).to eq('true')
         end
 
         it 'should require reboot on subsequent run' do

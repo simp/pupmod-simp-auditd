@@ -62,14 +62,14 @@ describe 'auditd class with simp audit profile' do
         end
 
         it 'should have the audit package installed' do
-          result = on(host, 'puppet resource package audit')
-          expect(result.output).to_not include("ensure => 'absent'")
+          result = YAML.safe_load(on(host, 'puppet resource package audit --to_yaml').stdout)
+          expect(result['package']['audit']['ensure']).not_to eq('absent')
         end
 
         it 'should activate the auditd service' do
-          result = on(host, 'puppet resource service auditd')
-          expect(result.output).to include("ensure => 'running'")
-          expect(result.output).to include("enable => 'true'")
+          result = YAML.safe_load(on(host, 'puppet resource service auditd --to_yaml').stdout)
+          expect(result['service']['auditd']['ensure']).to eq('running')
+          expect(result['service']['auditd']['enable']).to eq('true')
         end
 
         it 'should load valid rules' do
