@@ -27,6 +27,8 @@
   * [Adding One-Off Rules](#adding-one-off-rules)
     * [Adding Regular Filter Rules](#adding-regular-filter-rules)
     * [Prepend and Drop Everything From a User](#prepend-and-drop-everything-from-a-user)
+  * [Utilizing EL8 Sample Rulesets](#utilizing-el8-sample-rulesets)
+    * [Disabling SIMP Audit Profiles](#disabling-simp-audit-profiles)
 * [Development](#development)
   * [Acceptance tests](#acceptance-tests)
 
@@ -289,6 +291,36 @@ auditd::rule { 'pre_drop_user_5000':
   prepend => true
 }
 ```
+
+### Utilizing EL8 Sample Rulesets
+
+Starting with release 3.0.0-17 on EL8 hosts, the package includes a number
+of ``sample-rules`` under ``/usr/share/audit/sample-rules`` that can be used
+to configure a system fairly completely. Within these rules are sets for STIG,
+OSPP, etc. that can simply be moved to ``/etc/audit/rules.d`` and compiled with
+``augenrules`` to configure a system.
+
+#### Disabling SIMP Audit Profiles
+
+Most likely, if using the sample rulesets, you will want to disable included SIMP
+profiles (not necessary, but may include overlapping rules if not). To do this:
+
+```yaml
+auditd::use_only_sample_rulesets: true
+```
+
+#### Enabling Sample Rulesets
+
+To enable specific sample rulesets, simply include them in the module parameter:
+
+```yaml
+auditd::sample_rulesets:
+  - 'base-config'
+  - 'stig'
+  - 'finalize'
+```
+
+where the rulesets are found via the custom fact ``auditd_sample_rulesets``
 
 ## Development
 

@@ -175,6 +175,12 @@ describe 'auditd' do
           it { is_expected.to contain_class('auditd::config::audit_profiles::simp') }
         end
 
+        context 'with use_only_sample_rulesets = true' do
+          let(:params) {{ :use_only_sample_rulesets => true }}
+
+          it { is_expected.not_to contain_class('auditd::config::audit_profiles') }
+        end
+
         # I have it go through both version on each os because right now the facts are not
         # created for rhel 8 and I need the audit version 3.0 tested.  Auditd version is the
         # default for rhel 8 but version 2 is the default for el6 and el7.

@@ -1,3 +1,8 @@
+* Mon Jul 13 2020 Adam Yohrling <adam.yohrling@onyxpoint.com> - 8.5.1-0
+- Add auditd_sample_rulesets fact to list system sample rulesets
+- Add ability to include and manage sample rulesets to be compiled
+  into active rules
+
 * Wed Jun 24 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.5.1-0
 - Added a File statement for /etc/audit/audit.rules.prev to prevent unnecessary
   flapping
