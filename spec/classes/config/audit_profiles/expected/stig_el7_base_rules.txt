@@ -205,6 +205,8 @@
 -a exit,always -F path=/usr/sbin/usernetctl -F perm=x -F auid>=1000 -F auid!=4294967295 -k setuid/setgid
 
 ## Audit the loading and unloading of kernel modules.
+-w /usr/bin/kmod -p x -F auid!=4294967295 -k module-change
+-w /bin/kmod -p x -F auid!=4294967295 -k module-change
 -w /usr/sbin/insmod -p x -F auid!=4294967295 -k module-change
 -w /sbin/insmod -p x -F auid!=4294967295 -k module-change
 
