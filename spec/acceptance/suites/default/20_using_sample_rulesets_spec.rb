@@ -77,8 +77,8 @@ describe 'auditd class with sample rulesets' do
         end
 
         it 'should be running the auditd service' do
-          result = on(host, 'puppet resource service auditd')
-          expect(result.output).to include("ensure => 'running'")
+          result = YAML.safe_load(on(host, 'puppet resource service auditd --to_yaml').stdout)
+          expect(result['service']['auditd']['ensure']).to eq('running')
         end
 
         it 'should load valid rules' do
@@ -102,8 +102,8 @@ describe 'auditd class with sample rulesets' do
         end
 
         it 'should be running the auditd service' do
-          result = on(host, 'puppet resource service auditd')
-          expect(result.output).to include("ensure => 'running'")
+          result = YAML.safe_load(on(host, 'puppet resource service auditd --to_yaml').stdout)
+          expect(result['service']['auditd']['ensure']).to eq('running')
         end
 
 
@@ -129,8 +129,8 @@ describe 'auditd class with sample rulesets' do
         end
 
         it 'should be running the auditd service' do
-          result = on(host, 'puppet resource service auditd')
-          expect(result.output).to include("ensure => 'running'")
+          result = YAML.safe_load(on(host, 'puppet resource service auditd --to_yaml').stdout)
+          expect(result['service']['auditd']['ensure']).to eq('running')
         end
 
 
