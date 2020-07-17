@@ -1,0 +1,6 @@
+---
+auditd::config::audit_profiles::built_in::rulesets:
+  - 'base-config'
+  - 'no-audit'
+  - 'finalize'
+  - 'bad_sample_set'

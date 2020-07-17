@@ -19,8 +19,10 @@ describe 'auditd class with sample rulesets' do
 
   let(:enable_stig_sample_rulesets) {
     {
-      'auditd::use_only_sample_rulesets' => true,
-      'auditd::sample_rulesets' => [
+      'auditd::default_audit_profiles' => [
+        'built_in',
+      ],
+      'auditd::config::audit_profiles::built_in::rulesets' => [
         'base-config',
         'stig',
         'finalize',
@@ -28,10 +30,26 @@ describe 'auditd class with sample rulesets' do
     }.merge(hieradata)
   }
 
+  let(:multiple_profiles) {
+    {
+      'auditd::default_audit_profiles' => [
+        'built_in',
+        'simp',
+      ],
+      'auditd::config::audit_profiles::built_in::rulesets' => [
+        'base-config',
+        'stig',
+        'finalize',
+      ],
+    }
+  }
+
   let(:enable_ospp_rulesets) {
     {
-      'auditd::use_only_sample_rulesets' => true,
-      'auditd::sample_rulesets' => [
+      'auditd::default_audit_profiles' => [
+        'built_in',
+      ],
+      'auditd::config::audit_profiles::built_in::rulesets' => [
         'base-config',
         'loginuid',
         'ospp-v42-1-create-failed',
@@ -53,8 +71,12 @@ describe 'auditd class with sample rulesets' do
 
   let(:enable_privileged_ruleset) {
     {
-      'auditd::use_only_sample_rulesets' => true,
-      'auditd::sample_rulesets' => ['privileged'],
+      'auditd::default_audit_profiles' => [
+        'built_in',
+      ],
+      'auditd::config::audit_profiles::built_in::rulesets' => [
+        'privileged'
+      ],
     }.merge(hieradata)
   }
 
@@ -140,6 +162,31 @@ describe 'auditd class with sample rulesets' do
           retry_on(host, 'grep umount /etc/audit/audit.rules | grep privileged',
             { :max_retries => 30, :verbose => true })
 
+
+          results = AuditdTestUtil::AuditdRules.new(host)
+
+          expect(results.rules).to_not be_empty
+          expect(results.warnings).to eq([])
+          expect(results.errors).to eq([])
+        end
+      end
+
+      context 'with built_in and simp profiles' do
+        it 'should work with no errors' do
+          set_hieradata_on(host, multiple_profiles)
+          apply_manifest_on(host, manifest, :catch_failures => true)
+        end
+
+        it 'should be running the auditd service' do
+          result = YAML.safe_load(on(host, 'puppet resource service auditd --to_yaml').stdout)
+          expect(result['service']['auditd']['ensure']).to eq('running')
+        end
+
+        it 'should load valid rules' do
+          # make sure the rules have been regenerated
+          # (search for rule only contained in new rule set)
+          retry_on(host, 'grep renameat /etc/audit/audit.rules | grep delete',
+            { :max_retries => 30, :verbose => true })
 
           results = AuditdTestUtil::AuditdRules.new(host)
 

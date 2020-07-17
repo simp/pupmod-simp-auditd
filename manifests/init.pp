@@ -202,8 +202,6 @@ class auditd (
   Array[Auditd::AuditProfile]             $default_audit_profiles   = [ 'simp' ],
   Boolean                                 $audit_auditd_config      = true,
   String                                  $lname                    = $facts['fqdn'],
-  Array[String[1]]                        $sample_rulesets          = [],
-  Boolean                                 $use_only_sample_rulesets = false,
 
   # Rule Tweaks
   Boolean                                 $ignore_anonymous         = true,

@@ -15,8 +15,6 @@ class auditd::config {
     } else {
       $profiles = []
     }
-  } elsif $auditd::use_only_sample_rulesets {
-    $profiles = []
   } else {
     $profiles = $auditd::default_audit_profiles
   }
@@ -116,12 +114,6 @@ class auditd::config {
   if $auditd::syslog {
     include 'auditd::config::logging'
     Class['auditd::config::logging'] ~> Class['auditd::service']
-  }
-
-  if !empty($auditd::sample_rulesets) and $facts['auditd_sample_rulesets'] {
-    # Contain the sample rulset inclusions only if this is a system
-    # that contains sample rulesets and some are defined
-    contain 'auditd::config::sample_rulesets'
   }
 
   unless empty($profiles) {
