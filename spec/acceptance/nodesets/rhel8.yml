@@ -25,6 +25,9 @@ CONFIG:
   validate: false
   log_level: verbose
   type: aio
+<% if ENV['BEAKER_VAGRANT_MEMSIZE'] -%>
+  vagrant_memsize: <%= ENV['BEAKER_VAGRANT_MEMSIZE'] %>
+<% end -%>
 <% if ENV['BEAKER_PUPPET_COLLECTION'] -%>
   puppet_collection: <%= ENV['BEAKER_PUPPET_COLLECTION'] %>
 <% end -%>

@@ -105,11 +105,15 @@ variables:
 .acceptance_base: &acceptance_base
   stage: 'acceptance'
   tags: ['beaker']
+  variables:
+    BEAKER_VAGRANT_MEMSIZE: 256
   <<: *setup_bundler_env
 
 .compliance_base: &compliance_base
   stage: 'compliance'
   tags: ['beaker']
+  variables:
+    BEAKER_VAGRANT_MEMSIZE: 1536
   <<: *setup_bundler_env
 
 
