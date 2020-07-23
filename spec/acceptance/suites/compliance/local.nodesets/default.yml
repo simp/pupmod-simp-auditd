@@ -27,4 +27,6 @@ HOSTS:
 CONFIG:
   log_level: verbose
   type:      aio
-  vagrant_memsize: 1024
+<% if ENV['BEAKER_VAGRANT_MEMSIZE'] -%>
+  vagrant_memsize: <%= ENV['BEAKER_VAGRANT_MEMSIZE'] %>
+<% end -%>

@@ -31,7 +31,9 @@ HOSTS:
 CONFIG:
   log_level: verbose
   type: aio
-  vagrant_memsize: 256
+<% if ENV['BEAKER_VAGRANT_MEMSIZE'] -%>
+  vagrant_memsize: <%= ENV['BEAKER_VAGRANT_MEMSIZE'] %>
+<% end -%>
 <% if ENV['BEAKER_PUPPET_COLLECTION'] -%>
   puppet_collection: <%= ENV['BEAKER_PUPPET_COLLECTION'] %>
 <% end -%>

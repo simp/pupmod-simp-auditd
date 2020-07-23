@@ -20,7 +20,6 @@ stages:
   - 'deployment'
 
 variables:
-  PUPPET_VERSION:    'UNDEFINED' # <- Matrixed jobs MUST override this (or fail)
   BUNDLER_VERSION:   '1.17.1'
 
   # Force dependencies into a path the gitlab-runner user can write to.
@@ -113,11 +112,15 @@ variables:
   stage: 'acceptance'
   tags: ['beaker']
   <<: *setup_bundler_env
+  variables:
+    BEAKER_VAGRANT_MEMSIZE: 256
 
 .compliance_base: &compliance_base
   stage: 'compliance'
   tags: ['beaker']
   <<: *setup_bundler_env
+  variables:
+    BEAKER_VAGRANT_MEMSIZE: 1536
 
 
 # Pipeline / testing matrix

@@ -121,5 +121,4 @@ class auditd::config {
     # notify auditd::service class
     contain 'auditd::config::audit_profiles'
   }
-
 }
