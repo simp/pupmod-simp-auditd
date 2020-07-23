@@ -112,15 +112,11 @@ variables:
   stage: 'acceptance'
   tags: ['beaker']
   <<: *setup_bundler_env
-  variables:
-    BEAKER_VAGRANT_MEMSIZE: 256
 
 .compliance_base: &compliance_base
   stage: 'compliance'
   tags: ['beaker']
   <<: *setup_bundler_env
-  variables:
-    BEAKER_VAGRANT_MEMSIZE: 1536
 
 
 # Pipeline / testing matrix
@@ -216,13 +212,13 @@ pup5.5.17-fips-compliance:
   <<: *pup_5_5_17
   <<: *compliance_base
   script:
-    - 'BEAKER_fips=yes bundle exec rake beaker:suites[compliance]'
+    - 'BEAKER_VAGRANT_MEMSIZE=1536 BEAKER_fips=yes bundle exec rake beaker:suites[compliance]'
 
 pup6-fips-compliance:
   <<: *pup_6
   <<: *compliance_base
   script:
-    - 'BEAKER_fips=yes bundle exec rake beaker:suites[compliance]'
+    - 'BEAKER_VAGRANT_MEMSIZE=1536 BEAKER_fips=yes bundle exec rake beaker:suites[compliance]'
 
 pup6.16.0:
   <<: *pup_6_16_0
@@ -253,4 +249,4 @@ pup6.16.0-fips-compliance:
   <<: *pup_6_16_0
   <<: *compliance_base
   script:
-    - 'BEAKER_fips=yes bundle exec rake beaker:suites[compliance]'
+    - 'BEAKER_VAGRANT_MEMSIZE=1536 BEAKER_fips=yes bundle exec rake beaker:suites[compliance]'
