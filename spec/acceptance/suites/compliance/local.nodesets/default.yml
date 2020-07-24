@@ -1,3 +1,6 @@
+<%
+  vagrant_memsize = ENV['BEAKER_VAGRANT_MEMSIZE'] ? ENV['BEAKER_VAGRANT_MEMSIZE'] : 256
+-%>
 HOSTS:
   el7:
     roles:
@@ -27,6 +30,4 @@ HOSTS:
 CONFIG:
   log_level: verbose
   type:      aio
-<% if ENV['BEAKER_VAGRANT_MEMSIZE'] -%>
-  vagrant_memsize: <%= ENV['BEAKER_VAGRANT_MEMSIZE'] %>
-<% end -%>
+  vagrant_memsize: <%= vagrant_memsize %>

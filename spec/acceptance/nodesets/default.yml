@@ -4,6 +4,7 @@
   else
     hypervisor = 'vagrant'
   end
+  vagrant_memsize = ENV['BEAKER_VAGRANT_MEMSIZE'] ? ENV['BEAKER_VAGRANT_MEMSIZE'] : 256
 -%>
 HOSTS:
   el7:
@@ -31,9 +32,7 @@ HOSTS:
 CONFIG:
   log_level: verbose
   type: aio
-<% if ENV['BEAKER_VAGRANT_MEMSIZE'] -%>
-  vagrant_memsize: <%= ENV['BEAKER_VAGRANT_MEMSIZE'] %>
-<% end -%>
+  vagrant_memsize: <%= vagrant_memsize %>
 <% if ENV['BEAKER_PUPPET_COLLECTION'] -%>
   puppet_collection: <%= ENV['BEAKER_PUPPET_COLLECTION'] %>
 <% end -%>
