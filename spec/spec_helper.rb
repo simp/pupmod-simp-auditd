@@ -9,14 +9,6 @@ require 'pathname'
 fixture_path = File.expand_path(File.join(__FILE__, '..', 'fixtures'))
 module_name = File.basename(File.expand_path(File.join(__FILE__,'../..')))
 
-# Add fixture lib dirs to LOAD_PATH. Work-around for PUP-3336
-if Puppet.version < "4.0.0"
-  Dir["#{fixture_path}/modules/*/lib"].entries.each do |lib_dir|
-    $LOAD_PATH << lib_dir
-  end
-end
-
-
 if !ENV.key?( 'TRUSTED_NODE_DATA' )
   warn '== WARNING: TRUSTED_NODE_DATA is unset, using TRUSTED_NODE_DATA=yes'
   ENV['TRUSTED_NODE_DATA']='yes'
@@ -93,6 +85,9 @@ RSpec.configure do |c|
     }
   }
 
+#FIXME Windows tests fail when enabled
+#  c.trusted_server_facts = true
+
   c.mock_framework = :rspec
   c.mock_with :mocha
 
@@ -153,7 +148,7 @@ RSpec.configure do |c|
 
   c.after(:each) do
     # clean up the mocked environmentpath
-    FileUtils.rm_rf(@spec_global_env_temp)
+    FileUtils.remove_entry_secure(@spec_global_env_temp)
     @spec_global_env_temp = nil
   end
 end
@@ -164,4 +159,9 @@ Dir.glob("#{RSpec.configuration.module_path}/*").each do |dir|
   rescue
     fail "ERROR: The module '#{dir}' is not installed. Tests cannot continue."
   end
+end
+
+if ENV['PUPPET_DEBUG']
+  Puppet::Util::Log.level = :debug
+  Puppet::Util::Log.newdestination(:console)
 end

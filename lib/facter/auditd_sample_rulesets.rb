@@ -10,12 +10,10 @@
 # }
 #
 Facter.add('auditd_sample_rulesets') do
+  confine :kernel => 'Linux'
+
   confine do
-    begin
-      File.exist?('/usr/share/audit/sample-rules') && Integer(Facter.value(:auditd_major_version)) >= 3
-    rescue ArgumentError
-      false
-    end
+    File.exist?('/usr/share/audit/sample-rules')
   end
 
   setcode do
