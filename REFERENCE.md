@@ -2228,7 +2228,7 @@ Alias of `Enum['IGNORE', 'SYSLOG', 'ROTATE', 'EXEC', 'SUSPEND', 'SINGLE', 'HALT'
 
 Matches actions flush in auditd.conf
 
-Alias of `Enum['NONE', 'INCREMENTAL', 'DATA', 'SYNC', 'none', 'incremental', 'data', 'sync']`
+Alias of `Enum['NONE', 'INCREMENTAL', 'DATA', 'SYNC', 'INCREMENTAL_ASYNC', 'none', 'incremental', 'data', 'sync', 'incremental_async']`
 
 ### `Auditd::LogFacility`
 

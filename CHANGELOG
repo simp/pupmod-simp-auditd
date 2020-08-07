@@ -1,3 +1,6 @@
+* Fri Aug 07 2020 Marcel Fischer <marcel@fury.home.loc> - 8.5.3-0
+- Add `INCREMENTAL_ASYNC` to possible values for `$::auditd::flush`
+
 * Tue Aug 04 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.5.2-0
 - Ensure that facts are properly confined
 - Utilize the new simplib__auditd fact
