@@ -1,3 +1,9 @@
+* Wed Aug 12 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.5.4-0
+- Ensure that the auditd service is not managed if the kernel is not enforcing
+  auditing
+- Add an acceptance test for toggling disabling auditing without modifying the
+  kernel parameter
+
 * Fri Aug 07 2020 Marcel Fischer <marcel@fury.home.loc> - 8.5.3-0
 - Add `INCREMENTAL_ASYNC` to possible values for `$::auditd::flush`
 
