@@ -1,4 +1,4 @@
-* Wed Aug 12 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.5.4-0
+* Wed Aug 12 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.6.0-0
 - Ensure that the auditd service is not managed if the kernel is not enforcing
   auditing
 - Add an acceptance test for toggling disabling auditing without modifying the
