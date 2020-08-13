@@ -29,7 +29,7 @@ class auditd::service (
 ){
   assert_private()
 
-  if $bypass_kernel_check or $facts.dig(simplib__auditd', 'kernel_enforcing') {
+  if $bypass_kernel_check or $facts.dig('simplib__auditd', 'kernel_enforcing') {
     # CCE-27058-7
     service { $auditd::service_name:
       ensure  => $ensure,
