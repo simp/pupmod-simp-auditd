@@ -255,6 +255,8 @@ class auditd (
   Boolean                                 $write_logs               = $log_format ? { 'NOLOG' => false, default => true }
 ) {
 
+  include 'auditd::service'
+
   if $enable {
     unless $space_left > $admin_space_left {
       fail('Auditd requires $space_left to be greater than $admin_space_left, otherwise it will not start')
@@ -309,7 +311,6 @@ class auditd (
 
     include 'auditd::install'
     include 'auditd::config'
-    include 'auditd::service'
 
     Class['auditd::install']
     -> Class['auditd::config']

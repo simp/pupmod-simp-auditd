@@ -76,7 +76,7 @@ class auditd::config {
     group   => $auditd::log_group,
     mode    => $log_file_mode,
     content => "${_auditd_conf_common}${_auditd_conf_main}${_auditd_conf_last}\n",
-    notify  => Service['auditd']
+    notify  => Class['auditd::service']
   }
 
   if defined('$auditd::plugin_dir') {

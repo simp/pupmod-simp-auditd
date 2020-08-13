@@ -13,14 +13,23 @@ describe 'auditd' do
   context 'supported operating systems' do
     on_supported_os.each do |os, os_facts|
       context "on #{os}" do
-        let(:facts) {os_facts}
+        let(:facts) do
+          os_facts.merge(
+            {
+              :simplib__auditd => {
+                'enabled' => true,
+                'kernel_enforcing' => true
+              }
+            }
+          )
+        end
 
         context 'auditd with default parameters' do
           let(:params) {{ }}
           it_behaves_like 'a structured module'
           it {
             is_expected.to contain_service('auditd').with({
-              :ensure  => 'running',
+              :ensure  => true,
               :enable  => true,
               :start   => "/sbin/service auditd start",
               :stop    => "/sbin/service auditd stop",
@@ -49,7 +58,7 @@ describe 'auditd' do
           it { is_expected.to contain_class('auditd::config::grub').with_enable(false) }
           it { is_expected.to_not contain_class('auditd::install') }
           it { is_expected.to_not contain_class('auditd::config') }
-          it { is_expected.to_not contain_class('auditd::service') }
+          it { is_expected.to contain_class('auditd::service') }
         end
 
       end
