@@ -463,7 +463,10 @@ Default value: `'auditd'`
 
 Data type: `Variant[Integer[0],Pattern['^\d+%$']]`
 
+Must be larger than `$admin_space_left`.
 
+* If `$admin_space_left` is an `Integer`, will be set to `30 + $admin_space_left`
+* If `$admin_space_left` is a percentage (auditd >= 2.8.5), will be set to `1% + $admin_space_left`
 
 Default value: `auditd::calculate_space_left($admin_space_left)`
 

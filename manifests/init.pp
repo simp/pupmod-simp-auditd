@@ -156,6 +156,11 @@
 #   The name of the auditd service.
 #
 # @param space_left
+#   Must be larger than `$admin_space_left`.
+#
+#   * If `$admin_space_left` is an `Integer`, will be set to `30 + $admin_space_left`
+#   * If `$admin_space_left` is a percentage (auditd >= 2.8.5), will be set to `1% + $admin_space_left`
+#
 # @param space_left_action
 #
 # @param syslog
