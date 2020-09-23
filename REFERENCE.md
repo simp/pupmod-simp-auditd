@@ -30,7 +30,9 @@ can be sent to syslog in addition the audit partition.
 
 ### Functions
 
+* [`auditd::calculate_space_left`](#auditdcalculate_space_left): Calculates the correct default value for 'space_left' based on the value of 'admin_space_left'.
 * [`auditd::get_array_index`](#auditdget_array_index): Returns a string that represents the first index of the specified element within the Array.
+* [`auditd::validate_init_params`](#auditdvalidate_init_params): Validates selected params from the main auditd class.
 
 ### Data types
 
@@ -185,7 +187,7 @@ Default value: `'root'`
 
 ##### `admin_space_left`
 
-Data type: `Integer[0]`
+Data type: `Variant[Integer[0],Pattern['^\d+%$']]`
 
 
 
@@ -459,11 +461,11 @@ Default value: `'auditd'`
 
 ##### `space_left`
 
-Data type: `Integer[0]`
+Data type: `Variant[Integer[0],Pattern['^\d+%$']]`
 
 
 
-Default value: `+`
+Default value: `auditd::calculate_space_left($admin_space_left)`
 
 ##### `space_left_action`
 
@@ -2092,17 +2094,38 @@ The following parameters are available in the `auditd::service` class.
 
 ##### `ensure`
 
-Data type: `Any`
+Data type: `Variant[String[1],Boolean]`
 
 ``ensure`` state from the service resource
 
-Default value: `'running'`
+Default value: `pick(getvar('auditd::enable'), 'running')`
 
 ##### `enable`
 
-Data type: `Any`
+Data type: `Boolean`
 
 ``enable`` state from the service resource
+
+Default value: `pick(getvar('auditd::enable'), true)`
+
+##### `bypass_kernel_check`
+
+Data type: `Boolean`
+
+Do not check to see if the kernel is enforcing auditing before trying to
+manage the service.
+
+* This may be required if auditing is not being actively managed in the
+  kernel and someone has stopped the auditd service by hand.
+
+Default value: ``false``
+
+##### `warn_if_reboot_required`
+
+Data type: `Boolean`
+
+Add a ``reboot_notify`` warning if the system requires a reboot before the
+service can be managed.
 
 Default value: ``true``
 
@@ -2166,6 +2189,24 @@ Default value: ``false``
 
 ## Functions
 
+### `auditd::calculate_space_left`
+
+Type: Puppet Language
+
+Calculates the correct default value for 'space_left' based on the value of 'admin_space_left'.
+
+#### `auditd::calculate_space_left(Variant[Integer[0],Pattern['^\d+%$']] $admin_space_left)`
+
+The auditd::calculate_space_left function.
+
+Returns: `Variant[Integer[0],Pattern['^\d+%$']]`
+
+##### `admin_space_left`
+
+Data type: `Variant[Integer[0],Pattern['^\d+%$']]`
+
+
+
 ### `auditd::get_array_index`
 
 Type: Ruby 4.x API
@@ -2203,6 +2244,22 @@ Data type: `Optional[Integer]`
 
 The minimum number of digits the index should be. 
 It will be '0'-padded to meet this number.
+
+### `auditd::validate_init_params`
+
+Type: Puppet Language
+
+Moved into a function to reduce class clutter.
+
+Fails on discovered errors.
+
+#### `auditd::validate_init_params()`
+
+Moved into a function to reduce class clutter.
+
+Fails on discovered errors.
+
+Returns: `None`
 
 ## Data types
 
