@@ -207,7 +207,7 @@ describe 'auditd' do
               name = #{facts[:fqdn]}
               max_log_file = 24
               max_log_file_action = ROTATE
-              space_left = 75
+              space_left = 80
               space_left_action = SYSLOG
               admin_space_left = 50
               admin_space_left_action = SUSPEND
