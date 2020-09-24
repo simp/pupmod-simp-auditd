@@ -156,6 +156,11 @@
 #   The name of the auditd service.
 #
 # @param space_left
+#   Must be larger than `$admin_space_left`.
+#
+#   * If `$admin_space_left` is an `Integer`, will be set to `30 + $admin_space_left`
+#   * If `$admin_space_left` is a percentage (auditd >= 2.8.5), will be set to `1% + $admin_space_left`
+#
 # @param space_left_action
 #
 # @param syslog
@@ -214,7 +219,7 @@ class auditd (
 
   # Configuration Parameters
   String[1]                               $action_mail_acct         = 'root', # CCE-27241-9
-  Integer[0]                              $admin_space_left         = 50,
+  Variant[Integer[0],Pattern['^\d+%$']]   $admin_space_left         = 50,
   Auditd::SpaceLeftAction                 $admin_space_left_action  = 'SUSPEND', # CCE-27239-3 : No guarantee of e-mail server so sending to syslog.
   Boolean                                 $at_boot                  = true, # CCE-26785-6
   Integer[0]                              $buffer_size              = 16384,
@@ -234,10 +239,10 @@ class auditd (
   Boolean                                 $loginuid_immutable       = true,
   Integer[0]                              $max_log_file             = 24, # CCE-27550-3
   Auditd::MaxLogFileAction                $max_log_file_action      = 'ROTATE', # CCE-27237-7
-  Optional[Integer[1]]                    $max_restarts             = undef,           #data            = 10, #auditd version 3.0 and later
+  Optional[Integer[1]]                    $max_restarts             = undef, #data in module, #auditd version 3.0 and later
   Auditd::NameFormat                      $name_format              = 'USER',
   Integer[0]                              $num_logs                 = 5, # CCE-27522-2
-  Optional[Auditd::Overflowaction]        $overflow_action          = undef,         # data in module
+  Optional[Auditd::Overflowaction]        $overflow_action          = undef, # data in module
   String[1]                               $package_name             = 'audit',
   Simplib::PackageEnsure                  $package_ensure           = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' }),
   Stdlib::Absolutepath                    $plugin_dir,              # data in module
@@ -246,7 +251,7 @@ class auditd (
   Integer[0]                              $rate                     = 0,
   Auditd::RootAuditLevel                  $root_audit_level         = 'basic',
   String[1]                               $service_name             = 'auditd',
-  Integer[0]                              $space_left               = $admin_space_left + 25, # needs to be larger than $admin_space_left or auditd will not start
+  Variant[Integer[0],Pattern['^\d+%$']]   $space_left               = auditd::calculate_space_left($admin_space_left),
   Auditd::SpaceLeftAction                 $space_left_action        = 'SYSLOG', # CCE-27238-5 : No guarantee of e-mail server so sending to syslog.
   Boolean                                 $syslog                   = simplib::lookup('simp_options::syslog', {'default_value' => false }),   # CCE-26933-2
   Optional[Array[Pattern['^.*_t$']]]      $target_selinux_types     = undef,
@@ -258,9 +263,10 @@ class auditd (
   include 'auditd::service'
 
   if $enable {
-    unless $space_left > $admin_space_left {
-      fail('Auditd requires $space_left to be greater than $admin_space_left, otherwise it will not start')
-    }
+    simplib::assert_metadata($module_name)
+
+    auditd::validate_init_params()
+
     if $facts['auditd_version'] and ( versioncmp($facts['auditd_version'], '2.6.0') < 0 ) {
       if ( versioncmp($facts['auditd_version'], '2.5.2') < 0 ) {
         unless $write_logs {
@@ -297,8 +303,6 @@ class auditd (
 
       $_write_logs = $write_logs
     }
-
-    simplib::assert_metadata($module_name)
 
     # This is done here so that the kernel option can be properly removed if
     # auditing is to be disabled on the system.

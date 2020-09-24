@@ -1,3 +1,7 @@
+* Wed Sep 23 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.6.1-0
+- Allow auditd space_left and admin_space_left to accept percentages on
+  supported versions
+
 * Wed Aug 12 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.6.0-0
 - Ensure that the auditd service is not managed if the kernel is not enforcing
   auditing
