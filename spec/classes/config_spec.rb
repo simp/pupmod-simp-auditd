@@ -11,7 +11,7 @@ describe 'auditd' do
       context "on #{os}" do
         let (:facts) {os_facts}
 
-        context "with default parameters" do
+        context 'with default parameters' do
           let (:params) {{ }}
 
           it { is_expected.to compile.with_all_deps }
@@ -185,8 +185,13 @@ describe 'auditd' do
         # I have it go through both version on each os because right now the facts are not
         # created for rhel 8 and I need the audit version 3.0 tested.  Auditd version is the
         # default for rhel 8 but version 2 is the default for el6 and el7.
-        [{ :auditd_version => '3.0', :auditd_major_version => '3'}, { :auditd_version => '2.4.5', :auditd_major_version => '2'}].each do |  more_facts |
-          context "with auditd version #{more_facts[:auditd_major_version]}" do
+        # Neither fact is available if auditing in the kernel is not enabled.
+        [
+          { :auditd_version => '3.0', :auditd_major_version => '3' },
+          { :auditd_version => '2.4.5', :auditd_major_version => '2' },
+          { :auditd_version => nil, :auditd_major_version => nil }
+        ].each do |  more_facts |
+          context "with auditd version #{more_facts[:auditd_major_version].inspect}" do
 
             let(:facts) {
               _facts = Marshal.load(Marshal.dump(os_facts))
@@ -240,12 +245,14 @@ describe 'auditd' do
               EOM
             }
 
-            context "with default parameters" do
+            context 'with default parameters' do
               let(:params) {{ }}
 
               it {
-                if (facts[:auditd_major_version] == '2' )
-                  if ( facts[:auditd_version] < '2.5.2' )
+                if (facts[:auditd_major_version].nil? && (facts[:os][:release][:major] < '8')) ||
+                   (facts[:auditd_major_version] == '2')
+
+                  if facts[:auditd_version] &&  (facts[:auditd_version] < '2.5.2')
                     # If version 2.5.2 does not have option write_logs
                     complete_content = expected_content + v2_content + end_content
                   else
@@ -254,6 +261,7 @@ describe 'auditd' do
                 else
                   complete_content = expected_content + extra_content + v3_content + end_content
                 end
+
                 is_expected.to contain_file('/etc/audit/auditd.conf').with({
                   :owner   => 'root',
                   :group   => 'root',
@@ -261,7 +269,8 @@ describe 'auditd' do
                   :content => complete_content + "\n"
                 })
 
-                if (facts[:auditd_major_version] == '3' )
+                if (facts[:auditd_major_version].nil? && (facts[:os][:release][:major] == '8')) ||
+                   (facts[:auditd_major_version] == '3')
                   is_expected.to contain_file('/etc/audit/auditd.conf').with_content(%r(^local_events = .*$))
                 else
                   is_expected.to contain_file('/etc/audit/auditd.conf').with_content(%r(^disp_qos = .*$))
@@ -276,13 +285,19 @@ describe 'auditd' do
               it { is_expected.to contain_class('auditd::config::logging').that_notifies('Class[auditd::service]') }
               # Test private class config::logging
               it {
-                if facts[:auditd_major_version] >= '3'
+                if facts[:auditd_version].nil? || facts[:auditd_major_version] >= '3'
                   is_expected.to_not contain_class('auditd::config::audisp')
                 else
                   is_expected.to contain_class('auditd::config::audisp')
                 end
               }
-              it { is_expected.to contain_class('auditd::config::audisp::syslog') }
+              it {
+                if facts[:auditd_version].nil?
+                  is_expected.to_not contain_class('auditd::config::audisp::syslog')
+                else
+                  is_expected.to contain_class('auditd::config::audisp::syslog')
+                end
+              }
             end
 
           end  # End auditd version context

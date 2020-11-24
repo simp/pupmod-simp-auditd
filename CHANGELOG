@@ -1,3 +1,9 @@
+* Mon Nov 23 2020 Liz Nemsick <lnemsick.simp@gmail.com> - 8.6.2-0
+- Fixed a bug in which the module could not enable auditing in a system
+  with auditing already disabled in the kernel, when replication of the
+  audit logs to syslog was required.
+  - Manifest would fail to compile because of a nil `auditd_version` fact.
+
 * Wed Sep 23 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.6.1-0
 - Allow auditd space_left and admin_space_left to accept percentages on
   supported versions
