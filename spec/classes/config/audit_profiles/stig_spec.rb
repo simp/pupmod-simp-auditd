@@ -17,11 +17,7 @@ describe 'auditd' do
         let(:params) {{ :default_audit_profiles => ['stig'] }}
 
         it {
-          if os_facts[:os][:release][:major] == '6'
-            expected = File.read('spec/classes/config/audit_profiles/expected/stig_el6_base_rules.txt')
-          else
-            expected = File.read('spec/classes/config/audit_profiles/expected/stig_el7_base_rules.txt')
-          end
+          expected = File.read('spec/classes/config/audit_profiles/expected/stig_el7_base_rules.txt')
           is_expected.to contain_file('/etc/audit/rules.d/50_00_stig_base.rules').with_content(expected)
         }
       end
@@ -123,11 +119,7 @@ describe 'auditd' do
         let(:hieradata) { 'stig_audit_profile/all_custom_tags' }
 
         it 'uses custom tags as rule keys' do
-          if os_facts[:os][:release][:major] == '6'
-            expected = File.read('spec/classes/config/audit_profiles/expected/stig_el6_all_custom_tags.txt')
-          else
-            expected = File.read('spec/classes/config/audit_profiles/expected/stig_el7_all_custom_tags.txt')
-          end
+          expected = File.read('spec/classes/config/audit_profiles/expected/stig_el7_all_custom_tags.txt')
           is_expected.to contain_file('/etc/audit/rules.d/50_00_stig_base.rules').with_content(expected)
         end
       end
@@ -136,11 +128,7 @@ describe 'auditd' do
         let(:params) {{ :default_audit_profiles => ['stig', 'simp'] }}
 
         it {
-            if os_facts[:os][:release][:major] == '6'
-              expected = File.read('spec/classes/config/audit_profiles/expected/stig_el6_base_rules.txt')
-            else
-              expected = File.read('spec/classes/config/audit_profiles/expected/stig_el7_base_rules.txt')
-            end
+            expected = File.read('spec/classes/config/audit_profiles/expected/stig_el7_base_rules.txt')
             is_expected.to contain_file('/etc/audit/rules.d/50_00_stig_base.rules').with_content(expected)
         }
 

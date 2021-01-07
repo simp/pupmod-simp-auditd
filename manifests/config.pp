@@ -101,16 +101,6 @@ class auditd::config {
     mode  => $log_file_mode
   }
 
-  if ($facts['os']['release']['major'] < '7') {
-    # make sure audit.rules is regenerated every time the
-    # service is started
-    augeas { 'auditd/USE_AUGENRULES':
-      changes => [
-        'set /files/etc/sysconfig/auditd/USE_AUGENRULES yes',
-      ],
-    }
-  }
-
   if $auditd::syslog {
     include 'auditd::config::logging'
     Class['auditd::config::logging'] ~> Class['auditd::service']

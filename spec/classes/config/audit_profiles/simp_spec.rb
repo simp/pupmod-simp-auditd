@@ -18,11 +18,7 @@ describe 'auditd' do
       context 'with default parameters' do
 
         it {
-          if os_facts[:os][:release][:major] == '6'
-            expected = File.read('spec/classes/config/audit_profiles/expected/simp_el6_basic_rules.txt')
-          else
-            expected = File.read('spec/classes/config/audit_profiles/expected/simp_el7_basic_rules.txt')
-          end
+          expected = File.read('spec/classes/config/audit_profiles/expected/simp_el7_basic_rules.txt')
           is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(expected)
         }
 
@@ -76,11 +72,7 @@ describe 'auditd' do
         let(:params) {{ :root_audit_level => 'aggressive' }}
 
         it {
-          if os_facts[:os][:release][:major] == '6'
-            expected = File.read('spec/classes/config/audit_profiles/expected/simp_el6_aggressive_rules.txt')
-          else
-            expected = File.read('spec/classes/config/audit_profiles/expected/simp_el7_aggressive_rules.txt')
-          end
+          expected = File.read('spec/classes/config/audit_profiles/expected/simp_el7_aggressive_rules.txt')
           is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(expected)
         }
       end
@@ -89,11 +81,7 @@ describe 'auditd' do
         let(:params) {{ :root_audit_level => 'insane' }}
 
         it {
-          if os_facts[:os][:release][:major] == '6'
-            expected = File.read('spec/classes/config/audit_profiles/expected/simp_el6_insane_rules.txt')
-          else
-            expected = File.read('spec/classes/config/audit_profiles/expected/simp_el7_insane_rules.txt')
-          end
+          expected = File.read('spec/classes/config/audit_profiles/expected/simp_el7_insane_rules.txt')
           is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(expected)
         }
       end
@@ -318,11 +306,7 @@ describe 'auditd' do
         let(:params) {{ :root_audit_level => 'insane' }}
 
         it 'uses custom tags as rule keys' do
-          if os_facts[:os][:release][:major] == '6'
-            expected = File.read('spec/classes/config/audit_profiles/expected/simp_el6_all_rules_custom_tags.txt')
-          else
-            expected = File.read('spec/classes/config/audit_profiles/expected/simp_el7_all_rules_custom_tags.txt')
-          end
+          expected = File.read('spec/classes/config/audit_profiles/expected/simp_el7_all_rules_custom_tags.txt')
         end
       end
 
@@ -330,11 +314,7 @@ describe 'auditd' do
         let(:params) {{ :default_audit_profiles => ['simp', 'stig'] }}
 
         it {
-            if os_facts[:os][:release][:major] == '6'
-              expected = File.read('spec/classes/config/audit_profiles/expected/simp_el6_basic_rules.txt')
-            else
-              expected = File.read('spec/classes/config/audit_profiles/expected/simp_el7_basic_rules.txt')
-            end
+            expected = File.read('spec/classes/config/audit_profiles/expected/simp_el7_basic_rules.txt')
             is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(expected)
         }
 
@@ -345,50 +325,6 @@ describe 'auditd' do
 
       context 'with auditd version' do
         let(:auditd_conf) { catalogue.resource('File[/etc/audit/auditd.conf]') }
-
-        # EL 6
-        context '2.4.5' do
-          let(:facts) {
-            new_facts = Marshal.load(Marshal.dump(os_facts))
-            new_facts[:auditd_version] = '2.4.5'
-
-            new_facts
-          }
-
-          context 'default options' do
-            it do
-              expect(auditd_conf[:content]).to match(/log_format = RAW/)
-              expect(auditd_conf[:content]).to_not match(/write_logs/)
-            end
-          end
-
-          context 'write_logs = false' do
-            let(:params) {{ :write_logs => false }}
-
-            it do
-              expect(auditd_conf[:content]).to match(/log_format = NOLOG/)
-              expect(auditd_conf[:content]).to_not match(/write_logs/)
-            end
-          end
-
-          context 'log_format = NOLOG' do
-            let(:params) {{ :log_format => 'NOLOG' }}
-
-            it do
-              expect(auditd_conf[:content]).to match(/log_format = NOLOG/)
-              expect(auditd_conf[:content]).to_not match(/write_logs/)
-            end
-          end
-
-          context 'log_format = ENRICHED' do
-            let(:params) {{ :log_format => 'ENRICHED' }}
-
-            it do
-              expect(auditd_conf[:content]).to match(/log_format = RAW/)
-              expect(auditd_conf[:content]).to_not match(/write_logs/)
-            end
-          end
-        end
 
         # EL 7.3
         context '2.6.5' do

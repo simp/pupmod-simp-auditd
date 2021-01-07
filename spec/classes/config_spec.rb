@@ -49,14 +49,7 @@ describe 'auditd' do
               :purge   => true
             })
           }
-          it {
-            if facts[:os][:release][:major] == '6'
-             is_expected.to contain_augeas('auditd/USE_AUGENRULES').with_changes(
-              ['set /files/etc/sysconfig/auditd/USE_AUGENRULES yes'])
-            else
-              is_expected.to_not contain_augeas('auditd/USE_AUGENRULES')
-            end
-          }
+          it { is_expected.to_not contain_augeas('auditd/USE_AUGENRULES') }
           it { is_expected.to_not contain_class('auditd::config::logging').that_notifies('Class[auditd::service]') }
           it {
             is_expected.to contain_file('/var/log/audit').with({

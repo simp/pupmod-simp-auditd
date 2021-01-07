@@ -210,11 +210,7 @@ describe 'auditd' do
 
         # auditd::config::audit_profiles::simp validation
         it {
-          if os_facts[:os][:release][:major] == '6'
-            expected = File.read('spec/classes/config/audit_profiles/expected/simp_el6_basic_rules.txt')
-          else
-            expected = File.read('spec/classes/config/audit_profiles/expected/simp_el7_basic_rules.txt')
-          end
+          expected = File.read('spec/classes/config/audit_profiles/expected/simp_el7_basic_rules.txt')
           is_expected.to contain_file('/etc/audit/rules.d/50_01_simp_base.rules').with_content(expected)
         }
 
