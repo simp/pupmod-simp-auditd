@@ -1,23 +1,28 @@
 require 'spec_helper_acceptance'
+require 'yaml'
 
 test_name 'disabling auditing via auditd class'
 
 describe 'auditd class with simp auditd profile' do
   let(:enable_hieradata) {
-    {
-      'pki::cacerts_sources'    => ['file:///etc/pki/simp-testing/pki/cacerts'] ,
-      'pki::private_key_source' => "file:///etc/pki/simp-testing/pki/private/%{fqdn}.pem",
-      'pki::public_key_source'  => "file:///etc/pki/simp-testing/pki/public/%{fqdn}.pub",
-    }
+    YAML.load <<~HIERA
+    ---
+    pki::cacerts_sources:
+    - 'file:///etc/pki/simp-testing/pki/cacerts'
+    pki::private_key_source: 'file:///etc/pki/simp-testing/pki/private/%{fqdn}.pem'
+    pki::public_key_source:  'file:///etc/pki/simp-testing/pki/public/%{fqdn}.pub'
+    HIERA
   }
 
   let(:disable_hieradata) {
-    {
-      'pki::cacerts_sources'    => ['file:///etc/pki/simp-testing/pki/cacerts'] ,
-      'pki::private_key_source' => "file:///etc/pki/simp-testing/pki/private/%{fqdn}.pem",
-      'pki::public_key_source'  => "file:///etc/pki/simp-testing/pki/public/%{fqdn}.pub",
-      'auditd::enable' => false
-    }
+    YAML.load <<~HIERA
+    ---
+    pki::cacerts_sources:
+    - 'file:///etc/pki/simp-testing/pki/cacerts'
+    pki::private_key_source: 'file:///etc/pki/simp-testing/pki/private/%{fqdn}.pem'
+    pki::public_key_source:  'file:///etc/pki/simp-testing/pki/public/%{fqdn}.pub'
+    auditd::enable: false
+    HIERA
   }
 
   let(:manifest) {

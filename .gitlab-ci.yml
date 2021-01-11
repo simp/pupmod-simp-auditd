@@ -229,7 +229,7 @@ variables:
 .pup_5_pe: &pup_5_pe
   image: 'ruby:2.4'
   variables:
-    PUPPET_VERSION: '5.5.20'
+    PUPPET_VERSION: '5.5.22'
     BEAKER_PUPPET_COLLECTION: 'puppet5'
     MATRIX_RUBY_VERSION: '2.4'
 
@@ -366,6 +366,7 @@ pup5.pe-fips:
 pup5.pe-oel:
   <<: *pup_5_pe
   <<: *acceptance_base
+  <<: *with_SIMP_ACCEPTANCE_MATRIX_LEVEL_2
   script:
     - 'bundle exec rake beaker:suites[default,oel]'
 
@@ -379,12 +380,14 @@ pup5.pe-oel-fips:
 pup6.x:
   <<: *pup_6_x
   <<: *acceptance_base
+  <<: *with_SIMP_ACCEPTANCE_MATRIX_LEVEL_2
   script:
     - 'bundle exec rake beaker:suites'
 
 pup6.x-fips:
   <<: *pup_6_x
   <<: *acceptance_base
+  <<: *with_SIMP_ACCEPTANCE_MATRIX_LEVEL_2
   script:
     - 'BEAKER_fips=yes bundle exec rake beaker:suites'
 
