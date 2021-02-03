@@ -398,17 +398,24 @@ pup6.x-fips:
     - 'BEAKER_fips=yes bundle exec rake beaker:suites[default,default]'
 
 
-pup5.pe-fips-compliance:
+pup5.pe-el7-fips-compliance:
   <<: *pup_5_pe
   <<: *compliance_base
   script:
-    - 'BEAKER_VAGRANT_MEMSIZE=1536 BEAKER_fips=yes bundle exec rake beaker:suites[compliance]'
+    - 'BEAKER_VAGRANT_MEMSIZE=1536 BEAKER_fips=yes bundle exec rake beaker:suites[compliance,default]'
 
-pup6.x-fips-compliance:
+pup6.x-el7-fips-compliance:
   <<: *pup_6_x
   <<: *compliance_base
   script:
-    - 'BEAKER_VAGRANT_MEMSIZE=1536 BEAKER_fips=yes bundle exec rake beaker:suites[compliance]'
+    - 'BEAKER_VAGRANT_MEMSIZE=1536 BEAKER_fips=yes bundle exec rake beaker:suites[compliance,default]'
+
+pup6.x-el8-fips-compliance:
+  allow_failure: true
+  <<: *pup_6_x
+  <<: *compliance_base
+  script:
+    - 'BEAKER_VAGRANT_MEMSIZE=1536 BEAKER_fips=yes bundle exec rake beaker:suites[compliance,centos8]'
 
 pup6.pe:
   <<: *pup_6_pe
@@ -435,8 +442,8 @@ pup6.pe-oel-fips:
   script:
     - 'BEAKER_fips=yes bundle exec rake beaker:suites[default,oel]'
 
-pup6.pe-fips-compliance:
+pup6.pe-el7-fips-compliance:
   <<: *pup_6_pe
   <<: *compliance_base
   script:
-    - 'BEAKER_VAGRANT_MEMSIZE=1536 BEAKER_fips=yes bundle exec rake beaker:suites[compliance]'
+    - 'BEAKER_VAGRANT_MEMSIZE=1536 BEAKER_fips=yes bundle exec rake beaker:suites[compliance,default]'
