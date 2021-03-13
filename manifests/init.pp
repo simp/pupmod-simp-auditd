@@ -218,30 +218,30 @@ class auditd (
   Boolean                                 $ignore_system_services   = true,
 
   # Configuration Parameters
-  String[1]                               $action_mail_acct         = 'root', # CCE-27241-9
+  String[1]                               $action_mail_acct         = 'root',
   Variant[Integer[0],Pattern['^\d+%$']]   $admin_space_left         = 50,
-  Auditd::SpaceLeftAction                 $admin_space_left_action  = 'SUSPEND', # CCE-27239-3 : No guarantee of e-mail server so sending to syslog.
-  Boolean                                 $at_boot                  = true, # CCE-26785-6
+  Auditd::SpaceLeftAction                 $admin_space_left_action  = 'rotate',
+  Boolean                                 $at_boot                  = true,
   Integer[0]                              $buffer_size              = 16384,
   Integer[1,600000]                       $backlog_wait_time        = 60000,
-  Auditd::DiskErrorAction                 $disk_error_action        = 'SUSPEND',
-  Auditd::DiskFullAction                  $disk_full_action         = 'SUSPEND',
+  Auditd::DiskErrorAction                 $disk_error_action        = 'syslog',
+  Auditd::DiskFullAction                  $disk_full_action         = 'rotate',
   Enum['lossy','lossless']                $disp_qos                 = 'lossy',
   Stdlib::Absolutepath                    $dispatcher               = '/sbin/audispd',
   Integer[0]                              $failure_mode             = 1,
-  Auditd::Flush                           $flush                    = 'INCREMENTAL',
+  Auditd::Flush                           $flush                    = 'incremental',
   Integer[0]                              $freq                     = 20,
   Boolean                                 $immutable                = false,
   Optional[Boolean]                       $local_events             = undef,
   Stdlib::Absolutepath                    $log_file                 = '/var/log/audit/audit.log',
-  Enum['RAW','ENRICHED','NOLOG']          $log_format               = 'RAW',
+  Auditd::LogFormat                       $log_format               = 'raw',
   String                                  $log_group                = 'root',
   Boolean                                 $loginuid_immutable       = true,
-  Integer[0]                              $max_log_file             = 24, # CCE-27550-3
-  Auditd::MaxLogFileAction                $max_log_file_action      = 'ROTATE', # CCE-27237-7
+  Integer[0]                              $max_log_file             = 24,
+  Auditd::MaxLogFileAction                $max_log_file_action      = 'rotate',
   Optional[Integer[1]]                    $max_restarts             = undef, #data in module, #auditd version 3.0 and later
-  Auditd::NameFormat                      $name_format              = 'USER',
-  Integer[0]                              $num_logs                 = 5, # CCE-27522-2
+  Auditd::NameFormat                      $name_format              = 'user',
+  Integer[0]                              $num_logs                 = 5,
   Optional[Auditd::Overflowaction]        $overflow_action          = undef, # data in module
   String[1]                               $package_name             = 'audit',
   Simplib::PackageEnsure                  $package_ensure           = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' }),
@@ -252,12 +252,12 @@ class auditd (
   Auditd::RootAuditLevel                  $root_audit_level         = 'basic',
   String[1]                               $service_name             = 'auditd',
   Variant[Integer[0],Pattern['^\d+%$']]   $space_left               = auditd::calculate_space_left($admin_space_left),
-  Auditd::SpaceLeftAction                 $space_left_action        = 'SYSLOG', # CCE-27238-5 : No guarantee of e-mail server so sending to syslog.
+  Auditd::SpaceLeftAction                 $space_left_action        = 'syslog',
   Boolean                                 $syslog                   = simplib::lookup('simp_options::syslog', {'default_value' => false }),   # CCE-26933-2
   Optional[Array[Pattern['^.*_t$']]]      $target_selinux_types     = undef,
   Integer[0]                              $uid_min                  = Integer(pick(fact('uid_min'), 1000)),
   Optional[Boolean]                       $verify_email             = undef,
-  Boolean                                 $write_logs               = $log_format ? { 'NOLOG' => false, default => true }
+  Boolean                                 $write_logs               = $log_format ? { /^(?i:nolog)$/ => false, default => true }
 ) {
 
   include 'auditd::service'
@@ -276,7 +276,7 @@ class auditd (
       else {
         # Versions > 2.5.2 do not handle NOLOG
         if $log_format == 'NOLOG' {
-          $_log_format = 'RAW'
+          $_log_format = 'raw'
         }
 
         $_write_logs = $write_logs
@@ -285,7 +285,7 @@ class auditd (
       unless defined('$_log_format') {
         # ENRICHED was not added until 2.6.0
         if $log_format == 'ENRICHED' {
-          $_log_format = 'RAW'
+          $_log_format = 'raw'
         }
         else {
           $_log_format = $log_format
@@ -295,7 +295,7 @@ class auditd (
     else {
       # Versions >= 2.6.0 do not support NOLOG
       if $log_format == 'NOLOG' {
-        $_log_format = 'RAW'
+        $_log_format = 'raw'
       }
       else {
         $_log_format = $log_format

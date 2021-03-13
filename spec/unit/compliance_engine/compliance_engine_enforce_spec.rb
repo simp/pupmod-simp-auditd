@@ -8,6 +8,10 @@ FileUtils.rm_rf(v1_profiles) if File.directory?(v1_profiles)
 # reporting work.
 describe 'compliance_markup', type: :class do
 
+  let(:params) do
+    { :report_types => ['full'] }
+  end
+
   compliance_profiles = [
     'disa_stig',
     'nist_800_53:rev4'
@@ -33,7 +37,7 @@ describe 'compliance_markup', type: :class do
       compliance_profiles.each do |target_profile|
         context "with compliance profile '#{target_profile}'" do
           let(:facts){
-            if ! os_facts[:auditd_major_version]
+            unless os_facts[:auditd_major_version]
                if os_facts[:os][:release][:major] < '8'
                  os_facts[:auditd_major_version] = '2'
                else

@@ -41,6 +41,7 @@ can be sent to syslog in addition the audit partition.
 * [`Auditd::DiskFullAction`](#auditddiskfullaction): Matches actions to take when disk is full (see auditd.conf)
 * [`Auditd::Flush`](#auditdflush): Matches actions flush in auditd.conf
 * [`Auditd::LogFacility`](#auditdlogfacility): Matches log facility that can be used in syslog.conf plugin
+* [`Auditd::LogFormat`](#auditdlogformat): Matches log formats that can be used in auditd.conf
 * [`Auditd::LogPriority`](#auditdlogpriority): Matches log priorities that can be used in syslog.conf plugin
 * [`Auditd::MaxLogFileAction`](#auditdmaxlogfileaction): Matches available matches for maxlogfileaction in auditd.conf
 * [`Auditd::NameFormat`](#auditdnameformat): Matche s available name formats in audotd.conf
@@ -50,7 +51,7 @@ can be sent to syslog in addition the audit partition.
 
 ## Classes
 
-### `auditd`
+### <a name="auditd"></a>`auditd`
 
 Any variable that is not described here can be found in auditd.conf(5) and
 auditctl(8).
@@ -61,9 +62,62 @@ auditctl(8).
 
 #### Parameters
 
-The following parameters are available in the `auditd` class.
+The following parameters are available in the `auditd` class:
 
-##### `enable`
+* [`enable`](#enable)
+* [`default_audit_profile`](#default_audit_profile)
+* [`default_audit_profiles`](#default_audit_profiles)
+* [`audit_auditd_config`](#audit_auditd_config)
+* [`lname`](#lname)
+* [`ignore_anonymous`](#ignore_anonymous)
+* [`ignore_crond`](#ignore_crond)
+* [`ignore_time_daemons`](#ignore_time_daemons)
+* [`ignore_crypto_key_user`](#ignore_crypto_key_user)
+* [`ignore_errors`](#ignore_errors)
+* [`ignore_failures`](#ignore_failures)
+* [`ignore_system_services`](#ignore_system_services)
+* [`action_mail_acct`](#action_mail_acct)
+* [`admin_space_left`](#admin_space_left)
+* [`admin_space_left_action`](#admin_space_left_action)
+* [`at_boot`](#at_boot)
+* [`buffer_size`](#buffer_size)
+* [`backlog_wait_time`](#backlog_wait_time)
+* [`disk_error_action`](#disk_error_action)
+* [`disk_full_action`](#disk_full_action)
+* [`disp_qos`](#disp_qos)
+* [`dispatcher`](#dispatcher)
+* [`failure_mode`](#failure_mode)
+* [`flush`](#flush)
+* [`freq`](#freq)
+* [`immutable`](#immutable)
+* [`log_file`](#log_file)
+* [`local_events`](#local_events)
+* [`log_format`](#log_format)
+* [`log_group`](#log_group)
+* [`loginuid_immutable`](#loginuid_immutable)
+* [`max_log_file`](#max_log_file)
+* [`max_log_file_action`](#max_log_file_action)
+* [`max_restarts`](#max_restarts)
+* [`name_format`](#name_format)
+* [`num_logs`](#num_logs)
+* [`overflow_action`](#overflow_action)
+* [`package_name`](#package_name)
+* [`package_ensure`](#package_ensure)
+* [`plugin_dir`](#plugin_dir)
+* [`priority_boost`](#priority_boost)
+* [`q_depth`](#q_depth)
+* [`rate`](#rate)
+* [`root_audit_level`](#root_audit_level)
+* [`service_name`](#service_name)
+* [`space_left`](#space_left)
+* [`space_left_action`](#space_left_action)
+* [`syslog`](#syslog)
+* [`target_selinux_types`](#target_selinux_types)
+* [`uid_min`](#uid_min)
+* [`verify_email`](#verify_email)
+* [`write_logs`](#write_logs)
+
+##### <a name="enable"></a>`enable`
 
 Data type: `Boolean`
 
@@ -71,7 +125,7 @@ If true, enable auditing.
 
 Default value: ``true``
 
-##### `default_audit_profile`
+##### <a name="default_audit_profile"></a>`default_audit_profile`
 
 Data type: `Optional[Variant[Enum['simp'],Boolean]]`
 
@@ -79,7 +133,7 @@ Deprecated by `$default_audit_profiles`
 
 Default value: ``undef``
 
-##### `default_audit_profiles`
+##### <a name="default_audit_profiles"></a>`default_audit_profiles`
 
 Data type: `Array[Auditd::AuditProfile]`
 
@@ -95,7 +149,7 @@ of audit rules.
 
 Default value: `[ 'simp' ]`
 
-##### `audit_auditd_config`
+##### <a name="audit_auditd_config"></a>`audit_auditd_config`
 
 Data type: `Boolean`
 
@@ -103,7 +157,7 @@ Set up an audit rule to audit the `auditd` configuration files.
 
 Default value: ``true``
 
-##### `lname`
+##### <a name="lname"></a>`lname`
 
 Data type: `String`
 
@@ -112,7 +166,7 @@ since ``$name`` is a reserved keyword in Puppet.
 
 Default value: `$facts['fqdn']`
 
-##### `ignore_anonymous`
+##### <a name="ignore_anonymous"></a>`ignore_anonymous`
 
 Data type: `Boolean`
 
@@ -122,7 +176,7 @@ Audit records from these events are prolific but not useful.
 
 Default value: ``true``
 
-##### `ignore_crond`
+##### <a name="ignore_crond"></a>`ignore_crond`
 
 Data type: `Boolean`
 
@@ -131,7 +185,7 @@ jobs. `cron` creates a lot of audit events that are not usually useful.
 
 Default value: ``true``
 
-##### `ignore_time_daemons`
+##### <a name="ignore_time_daemons"></a>`ignore_time_daemons`
 
 Data type: `Boolean`
 
@@ -140,7 +194,7 @@ since this is valid activity.
 
 Default value: ``true``
 
-##### `ignore_crypto_key_user`
+##### <a name="ignore_crypto_key_user"></a>`ignore_crypto_key_user`
 
 Data type: `Boolean`
 
@@ -148,7 +202,7 @@ Ignore CRYPTO_KEY_USER logs since these are generally noise.
 
 Default value: ``true``
 
-##### `ignore_errors`
+##### <a name="ignore_errors"></a>`ignore_errors`
 
 Data type: `Boolean`
 
@@ -156,7 +210,7 @@ Whether to set the `auditctl` '-i' option
 
 Default value: ``true``
 
-##### `ignore_failures`
+##### <a name="ignore_failures"></a>`ignore_failures`
 
 Data type: `Boolean`
 
@@ -164,7 +218,7 @@ Whether to set the `auditctl` '-c' option
 
 Default value: ``true``
 
-##### `ignore_system_services`
+##### <a name="ignore_system_services"></a>`ignore_system_services`
 
 Data type: `Boolean`
 
@@ -177,7 +231,7 @@ of that filtering.
 
 Default value: ``true``
 
-##### `action_mail_acct`
+##### <a name="action_mail_acct"></a>`action_mail_acct`
 
 Data type: `String[1]`
 
@@ -185,7 +239,7 @@ Data type: `String[1]`
 
 Default value: `'root'`
 
-##### `admin_space_left`
+##### <a name="admin_space_left"></a>`admin_space_left`
 
 Data type: `Variant[Integer[0],Pattern['^\d+%$']]`
 
@@ -193,15 +247,15 @@ Data type: `Variant[Integer[0],Pattern['^\d+%$']]`
 
 Default value: `50`
 
-##### `admin_space_left_action`
+##### <a name="admin_space_left_action"></a>`admin_space_left_action`
 
 Data type: `Auditd::SpaceLeftAction`
 
 
 
-Default value: `'SUSPEND'`
+Default value: `'rotate'`
 
-##### `at_boot`
+##### <a name="at_boot"></a>`at_boot`
 
 Data type: `Boolean`
 
@@ -209,7 +263,7 @@ If true, modify the Grub settings to enable auditing at boot time.
 
 Default value: ``true``
 
-##### `buffer_size`
+##### <a name="buffer_size"></a>`buffer_size`
 
 Data type: `Integer[0]`
 
@@ -217,7 +271,7 @@ Value of the `auditctl` '-b' option
 
 Default value: `16384`
 
-##### `backlog_wait_time`
+##### <a name="backlog_wait_time"></a>`backlog_wait_time`
 
 Data type: `Integer[1,600000]`
 
@@ -225,23 +279,23 @@ Data type: `Integer[1,600000]`
 
 Default value: `60000`
 
-##### `disk_error_action`
+##### <a name="disk_error_action"></a>`disk_error_action`
 
 Data type: `Auditd::DiskErrorAction`
 
 
 
-Default value: `'SUSPEND'`
+Default value: `'syslog'`
 
-##### `disk_full_action`
+##### <a name="disk_full_action"></a>`disk_full_action`
 
 Data type: `Auditd::DiskFullAction`
 
 
 
-Default value: `'SUSPEND'`
+Default value: `'rotate'`
 
-##### `disp_qos`
+##### <a name="disp_qos"></a>`disp_qos`
 
 Data type: `Enum['lossy','lossless']`
 
@@ -249,7 +303,7 @@ Data type: `Enum['lossy','lossless']`
 
 Default value: `'lossy'`
 
-##### `dispatcher`
+##### <a name="dispatcher"></a>`dispatcher`
 
 Data type: `Stdlib::Absolutepath`
 
@@ -257,7 +311,7 @@ Data type: `Stdlib::Absolutepath`
 
 Default value: `'/sbin/audispd'`
 
-##### `failure_mode`
+##### <a name="failure_mode"></a>`failure_mode`
 
 Data type: `Integer[0]`
 
@@ -265,15 +319,15 @@ Value of the `auditctl` '-f' option
 
 Default value: `1`
 
-##### `flush`
+##### <a name="flush"></a>`flush`
 
 Data type: `Auditd::Flush`
 
 
 
-Default value: `'INCREMENTAL'`
+Default value: `'incremental'`
 
-##### `freq`
+##### <a name="freq"></a>`freq`
 
 Data type: `Integer[0]`
 
@@ -281,7 +335,7 @@ Data type: `Integer[0]`
 
 Default value: `20`
 
-##### `immutable`
+##### <a name="immutable"></a>`immutable`
 
 Data type: `Boolean`
 
@@ -292,7 +346,7 @@ rules without a reboot.
 
 Default value: ``false``
 
-##### `log_file`
+##### <a name="log_file"></a>`log_file`
 
 Data type: `Stdlib::Absolutepath`
 
@@ -300,7 +354,7 @@ Data type: `Stdlib::Absolutepath`
 
 Default value: `'/var/log/audit/audit.log'`
 
-##### `local_events`
+##### <a name="local_events"></a>`local_events`
 
 Data type: `Optional[Boolean]`
 
@@ -308,18 +362,18 @@ Data type: `Optional[Boolean]`
 
 Default value: ``undef``
 
-##### `log_format`
+##### <a name="log_format"></a>`log_format`
 
-Data type: `Enum['RAW','ENRICHED','NOLOG']`
+Data type: `Auditd::LogFormat`
 
 The output log format
 
 * 'NOLOG' is deprecated as of auditd 2.5.2
 * 'ENRICHED' is only available in auditd >= 2.6.0
 
-Default value: `'RAW'`
+Default value: `'raw'`
 
-##### `log_group`
+##### <a name="log_group"></a>`log_group`
 
 Data type: `String`
 
@@ -327,7 +381,7 @@ Data type: `String`
 
 Default value: `'root'`
 
-##### `loginuid_immutable`
+##### <a name="loginuid_immutable"></a>`loginuid_immutable`
 
 Data type: `Boolean`
 
@@ -339,7 +393,7 @@ Sets the --loginuid-immutable option
 
 Default value: ``true``
 
-##### `max_log_file`
+##### <a name="max_log_file"></a>`max_log_file`
 
 Data type: `Integer[0]`
 
@@ -347,15 +401,15 @@ Data type: `Integer[0]`
 
 Default value: `24`
 
-##### `max_log_file_action`
+##### <a name="max_log_file_action"></a>`max_log_file_action`
 
 Data type: `Auditd::MaxLogFileAction`
 
 
 
-Default value: `'ROTATE'`
+Default value: `'rotate'`
 
-##### `max_restarts`
+##### <a name="max_restarts"></a>`max_restarts`
 
 Data type: `Optional[Integer[1]]`
 
@@ -363,15 +417,15 @@ sets the number of times a plugin will be restart.
 
 Default value: ``undef``
 
-##### `name_format`
+##### <a name="name_format"></a>`name_format`
 
 Data type: `Auditd::NameFormat`
 
 
 
-Default value: `'USER'`
+Default value: `'user'`
 
-##### `num_logs`
+##### <a name="num_logs"></a>`num_logs`
 
 Data type: `Integer[0]`
 
@@ -379,7 +433,7 @@ Data type: `Integer[0]`
 
 Default value: `5`
 
-##### `overflow_action`
+##### <a name="overflow_action"></a>`overflow_action`
 
 Data type: `Optional[Auditd::Overflowaction]`
 
@@ -387,7 +441,7 @@ sets the overflow action.
 
 Default value: ``undef``
 
-##### `package_name`
+##### <a name="package_name"></a>`package_name`
 
 Data type: `String[1]`
 
@@ -395,7 +449,7 @@ The name of the auditd package.
 
 Default value: `'audit'`
 
-##### `package_ensure`
+##### <a name="package_ensure"></a>`package_ensure`
 
 Data type: `Simplib::PackageEnsure`
 
@@ -403,13 +457,13 @@ Data type: `Simplib::PackageEnsure`
 
 Default value: `simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' })`
 
-##### `plugin_dir`
+##### <a name="plugin_dir"></a>`plugin_dir`
 
 Data type: `Stdlib::Absolutepath`
 
 sets the directory for the plugin configuration files.
 
-##### `priority_boost`
+##### <a name="priority_boost"></a>`priority_boost`
 
 Data type: `Integer[0]`
 
@@ -417,7 +471,7 @@ Data type: `Integer[0]`
 
 Default value: `3`
 
-##### `q_depth`
+##### <a name="q_depth"></a>`q_depth`
 
 Data type: `Integer[0]`
 
@@ -425,7 +479,7 @@ how big to make the internal queue of the audit event dispatcher
 
 Default value: `400`
 
-##### `rate`
+##### <a name="rate"></a>`rate`
 
 Data type: `Integer[0]`
 
@@ -433,7 +487,7 @@ Value of the `auditctl` '-r' option
 
 Default value: `0`
 
-##### `root_audit_level`
+##### <a name="root_audit_level"></a>`root_audit_level`
 
 Data type: `Auditd::RootAuditLevel`
 
@@ -451,7 +505,7 @@ profile, these options are as follows:
 
 Default value: `'basic'`
 
-##### `service_name`
+##### <a name="service_name"></a>`service_name`
 
 Data type: `String[1]`
 
@@ -459,7 +513,7 @@ The name of the auditd service.
 
 Default value: `'auditd'`
 
-##### `space_left`
+##### <a name="space_left"></a>`space_left`
 
 Data type: `Variant[Integer[0],Pattern['^\d+%$']]`
 
@@ -470,15 +524,15 @@ Must be larger than `$admin_space_left`.
 
 Default value: `auditd::calculate_space_left($admin_space_left)`
 
-##### `space_left_action`
+##### <a name="space_left_action"></a>`space_left_action`
 
 Data type: `Auditd::SpaceLeftAction`
 
 
 
-Default value: `'SYSLOG'`
+Default value: `'syslog'`
 
-##### `syslog`
+##### <a name="syslog"></a>`syslog`
 
 Data type: `Boolean`
 
@@ -494,7 +548,7 @@ If this is set to false the plugin settings are not managed by puppet.
 
 Default value: `simplib::lookup('simp_options::syslog', {'default_value' => false })`
 
-##### `target_selinux_types`
+##### <a name="target_selinux_types"></a>`target_selinux_types`
 
 Data type: `Optional[Array[Pattern['^.*_t$']]]`
 
@@ -506,7 +560,7 @@ sufficient since all other invalid system actions are already audited.
 
 Default value: ``undef``
 
-##### `uid_min`
+##### <a name="uid_min"></a>`uid_min`
 
 Data type: `Integer[0]`
 
@@ -519,7 +573,7 @@ parameter to be 'first'.
 
 Default value: `Integer(pick(fact('uid_min'), 1000))`
 
-##### `verify_email`
+##### <a name="verify_email"></a>`verify_email`
 
 Data type: `Optional[Boolean]`
 
@@ -527,7 +581,7 @@ auditd version 3 only
 
 Default value: ``undef``
 
-##### `write_logs`
+##### <a name="write_logs"></a>`write_logs`
 
 Data type: `Boolean`
 
@@ -539,11 +593,11 @@ Whether or not to write logs to disk.
 
 Default value: `$log_format`
 
-### `auditd::config`
+### <a name="auditdconfig"></a>`auditd::config`
 
 NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
 
-### `auditd::config::audisp`
+### <a name="auditdconfigaudisp"></a>`auditd::config::audisp`
 
 The following parameters are documented in audispd.conf(5).
 
@@ -562,39 +616,46 @@ The following setting maps to the name variable in audisp.conf.
 
 #### Parameters
 
-The following parameters are available in the `auditd::config::audisp` class.
+The following parameters are available in the `auditd::config::audisp` class:
 
-##### `q_depth`
+* [`q_depth`](#q_depth)
+* [`overflow_action`](#overflow_action)
+* [`priority_boost`](#priority_boost)
+* [`max_restarts`](#max_restarts)
+* [`name_format`](#name_format)
+* [`specific_name`](#specific_name)
+
+##### <a name="q_depth"></a>`q_depth`
 
 Data type: `Integer`
 
 (deprecated)
 
-##### `overflow_action`
+##### <a name="overflow_action"></a>`overflow_action`
 
 Data type: `Auditd::OverflowAction`
 
 (deprecated)
 
-##### `priority_boost`
+##### <a name="priority_boost"></a>`priority_boost`
 
 Data type: `Integer`
 
 (deprecated)
 
-##### `max_restarts`
+##### <a name="max_restarts"></a>`max_restarts`
 
 Data type: `Integer`
 
 (deprecated)
 
-##### `name_format`
+##### <a name="name_format"></a>`name_format`
 
 Data type: `Auditd::NameFormat`
 
 (deprecated)
 
-##### `specific_name`
+##### <a name="specific_name"></a>`specific_name`
 
 Data type: `String`
 
@@ -602,7 +663,7 @@ Data type: `String`
 
 Default value: `$facts['fqdn']`
 
-### `auditd::config::audisp::syslog`
+### <a name="auditdconfigaudispsyslog"></a>`auditd::config::audisp::syslog`
 
 This capability is most useful for forwarding audit records to
 remote servers as syslog messages, since these records are already
@@ -624,9 +685,19 @@ information carried by these messages.
 
 #### Parameters
 
-The following parameters are available in the `auditd::config::audisp::syslog` class.
+The following parameters are available in the `auditd::config::audisp::syslog` class:
 
-##### `rsyslog`
+* [`rsyslog`](#rsyslog)
+* [`drop_audit_logs`](#drop_audit_logs)
+* [`enable`](#enable)
+* [`priority`](#priority)
+* [`facility`](#facility)
+* [`syslog_path`](#syslog_path)
+* [`type`](#type)
+* [`pkg_name`](#pkg_name)
+* [`package_ensure`](#package_ensure)
+
+##### <a name="rsyslog"></a>`rsyslog`
 
 Data type: `Boolean`
 
@@ -636,7 +707,7 @@ for the `auditd` services.
 
 Default value: `simplib::lookup('simp_options::syslog', { 'default_value' => false })`
 
-##### `drop_audit_logs`
+##### <a name="drop_audit_logs"></a>`drop_audit_logs`
 
 Data type: `Boolean`
 
@@ -652,7 +723,7 @@ be in the next major release.
 
 Default value: ``true``
 
-##### `enable`
+##### <a name="enable"></a>`enable`
 
 Data type: `Boolean`
 
@@ -660,7 +731,7 @@ Enable or disable sending audit mesages to syslog.
 
 Default value: ``true``
 
-##### `priority`
+##### <a name="priority"></a>`priority`
 
 Data type: `Auditd::LogPriority`
 
@@ -669,7 +740,7 @@ This value is used in the /etc/audisp/plugins.d/syslog.conf file.
 
 Default value: `'LOG_INFO'`
 
-##### `facility`
+##### <a name="facility"></a>`facility`
 
 Data type: `Auditd::LogFacility`
 
@@ -683,19 +754,19 @@ are allowed.
 
 Default value: `'LOG_LOCAL5'`
 
-##### `syslog_path`
+##### <a name="syslog_path"></a>`syslog_path`
 
 Data type: `String`
 
 The path to the syslog plugin executable.
 
-##### `type`
+##### <a name="type"></a>`type`
 
 Data type: `String`
 
 The type of auditd plugin.
 
-##### `pkg_name`
+##### <a name="pkg_name"></a>`pkg_name`
 
 Data type: `Optional[String]`
 
@@ -704,7 +775,7 @@ auditd version 3 and later.
 
 Default value: ``undef``
 
-##### `package_ensure`
+##### <a name="package_ensure"></a>`package_ensure`
 
 Data type: `String`
 
@@ -712,13 +783,13 @@ The default ensure parmeter for packages.
 
 Default value: `simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' })`
 
-### `auditd::config::audisp_service`
+### <a name="auditdconfigaudisp_service"></a>`auditd::config::audisp_service`
 
 NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
 
 Should only be called from audisp processing services.
 
-### `auditd::config::audit_profiles`
+### <a name="auditdconfigaudit_profiles"></a>`auditd::config::audit_profiles`
 
 NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
 
@@ -751,16 +822,18 @@ file. The generated files are as follows:
 - `99_tail.rules`
   - `auditctl` immutable option, when `$auditd::immutable` is 'true'
 
-### `auditd::config::audit_profiles::built_in`
+### <a name="auditdconfigaudit_profilesbuilt_in"></a>`auditd::config::audit_profiles::built_in`
 
 An audit profile that allows the use of sample rulesets included with the
 audit package to be used to configure a system.
 
 #### Parameters
 
-The following parameters are available in the `auditd::config::audit_profiles::built_in` class.
+The following parameters are available in the `auditd::config::audit_profiles::built_in` class:
 
-##### `rulesets`
+* [`rulesets`](#rulesets)
+
+##### <a name="rulesets"></a>`rulesets`
 
 Data type: `Array[String[1]]`
 
@@ -769,7 +842,7 @@ can be found in the `auditd_sample_rulesets` fact.
 
 Default value: `[]`
 
-### `auditd::config::audit_profiles::custom`
+### <a name="auditdconfigaudit_profilescustom"></a>`auditd::config::audit_profiles::custom`
 
 **NO SANITY CHECKING IS PERFORMED ON THE RESULTING RULES**
 
@@ -803,9 +876,12 @@ auditd::config::audit_profiles::custom::template: "my_templates_module/auditd/my
 
 #### Parameters
 
-The following parameters are available in the `auditd::config::audit_profiles::custom` class.
+The following parameters are available in the `auditd::config::audit_profiles::custom` class:
 
-##### `rules`
+* [`rules`](#rules)
+* [`template`](#template)
+
+##### <a name="rules"></a>`rules`
 
 Data type: `Optional[Array[String[1]]]`
 
@@ -814,7 +890,7 @@ An Array of rules that will be joined with a ``\n`` and inserted as the
 
 Default value: ``undef``
 
-##### `template`
+##### <a name="template"></a>`template`
 
 Data type: `Optional[String[1]]`
 
@@ -825,7 +901,7 @@ function
 
 Default value: ``undef``
 
-### `auditd::config::audit_profiles::simp`
+### <a name="auditdconfigaudit_profilessimp"></a>`auditd::config::audit_profiles::simp`
 
 The defaults for this profile generate a set of audit rules that are
 both usable on most systems and conformant with standard auditing
@@ -855,9 +931,112 @@ should be noted:
 
 #### Parameters
 
-The following parameters are available in the `auditd::config::audit_profiles::simp` class.
+The following parameters are available in the `auditd::config::audit_profiles::simp` class:
 
-##### `root_audit_level`
+* [`root_audit_level`](#root_audit_level)
+* [`audit_32bit_operations`](#audit_32bit_operations)
+* [`audit_32bit_operations_tag`](#audit_32bit_operations_tag)
+* [`audit_auditd_cmds`](#audit_auditd_cmds)
+* [`audit_auditd_cmds_tag`](#audit_auditd_cmds_tag)
+* [`audit_auditd_cmds_list`](#audit_auditd_cmds_list)
+* [`basic_root_audit_syscalls`](#basic_root_audit_syscalls)
+* [`aggressive_root_audit_syscalls`](#aggressive_root_audit_syscalls)
+* [`insane_root_audit_syscalls`](#insane_root_audit_syscalls)
+* [`audit_unsuccessful_file_operations`](#audit_unsuccessful_file_operations)
+* [`audit_unsuccessful_file_operations_tag`](#audit_unsuccessful_file_operations_tag)
+* [`audit_chown`](#audit_chown)
+* [`audit_chown_tag`](#audit_chown_tag)
+* [`audit_chmod`](#audit_chmod)
+* [`audit_chmod_tag`](#audit_chmod_tag)
+* [`audit_attr`](#audit_attr)
+* [`audit_attr_tag`](#audit_attr_tag)
+* [`audit_rename_remove`](#audit_rename_remove)
+* [`audit_rename_remove_tag`](#audit_rename_remove_tag)
+* [`audit_su_root_activity`](#audit_su_root_activity)
+* [`audit_su_root_activity_tag`](#audit_su_root_activity_tag)
+* [`audit_suid_sgid`](#audit_suid_sgid)
+* [`audit_suid_sgid_tag`](#audit_suid_sgid_tag)
+* [`audit_kernel_modules`](#audit_kernel_modules)
+* [`audit_kernel_modules_tag`](#audit_kernel_modules_tag)
+* [`audit_time`](#audit_time)
+* [`audit_time_tag`](#audit_time_tag)
+* [`audit_locale`](#audit_locale)
+* [`audit_locale_tag`](#audit_locale_tag)
+* [`audit_network_ipv4_accept`](#audit_network_ipv4_accept)
+* [`audit_network_ipv4_accept_tag`](#audit_network_ipv4_accept_tag)
+* [`audit_network_ipv6_accept`](#audit_network_ipv6_accept)
+* [`audit_network_ipv6_accept_tag`](#audit_network_ipv6_accept_tag)
+* [`audit_network_ipv4_connect`](#audit_network_ipv4_connect)
+* [`audit_network_ipv4_connect_tag`](#audit_network_ipv4_connect_tag)
+* [`audit_network_ipv6_connect`](#audit_network_ipv6_connect)
+* [`audit_network_ipv6_connect_tag`](#audit_network_ipv6_connect_tag)
+* [`audit_mount`](#audit_mount)
+* [`audit_mount_tag`](#audit_mount_tag)
+* [`audit_umask`](#audit_umask)
+* [`audit_umask_tag`](#audit_umask_tag)
+* [`audit_local_account`](#audit_local_account)
+* [`audit_local_account_tag`](#audit_local_account_tag)
+* [`audit_selinux_policy`](#audit_selinux_policy)
+* [`audit_selinux_policy_tag`](#audit_selinux_policy_tag)
+* [`audit_selinux_cmds`](#audit_selinux_cmds)
+* [`audit_selinux_cmds_tag`](#audit_selinux_cmds_tag)
+* [`audit_login_files`](#audit_login_files)
+* [`audit_login_files_tag`](#audit_login_files_tag)
+* [`audit_session_files`](#audit_session_files)
+* [`audit_session_files_tag`](#audit_session_files_tag)
+* [`audit_sudoers`](#audit_sudoers)
+* [`audit_sudoers_tag`](#audit_sudoers_tag)
+* [`audit_cfg_sudoers`](#audit_cfg_sudoers)
+* [`audit_cfg_sudoers_tag`](#audit_cfg_sudoers_tag)
+* [`audit_grub`](#audit_grub)
+* [`audit_grub_tag`](#audit_grub_tag)
+* [`audit_cfg_grub`](#audit_cfg_grub)
+* [`audit_cfg_grub_tag`](#audit_cfg_grub_tag)
+* [`audit_cfg_sys`](#audit_cfg_sys)
+* [`audit_cfg_sys_tag`](#audit_cfg_sys_tag)
+* [`audit_cfg_cron`](#audit_cfg_cron)
+* [`audit_cfg_cron_tag`](#audit_cfg_cron_tag)
+* [`audit_cfg_shell`](#audit_cfg_shell)
+* [`audit_cfg_shell_tag`](#audit_cfg_shell_tag)
+* [`audit_cfg_pam`](#audit_cfg_pam)
+* [`audit_cfg_pam_tag`](#audit_cfg_pam_tag)
+* [`audit_cfg_security`](#audit_cfg_security)
+* [`audit_cfg_security_tag`](#audit_cfg_security_tag)
+* [`audit_cfg_services`](#audit_cfg_services)
+* [`audit_cfg_services_tag`](#audit_cfg_services_tag)
+* [`audit_cfg_xinetd`](#audit_cfg_xinetd)
+* [`audit_cfg_xinetd_tag`](#audit_cfg_xinetd_tag)
+* [`audit_yum`](#audit_yum)
+* [`audit_yum_tag`](#audit_yum_tag)
+* [`audit_cfg_yum`](#audit_cfg_yum)
+* [`audit_cfg_yum_tag`](#audit_cfg_yum_tag)
+* [`audit_yum_cmd`](#audit_yum_cmd)
+* [`audit_yum_cmd_tag`](#audit_yum_cmd_tag)
+* [`audit_rpm_cmd`](#audit_rpm_cmd)
+* [`audit_rpm_cmd_tag`](#audit_rpm_cmd_tag)
+* [`audit_ptrace`](#audit_ptrace)
+* [`audit_ptrace_tag`](#audit_ptrace_tag)
+* [`audit_personality`](#audit_personality)
+* [`audit_personality_tag`](#audit_personality_tag)
+* [`audit_passwd_cmds`](#audit_passwd_cmds)
+* [`audit_passwd_cmds_tag`](#audit_passwd_cmds_tag)
+* [`audit_priv_cmds`](#audit_priv_cmds)
+* [`audit_priv_cmds_tag`](#audit_priv_cmds_tag)
+* [`audit_postfix_cmds`](#audit_postfix_cmds)
+* [`audit_postfix_cmds_tag`](#audit_postfix_cmds_tag)
+* [`audit_ssh_keysign_cmd`](#audit_ssh_keysign_cmd)
+* [`audit_ssh_keysign_cmd_tag`](#audit_ssh_keysign_cmd_tag)
+* [`audit_suspicious_apps`](#audit_suspicious_apps)
+* [`audit_suspicious_apps_tag`](#audit_suspicious_apps_tag)
+* [`audit_suspicious_apps_list`](#audit_suspicious_apps_list)
+* [`audit_systemd`](#audit_systemd)
+* [`audit_systemd_tag`](#audit_systemd_tag)
+* [`audit_crontab_cmd`](#audit_crontab_cmd)
+* [`audit_crontab_cmd_tag`](#audit_crontab_cmd_tag)
+* [`audit_pam_timestamp_check_cmd`](#audit_pam_timestamp_check_cmd)
+* [`audit_pam_timestamp_check_cmd_tag`](#audit_pam_timestamp_check_cmd_tag)
+
+##### <a name="root_audit_level"></a>`root_audit_level`
 
 Data type: `Auditd::RootAuditLevel`
 
@@ -874,7 +1053,7 @@ Options can be, 'basic', 'aggressive', 'insane'
 
 Default value: `$::auditd::root_audit_level`
 
-##### `audit_32bit_operations`
+##### <a name="audit_32bit_operations"></a>`audit_32bit_operations`
 
 Data type: `Boolean`
 
@@ -883,7 +1062,7 @@ suspicious.
 
 Default value: `$facts['hardwaremodel']`
 
-##### `audit_32bit_operations_tag`
+##### <a name="audit_32bit_operations_tag"></a>`audit_32bit_operations_tag`
 
 Data type: `String[1]`
 
@@ -891,7 +1070,7 @@ Tag to be added to entries triggered by `audit_32bit_operations`
 
 Default value: `'32bit-api'`
 
-##### `audit_auditd_cmds`
+##### <a name="audit_auditd_cmds"></a>`audit_auditd_cmds`
 
 Data type: `Boolean`
 
@@ -899,7 +1078,7 @@ Audit calls to the auditd management CLI commands
 
 Default value: ``true``
 
-##### `audit_auditd_cmds_tag`
+##### <a name="audit_auditd_cmds_tag"></a>`audit_auditd_cmds_tag`
 
 Data type: `String[1]`
 
@@ -907,31 +1086,31 @@ Tag to be added to entries triggered by `audit_auditd_cmds`
 
 Default value: `'access-audit-trail'`
 
-##### `audit_auditd_cmds_list`
+##### <a name="audit_auditd_cmds_list"></a>`audit_auditd_cmds_list`
 
 Data type: `Array[String[1]]`
 
 Commands to be audited if enabled by `audit_auditd_cmds`
 
-##### `basic_root_audit_syscalls`
+##### <a name="basic_root_audit_syscalls"></a>`basic_root_audit_syscalls`
 
 Data type: `Array[String[1]]`
 
 Basic syscalls to audit for su-root activity
 
-##### `aggressive_root_audit_syscalls`
+##### <a name="aggressive_root_audit_syscalls"></a>`aggressive_root_audit_syscalls`
 
 Data type: `Array[String[1]]`
 
 Aggressive syscalls to audit for su-root activity
 
-##### `insane_root_audit_syscalls`
+##### <a name="insane_root_audit_syscalls"></a>`insane_root_audit_syscalls`
 
 Data type: `Array[String[1]]`
 
 Insane syscalls to audit for su-root activity
 
-##### `audit_unsuccessful_file_operations`
+##### <a name="audit_unsuccessful_file_operations"></a>`audit_unsuccessful_file_operations`
 
 Data type: `Boolean`
 
@@ -940,7 +1119,7 @@ that fail with EACCES or EPERM error codes
 
 Default value: ``true``
 
-##### `audit_unsuccessful_file_operations_tag`
+##### <a name="audit_unsuccessful_file_operations_tag"></a>`audit_unsuccessful_file_operations_tag`
 
 Data type: `String[1]`
 
@@ -948,7 +1127,7 @@ The tag to identify the unsuccessful file operations in an audit record
 
 Default value: `'access'`
 
-##### `audit_chown`
+##### <a name="audit_chown"></a>`audit_chown`
 
 Data type: `Boolean`
 
@@ -958,7 +1137,7 @@ and `lchown` system calls.
 
 Default value: ``true``
 
-##### `audit_chown_tag`
+##### <a name="audit_chown_tag"></a>`audit_chown_tag`
 
 Data type: `String[1]`
 
@@ -968,7 +1147,7 @@ compliance checks for RHEL7.
 
 Default value: `'chown'`
 
-##### `audit_chmod`
+##### <a name="audit_chmod"></a>`audit_chmod`
 
 Data type: `Boolean`
 
@@ -978,7 +1157,7 @@ system calls.
 
 Default value: ``false``
 
-##### `audit_chmod_tag`
+##### <a name="audit_chmod_tag"></a>`audit_chmod_tag`
 
 Data type: `String[1]`
 
@@ -988,7 +1167,7 @@ compliance checks for RHEL7.
 
 Default value: `'chmod'`
 
-##### `audit_attr`
+##### <a name="audit_attr"></a>`audit_attr`
 
 Data type: `Boolean`
 
@@ -998,7 +1177,7 @@ These operations are provided by `setxattr`, `lsetxattr`, `fsetxattr`,
 
 Default value: ``true``
 
-##### `audit_attr_tag`
+##### <a name="audit_attr_tag"></a>`audit_attr_tag`
 
 Data type: `String[1]`
 
@@ -1008,7 +1187,7 @@ compliance checks for RHEL7.
 
 Default value: `'attr'`
 
-##### `audit_rename_remove`
+##### <a name="audit_rename_remove"></a>`audit_rename_remove`
 
 Data type: `Boolean`
 
@@ -1018,7 +1197,7 @@ These operations are provided by `rename`, `renameat`, `rmdir`,
 
 Default value: ``false``
 
-##### `audit_rename_remove_tag`
+##### <a name="audit_rename_remove_tag"></a>`audit_rename_remove_tag`
 
 Data type: `String[1]`
 
@@ -1026,7 +1205,7 @@ The tag to identify rename/remove operations in an audit record
 
 Default value: `'delete'`
 
-##### `audit_su_root_activity`
+##### <a name="audit_su_root_activity"></a>`audit_su_root_activity`
 
 Data type: `Boolean`
 
@@ -1035,7 +1214,7 @@ The list of system calls audited is controlled by `$root_audit_level`.
 
 Default value: ``true``
 
-##### `audit_su_root_activity_tag`
+##### <a name="audit_su_root_activity_tag"></a>`audit_su_root_activity_tag`
 
 Data type: `String[1]`
 
@@ -1043,7 +1222,7 @@ The tag to identify `su` operations in an audit record
 
 Default value: `'su-root-activity'`
 
-##### `audit_suid_sgid`
+##### <a name="audit_suid_sgid"></a>`audit_suid_sgid`
 
 Data type: `Boolean`
 
@@ -1053,7 +1232,7 @@ rule.
 
 Default value: ``true``
 
-##### `audit_suid_sgid_tag`
+##### <a name="audit_suid_sgid_tag"></a>`audit_suid_sgid_tag`
 
 Data type: `String[1]`
 
@@ -1063,7 +1242,7 @@ DISA STIG compliance checks for RHEL7.
 
 Default value: `'suid-root-exec'`
 
-##### `audit_kernel_modules`
+##### <a name="audit_kernel_modules"></a>`audit_kernel_modules`
 
 Data type: `Boolean`
 
@@ -1071,7 +1250,7 @@ Whether to audit kernel module operations
 
 Default value: ``true``
 
-##### `audit_kernel_modules_tag`
+##### <a name="audit_kernel_modules_tag"></a>`audit_kernel_modules_tag`
 
 Data type: `String[1]`
 
@@ -1081,7 +1260,7 @@ compliance checks for RHEL7.
 
 Default value: `'modules'`
 
-##### `audit_time`
+##### <a name="audit_time"></a>`audit_time`
 
 Data type: `Boolean`
 
@@ -1089,7 +1268,7 @@ Whether to audit operations that affect system time
 
 Default value: ``true``
 
-##### `audit_time_tag`
+##### <a name="audit_time_tag"></a>`audit_time_tag`
 
 Data type: `String[1]`
 
@@ -1097,7 +1276,7 @@ The tag to identify system time operations in an audit record
 
 Default value: `'audit_time_rules'`
 
-##### `audit_locale`
+##### <a name="audit_locale"></a>`audit_locale`
 
 Data type: `Boolean`
 
@@ -1105,7 +1284,7 @@ Whether to audit operations that affect system locale
 
 Default value: ``true``
 
-##### `audit_locale_tag`
+##### <a name="audit_locale_tag"></a>`audit_locale_tag`
 
 Data type: `String[1]`
 
@@ -1113,7 +1292,7 @@ The tag to identify system locale operations in an audit record
 
 Default value: `'audit_network_modifications'`
 
-##### `audit_network_ipv4_accept`
+##### <a name="audit_network_ipv4_accept"></a>`audit_network_ipv4_accept`
 
 Data type: `Boolean`
 
@@ -1121,7 +1300,7 @@ Audit **incoming** IPv4 connections
 
 Default value: ``true``
 
-##### `audit_network_ipv4_accept_tag`
+##### <a name="audit_network_ipv4_accept_tag"></a>`audit_network_ipv4_accept_tag`
 
 Data type: `String[1]`
 
@@ -1129,7 +1308,7 @@ Tag to be added to entries triggered by `audit_network_ipv4_accept`
 
 Default value: `'ipv4_in'`
 
-##### `audit_network_ipv6_accept`
+##### <a name="audit_network_ipv6_accept"></a>`audit_network_ipv6_accept`
 
 Data type: `Boolean`
 
@@ -1137,7 +1316,7 @@ Audit **incoming** IPv6 connections
 
 Default value: ``true``
 
-##### `audit_network_ipv6_accept_tag`
+##### <a name="audit_network_ipv6_accept_tag"></a>`audit_network_ipv6_accept_tag`
 
 Data type: `String[1]`
 
@@ -1145,7 +1324,7 @@ Tag to be added to entries triggered by `audit_network_ipv6_accept`
 
 Default value: `'ipv6_in'`
 
-##### `audit_network_ipv4_connect`
+##### <a name="audit_network_ipv4_connect"></a>`audit_network_ipv4_connect`
 
 Data type: `Boolean`
 
@@ -1153,7 +1332,7 @@ Audit **outgoing** IPv4 connections
 
 Default value: ``false``
 
-##### `audit_network_ipv4_connect_tag`
+##### <a name="audit_network_ipv4_connect_tag"></a>`audit_network_ipv4_connect_tag`
 
 Data type: `String[1]`
 
@@ -1161,7 +1340,7 @@ Tag to be added to entries triggered by `audit_network_ipv4_connect`
 
 Default value: `'ipv4_in'`
 
-##### `audit_network_ipv6_connect`
+##### <a name="audit_network_ipv6_connect"></a>`audit_network_ipv6_connect`
 
 Data type: `Boolean`
 
@@ -1169,7 +1348,7 @@ Audit **outgoing** IPv6 connections
 
 Default value: ``false``
 
-##### `audit_network_ipv6_connect_tag`
+##### <a name="audit_network_ipv6_connect_tag"></a>`audit_network_ipv6_connect_tag`
 
 Data type: `String[1]`
 
@@ -1177,7 +1356,7 @@ Tag to be added to entries triggered by `audit_network_ipv6_connect`
 
 Default value: `'ipv6_in'`
 
-##### `audit_mount`
+##### <a name="audit_mount"></a>`audit_mount`
 
 Data type: `Boolean`
 
@@ -1185,7 +1364,7 @@ Whether to audit mount operations
 
 Default value: ``true``
 
-##### `audit_mount_tag`
+##### <a name="audit_mount_tag"></a>`audit_mount_tag`
 
 Data type: `String[1]`
 
@@ -1195,7 +1374,7 @@ compliance checks for RHEL7.
 
 Default value: `'mount'`
 
-##### `audit_umask`
+##### <a name="audit_umask"></a>`audit_umask`
 
 Data type: `Boolean`
 
@@ -1203,7 +1382,7 @@ Whether to audit umask changes
 
 Default value: ``false``
 
-##### `audit_umask_tag`
+##### <a name="audit_umask_tag"></a>`audit_umask_tag`
 
 Data type: `String[1]`
 
@@ -1211,7 +1390,7 @@ The tag to identify umask changes in an audit record
 
 Default value: `'umask'`
 
-##### `audit_local_account`
+##### <a name="audit_local_account"></a>`audit_local_account`
 
 Data type: `Boolean`
 
@@ -1219,7 +1398,7 @@ Whether to audit local account changes
 
 Default value: ``true``
 
-##### `audit_local_account_tag`
+##### <a name="audit_local_account_tag"></a>`audit_local_account_tag`
 
 Data type: `String[1]`
 
@@ -1229,7 +1408,7 @@ compliance checks for RHEL7.
 
 Default value: `'audit_account_changes'`
 
-##### `audit_selinux_policy`
+##### <a name="audit_selinux_policy"></a>`audit_selinux_policy`
 
 Data type: `Boolean`
 
@@ -1237,7 +1416,7 @@ Whether to audit selinux policy changes
 
 Default value: ``true``
 
-##### `audit_selinux_policy_tag`
+##### <a name="audit_selinux_policy_tag"></a>`audit_selinux_policy_tag`
 
 Data type: `String[1]`
 
@@ -1245,7 +1424,7 @@ The tag to identify selinux policy changes in an audit record
 
 Default value: `'MAC-policy'`
 
-##### `audit_selinux_cmds`
+##### <a name="audit_selinux_cmds"></a>`audit_selinux_cmds`
 
 Data type: `Boolean`
 
@@ -1253,7 +1432,7 @@ Whether to audit `chcon`, `semanage`, `setsebool`, and `setfiles` commands
 
 Default value: ``false``
 
-##### `audit_selinux_cmds_tag`
+##### <a name="audit_selinux_cmds_tag"></a>`audit_selinux_cmds_tag`
 
 Data type: `String[1]`
 
@@ -1261,7 +1440,7 @@ The tag to identify selinux command execution in an audit record
 
 Default value: `'privileged-priv_change'`
 
-##### `audit_login_files`
+##### <a name="audit_login_files"></a>`audit_login_files`
 
 Data type: `Boolean`
 
@@ -1269,7 +1448,7 @@ Whether to audit changes to login files
 
 Default value: ``true``
 
-##### `audit_login_files_tag`
+##### <a name="audit_login_files_tag"></a>`audit_login_files_tag`
 
 Data type: `String[1]`
 
@@ -1277,7 +1456,7 @@ The tag to identify login file changes in an audit record
 
 Default value: `'logins'`
 
-##### `audit_session_files`
+##### <a name="audit_session_files"></a>`audit_session_files`
 
 Data type: `Boolean`
 
@@ -1285,7 +1464,7 @@ Whether to audit changes to session files
 
 Default value: ``true``
 
-##### `audit_session_files_tag`
+##### <a name="audit_session_files_tag"></a>`audit_session_files_tag`
 
 Data type: `String[1]`
 
@@ -1293,7 +1472,7 @@ The tag to identify session file changes in an audit record
 
 Default value: `'session'`
 
-##### `audit_sudoers`
+##### <a name="audit_sudoers"></a>`audit_sudoers`
 
 Data type: `Optional[Boolean]`
 
@@ -1301,7 +1480,7 @@ Deprecated by `$audit_cfg_sudoers`
 
 Default value: ``undef``
 
-##### `audit_sudoers_tag`
+##### <a name="audit_sudoers_tag"></a>`audit_sudoers_tag`
 
 Data type: `Optional[String[1]]`
 
@@ -1309,7 +1488,7 @@ Deprecated by `$audit_cfg_sudoers_tag`
 
 Default value: ``undef``
 
-##### `audit_cfg_sudoers`
+##### <a name="audit_cfg_sudoers"></a>`audit_cfg_sudoers`
 
 Data type: `Boolean`
 
@@ -1317,7 +1496,7 @@ Whether to audit changes to sudoers configuration files
 
 Default value: ``true``
 
-##### `audit_cfg_sudoers_tag`
+##### <a name="audit_cfg_sudoers_tag"></a>`audit_cfg_sudoers_tag`
 
 Data type: `String[1]`
 
@@ -1327,7 +1506,7 @@ automated DISA STIG compliance checks for RHEL7.
 
 Default value: `'CFG_sys'`
 
-##### `audit_grub`
+##### <a name="audit_grub"></a>`audit_grub`
 
 Data type: `Optional[Boolean]`
 
@@ -1335,7 +1514,7 @@ Deprecated by `$audit_cfg_grub`
 
 Default value: ``undef``
 
-##### `audit_grub_tag`
+##### <a name="audit_grub_tag"></a>`audit_grub_tag`
 
 Data type: `Optional[String[1]]`
 
@@ -1343,7 +1522,7 @@ Deprecated by `$audit_cfg_grub_tag`
 
 Default value: ``undef``
 
-##### `audit_cfg_grub`
+##### <a name="audit_cfg_grub"></a>`audit_cfg_grub`
 
 Data type: `Boolean`
 
@@ -1351,7 +1530,7 @@ Whether to audit changes to grub configuration files
 
 Default value: ``true``
 
-##### `audit_cfg_grub_tag`
+##### <a name="audit_cfg_grub_tag"></a>`audit_cfg_grub_tag`
 
 Data type: `String[1]`
 
@@ -1359,7 +1538,7 @@ The tag to identify grub configuration file changes in an audit record
 
 Default value: `'CFG_grub'`
 
-##### `audit_cfg_sys`
+##### <a name="audit_cfg_sys"></a>`audit_cfg_sys`
 
 Data type: `Boolean`
 
@@ -1368,7 +1547,7 @@ otherwise audited
 
 Default value: ``true``
 
-##### `audit_cfg_sys_tag`
+##### <a name="audit_cfg_sys_tag"></a>`audit_cfg_sys_tag`
 
 Data type: `String[1]`
 
@@ -1377,7 +1556,7 @@ not otherwise audited
 
 Default value: `'CFG_sys'`
 
-##### `audit_cfg_cron`
+##### <a name="audit_cfg_cron"></a>`audit_cfg_cron`
 
 Data type: `Boolean`
 
@@ -1385,7 +1564,7 @@ Whether to audit changes to cron configuration files
 
 Default value: ``true``
 
-##### `audit_cfg_cron_tag`
+##### <a name="audit_cfg_cron_tag"></a>`audit_cfg_cron_tag`
 
 Data type: `String[1]`
 
@@ -1394,7 +1573,7 @@ record
 
 Default value: `'CFG_cron'`
 
-##### `audit_cfg_shell`
+##### <a name="audit_cfg_shell"></a>`audit_cfg_shell`
 
 Data type: `Boolean`
 
@@ -1402,7 +1581,7 @@ Whether to audit changes to global shell configuration files
 
 Default value: ``true``
 
-##### `audit_cfg_shell_tag`
+##### <a name="audit_cfg_shell_tag"></a>`audit_cfg_shell_tag`
 
 Data type: `String[1]`
 
@@ -1411,7 +1590,7 @@ audit record
 
 Default value: `'CFG_shell'`
 
-##### `audit_cfg_pam`
+##### <a name="audit_cfg_pam"></a>`audit_cfg_pam`
 
 Data type: `Boolean`
 
@@ -1419,7 +1598,7 @@ Whether to audit changes to PAM configuration files
 
 Default value: ``true``
 
-##### `audit_cfg_pam_tag`
+##### <a name="audit_cfg_pam_tag"></a>`audit_cfg_pam_tag`
 
 Data type: `String[1]`
 
@@ -1427,7 +1606,7 @@ The tag to identify PAM configuration file changes in an audit record
 
 Default value: `'CFG_pam'`
 
-##### `audit_cfg_security`
+##### <a name="audit_cfg_security"></a>`audit_cfg_security`
 
 Data type: `Boolean`
 
@@ -1435,7 +1614,7 @@ Whether to audit changes to `/etc/security`
 
 Default value: ``true``
 
-##### `audit_cfg_security_tag`
+##### <a name="audit_cfg_security_tag"></a>`audit_cfg_security_tag`
 
 Data type: `String[1]`
 
@@ -1443,7 +1622,7 @@ The tag to identify `/etc/security` file changes in an audit record
 
 Default value: `'CFG_security'`
 
-##### `audit_cfg_services`
+##### <a name="audit_cfg_services"></a>`audit_cfg_services`
 
 Data type: `Boolean`
 
@@ -1451,7 +1630,7 @@ Whether to audit changes to `/etc/services`
 
 Default value: ``true``
 
-##### `audit_cfg_services_tag`
+##### <a name="audit_cfg_services_tag"></a>`audit_cfg_services_tag`
 
 Data type: `String[1]`
 
@@ -1459,7 +1638,7 @@ The tag to identify `/etc/services` file changes in an audit record
 
 Default value: `'CFG_services'`
 
-##### `audit_cfg_xinetd`
+##### <a name="audit_cfg_xinetd"></a>`audit_cfg_xinetd`
 
 Data type: `Boolean`
 
@@ -1467,7 +1646,7 @@ Whether to audit changes to xinetd configuration files
 
 Default value: ``true``
 
-##### `audit_cfg_xinetd_tag`
+##### <a name="audit_cfg_xinetd_tag"></a>`audit_cfg_xinetd_tag`
 
 Data type: `String[1]`
 
@@ -1475,7 +1654,7 @@ The tag to identify xinetd configuration file changes in an audit record
 
 Default value: `'CFG_xinetd'`
 
-##### `audit_yum`
+##### <a name="audit_yum"></a>`audit_yum`
 
 Data type: `Optional[Boolean]`
 
@@ -1483,7 +1662,7 @@ Deprecated by `$audit_cfg_yum`
 
 Default value: ``undef``
 
-##### `audit_yum_tag`
+##### <a name="audit_yum_tag"></a>`audit_yum_tag`
 
 Data type: `Optional[String[1]]`
 
@@ -1491,7 +1670,7 @@ Deprecated by `$audit_cfg_yum_tag`
 
 Default value: ``undef``
 
-##### `audit_cfg_yum`
+##### <a name="audit_cfg_yum"></a>`audit_cfg_yum`
 
 Data type: `Boolean`
 
@@ -1499,7 +1678,7 @@ Whether to audit changes to yum configuration files
 
 Default value: ``true``
 
-##### `audit_cfg_yum_tag`
+##### <a name="audit_cfg_yum_tag"></a>`audit_cfg_yum_tag`
 
 Data type: `String[1]`
 
@@ -1507,7 +1686,7 @@ The tag to identify yum configuration file changes in an audit record
 
 Default value: `'yum-config'`
 
-##### `audit_yum_cmd`
+##### <a name="audit_yum_cmd"></a>`audit_yum_cmd`
 
 Data type: `Boolean`
 
@@ -1515,7 +1694,7 @@ Whether to audit `yum` command execution
 
 Default value: ``false``
 
-##### `audit_yum_cmd_tag`
+##### <a name="audit_yum_cmd_tag"></a>`audit_yum_cmd_tag`
 
 Data type: `String[1]`
 
@@ -1523,7 +1702,7 @@ The tag to identify `yum` command execution in an audit record
 
 Default value: `'package_changes'`
 
-##### `audit_rpm_cmd`
+##### <a name="audit_rpm_cmd"></a>`audit_rpm_cmd`
 
 Data type: `Boolean`
 
@@ -1531,7 +1710,7 @@ Whether to audit `rpm` command execution
 
 Default value: ``false``
 
-##### `audit_rpm_cmd_tag`
+##### <a name="audit_rpm_cmd_tag"></a>`audit_rpm_cmd_tag`
 
 Data type: `String[1]`
 
@@ -1539,7 +1718,7 @@ The tag to identify `rpm` command execution in an audit record
 
 Default value: `'package_changes'`
 
-##### `audit_ptrace`
+##### <a name="audit_ptrace"></a>`audit_ptrace`
 
 Data type: `Boolean`
 
@@ -1547,7 +1726,7 @@ Whether to audit `ptrace` system calls
 
 Default value: ``true``
 
-##### `audit_ptrace_tag`
+##### <a name="audit_ptrace_tag"></a>`audit_ptrace_tag`
 
 Data type: `String[1]`
 
@@ -1555,7 +1734,7 @@ The tag to identify `ptrace` system calls in an audit record
 
 Default value: `'paranoid'`
 
-##### `audit_personality`
+##### <a name="audit_personality"></a>`audit_personality`
 
 Data type: `Boolean`
 
@@ -1563,7 +1742,7 @@ Whether to audit `personality` system calls
 
 Default value: ``true``
 
-##### `audit_personality_tag`
+##### <a name="audit_personality_tag"></a>`audit_personality_tag`
 
 Data type: `String[1]`
 
@@ -1571,7 +1750,7 @@ The tag to identify `personality` system calls in an audit record
 
 Default value: `'paranoid'`
 
-##### `audit_passwd_cmds`
+##### <a name="audit_passwd_cmds"></a>`audit_passwd_cmds`
 
 Data type: `Boolean`
 
@@ -1580,7 +1759,7 @@ Whether to audit the execution of password commands, i.e., `passwd`,
 
 Default value: ``true``
 
-##### `audit_passwd_cmds_tag`
+##### <a name="audit_passwd_cmds_tag"></a>`audit_passwd_cmds_tag`
 
 Data type: `String[1]`
 
@@ -1588,7 +1767,7 @@ The tag to identify password command execution in an audit record
 
 Default value: `'privileged-passwd'`
 
-##### `audit_priv_cmds`
+##### <a name="audit_priv_cmds"></a>`audit_priv_cmds`
 
 Data type: `Boolean`
 
@@ -1597,7 +1776,7 @@ Whether to audit the execution of privilege-related commands, i.e.,
 
 Default value: ``true``
 
-##### `audit_priv_cmds_tag`
+##### <a name="audit_priv_cmds_tag"></a>`audit_priv_cmds_tag`
 
 Data type: `String[1]`
 
@@ -1605,7 +1784,7 @@ The tag to identify privilege-related command execution in an audit record
 
 Default value: `'privileged-priv_change'`
 
-##### `audit_postfix_cmds`
+##### <a name="audit_postfix_cmds"></a>`audit_postfix_cmds`
 
 Data type: `Boolean`
 
@@ -1614,7 +1793,7 @@ Whether to audit the execution of postfix-related commands, i.e.
 
 Default value: ``true``
 
-##### `audit_postfix_cmds_tag`
+##### <a name="audit_postfix_cmds_tag"></a>`audit_postfix_cmds_tag`
 
 Data type: `String[1]`
 
@@ -1622,7 +1801,7 @@ The tag to identify postfix-related command execution in an audit record
 
 Default value: `'privileged-postfix'`
 
-##### `audit_ssh_keysign_cmd`
+##### <a name="audit_ssh_keysign_cmd"></a>`audit_ssh_keysign_cmd`
 
 Data type: `Boolean`
 
@@ -1630,7 +1809,7 @@ Whether to audit the execution of the `ssh-keysign` command
 
 Default value: ``true``
 
-##### `audit_ssh_keysign_cmd_tag`
+##### <a name="audit_ssh_keysign_cmd_tag"></a>`audit_ssh_keysign_cmd_tag`
 
 Data type: `String[1]`
 
@@ -1638,7 +1817,7 @@ The tag to identify `ssh-keysign` command execution in an audit record
 
 Default value: `'privileged-ssh'`
 
-##### `audit_suspicious_apps`
+##### <a name="audit_suspicious_apps"></a>`audit_suspicious_apps`
 
 Data type: `Boolean`
 
@@ -1646,7 +1825,7 @@ Audit various applications that generally represent suspicious host activity
 
 Default value: ``true``
 
-##### `audit_suspicious_apps_tag`
+##### <a name="audit_suspicious_apps_tag"></a>`audit_suspicious_apps_tag`
 
 Data type: `String[1]`
 
@@ -1654,13 +1833,13 @@ Tag to be added to entries triggered by `audit_suspicious_apps`
 
 Default value: `'suspicious_apps'`
 
-##### `audit_suspicious_apps_list`
+##### <a name="audit_suspicious_apps_list"></a>`audit_suspicious_apps_list`
 
 Data type: `Array[Stdlib::Absolutepath]`
 
 List of applications to be audited when `audit_suspicious_apps` is enabled
 
-##### `audit_systemd`
+##### <a name="audit_systemd"></a>`audit_systemd`
 
 Data type: `Boolean`
 
@@ -1670,7 +1849,7 @@ Audit systemd components
 
 Default value: ``true``
 
-##### `audit_systemd_tag`
+##### <a name="audit_systemd_tag"></a>`audit_systemd_tag`
 
 Data type: `String[1]`
 
@@ -1678,7 +1857,7 @@ Tag to be added to entries triggered by `audit_systemd`
 
 Default value: `'systemd'`
 
-##### `audit_crontab_cmd`
+##### <a name="audit_crontab_cmd"></a>`audit_crontab_cmd`
 
 Data type: `Boolean`
 
@@ -1686,7 +1865,7 @@ Whether to audit the execution of the `crontab` command
 
 Default value: ``true``
 
-##### `audit_crontab_cmd_tag`
+##### <a name="audit_crontab_cmd_tag"></a>`audit_crontab_cmd_tag`
 
 Data type: `String[1]`
 
@@ -1694,7 +1873,7 @@ The tag to identify `crontab` command execution in an audit record
 
 Default value: `'privileged-cron'`
 
-##### `audit_pam_timestamp_check_cmd`
+##### <a name="audit_pam_timestamp_check_cmd"></a>`audit_pam_timestamp_check_cmd`
 
 Data type: `Boolean`
 
@@ -1702,7 +1881,7 @@ Whether to audit the execution of the `pam_timestamp_check` command
 
 Default value: ``true``
 
-##### `audit_pam_timestamp_check_cmd_tag`
+##### <a name="audit_pam_timestamp_check_cmd_tag"></a>`audit_pam_timestamp_check_cmd_tag`
 
 Data type: `String[1]`
 
@@ -1711,7 +1890,7 @@ record
 
 Default value: `'privileged-pam'`
 
-### `auditd::config::audit_profiles::stig`
+### <a name="auditdconfigaudit_profilesstig"></a>`auditd::config::audit_profiles::stig`
 
 The defaults for this profile generate a set of audit rules that conform to
 automated DISA STIG compliance checks for RHEL7. Satisfying the checks,
@@ -1731,9 +1910,49 @@ When auditd performance is an issue, you may wish to
 
 #### Parameters
 
-The following parameters are available in the `auditd::config::audit_profiles::stig` class.
+The following parameters are available in the `auditd::config::audit_profiles::stig` class:
 
-##### `uid_min`
+* [`uid_min`](#uid_min)
+* [`audit_unsuccessful_file_operations`](#audit_unsuccessful_file_operations)
+* [`audit_unsuccessful_file_operations_tag`](#audit_unsuccessful_file_operations_tag)
+* [`audit_chown`](#audit_chown)
+* [`audit_chown_tag`](#audit_chown_tag)
+* [`audit_chmod`](#audit_chmod)
+* [`audit_chmod_tag`](#audit_chmod_tag)
+* [`audit_attr`](#audit_attr)
+* [`audit_attr_tag`](#audit_attr_tag)
+* [`audit_rename_remove`](#audit_rename_remove)
+* [`audit_rename_remove_tag`](#audit_rename_remove_tag)
+* [`audit_suid_sgid`](#audit_suid_sgid)
+* [`default_suid_sgid_cmds`](#default_suid_sgid_cmds)
+* [`suid_sgid_cmds`](#suid_sgid_cmds)
+* [`audit_suid_sgid_tag`](#audit_suid_sgid_tag)
+* [`audit_kernel_modules`](#audit_kernel_modules)
+* [`audit_kernel_modules_tag`](#audit_kernel_modules_tag)
+* [`audit_mount`](#audit_mount)
+* [`audit_mount_tag`](#audit_mount_tag)
+* [`audit_local_account`](#audit_local_account)
+* [`audit_local_account_tag`](#audit_local_account_tag)
+* [`audit_selinux_cmds`](#audit_selinux_cmds)
+* [`audit_selinux_cmds_tag`](#audit_selinux_cmds_tag)
+* [`audit_login_files`](#audit_login_files)
+* [`audit_login_files_tag`](#audit_login_files_tag)
+* [`audit_cfg_sudoers`](#audit_cfg_sudoers)
+* [`audit_cfg_sudoers_tag`](#audit_cfg_sudoers_tag)
+* [`audit_passwd_cmds`](#audit_passwd_cmds)
+* [`audit_passwd_cmds_tag`](#audit_passwd_cmds_tag)
+* [`audit_priv_cmds`](#audit_priv_cmds)
+* [`audit_priv_cmds_tag`](#audit_priv_cmds_tag)
+* [`audit_postfix_cmds`](#audit_postfix_cmds)
+* [`audit_postfix_cmds_tag`](#audit_postfix_cmds_tag)
+* [`audit_ssh_keysign_cmd`](#audit_ssh_keysign_cmd)
+* [`audit_ssh_keysign_cmd_tag`](#audit_ssh_keysign_cmd_tag)
+* [`audit_crontab_cmd`](#audit_crontab_cmd)
+* [`audit_crontab_cmd_tag`](#audit_crontab_cmd_tag)
+* [`audit_pam_timestamp_check_cmd`](#audit_pam_timestamp_check_cmd)
+* [`audit_pam_timestamp_check_cmd_tag`](#audit_pam_timestamp_check_cmd_tag)
+
+##### <a name="uid_min"></a>`uid_min`
 
 Data type: `Integer[0]`
 
@@ -1745,7 +1964,7 @@ parameter to be 'first'.
 
 Default value: `$::auditd::uid_min`
 
-##### `audit_unsuccessful_file_operations`
+##### <a name="audit_unsuccessful_file_operations"></a>`audit_unsuccessful_file_operations`
 
 Data type: `Boolean`
 
@@ -1754,7 +1973,7 @@ that fail with EACCES or EPERM error codes
 
 Default value: ``true``
 
-##### `audit_unsuccessful_file_operations_tag`
+##### <a name="audit_unsuccessful_file_operations_tag"></a>`audit_unsuccessful_file_operations_tag`
 
 Data type: `String[1]`
 
@@ -1762,7 +1981,7 @@ The tag to identify the unsuccessful file operations in an audit record
 
 Default value: `'access'`
 
-##### `audit_chown`
+##### <a name="audit_chown"></a>`audit_chown`
 
 Data type: `Boolean`
 
@@ -1772,7 +1991,7 @@ and `lchown` system calls.
 
 Default value: ``true``
 
-##### `audit_chown_tag`
+##### <a name="audit_chown_tag"></a>`audit_chown_tag`
 
 Data type: `String[1]`
 
@@ -1780,7 +1999,7 @@ The tag to identify `chown` operations in an audit record
 
 Default value: `'perm_mod'`
 
-##### `audit_chmod`
+##### <a name="audit_chmod"></a>`audit_chmod`
 
 Data type: `Boolean`
 
@@ -1790,7 +2009,7 @@ system calls.
 
 Default value: ``true``
 
-##### `audit_chmod_tag`
+##### <a name="audit_chmod_tag"></a>`audit_chmod_tag`
 
 Data type: `String[1]`
 
@@ -1798,7 +2017,7 @@ The tag to identify `chmod` operations in an audit record
 
 Default value: `'perm_mod'`
 
-##### `audit_attr`
+##### <a name="audit_attr"></a>`audit_attr`
 
 Data type: `Boolean`
 
@@ -1808,7 +2027,7 @@ These operations are provided by `setxattr`, `lsetxattr`, `fsetxattr`,
 
 Default value: ``true``
 
-##### `audit_attr_tag`
+##### <a name="audit_attr_tag"></a>`audit_attr_tag`
 
 Data type: `String[1]`
 
@@ -1816,7 +2035,7 @@ The tag to identify `xattr` operations in an audit record
 
 Default value: `'perm_mod'`
 
-##### `audit_rename_remove`
+##### <a name="audit_rename_remove"></a>`audit_rename_remove`
 
 Data type: `Boolean`
 
@@ -1826,7 +2045,7 @@ These operations are provided by `rename`, `renameat`, `rmdir`,
 
 Default value: ``true``
 
-##### `audit_rename_remove_tag`
+##### <a name="audit_rename_remove_tag"></a>`audit_rename_remove_tag`
 
 Data type: `String[1]`
 
@@ -1834,7 +2053,7 @@ The tag to identify rename/remove operations in an audit record
 
 Default value: `'delete'`
 
-##### `audit_suid_sgid`
+##### <a name="audit_suid_sgid"></a>`audit_suid_sgid`
 
 Data type: `Boolean`
 
@@ -1842,14 +2061,14 @@ Whether to audit `setuid`/`setgid` commands
 
 Default value: ``true``
 
-##### `default_suid_sgid_cmds`
+##### <a name="default_suid_sgid_cmds"></a>`default_suid_sgid_cmds`
 
 Data type: `Array[String[1]]`
 
 The default list of `setuid`/`setgid` commands to be audited.
 * Should not include commands audited by other rules.
 
-##### `suid_sgid_cmds`
+##### <a name="suid_sgid_cmds"></a>`suid_sgid_cmds`
 
 Data type: `Array[String[1]]`
 
@@ -1859,7 +2078,7 @@ per your site's needs.
 
 Default value: `[]`
 
-##### `audit_suid_sgid_tag`
+##### <a name="audit_suid_sgid_tag"></a>`audit_suid_sgid_tag`
 
 Data type: `String[1]`
 
@@ -1867,7 +2086,7 @@ The tag to identify `setuid`/`setgid` command execution in an audit record
 
 Default value: `'setuid/setgid'`
 
-##### `audit_kernel_modules`
+##### <a name="audit_kernel_modules"></a>`audit_kernel_modules`
 
 Data type: `Boolean`
 
@@ -1875,7 +2094,7 @@ Whether to audit kernel module operations
 
 Default value: ``true``
 
-##### `audit_kernel_modules_tag`
+##### <a name="audit_kernel_modules_tag"></a>`audit_kernel_modules_tag`
 
 Data type: `String[1]`
 
@@ -1883,7 +2102,7 @@ The tag to identify kernel module operations in an audit record
 
 Default value: `'module-change'`
 
-##### `audit_mount`
+##### <a name="audit_mount"></a>`audit_mount`
 
 Data type: `Boolean`
 
@@ -1891,7 +2110,7 @@ Whether to audit mount operations
 
 Default value: ``true``
 
-##### `audit_mount_tag`
+##### <a name="audit_mount_tag"></a>`audit_mount_tag`
 
 Data type: `String[1]`
 
@@ -1899,7 +2118,7 @@ The tag to identify mount operations in an audit record
 
 Default value: `'privileged-mount'`
 
-##### `audit_local_account`
+##### <a name="audit_local_account"></a>`audit_local_account`
 
 Data type: `Boolean`
 
@@ -1907,7 +2126,7 @@ Whether to audit local account changes
 
 Default value: ``true``
 
-##### `audit_local_account_tag`
+##### <a name="audit_local_account_tag"></a>`audit_local_account_tag`
 
 Data type: `String[1]`
 
@@ -1915,7 +2134,7 @@ The tag to identify local account changes in an audit record
 
 Default value: `'identity'`
 
-##### `audit_selinux_cmds`
+##### <a name="audit_selinux_cmds"></a>`audit_selinux_cmds`
 
 Data type: `Boolean`
 
@@ -1923,7 +2142,7 @@ Whether to audit `chcon`, `semanage`, `setsebool`, and `setfiles` commands
 
 Default value: ``true``
 
-##### `audit_selinux_cmds_tag`
+##### <a name="audit_selinux_cmds_tag"></a>`audit_selinux_cmds_tag`
 
 Data type: `String[1]`
 
@@ -1931,7 +2150,7 @@ The tag to identify selinux command execution in an audit record
 
 Default value: `'privileged-priv_change'`
 
-##### `audit_login_files`
+##### <a name="audit_login_files"></a>`audit_login_files`
 
 Data type: `Boolean`
 
@@ -1939,7 +2158,7 @@ Whether to audit changes to login files
 
 Default value: ``true``
 
-##### `audit_login_files_tag`
+##### <a name="audit_login_files_tag"></a>`audit_login_files_tag`
 
 Data type: `String[1]`
 
@@ -1947,7 +2166,7 @@ The tag to identify login file changes in an audit record
 
 Default value: `'logins'`
 
-##### `audit_cfg_sudoers`
+##### <a name="audit_cfg_sudoers"></a>`audit_cfg_sudoers`
 
 Data type: `Boolean`
 
@@ -1955,7 +2174,7 @@ Whether to audit changes to sudoers configuration files
 
 Default value: ``true``
 
-##### `audit_cfg_sudoers_tag`
+##### <a name="audit_cfg_sudoers_tag"></a>`audit_cfg_sudoers_tag`
 
 Data type: `String[1]`
 
@@ -1963,7 +2182,7 @@ The tag to identify sudoers configuration file changes in an audit record
 
 Default value: `'privileged-actions'`
 
-##### `audit_passwd_cmds`
+##### <a name="audit_passwd_cmds"></a>`audit_passwd_cmds`
 
 Data type: `Boolean`
 
@@ -1972,7 +2191,7 @@ Whether to audit the execution of password commands, i.e., `passwd`,
 
 Default value: ``true``
 
-##### `audit_passwd_cmds_tag`
+##### <a name="audit_passwd_cmds_tag"></a>`audit_passwd_cmds_tag`
 
 Data type: `String[1]`
 
@@ -1980,7 +2199,7 @@ The tag to identify password command execution in an audit record
 
 Default value: `'privileged-passwd'`
 
-##### `audit_priv_cmds`
+##### <a name="audit_priv_cmds"></a>`audit_priv_cmds`
 
 Data type: `Boolean`
 
@@ -1989,7 +2208,7 @@ Whether to audit the execution of privilege-related commands, i.e.,
 
 Default value: ``true``
 
-##### `audit_priv_cmds_tag`
+##### <a name="audit_priv_cmds_tag"></a>`audit_priv_cmds_tag`
 
 Data type: `String[1]`
 
@@ -1997,7 +2216,7 @@ The tag to identify privilege-related command execution in an audit record
 
 Default value: `'privileged-priv_change'`
 
-##### `audit_postfix_cmds`
+##### <a name="audit_postfix_cmds"></a>`audit_postfix_cmds`
 
 Data type: `Boolean`
 
@@ -2006,7 +2225,7 @@ Whether to audit the execution of postfix-related commands, i.e.
 
 Default value: ``true``
 
-##### `audit_postfix_cmds_tag`
+##### <a name="audit_postfix_cmds_tag"></a>`audit_postfix_cmds_tag`
 
 Data type: `String[1]`
 
@@ -2014,7 +2233,7 @@ The tag to identify postfix-related command execution in an audit record
 
 Default value: `'privileged-postfix'`
 
-##### `audit_ssh_keysign_cmd`
+##### <a name="audit_ssh_keysign_cmd"></a>`audit_ssh_keysign_cmd`
 
 Data type: `Boolean`
 
@@ -2022,7 +2241,7 @@ Whether to audit the execution of the `ssh-keysign` command
 
 Default value: ``true``
 
-##### `audit_ssh_keysign_cmd_tag`
+##### <a name="audit_ssh_keysign_cmd_tag"></a>`audit_ssh_keysign_cmd_tag`
 
 Data type: `String[1]`
 
@@ -2030,7 +2249,7 @@ The tag to identify `ssh-keysign` command execution in an audit record
 
 Default value: `'privileged-ssh'`
 
-##### `audit_crontab_cmd`
+##### <a name="audit_crontab_cmd"></a>`audit_crontab_cmd`
 
 Data type: `Boolean`
 
@@ -2038,7 +2257,7 @@ Whether to audit the execution of the `crontab` command
 
 Default value: ``true``
 
-##### `audit_crontab_cmd_tag`
+##### <a name="audit_crontab_cmd_tag"></a>`audit_crontab_cmd_tag`
 
 Data type: `String[1]`
 
@@ -2046,7 +2265,7 @@ The tag to identify `crontab` command execution in an audit record
 
 Default value: `'privileged-cron'`
 
-##### `audit_pam_timestamp_check_cmd`
+##### <a name="audit_pam_timestamp_check_cmd"></a>`audit_pam_timestamp_check_cmd`
 
 Data type: `Boolean`
 
@@ -2054,7 +2273,7 @@ Whether to audit the execution of the `pam_timestamp_check` command
 
 Default value: ``true``
 
-##### `audit_pam_timestamp_check_cmd_tag`
+##### <a name="audit_pam_timestamp_check_cmd_tag"></a>`audit_pam_timestamp_check_cmd_tag`
 
 Data type: `String[1]`
 
@@ -2063,15 +2282,17 @@ record
 
 Default value: `'privileged-pam'`
 
-### `auditd::config::grub`
+### <a name="auditdconfiggrub"></a>`auditd::config::grub`
 
 Enables/disables auditing at boot time.
 
 #### Parameters
 
-The following parameters are available in the `auditd::config::grub` class.
+The following parameters are available in the `auditd::config::grub` class:
 
-##### `enable`
+* [`enable`](#enable)
+
+##### <a name="enable"></a>`enable`
 
 Data type: `Boolean`
 
@@ -2079,23 +2300,28 @@ Enable auditing in the kernel at boot time.
 
 Default value: ``true``
 
-### `auditd::config::logging`
+### <a name="auditdconfiglogging"></a>`auditd::config::logging`
 
 NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
 
-### `auditd::install`
+### <a name="auditdinstall"></a>`auditd::install`
 
 NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
 
-### `auditd::service`
+### <a name="auditdservice"></a>`auditd::service`
 
 NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
 
 #### Parameters
 
-The following parameters are available in the `auditd::service` class.
+The following parameters are available in the `auditd::service` class:
 
-##### `ensure`
+* [`ensure`](#ensure)
+* [`enable`](#enable)
+* [`bypass_kernel_check`](#bypass_kernel_check)
+* [`warn_if_reboot_required`](#warn_if_reboot_required)
+
+##### <a name="ensure"></a>`ensure`
 
 Data type: `Variant[String[1],Boolean]`
 
@@ -2103,7 +2329,7 @@ Data type: `Variant[String[1],Boolean]`
 
 Default value: `pick(getvar('auditd::enable'), 'running')`
 
-##### `enable`
+##### <a name="enable"></a>`enable`
 
 Data type: `Boolean`
 
@@ -2111,7 +2337,7 @@ Data type: `Boolean`
 
 Default value: `pick(getvar('auditd::enable'), true)`
 
-##### `bypass_kernel_check`
+##### <a name="bypass_kernel_check"></a>`bypass_kernel_check`
 
 Data type: `Boolean`
 
@@ -2123,7 +2349,7 @@ manage the service.
 
 Default value: ``false``
 
-##### `warn_if_reboot_required`
+##### <a name="warn_if_reboot_required"></a>`warn_if_reboot_required`
 
 Data type: `Boolean`
 
@@ -2134,7 +2360,7 @@ Default value: ``true``
 
 ## Defined types
 
-### `auditd::rule`
+### <a name="auditdrule"></a>`auditd::rule`
 
 All rules must be uniquely named.  See ``auditctl(8)`` for more information
 on how to write the content for these rules.
@@ -2143,13 +2369,20 @@ on how to write the content for these rules.
 
 #### Parameters
 
-The following parameters are available in the `auditd::rule` defined type.
+The following parameters are available in the `auditd::rule` defined type:
 
-##### `name`
+* [`name`](#name)
+* [`content`](#content)
+* [`order`](#order)
+* [`first`](#first)
+* [`absolute`](#absolute)
+* [`prepend`](#prepend)
+
+##### <a name="name"></a>`name`
 
 A unique identifier for the audit rules.
 
-##### `content`
+##### <a name="content"></a>`content`
 
 Data type: `Variant[Array[String[1]],String[1]]`
 
@@ -2157,7 +2390,7 @@ The content of the rules that should be added.
 
 * Arrays will be joined with a newline
 
-##### `order`
+##### <a name="order"></a>`order`
 
 Data type: `Optional[String[1]]`
 
@@ -2165,7 +2398,7 @@ An alphanumeric (file system ordering) order string
 
 Default value: ``undef``
 
-##### `first`
+##### <a name="first"></a>`first`
 
 Data type: `Boolean`
 
@@ -2173,7 +2406,7 @@ Set this to 'true' if you want to prepend your custom rules (numeric 10)
 
 Default value: ``false``
 
-##### `absolute`
+##### <a name="absolute"></a>`absolute`
 
 Data type: `Boolean`
 
@@ -2182,7 +2415,7 @@ last depending on the setting of ``$first``.
 
 Default value: ``false``
 
-##### `prepend`
+##### <a name="prepend"></a>`prepend`
 
 Data type: `Boolean`
 
@@ -2192,7 +2425,7 @@ Default value: ``false``
 
 ## Functions
 
-### `auditd::calculate_space_left`
+### <a name="auditdcalculate_space_left"></a>`auditd::calculate_space_left`
 
 Type: Puppet Language
 
@@ -2210,7 +2443,7 @@ Data type: `Variant[Integer[0],Pattern['^\d+%$']]`
 
 
 
-### `auditd::get_array_index`
+### <a name="auditdget_array_index"></a>`auditd::get_array_index`
 
 Type: Ruby 4.x API
 
@@ -2248,7 +2481,7 @@ Data type: `Optional[Integer]`
 The minimum number of digits the index should be. 
 It will be '0'-padded to meet this number.
 
-### `auditd::validate_init_params`
+### <a name="auditdvalidate_init_params"></a>`auditd::validate_init_params`
 
 Type: Puppet Language
 
@@ -2266,69 +2499,123 @@ Returns: `None`
 
 ## Data types
 
-### `Auditd::AuditProfile`
+### <a name="auditdauditprofile"></a>`Auditd::AuditProfile`
 
 Matches the types of auditd profiles allowed
 
-Alias of `Enum['built_in', 'simp', 'stig', 'custom']`
+Alias of
 
-### `Auditd::DiskErrorAction`
+```puppet
+Enum['built_in', 'simp', 'stig', 'custom']
+```
+
+### <a name="auditddiskerroraction"></a>`Auditd::DiskErrorAction`
 
 Matches disk error actions in auditd.conf
 
-Alias of `Enum['IGNORE', 'SYSLOG', 'EXEC', 'SUSPEND', 'SINGLE', 'HALT', 'ignore', 'syslog', 'exec', 'suspend', 'single', 'halt']`
+Alias of
 
-### `Auditd::DiskFullAction`
+```puppet
+Enum['IGNORE', 'SYSLOG', 'EXEC', 'SUSPEND', 'SINGLE', 'HALT', 'ignore', 'syslog', 'exec', 'suspend', 'single', 'halt']
+```
+
+### <a name="auditddiskfullaction"></a>`Auditd::DiskFullAction`
 
 Matches actions to take when disk is full (see auditd.conf)
 
-Alias of `Enum['IGNORE', 'SYSLOG', 'ROTATE', 'EXEC', 'SUSPEND', 'SINGLE', 'HALT', 'ignore', 'syslog', 'rotate', 'exec', 'suspend', 'single', 'halt']`
+Alias of
 
-### `Auditd::Flush`
+```puppet
+Enum['IGNORE', 'SYSLOG', 'ROTATE', 'EXEC', 'SUSPEND', 'SINGLE', 'HALT', 'ignore', 'syslog', 'rotate', 'exec', 'suspend', 'single', 'halt']
+```
+
+### <a name="auditdflush"></a>`Auditd::Flush`
 
 Matches actions flush in auditd.conf
 
-Alias of `Enum['NONE', 'INCREMENTAL', 'DATA', 'SYNC', 'INCREMENTAL_ASYNC', 'none', 'incremental', 'data', 'sync', 'incremental_async']`
+Alias of
 
-### `Auditd::LogFacility`
+```puppet
+Enum['NONE', 'INCREMENTAL', 'DATA', 'SYNC', 'INCREMENTAL_ASYNC', 'none', 'incremental', 'data', 'sync', 'incremental_async']
+```
+
+### <a name="auditdlogfacility"></a>`Auditd::LogFacility`
 
 Matches log facility that can be used in syslog.conf plugin
 
-Alias of `Enum['', 'LOG_LOCAL0', 'LOG_LOCAL1', 'LOG_LOCAL2', 'LOG_LOCAL3', 'LOG_LOCAL4', 'LOG_LOCAL5', 'LOG_LOCAL6', 'LOG_LOCAL7']`
+Alias of
 
-### `Auditd::LogPriority`
+```puppet
+Enum['', 'LOG_LOCAL0', 'LOG_LOCAL1', 'LOG_LOCAL2', 'LOG_LOCAL3', 'LOG_LOCAL4', 'LOG_LOCAL5', 'LOG_LOCAL6', 'LOG_LOCAL7']
+```
+
+### <a name="auditdlogformat"></a>`Auditd::LogFormat`
+
+Matches log formats that can be used in auditd.conf
+
+Alias of
+
+```puppet
+Enum['RAW', 'ENRICHED', 'NOLOG', 'raw', 'enriched', 'nolog']
+```
+
+### <a name="auditdlogpriority"></a>`Auditd::LogPriority`
 
 Matches log priorities that can be used in syslog.conf plugin
 
-Alias of `Enum['LOG_DEBUG', 'LOG_INFO', 'LOG_NOTICE', 'LOG_WARNING', 'LOG_ERR', 'LOG_CRIT', 'LOG_ALERT', 'LOG_EMERG', 'LOG_AUTHPRIV']`
+Alias of
 
-### `Auditd::MaxLogFileAction`
+```puppet
+Enum['LOG_DEBUG', 'LOG_INFO', 'LOG_NOTICE', 'LOG_WARNING', 'LOG_ERR', 'LOG_CRIT', 'LOG_ALERT', 'LOG_EMERG', 'LOG_AUTHPRIV']
+```
+
+### <a name="auditdmaxlogfileaction"></a>`Auditd::MaxLogFileAction`
 
 Matches available matches for maxlogfileaction in auditd.conf
 
-Alias of `Enum['IGNORE', 'SYSLOG', 'SUSPEND', 'ROTATE', 'KEEP_LOGS', 'ignore', 'syslog', 'suspend', 'rotate', 'keep_logs']`
+Alias of
 
-### `Auditd::NameFormat`
+```puppet
+Enum['IGNORE', 'SYSLOG', 'SUSPEND', 'ROTATE', 'KEEP_LOGS', 'ignore', 'syslog', 'suspend', 'rotate', 'keep_logs']
+```
+
+### <a name="auditdnameformat"></a>`Auditd::NameFormat`
 
 Matche s available name formats in audotd.conf
 
-Alias of `Enum['NONE', 'HOSTNAME', 'FQD', 'NUMERIC', 'USER', 'none', 'hostname', 'fqd', 'numeric', 'user']`
+Alias of
 
-### `Auditd::OverflowAction`
+```puppet
+Enum['NONE', 'HOSTNAME', 'FQD', 'NUMERIC', 'USER', 'none', 'hostname', 'fqd', 'numeric', 'user']
+```
+
+### <a name="auditdoverflowaction"></a>`Auditd::OverflowAction`
 
 Matches overflow_action settings in auditd.conf or audisp.conf
 
-Alias of `Enum['IGNORE', 'SYSLOG', 'SUSPEND', 'SINGLE', 'HALT', 'ignore', 'syslog', 'suspend', 'single', 'halt']`
+Alias of
 
-### `Auditd::RootAuditLevel`
+```puppet
+Enum['IGNORE', 'SYSLOG', 'SUSPEND', 'SINGLE', 'HALT', 'ignore', 'syslog', 'suspend', 'single', 'halt']
+```
+
+### <a name="auditdrootauditlevel"></a>`Auditd::RootAuditLevel`
 
 Matches root audit level settings in auditd.conf
 
-Alias of `Enum['basic', 'aggressive', 'insane']`
+Alias of
 
-### `Auditd::SpaceLeftAction`
+```puppet
+Enum['basic', 'aggressive', 'insane']
+```
+
+### <a name="auditdspaceleftaction"></a>`Auditd::SpaceLeftAction`
 
 Matches spaceleftaction for auditd.conf
 
-Alias of `Enum['IGNORE', 'SYSLOG', 'ROTATE', 'EMAIL', 'EXEC', 'SUSPEND', 'SINGLE', 'HALT', 'ignore', 'syslog', 'rotate', 'email', 'exec', 'suspend', 'single', 'halt']`
+Alias of
+
+```puppet
+Enum['IGNORE', 'SYSLOG', 'ROTATE', 'EMAIL', 'EXEC', 'SUSPEND', 'SINGLE', 'HALT', 'ignore', 'syslog', 'rotate', 'email', 'exec', 'suspend', 'single', 'halt']
+```
 

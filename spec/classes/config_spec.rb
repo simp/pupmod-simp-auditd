@@ -195,22 +195,22 @@ describe 'auditd' do
             let(:expected_content){ <<-EOM.gsub(/^\s+/,'')
               # This file is managed by Puppet (module 'auditd')
               log_file = /var/log/audit/audit.log
-              log_format = RAW
+              log_format = raw
               log_group = root
               priority_boost = 4
-              flush = INCREMENTAL
+              flush = incremental
               freq = 20
               num_logs = 5
               name_format = USER
               name = #{facts[:fqdn]}
               max_log_file = 24
-              max_log_file_action = ROTATE
+              max_log_file_action = rotate
               space_left = 80
-              space_left_action = SYSLOG
+              space_left_action = syslog
               admin_space_left = 50
-              admin_space_left_action = SUSPEND
-              disk_full_action = SUSPEND
-              disk_error_action = SUSPEND
+              admin_space_left_action = rotate
+              disk_full_action = rotate
+              disk_error_action = syslog
               EOM
             }
             let(:extra_content){<<-EOM.gsub(/^\s+/,'')

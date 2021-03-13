@@ -337,7 +337,7 @@ describe 'auditd' do
 
           context 'default options' do
             it do
-              expect(auditd_conf[:content]).to match(/log_format = RAW/)
+              expect(auditd_conf[:content]).to match(/log_format = raw/)
               expect(auditd_conf[:content]).to match(/write_logs = yes/)
             end
           end
@@ -346,7 +346,7 @@ describe 'auditd' do
             let(:params) {{ :write_logs => false }}
 
             it do
-              expect(auditd_conf[:content]).to match(/log_format = RAW/)
+              expect(auditd_conf[:content]).to match(/log_format = raw/)
               expect(auditd_conf[:content]).to match(/write_logs = no/)
             end
           end
@@ -355,7 +355,7 @@ describe 'auditd' do
             let(:params) {{ :log_format => 'NOLOG' }}
 
             it do
-              expect(auditd_conf[:content]).to match(/log_format = RAW/)
+              expect(auditd_conf[:content]).to match(/log_format = raw/)
               expect(auditd_conf[:content]).to match(/write_logs = no/)
             end
           end
