@@ -1,3 +1,6 @@
+* Thu Apr 08 2021 Liz Nemsick <lnemsick.simp@gmail.com> - 8.6.4
+- Use `-F key=` in lieu of `-k` in the STIG profile, to match scanner updates.
+
 * Sun Mar 07 2021 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.6.3
 - Switch auditd rules to be 'always,exit' instead of 'exit,always' to match the
   man pages and general scanner updates.
