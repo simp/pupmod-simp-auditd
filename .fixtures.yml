@@ -11,7 +11,9 @@ fixtures:
     simp_options: https://github.com/simp/pupmod-simp-simp_options
     simplib: https://github.com/simp/pupmod-simp-simplib
     stdlib: https://github.com/simp/puppetlabs-stdlib
-    systemd: https://github.com/simp/puppet-systemd
+    systemd:
+      repo: https://github.com/simp/puppet-systemd
+      ref: "2.12.0"
     disa_stig-el7-baseline:
       repo: https://github.com/simp/inspec-profile-disa_stig-el7
       branch:  master

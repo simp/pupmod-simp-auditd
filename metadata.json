@@ -1,6 +1,6 @@
 {
   "name": "simp-auditd",
-  "version": "8.6.3",
+  "version": "8.6.4",
   "author": "SIMP Team",
   "summary": "A SIMP puppet module for managing auditd and audispd",
   "license": "Apache-2.0",

@@ -118,7 +118,7 @@ describe 'auditd' do
           let(:hieradata) { "simp_audit_profile/#{hiera_file}" }
 
           it {
-            is_expected.not_to contain_file('/etc/audit/rules.d/50_00)base.rules').with_content(
+            is_expected.not_to contain_file('/etc/audit/rules.d/50_00_base.rules').with_content(
               %r{^.* -k #{key}$}
             )
           }
