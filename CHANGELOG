@@ -1,3 +1,12 @@
+* Wed May 19 2021 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.6.5
+- Fixed
+  - Align EL8 STIG settings
+- Changed
+  - Bump supported puppet version to include 7
+  - Always add the 'head' rules (global auditd config) settings when applying
+    rule sets. These do not interfere with user-defined rules and are required
+    for proper functionality of the system.
+
 * Thu Apr 08 2021 Liz Nemsick <lnemsick.simp@gmail.com> - 8.6.4
 - Use `-F key=` in lieu of `-k` in the STIG profile, to match scanner updates.
 

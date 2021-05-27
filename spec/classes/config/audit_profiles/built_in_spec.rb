@@ -38,7 +38,7 @@ describe 'auditd' do
         let(:params) {{
           :default_audit_profiles => [
             'built_in'
-          ],
+          ]
         }}
 
         let(:hieradata) { 'built_in_audit_profile/random_sample_rulesets' }
@@ -46,7 +46,7 @@ describe 'auditd' do
         it {
           # We should not have the items included in audit_profiles since we are
           # only defining `built_in`
-          is_expected.to_not contain_file('/etc/audit/rules.d/00_head.rules')
+          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r(^-i$))
           is_expected.to_not contain_file('/etc/audit/rules.d/05_default_drop.rules')
           is_expected.to_not contain_file('/etc/audit/rules.d/99_tail.rules')
 
@@ -90,7 +90,7 @@ describe 'auditd' do
         it {
           # We should not have the items included in audit_profiles since we are
           # only defining `built_in`
-          is_expected.to_not contain_file('/etc/audit/rules.d/00_head.rules')
+          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r(^-i$))
           is_expected.to_not contain_file('/etc/audit/rules.d/05_default_drop.rules')
           is_expected.to_not contain_file('/etc/audit/rules.d/99_tail.rules')
 

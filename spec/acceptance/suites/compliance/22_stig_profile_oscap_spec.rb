@@ -20,9 +20,9 @@ describe 'run the SSG against the appropriate fixtures for stig audit profile' d
       end
 
       it 'should have an SSG report' do
-        # Filter on records containing '_audit_'
+        # Filter on records containing '_rule_audit'
         # This isn't perfect, but it should be partially OK
-        filter = 'rule_audit_'
+        filter = '_rule_audit'
 
         # TODO: Check this periodically to see if it has been fixed upstream
         # These appear to be broken in the ComplianceAsCode content
@@ -36,7 +36,19 @@ describe 'run the SSG against the appropriate fixtures for stig audit profile' d
           'audit_rules_unsuccessful_',
           'audit_rules_file_',
           'audit_rules_media_export',
-          'audit_rules_for_ospp' # Dragged in by EL8 but we're not applying an OSPP profile
+          # https://github.com/ComplianceAsCode/content/issues/7020
+          'auditd_data_disk_error_action',
+          # https://github.com/ComplianceAsCode/content/issues/7022
+          'auditd_data_disk_full_action',
+          # https://github.com/ComplianceAsCode/content/issues/7021
+          'auditd_data_retention_max_log_file_action',
+          # Requires krb5, we encrypt via syslog
+          'audispd_encrypt_sent_records',
+          # We send via syslog
+          'audispd_configure_remote_server',
+          # Dragged in by EL8 but we're not applying an OSPP profile
+          'audit_rules_for_ospp',
+          # 
         ]
 
         @ssg_report[:data] = @ssg.process_ssg_results(filter, exclusions)
