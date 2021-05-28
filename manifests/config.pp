@@ -92,7 +92,7 @@ class auditd::config {
     ensure => 'directory',
     owner  => 'root',
     group  => $auditd::log_group,
-    mode   => 'o-rwx'
+    mode   => $log_file_mode,
   }
 
   file { $auditd::log_file:
