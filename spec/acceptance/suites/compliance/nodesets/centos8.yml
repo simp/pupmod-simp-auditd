@@ -2,16 +2,16 @@
   vagrant_memsize = ENV['BEAKER_VAGRANT_MEMSIZE'] ? ENV['BEAKER_VAGRANT_MEMSIZE'] : 256
 -%>
 HOSTS:
-  el7:
+  el8:
     roles:
       - default
-      - el7
-    platform:   el-7-x86_64
-    box:        centos/7
+      - el8
+    platform:   el-8-x86_64
+    box:        centos/8
     hypervisor: vagrant
     yum_repos:
       chef-current:
-        baseurl: 'https://packages.chef.io/repos/yum/current/el/7/$basearch'
+        baseurl: 'https://packages.chef.io/repos/yum/current/el/8/$basearch'
         gpgkeys:
           - https://packages.chef.io/chef.asc
 
