@@ -1,3 +1,7 @@
+* Mon Jun 14 2021 Chris Tessmer <chris.tessmer@onyxpoint.com> - 8.7.0
+- Removed support for Puppet 5
+- Ensured support for Puppet 7 in requirements and stdlib
+
 * Wed May 19 2021 Trevor Vaughan <tvaughan@onyxpoint.com> - 8.6.5
 - Fixed
   - Align EL8 STIG settings
