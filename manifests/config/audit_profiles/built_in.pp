@@ -9,7 +9,7 @@ class auditd::config::audit_profiles::built_in (
   Array[String[1]] $rulesets = [],
 ) {
   if $facts['auditd_sample_rulesets'] {
-    $_sample_rules_basedir = '/usr/share/audit/sample-rules'
+    $_sample_rules_basedir = $facts['auditd_sample_ruleset_location']
     # At this point we should not have an empty rulesets list...so we need to
     # validate the list; we should be OK skipping nonexistent ones those, but
     # SHOULD notify of this
