@@ -13,8 +13,19 @@ describe 'auditd' do
         unless _facts[:auditd_major_version]
           if _facts[:os][:release][:major] < '8'
             _facts[:auditd_major_version] = '2'
+            _facts[:auditd_sample_ruleset_location] = '/usr/share/doc/audit-2.8.5/rules'
+            _facts[:auditd_sample_rulesets] = {
+              'base-config' => { 'order' => 10, },
+              'no-audit'    => { 'order' => 10, },
+              'loginuid'    => { 'order' => 11, },
+              'stig'        => { 'order' => 30, },
+              'privileged'  => { 'order' => 31, },
+              'networking'  => { 'order' => 71, },
+              'finalize'    => { 'order' => 99, },
+            }
           else
             _facts[:auditd_major_version] = '3'
+            _facts[:auditd_sample_ruleset_location] = '/usr/share/audit/sample-rules'
             _facts[:auditd_sample_rulesets] = {
               'base-config' => { 'order' => 10, },
               'no-audit'    => { 'order' => 10, },
@@ -70,10 +81,20 @@ describe 'auditd' do
             is_expected.to contain_notify('bad_sample_set not found')
           else
             is_expected.to compile.with_all_deps
-            is_expected.to_not contain_file('/etc/audit/rules.d/10-base-config.rules')
-            is_expected.to_not contain_file('/etc/audit/rules.d/10-no-audit.rules')
-            is_expected.to_not contain_file('/etc/audit/rules.d/99-finalize.rules')
-            is_expected.to_not contain_notify('bad_sample_set not found')
+            is_expected.to contain_file('/etc/audit/rules.d/10-base-config.rules').with({
+              :ensure => 'file',
+              :source => 'file:///usr/share/doc/audit-2.8.5/rules/10-base-config.rules',
+            }).that_notifies('Class[auditd::service]')
+
+            is_expected.to contain_file('/etc/audit/rules.d/10-no-audit.rules').with({
+              :ensure => 'file',
+              :source => 'file:///usr/share/doc/audit-2.8.5/rules/10-no-audit.rules',
+            }).that_notifies('Class[auditd::service]')
+
+            is_expected.to contain_file('/etc/audit/rules.d/99-finalize.rules').with({
+              :ensure => 'file',
+              :source => 'file:///usr/share/doc/audit-2.8.5/rules/99-finalize.rules',
+            }).that_notifies('Class[auditd::service]')
           end
         }
       end

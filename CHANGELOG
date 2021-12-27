@@ -1,5 +1,8 @@
 * Thu Mar 24 2022 Mike Riddle <mike@sicura.us> - 8.7.1
 - Fixed a bug preventing overflow_action from being set properly
+- Changed the auditd_sample_rulesets fact to look in both
+  /usr/share/audit/sample-rules and /usr/share/doc/audit*/rules for
+  sample rulesets.
 
 * Mon Jun 14 2021 Chris Tessmer <chris.tessmer@onyxpoint.com> - 8.7.0
 - Removed support for Puppet 5
