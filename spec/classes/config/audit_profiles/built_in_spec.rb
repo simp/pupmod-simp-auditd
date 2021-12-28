@@ -10,7 +10,6 @@ describe 'auditd' do
     context "on #{os}" do
       let(:facts) {
         _facts = Marshal.load(Marshal.dump(os_facts))
-        unless _facts[:auditd_major_version]
           if _facts[:os][:release][:major] < '8'
             _facts[:auditd_major_version] = '2'
             _facts[:auditd_sample_ruleset_location] = '/usr/share/doc/audit-2.8.5/rules'
@@ -36,7 +35,6 @@ describe 'auditd' do
               'finalize'    => { 'order' => 99, },
             }
           end
-        end
 
         _facts
       }
@@ -137,9 +135,24 @@ describe 'auditd' do
             }).that_notifies('Class[auditd::service]').that_requires('Exec[build_privileged_ruleset]')
           else
             is_expected.to compile.with_all_deps
-            is_expected.to_not contain_exec('generate_privileged_script')
-            is_expected.to_not contain_exec('build_privileged_ruleset')
-            is_expected.to_not contain_file('/etc/audit/rules.d/31-privileged.rules')
+            is_expected.to contain_exec('generate_privileged_script').with({
+              :command => "sha512sum /usr/share/doc/audit-2.8.5/rules/31-privileged.rules > /usr/share/doc/audit-2.8.5/rules/.31-privileged.rules.sha512 && sed -e 's|^#||' -e 's|>[[:space:]][[:alnum:]]*.rules|> /usr/share/doc/audit-2.8.5/rules/31-privileged.rules.evaluated|' /usr/share/doc/audit-2.8.5/rules/31-privileged.rules > /usr/local/sbin/generate_privileged_audit_sample_rules.sh",
+              :path    => ['/usr/bin', '/usr/sbin', '/bin', '/sbin'],
+              :unless  => [
+                'test -f /usr/share/doc/audit-2.8.5/rules/.31-privileged.rules.sha512',
+                'sha512sum -c --status /usr/share/doc/audit-2.8.5/rules/.31-privileged.rules.sha512'
+              ],
+            }).that_notifies('Exec[build_privileged_ruleset]')
+
+            is_expected.to contain_exec('build_privileged_ruleset').with({
+              :command     => '/bin/bash "/usr/local/sbin/generate_privileged_audit_sample_rules.sh"',
+              :refreshonly => true,
+            })
+
+            is_expected.to contain_file('/etc/audit/rules.d/31-privileged.rules').with({
+              :ensure => 'file',
+              :source => 'file:///usr/share/doc/audit-2.8.5/rules/31-privileged.rules.evaluated',
+            }).that_notifies('Class[auditd::service]').that_requires('Exec[build_privileged_ruleset]')
           end
         }
       end
@@ -222,10 +235,21 @@ describe 'auditd' do
 
             is_expected.to contain_notify('bad_sample_set not found')
           else
-            is_expected.to_not contain_file('/etc/audit/rules.d/10-base-config.rules')
-            is_expected.to_not contain_file('/etc/audit/rules.d/10-no-audit.rules')
-            is_expected.to_not contain_file('/etc/audit/rules.d/99-finalize.rules')
-            is_expected.to_not contain_notify('bad_sample_set not found')
+            is_expected.to contain_file('/etc/audit/rules.d/10-base-config.rules').with({
+              :ensure => 'file',
+              :source => 'file:///usr/share/doc/audit-2.8.5/rules/10-base-config.rules',
+            }).that_notifies('Class[auditd::service]')
+
+            is_expected.to contain_file('/etc/audit/rules.d/10-no-audit.rules').with({
+              :ensure => 'file',
+              :source => 'file:///usr/share/doc/audit-2.8.5/rules/10-no-audit.rules',
+            }).that_notifies('Class[auditd::service]')
+
+            is_expected.to contain_file('/etc/audit/rules.d/99-finalize.rules').with({
+              :ensure => 'file',
+              :source => 'file:///usr/share/doc/audit-2.8.5/rules/99-finalize.rules',
+            }).that_notifies('Class[auditd::service]')
+            is_expected.to contain_notify('bad_sample_set not found')
           end
         }
 
