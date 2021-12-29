@@ -23,8 +23,5 @@ HOSTS:
         - password
 
 CONFIG:
-  # Pinning the puppet agent version to 7.12 because 7.13.1 introduced a breaking change
-  # to searching for hieradata
-  puppet_agent_version: <%= ENV['PUPPET_VERSION'] || '7.12.*' %>
   log_level: verbose
   type:      aio
