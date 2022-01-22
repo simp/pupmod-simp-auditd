@@ -2007,6 +2007,8 @@ checks:
       - CCI-001855
     confine:
       osfamily: RedHat
+      operatingsystem:
+        - '!Amazon'
     oval-ids:
     - auditd_data_retention_space_left
   oval:com.puppet.forge.simp.auditd.space_left_action:
