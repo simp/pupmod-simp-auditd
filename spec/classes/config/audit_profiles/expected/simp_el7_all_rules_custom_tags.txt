@@ -97,8 +97,10 @@
 -a always,exit -F arch=b32 -F auid!=0 -F uid=0 -S capset,mknod,mknodat,pivot_root,quotactl,setsid,adjtimex,settimeofday,setuid,swapoff,swapon,execve,rename,renameat,rmdir,unlink,unlinkat,write,chown,fchown,fchownat,lchown,creat,fork,vfork,link,linkat,symlink,symlinkat,mkdir,mkdirat -k my_su_root_activity
 
 ## Audit the execution of suid and sgid binaries.
--a always,exit -F arch=b64 -F euid=0 -F uid!=0 -S execve -k my_suid_sgid
--a always,exit -F arch=b32 -F euid=0 -F uid!=0 -S execve -k my_suid_sgid
+-a always,exit -F arch=b64 -S execve -C uid!=euid -F euid=0 -k my_suid_sgid
+-a always,exit -F arch=b64 -S execve -C gid!=egid -F egid=0 -k my_suid_sgid
+-a always,exit -F arch=b32 -S execve -C uid!=euid -F euid=0 -k my_suid_sgid
+-a always,exit -F arch=b32 -S execve -C gid!=egid -F egid=0 -k my_suid_sgid
 
 ## Audit the loading and unloading of kernel modules.
 -w /usr/bin/kmod -p x -k my_kernel_modules

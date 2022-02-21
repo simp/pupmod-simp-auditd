@@ -265,6 +265,12 @@
 <% if $auditd::config::audit_profiles::stig::audit_suid_sgid { -%>
 
 ## Audit the execution of suid and sgid binaries.
+<%   if $facts['hardwaremodel'] == 'x86_64' { -%>
+-a always,exit -F arch=b64 -S execve -C uid!=euid -F euid=0 -k <%= $auditd::config::audit_profiles::stig::audit_suid_tag %>
+-a always,exit -F arch=b64 -S execve -C gid!=egid -F egid=0 -k <%= $auditd::config::audit_profiles::stig::audit_sgid_tag %>
+<%   } -%>
+-a always,exit -F arch=b32 -S execve -C uid!=euid -F euid=0 -k <%= $auditd::config::audit_profiles::stig::audit_suid_tag %>
+-a always,exit -F arch=b32 -S execve -C gid!=egid -F egid=0 -k <%= $auditd::config::audit_profiles::stig::audit_sgid_tag %>
 <%   $auditd::config::audit_profiles::stig::_suid_sgid_cmds.each |$cmd| { -%>
 -a always,exit -F path=<%= $cmd %> -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=4294967295 -F key=<%= $auditd::config::audit_profiles::stig::audit_suid_sgid_tag %>
 <%   } -%>

@@ -16,5 +16,7 @@ auditd::config::audit_profiles::stig::audit_rename_remove_tag: my_rename_remove
 auditd::config::audit_profiles::stig::audit_selinux_cmds_tag: my_selinux_cmds
 auditd::config::audit_profiles::stig::audit_session_files_tag: my_session_files
 auditd::config::audit_profiles::stig::audit_ssh_keysign_cmd_tag: my_ssh_keysign_cmd
+auditd::config::audit_profiles::stig::audit_suid_tag: my_suid
+auditd::config::audit_profiles::stig::audit_sgid_tag: my_sgid
 auditd::config::audit_profiles::stig::audit_suid_sgid_tag: my_suid_sgid
 auditd::config::audit_profiles::stig::audit_unsuccessful_file_operations_tag: my_unsuccessful_file_operations

@@ -48,7 +48,8 @@ describe 'run the SSG against the appropriate fixtures for stig audit profile' d
           'audispd_configure_remote_server',
           # Dragged in by EL8 but we're not applying an OSPP profile
           'audit_rules_for_ospp',
-          # 
+          # We do this using lname and the 'user' setting
+          'auditd_name_format'
         ]
 
         @ssg_report[:data] = @ssg.process_ssg_results(filter, exclusions)

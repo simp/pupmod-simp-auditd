@@ -1990,6 +1990,25 @@ checks:
     - audit_rules_unsuccessful_file_modification_truncate
     - audit_rules_unsuccessful_file_modification_ftruncate
     - audit_rules_unsuccessful_file_modification
+  oval:com.puppet.forge.simp.auditd.space_left:
+    settings:
+      parameter: auditd::space_left
+      value: '25%'
+    type: puppet-class-parameter
+    controls:
+      disa_stig: true
+      RHEL-07-030350: true
+      SRG-OS-000343-GPOS-00134: true
+      cci:CCI-001855: true
+    identifiers:
+      disa_stig:
+      - SRG-OS-000343-VMM-001240
+      - SRG-OS-000343-GPOS-00134
+      - CCI-001855
+    confine:
+      osfamily: RedHat
+    oval-ids:
+    - auditd_data_retention_space_left
   oval:com.puppet.forge.simp.auditd.space_left_action:
     settings:
       parameter: auditd::space_left_action
