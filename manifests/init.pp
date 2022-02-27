@@ -32,7 +32,7 @@
 #
 # @param ignore_anonymous
 #   For built-in audit profiles, whether to drop anonymous and daemon
-#   events, i.e., events for which ``auid`` is '-1' (aka '4294967295').
+#   events, i.e., events for which ``auid`` is '-1' (aka 'unset').
 #   Audit records from these events are prolific but not useful.
 #
 # @param ignore_crond

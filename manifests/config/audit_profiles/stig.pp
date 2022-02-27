@@ -75,6 +75,12 @@
 #   You can use this to augment the `$default_suid_sgid_cmds`
 #   per your site's needs.
 #
+# @param audit_suid_tag
+#   The tag to identify `setuid` command execution in an audit record
+#
+# @param audit_sgid_tag
+#   The tag to identify `setgid` command execution in an audit record
+#
 # @param audit_suid_sgid_tag
 #   The tag to identify `setuid`/`setgid` command execution in an audit record
 #

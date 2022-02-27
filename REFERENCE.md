@@ -171,7 +171,7 @@ Default value: `$facts['fqdn']`
 Data type: `Boolean`
 
 For built-in audit profiles, whether to drop anonymous and daemon
-events, i.e., events for which ``auid`` is '-1' (aka '4294967295').
+events, i.e., events for which ``auid`` is '-1' (aka 'unset').
 Audit records from these events are prolific but not useful.
 
 Default value: ``true``
@@ -1240,7 +1240,7 @@ The tag to identify `setuid`/`setgid` command execution in an audit
 record. You should change this to 'setuid/setgid' to match automated
 DISA STIG compliance checks for RHEL7.
 
-Default value: `'suid-root-exec'`
+Default value: `'suid-exec'`
 
 ##### <a name="audit_kernel_modules"></a>`audit_kernel_modules`
 
@@ -1926,6 +1926,8 @@ The following parameters are available in the `auditd::config::audit_profiles::s
 * [`audit_suid_sgid`](#audit_suid_sgid)
 * [`default_suid_sgid_cmds`](#default_suid_sgid_cmds)
 * [`suid_sgid_cmds`](#suid_sgid_cmds)
+* [`audit_suid_tag`](#audit_suid_tag)
+* [`audit_sgid_tag`](#audit_sgid_tag)
 * [`audit_suid_sgid_tag`](#audit_suid_sgid_tag)
 * [`audit_kernel_modules`](#audit_kernel_modules)
 * [`audit_kernel_modules_tag`](#audit_kernel_modules_tag)
@@ -2078,13 +2080,29 @@ per your site's needs.
 
 Default value: `[]`
 
+##### <a name="audit_suid_tag"></a>`audit_suid_tag`
+
+Data type: `String[1]`
+
+The tag to identify `setuid` command execution in an audit record
+
+Default value: `'setuid'`
+
+##### <a name="audit_sgid_tag"></a>`audit_sgid_tag`
+
+Data type: `String[1]`
+
+The tag to identify `setgid` command execution in an audit record
+
+Default value: `'setgid'`
+
 ##### <a name="audit_suid_sgid_tag"></a>`audit_suid_sgid_tag`
 
 Data type: `String[1]`
 
 The tag to identify `setuid`/`setgid` command execution in an audit record
 
-Default value: `'setuid/setgid'`
+Default value: `"${audit_suid_tag}/${audit_sgid_tag}"`
 
 ##### <a name="audit_kernel_modules"></a>`audit_kernel_modules`
 
