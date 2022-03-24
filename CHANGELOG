@@ -1,3 +1,6 @@
+* Thu Mar 24 2022 Mike Riddle <mike@sicura.us> - 8.7.1
+- Fixed a bug preventing overflow_action from being set properly
+
 * Mon Jun 14 2021 Chris Tessmer <chris.tessmer@onyxpoint.com> - 8.7.0
 - Removed support for Puppet 5
 - Ensured support for Puppet 7 in requirements and stdlib
