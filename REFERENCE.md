@@ -51,7 +51,7 @@ can be sent to syslog in addition the audit partition.
 
 ## Classes
 
-### <a name="auditd"></a>`auditd`
+### <a name="auditd"></a> `auditd`
 
 Any variable that is not described here can be found in auditd.conf(5) and
 auditctl(8).
