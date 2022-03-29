@@ -277,7 +277,7 @@ describe 'auditd' do
 
         it 'disables rename/remove auditing by default' do
           is_expected.not_to contain_file('/etc/audit/rules.d/50_01_simp_base.rules').with_content(
-            %r(^-a always,exit -F arch=b\d\d -S rename,renameat,rmdir,unlink,unlinkat -F perm=x -k delete)
+            %r(^-a always,exit -F arch=b\d\d -S rename,renameat,rmdir,unlink,unlinkat -k delete)
           )
         end
 
@@ -296,11 +296,11 @@ describe 'auditd' do
 
         it 'disables selinux commands auditing by default' do
           is_expected.not_to contain_file('/etc/audit/rules.d/50_01_simp_base.rules').with_content(
-            %r{^-a always,exit -F path=/usr/bin/(chcon|semanage|setsebool) -F perm=x -k privileged-priv_change}
+            %r{^-a always,exit -F path=/usr/bin/(chcon|semanage|setsebool) -k privileged-priv_change}
           )
 
           is_expected.not_to contain_file('/etc/audit/rules.d/50_01_simp_base.rules').with_content(
-            %r(^-a always,exit -F path=/(usr/)?sbin/setfiles -F perm=x -k privileged-priv_change)
+            %r(^-a always,exit -F path=/(usr/)?sbin/setfiles -k privileged-priv_change)
           )
         end
       end
