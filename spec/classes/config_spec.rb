@@ -226,6 +226,7 @@ describe 'auditd' do
               # Auditd Version 3.0 or later specific options
               local_events = yes
               verify_email = yes
+              overflow_action = SYSLOG
               q_depth = 160
               max_restarts = 10
               plugin_dir = /etc/audit/plugins.d
