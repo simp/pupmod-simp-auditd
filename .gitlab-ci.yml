@@ -342,7 +342,7 @@ pup7.x:
 pup7.x-fips:
   <<: *pup_7_x
   <<: *acceptance_base
-  timeout: 3h
+  timeout: 4h
   script:
     - 'BEAKER_fips=yes bundle exec rake beaker:suites[default,default]'
 
@@ -357,7 +357,7 @@ pup7.x-oel-fips:
   <<: *pup_7_x
   <<: *acceptance_base
   <<: *with_SIMP_ACCEPTANCE_MATRIX_LEVEL_3
-  timeout: 3h
+  timeout: 4h
   script:
     - 'BEAKER_fips=yes bundle exec rake beaker:suites[default,oel]'
 
@@ -372,7 +372,7 @@ pup6.x-fips:
   <<: *pup_6_x
   <<: *acceptance_base
   <<: *with_SIMP_ACCEPTANCE_MATRIX_LEVEL_2
-  timeout: 3h
+  timeout: 4h
   script:
     - 'BEAKER_fips=yes bundle exec rake beaker:suites[default,default]'
 
@@ -380,14 +380,14 @@ pup6.x-fips:
 pup7.x-el7-fips-compliance:
   <<: *pup_7_x
   <<: *compliance_base
-  timeout: 3h
+  timeout: 4h
   script:
     - 'BEAKER_VAGRANT_MEMSIZE=1536 BEAKER_fips=yes bundle exec rake beaker:suites[compliance,default]'
 
 pup6.x-el7-fips-compliance:
   <<: *pup_6_x
   <<: *compliance_base
-  timeout: 3h
+  timeout: 4h
   script:
     - 'BEAKER_VAGRANT_MEMSIZE=1536 BEAKER_fips=yes bundle exec rake beaker:suites[compliance,default]'
 
@@ -395,7 +395,7 @@ pup6.x-el8-fips-compliance:
   allow_failure: true
   <<: *pup_6_x
   <<: *compliance_base
-  timeout: 3h
+  timeout: 4h
   script:
     - 'BEAKER_VAGRANT_MEMSIZE=1536 BEAKER_fips=yes bundle exec rake beaker:suites[compliance,centos8]'
 
@@ -408,7 +408,7 @@ pup6.pe:
 pup6.pe-fips:
   <<: *pup_6_pe
   <<: *acceptance_base
-  timeout: 3h
+  timeout: 4h
   script:
     - 'BEAKER_fips=yes bundle exec rake beaker:suites[default,default]'
 
@@ -422,13 +422,13 @@ pup6.pe-oel-fips:
   <<: *pup_6_pe
   <<: *acceptance_base
   <<: *with_SIMP_ACCEPTANCE_MATRIX_LEVEL_3
-  timeout: 3h
+  timeout: 4h
   script:
     - 'BEAKER_fips=yes bundle exec rake beaker:suites[default,oel]'
 
 pup6.pe-el7-fips-compliance:
   <<: *pup_6_pe
   <<: *compliance_base
-  timeout: 3h
+  timeout: 4h
   script:
     - 'BEAKER_VAGRANT_MEMSIZE=1536 BEAKER_fips=yes bundle exec rake beaker:suites[compliance,default]'
