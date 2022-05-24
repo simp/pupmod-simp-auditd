@@ -15,67 +15,67 @@
 -a always,exit -F perm=a -F exit=-EPERM -k my_unsuccessful_file_operations
 
 ## Audit the execution of password commands
--a always,exit -F path=/usr/bin/passwd -k my_passwd_cmds
--a always,exit -F path=/bin/passwd -k my_passwd_cmds
+-a always,exit -F path=/usr/bin/passwd -F perm=x -k my_passwd_cmds
+-a always,exit -F path=/bin/passwd -F perm=x -k my_passwd_cmds
 
--a always,exit -F path=/usr/sbin/unix_chkpwd -k my_passwd_cmds
--a always,exit -F path=/sbin/unix_chkpwd -k my_passwd_cmds
+-a always,exit -F path=/usr/sbin/unix_chkpwd -F perm=x -k my_passwd_cmds
+-a always,exit -F path=/sbin/unix_chkpwd -F perm=x -k my_passwd_cmds
 
--a always,exit -F path=/usr/bin/gpasswd -k my_passwd_cmds
--a always,exit -F path=/bin/gpasswd -k my_passwd_cmds
+-a always,exit -F path=/usr/bin/gpasswd -F perm=x -k my_passwd_cmds
+-a always,exit -F path=/bin/gpasswd -F perm=x -k my_passwd_cmds
 
--a always,exit -F path=/usr/bin/chage -k my_passwd_cmds
--a always,exit -F path=/bin/chage -k my_passwd_cmds
+-a always,exit -F path=/usr/bin/chage -F perm=x -k my_passwd_cmds
+-a always,exit -F path=/bin/chage -F perm=x -k my_passwd_cmds
 
--a always,exit -F path=/usr/sbin/userhelper -k my_passwd_cmds
--a always,exit -F path=/sbin/userhelper -k my_passwd_cmds
+-a always,exit -F path=/usr/sbin/userhelper -F perm=x -k my_passwd_cmds
+-a always,exit -F path=/sbin/userhelper -F perm=x -k my_passwd_cmds
 
 ## Audit the execution of privilege-related commands
--a always,exit -F path=/usr/bin/su -k my_priv_cmds
--a always,exit -F path=/bin/su -k my_priv_cmds
+-a always,exit -F path=/usr/bin/su -F perm=x -k my_priv_cmds
+-a always,exit -F path=/bin/su -F perm=x -k my_priv_cmds
 
--a always,exit -F path=/usr/bin/sudo -k my_priv_cmds
--a always,exit -F path=/bin/sudo -k my_priv_cmds
+-a always,exit -F path=/usr/bin/sudo -F perm=x -k my_priv_cmds
+-a always,exit -F path=/bin/sudo -F perm=x -k my_priv_cmds
 
--a always,exit -F path=/usr/bin/newgrp -k my_priv_cmds
--a always,exit -F path=/bin/newgrp -k my_priv_cmds
+-a always,exit -F path=/usr/bin/newgrp -F perm=x -k my_priv_cmds
+-a always,exit -F path=/bin/newgrp -F perm=x -k my_priv_cmds
 
--a always,exit -F path=/usr/bin/chsh -k my_priv_cmds
+-a always,exit -F path=/usr/bin/chsh -F perm=x -k my_priv_cmds
 
--a always,exit -F path=/usr/bin/sudoedit -k my_priv_cmds
--a always,exit -F path=/bin/sudoedit -k my_priv_cmds
+-a always,exit -F path=/usr/bin/sudoedit -F perm=x -k my_priv_cmds
+-a always,exit -F path=/bin/sudoedit -F perm=x -k my_priv_cmds
 
 ## Audit the execution of postfix-related commands
--a always,exit -F path=/usr/sbin/postdrop -k my_postfix_cmds
--a always,exit -F path=/sbin/postdrop -k my_postfix_cmds
+-a always,exit -F path=/usr/sbin/postdrop -F perm=x -k my_postfix_cmds
+-a always,exit -F path=/sbin/postdrop -F perm=x -k my_postfix_cmds
 
--a always,exit -F path=/usr/sbin/postqueue -k my_postfix_cmds
--a always,exit -F path=/sbin/postqueue -k my_postfix_cmds
+-a always,exit -F path=/usr/sbin/postqueue -F perm=x -k my_postfix_cmds
+-a always,exit -F path=/sbin/postqueue -F perm=x -k my_postfix_cmds
 
 ## Audit the execution of the ssh-keysign command
--a always,exit -F path=/usr/libexec/openssh/ssh-keysign -k my_ssh_keysign_cmd
+-a always,exit -F path=/usr/libexec/openssh/ssh-keysign -F perm=x -k my_ssh_keysign_cmd
 
 ## Audit the execution of the crontab command
--a always,exit -F path=/usr/bin/crontab -k my_crontab_cmd
--a always,exit -F path=/bin/crontab -k my_crontab_cmd
+-a always,exit -F path=/usr/bin/crontab -F perm=x -k my_crontab_cmd
+-a always,exit -F path=/bin/crontab -F perm=x -k my_crontab_cmd
 
 ## Audit the execution of the pam_timestamp_check command
--a always,exit -F path=/usr/sbin/pam_timestamp_check -k my_pam_timestamp_check_cmd
--a always,exit -F path=/sbin/pam_timestamp_check -k my_pam_timestamp_check_cmd
+-a always,exit -F path=/usr/sbin/pam_timestamp_check -F perm=x -k my_pam_timestamp_check_cmd
+-a always,exit -F path=/sbin/pam_timestamp_check -F perm=x -k my_pam_timestamp_check_cmd
 
 ## Audit selinux commands
 #
--a always,exit -F path=/usr/sbin/semanage -k my_selinux_cmds
--a always,exit -F path=/sbin/semanage -k my_selinux_cmds
+-a always,exit -F path=/usr/sbin/semanage -F perm=x -k my_selinux_cmds
+-a always,exit -F path=/sbin/semanage -F perm=x -k my_selinux_cmds
 
--a always,exit -F path=/usr/sbin/setsebool -k my_selinux_cmds
--a always,exit -F path=/sbin/setsebool -k my_selinux_cmds
+-a always,exit -F path=/usr/sbin/setsebool -F perm=x -k my_selinux_cmds
+-a always,exit -F path=/sbin/setsebool -F perm=x -k my_selinux_cmds
 
--a always,exit -F path=/usr/bin/chcon -k my_selinux_cmds
--a always,exit -F path=/bin/chcon -k my_selinux_cmds
+-a always,exit -F path=/usr/bin/chcon -F perm=x -k my_selinux_cmds
+-a always,exit -F path=/bin/chcon -F perm=x -k my_selinux_cmds
 
--a always,exit -F path=/usr/sbin/setfiles -k my_selinux_cmds
--a always,exit -F path=/sbin/setfiles -k my_selinux_cmds
+-a always,exit -F path=/usr/sbin/setfiles -F perm=x -k my_selinux_cmds
+-a always,exit -F path=/sbin/setfiles -F perm=x -k my_selinux_cmds
 
 ## Permissions auditing separated by chown, chmod, and attr
 
@@ -89,8 +89,8 @@
 -a always,exit -F arch=b32 -S setxattr,lsetxattr,fsetxattr,removexattr,lremovexattr,fremovexattr -k my_attr
 
 ## Audit rename/removal operations
--a always,exit -F arch=b64 -S rename,renameat,rmdir,unlink,unlinkat -k my_rename_remove
--a always,exit -F arch=b32 -S rename,renameat,rmdir,unlink,unlinkat -k my_rename_remove
+-a always,exit -F arch=b64 -S rename,renameat,rmdir,unlink,unlinkat -F perm=x -k my_rename_remove
+-a always,exit -F arch=b32 -S rename,renameat,rmdir,unlink,unlinkat -F perm=x -k my_rename_remove
 
 ## Audit useful items that someone does when su'ing to root.
 -a always,exit -F arch=b64 -F auid!=0 -F uid=0 -S capset,mknod,mknodat,pivot_root,quotactl,setsid,adjtimex,settimeofday,setuid,swapoff,swapon,execve,rename,renameat,rmdir,unlink,unlinkat,write,chown,fchown,fchownat,lchown,creat,fork,vfork,link,linkat,symlink,symlinkat,mkdir,mkdirat -k my_su_root_activity
@@ -142,8 +142,8 @@
 -a always,exit -F arch=b64 -F path=/bin/mount -k my_mount
 -a always,exit -F arch=b32 -F path=/usr/bin/mount -k my_mount
 -a always,exit -F arch=b32 -F path=/bin/mount -k my_mount
--a always,exit -F path=/usr/bin/umount -k my_mount
--a always,exit -F path=/bin/umount -k my_mount
+-a always,exit -F path=/usr/bin/umount -F perm=x -k my_mount
+-a always,exit -F path=/bin/umount -F perm=x -k my_mount
 
 ## Audit umask changes.
 -a always,exit -F arch=b64 -S umask -k my_umask

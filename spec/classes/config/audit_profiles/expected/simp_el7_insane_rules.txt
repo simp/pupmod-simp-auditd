@@ -15,54 +15,54 @@
 -a always,exit -F perm=a -F exit=-EPERM -k access
 
 ## Audit the execution of password commands
--a always,exit -F path=/usr/bin/passwd -k privileged-passwd
--a always,exit -F path=/bin/passwd -k privileged-passwd
+-a always,exit -F path=/usr/bin/passwd -F perm=x -k privileged-passwd
+-a always,exit -F path=/bin/passwd -F perm=x -k privileged-passwd
 
--a always,exit -F path=/usr/sbin/unix_chkpwd -k privileged-passwd
--a always,exit -F path=/sbin/unix_chkpwd -k privileged-passwd
+-a always,exit -F path=/usr/sbin/unix_chkpwd -F perm=x -k privileged-passwd
+-a always,exit -F path=/sbin/unix_chkpwd -F perm=x -k privileged-passwd
 
--a always,exit -F path=/usr/bin/gpasswd -k privileged-passwd
--a always,exit -F path=/bin/gpasswd -k privileged-passwd
+-a always,exit -F path=/usr/bin/gpasswd -F perm=x -k privileged-passwd
+-a always,exit -F path=/bin/gpasswd -F perm=x -k privileged-passwd
 
--a always,exit -F path=/usr/bin/chage -k privileged-passwd
--a always,exit -F path=/bin/chage -k privileged-passwd
+-a always,exit -F path=/usr/bin/chage -F perm=x -k privileged-passwd
+-a always,exit -F path=/bin/chage -F perm=x -k privileged-passwd
 
--a always,exit -F path=/usr/sbin/userhelper -k privileged-passwd
--a always,exit -F path=/sbin/userhelper -k privileged-passwd
+-a always,exit -F path=/usr/sbin/userhelper -F perm=x -k privileged-passwd
+-a always,exit -F path=/sbin/userhelper -F perm=x -k privileged-passwd
 
 ## Audit the execution of privilege-related commands
--a always,exit -F path=/usr/bin/su -k privileged-priv_change
--a always,exit -F path=/bin/su -k privileged-priv_change
+-a always,exit -F path=/usr/bin/su -F perm=x -k privileged-priv_change
+-a always,exit -F path=/bin/su -F perm=x -k privileged-priv_change
 
--a always,exit -F path=/usr/bin/sudo -k privileged-priv_change
--a always,exit -F path=/bin/sudo -k privileged-priv_change
+-a always,exit -F path=/usr/bin/sudo -F perm=x -k privileged-priv_change
+-a always,exit -F path=/bin/sudo -F perm=x -k privileged-priv_change
 
--a always,exit -F path=/usr/bin/newgrp -k privileged-priv_change
--a always,exit -F path=/bin/newgrp -k privileged-priv_change
+-a always,exit -F path=/usr/bin/newgrp -F perm=x -k privileged-priv_change
+-a always,exit -F path=/bin/newgrp -F perm=x -k privileged-priv_change
 
--a always,exit -F path=/usr/bin/chsh -k privileged-priv_change
--a always,exit -F path=/bin/chsh -k privileged-priv_change
+-a always,exit -F path=/usr/bin/chsh -F perm=x -k privileged-priv_change
+-a always,exit -F path=/bin/chsh -F perm=x -k privileged-priv_change
 
--a always,exit -F path=/usr/bin/sudoedit -k privileged-priv_change
--a always,exit -F path=/bin/sudoedit -k privileged-priv_change
+-a always,exit -F path=/usr/bin/sudoedit -F perm=x -k privileged-priv_change
+-a always,exit -F path=/bin/sudoedit -F perm=x -k privileged-priv_change
 
 ## Audit the execution of postfix-related commands
--a always,exit -F path=/usr/sbin/postdrop -k privileged-postfix
--a always,exit -F path=/sbin/postdrop -k privileged-postfix
+-a always,exit -F path=/usr/sbin/postdrop -F perm=x -k privileged-postfix
+-a always,exit -F path=/sbin/postdrop -F perm=x -k privileged-postfix
 
--a always,exit -F path=/usr/sbin/postqueue -k privileged-postfix
--a always,exit -F path=/sbin/postqueue -k privileged-postfix
+-a always,exit -F path=/usr/sbin/postqueue -F perm=x -k privileged-postfix
+-a always,exit -F path=/sbin/postqueue -F perm=x -k privileged-postfix
 
 ## Audit the execution of the ssh-keysign command
--a always,exit -F path=/usr/libexec/openssh/ssh-keysign -k privileged-ssh
+-a always,exit -F path=/usr/libexec/openssh/ssh-keysign -F perm=x -k privileged-ssh
 
 ## Audit the execution of the crontab command
--a always,exit -F path=/usr/bin/crontab -k privileged-cron
--a always,exit -F path=/bin/crontab -k privileged-cron
+-a always,exit -F path=/usr/bin/crontab -F perm=x -k privileged-cron
+-a always,exit -F path=/bin/crontab -F perm=x -k privileged-cron
 
 ## Audit the execution of the pam_timestamp_check command
--a always,exit -F path=/usr/sbin/pam_timestamp_check -k privileged-pam
--a always,exit -F path=/sbin/pam_timestamp_check -k privileged-pam
+-a always,exit -F path=/usr/sbin/pam_timestamp_check -F perm=x -k privileged-pam
+-a always,exit -F path=/sbin/pam_timestamp_check -F perm=x -k privileged-pam
 
 ## Permissions auditing separated by chown, chmod, and attr
 
@@ -122,8 +122,8 @@
 -a always,exit -F arch=b64 -F path=/bin/mount -k mount
 -a always,exit -F arch=b32 -F path=/usr/bin/mount -k mount
 -a always,exit -F arch=b32 -F path=/bin/mount -k mount
--a always,exit -F path=/usr/bin/umount -k mount
--a always,exit -F path=/bin/umount -k mount
+-a always,exit -F path=/usr/bin/umount -F perm=x -k mount
+-a always,exit -F path=/bin/umount -F perm=x -k mount
 
 ## Audit local accounts
 -w /etc/passwd -p wa -k audit_account_changes

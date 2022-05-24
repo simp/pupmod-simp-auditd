@@ -47,119 +47,119 @@
 <% if $auditd::config::audit_profiles::stig::audit_passwd_cmds { -%>
 
 ## Audit the execution of password commands
--a always,exit -F path=/usr/bin/passwd -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_passwd_cmds_tag %>
+-a always,exit -F path=/usr/bin/passwd -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_passwd_cmds_tag %>
 <%   if $facts['os']['release']['major'] > '6' { -%>
--a always,exit -F path=/bin/passwd -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_passwd_cmds_tag %>
+-a always,exit -F path=/bin/passwd -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_passwd_cmds_tag %>
 <%   } -%>
 
 <%   if $facts['os']['release']['major'] > '6' { -%>
--a always,exit -F path=/usr/sbin/unix_chkpwd -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_passwd_cmds_tag %>
+-a always,exit -F path=/usr/sbin/unix_chkpwd -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_passwd_cmds_tag %>
 <%   } -%>
--a always,exit -F path=/sbin/unix_chkpwd -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_passwd_cmds_tag %>
+-a always,exit -F path=/sbin/unix_chkpwd -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_passwd_cmds_tag %>
 
--a always,exit -F path=/usr/bin/gpasswd -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_passwd_cmds_tag %>
+-a always,exit -F path=/usr/bin/gpasswd -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_passwd_cmds_tag %>
 <%   if $facts['os']['release']['major'] > '6' { -%>
--a always,exit -F path=/bin/gpasswd -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_passwd_cmds_tag %>
-<%   } -%>
-
--a always,exit -F path=/usr/bin/chage -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_passwd_cmds_tag %>
-<%   if $facts['os']['release']['major'] > '6' { -%>
--a always,exit -F path=/bin/chage -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_passwd_cmds_tag %>
+-a always,exit -F path=/bin/gpasswd -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_passwd_cmds_tag %>
 <%   } -%>
 
--a always,exit -F path=/usr/sbin/userhelper -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_passwd_cmds_tag %>
+-a always,exit -F path=/usr/bin/chage -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_passwd_cmds_tag %>
 <%   if $facts['os']['release']['major'] > '6' { -%>
--a always,exit -F path=/sbin/userhelper -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_passwd_cmds_tag %>
+-a always,exit -F path=/bin/chage -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_passwd_cmds_tag %>
+<%   } -%>
+
+-a always,exit -F path=/usr/sbin/userhelper -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_passwd_cmds_tag %>
+<%   if $facts['os']['release']['major'] > '6' { -%>
+-a always,exit -F path=/sbin/userhelper -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_passwd_cmds_tag %>
 <%   } -%>
 <% } -%>
 <% if $auditd::config::audit_profiles::stig::audit_priv_cmds { -%>
 
 ## Audit the execution of privilege-related commands
 <%   if $facts['os']['release']['major'] > '6' { -%>
--a always,exit -F path=/usr/bin/su -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_priv_cmds_tag %>
+-a always,exit -F path=/usr/bin/su -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_priv_cmds_tag %>
 <%   } -%>
--a always,exit -F path=/bin/su -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_priv_cmds_tag %>
+-a always,exit -F path=/bin/su -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_priv_cmds_tag %>
 
--a always,exit -F path=/usr/bin/sudo -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_priv_cmds_tag %>
+-a always,exit -F path=/usr/bin/sudo -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_priv_cmds_tag %>
 <%   if $facts['os']['release']['major'] > '6' { -%>
--a always,exit -F path=/bin/sudo -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_priv_cmds_tag %>
-<%   } -%>
-
--a always,exit -F path=/usr/bin/newgrp -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_priv_cmds_tag %>
-<%   if $facts['os']['release']['major'] > '6' { -%>
--a always,exit -F path=/bin/newgrp -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_priv_cmds_tag %>
+-a always,exit -F path=/bin/sudo -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_priv_cmds_tag %>
 <%   } -%>
 
--a always,exit -F path=/usr/bin/chsh -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_priv_cmds_tag %>
+-a always,exit -F path=/usr/bin/newgrp -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_priv_cmds_tag %>
 <%   if $facts['os']['release']['major'] > '6' { -%>
--a always,exit -F path=/bin/chsh -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_priv_cmds_tag %>
+-a always,exit -F path=/bin/newgrp -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_priv_cmds_tag %>
 <%   } -%>
 
--a always,exit -F path=/usr/bin/sudoedit -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_priv_cmds_tag %>
+-a always,exit -F path=/usr/bin/chsh -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_priv_cmds_tag %>
 <%   if $facts['os']['release']['major'] > '6' { -%>
--a always,exit -F path=/bin/sudoedit -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_priv_cmds_tag %>
+-a always,exit -F path=/bin/chsh -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_priv_cmds_tag %>
+<%   } -%>
+
+-a always,exit -F path=/usr/bin/sudoedit -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_priv_cmds_tag %>
+<%   if $facts['os']['release']['major'] > '6' { -%>
+-a always,exit -F path=/bin/sudoedit -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_priv_cmds_tag %>
 <%   } -%>
 <% } -%>
 <% if $auditd::config::audit_profiles::stig::audit_postfix_cmds { -%>
 
 ## Audit the execution of postfix-related commands
--a always,exit -F path=/usr/sbin/postdrop -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_postfix_cmds_tag %>
+-a always,exit -F path=/usr/sbin/postdrop -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_postfix_cmds_tag %>
 <%   if $facts['os']['release']['major'] > '6' { -%>
--a always,exit -F path=/sbin/postdrop -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_postfix_cmds_tag %>
+-a always,exit -F path=/sbin/postdrop -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_postfix_cmds_tag %>
 <%   } -%>
 
--a always,exit -F path=/usr/sbin/postqueue -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_postfix_cmds_tag %>
+-a always,exit -F path=/usr/sbin/postqueue -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_postfix_cmds_tag %>
 <%   if $facts['os']['release']['major'] > '6' { -%>
--a always,exit -F path=/sbin/postqueue -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_postfix_cmds_tag %>
+-a always,exit -F path=/sbin/postqueue -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_postfix_cmds_tag %>
 <%   } -%>
 <% } -%>
 <% if $auditd::config::audit_profiles::stig::audit_ssh_keysign_cmd { -%>
 
 ## Audit the execution of the ssh-keysign command
--a always,exit -F path=/usr/libexec/openssh/ssh-keysign -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_ssh_keysign_cmd_tag %>
+-a always,exit -F path=/usr/libexec/openssh/ssh-keysign -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_ssh_keysign_cmd_tag %>
 <% } -%>
 <% if $auditd::config::audit_profiles::stig::audit_crontab_cmd { -%>
 
 ## Audit the execution of the crontab command
--a always,exit -F path=/usr/bin/crontab -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_crontab_cmd_tag %>
+-a always,exit -F path=/usr/bin/crontab -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_crontab_cmd_tag %>
 <%   if $facts['os']['release']['major'] > '6' { -%>
--a always,exit -F path=/bin/crontab -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_crontab_cmd_tag %>
+-a always,exit -F path=/bin/crontab -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_crontab_cmd_tag %>
 <%   } -%>
 <% } -%>
 <% if $auditd::config::audit_profiles::stig::audit_pam_timestamp_check_cmd { -%>
 
 ## Audit the execution of the pam_timestamp_check command
 <%   if $facts['os']['release']['major'] > '6' { -%>
--a always,exit -F path=/usr/sbin/pam_timestamp_check -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_pam_timestamp_check_cmd_tag %>
+-a always,exit -F path=/usr/sbin/pam_timestamp_check -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_pam_timestamp_check_cmd_tag %>
 <%   } -%>
--a always,exit -F path=/sbin/pam_timestamp_check -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_pam_timestamp_check_cmd_tag %>
+-a always,exit -F path=/sbin/pam_timestamp_check -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_pam_timestamp_check_cmd_tag %>
 <% } -%>
 <% if $auditd::config::audit_profiles::stig::audit_selinux_cmds { -%>
 
 ## Audit selinux commands
--a always,exit -F path=/usr/sbin/semanage -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_selinux_cmds_tag %>
+-a always,exit -F path=/usr/sbin/semanage -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_selinux_cmds_tag %>
 <%   if $facts['os']['release']['major'] > '6' { -%>
--a always,exit -F path=/sbin/semanage -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_selinux_cmds_tag %>
+-a always,exit -F path=/sbin/semanage -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_selinux_cmds_tag %>
 <%   } -%>
 
--a always,exit -F path=/usr/sbin/setsebool -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_selinux_cmds_tag %>
+-a always,exit -F path=/usr/sbin/setsebool -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_selinux_cmds_tag %>
 <%   if $facts['os']['release']['major'] > '6' { -%>
--a always,exit -F path=/sbin/setsebool -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_selinux_cmds_tag %>
+-a always,exit -F path=/sbin/setsebool -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_selinux_cmds_tag %>
 <%   } -%>
 
--a always,exit -F path=/usr/bin/chcon -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_selinux_cmds_tag %>
+-a always,exit -F path=/usr/bin/chcon -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_selinux_cmds_tag %>
 <%   if $facts['os']['release']['major'] > '6' { -%>
--a always,exit -F path=/bin/chcon -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_selinux_cmds_tag %>
+-a always,exit -F path=/bin/chcon -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_selinux_cmds_tag %>
 <%   } -%>
 
 <%   if $facts['os']['release']['major'] > '6' { -%>
--a always,exit -F path=/usr/sbin/setfiles -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_selinux_cmds_tag %>
+-a always,exit -F path=/usr/sbin/setfiles -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_selinux_cmds_tag %>
 <%   } -%>
--a always,exit -F path=/sbin/setfiles -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_selinux_cmds_tag %>
+-a always,exit -F path=/sbin/setfiles -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_selinux_cmds_tag %>
 
--a always,exit -F path=/sbin/restorecon -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_selinux_cmds_tag %>
+-a always,exit -F path=/sbin/restorecon -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_selinux_cmds_tag %>
 <%   if $facts['os']['release']['major'] > '6' { -%>
--a always,exit -F path=/usr/sbin/restorecon -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_selinux_cmds_tag %>
+-a always,exit -F path=/usr/sbin/restorecon -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_selinux_cmds_tag %>
 <%   } -%>
 <% } -%>
 
@@ -272,7 +272,7 @@
 -a always,exit -F arch=b32 -S execve -C uid!=euid -F euid=0 -k <%= $auditd::config::audit_profiles::stig::audit_suid_tag %>
 -a always,exit -F arch=b32 -S execve -C gid!=egid -F egid=0 -k <%= $auditd::config::audit_profiles::stig::audit_sgid_tag %>
 <%   $auditd::config::audit_profiles::stig::_suid_sgid_cmds.each |$cmd| { -%>
--a always,exit -F path=<%= $cmd %> -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_suid_sgid_tag %>
+-a always,exit -F path=<%= $cmd %> -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_suid_sgid_tag %>
 <%   } -%>
 <% } -%>
 <% if $auditd::config::audit_profiles::stig::audit_kernel_modules { -%>
@@ -334,9 +334,9 @@
 -a always,exit -F arch=b32 -F path=/bin/mount -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_mount_tag %>
 
 <%   if $facts['os']['release']['major'] > '6' { -%>
--a always,exit -F path=/usr/bin/umount -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_mount_tag %>
+-a always,exit -F path=/usr/bin/umount -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_mount_tag %>
 <%   } -%>
--a always,exit -F path=/bin/umount -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_mount_tag %>
+-a always,exit -F path=/bin/umount -F perm=x -F auid>=<%= $auditd::config::audit_profiles::stig::uid_min %> -F auid!=unset -F key=<%= $auditd::config::audit_profiles::stig::audit_mount_tag %>
 <% } -%>
 <% if $auditd::config::audit_profiles::stig::audit_local_account { -%>
 

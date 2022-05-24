@@ -43,92 +43,92 @@
 <% if $auditd::config::audit_profiles::simp::audit_passwd_cmds  { -%>
 
 ## Audit the execution of password commands
--a always,exit -F path=/usr/bin/passwd -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
+-a always,exit -F path=/usr/bin/passwd -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
 <%   if $facts['os']['release']['major'] > '6'  { -%>
--a always,exit -F path=/bin/passwd -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
+-a always,exit -F path=/bin/passwd -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
 <%   } -%>
 
 <%   if $facts['os']['release']['major'] > '6'  { -%>
--a always,exit -F path=/usr/sbin/unix_chkpwd -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
+-a always,exit -F path=/usr/sbin/unix_chkpwd -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
 <%   } -%>
--a always,exit -F path=/sbin/unix_chkpwd -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
+-a always,exit -F path=/sbin/unix_chkpwd -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
 
--a always,exit -F path=/usr/bin/gpasswd -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
+-a always,exit -F path=/usr/bin/gpasswd -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
 <%   if $facts['os']['release']['major'] > '6'  { -%>
--a always,exit -F path=/bin/gpasswd -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
-<%   } -%>
-
--a always,exit -F path=/usr/bin/chage -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
-<%   if $facts['os']['release']['major'] > '6'  { -%>
--a always,exit -F path=/bin/chage -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
+-a always,exit -F path=/bin/gpasswd -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
 <%   } -%>
 
--a always,exit -F path=/usr/sbin/userhelper -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
+-a always,exit -F path=/usr/bin/chage -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
 <%   if $facts['os']['release']['major'] > '6'  { -%>
--a always,exit -F path=/sbin/userhelper -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
+-a always,exit -F path=/bin/chage -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
+<%   } -%>
+
+-a always,exit -F path=/usr/sbin/userhelper -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
+<%   if $facts['os']['release']['major'] > '6'  { -%>
+-a always,exit -F path=/sbin/userhelper -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
 <%   } -%>
 <% } -%>
 <% if $auditd::config::audit_profiles::simp::audit_priv_cmds  { -%>
 
 ## Audit the execution of privilege-related commands
 <%   if $facts['os']['release']['major'] > '6'  { -%>
--a always,exit -F path=/usr/bin/su -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
+-a always,exit -F path=/usr/bin/su -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
 <%   } -%>
--a always,exit -F path=/bin/su -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
+-a always,exit -F path=/bin/su -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
 
--a always,exit -F path=/usr/bin/sudo -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
+-a always,exit -F path=/usr/bin/sudo -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
 <%   if $facts['os']['release']['major'] > '6'  { -%>
--a always,exit -F path=/bin/sudo -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
-<%   } -%>
-
--a always,exit -F path=/usr/bin/newgrp -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
-<%   if $facts['os']['release']['major'] > '6'  { -%>
--a always,exit -F path=/bin/newgrp -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
+-a always,exit -F path=/bin/sudo -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
 <%   } -%>
 
--a always,exit -F path=/usr/bin/chsh -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
+-a always,exit -F path=/usr/bin/newgrp -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
 <%   if $facts['os']['release']['major'] > '6'  { -%>
--a always,exit -F path=/bin/chsh -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
+-a always,exit -F path=/bin/newgrp -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
 <%   } -%>
 
--a always,exit -F path=/usr/bin/sudoedit -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
+-a always,exit -F path=/usr/bin/chsh -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
 <%   if $facts['os']['release']['major'] > '6'  { -%>
--a always,exit -F path=/bin/sudoedit -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
+-a always,exit -F path=/bin/chsh -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
+<%   } -%>
+
+-a always,exit -F path=/usr/bin/sudoedit -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
+<%   if $facts['os']['release']['major'] > '6'  { -%>
+-a always,exit -F path=/bin/sudoedit -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
 <%   } -%>
 <% } -%>
 <% if $auditd::config::audit_profiles::simp::audit_postfix_cmds  { -%>
 
 ## Audit the execution of postfix-related commands
--a always,exit -F path=/usr/sbin/postdrop -k <%= $auditd::config::audit_profiles::simp::audit_postfix_cmds_tag %>
+-a always,exit -F path=/usr/sbin/postdrop -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_postfix_cmds_tag %>
 <%   if $facts['os']['release']['major'] > '6'  { -%>
--a always,exit -F path=/sbin/postdrop -k <%= $auditd::config::audit_profiles::simp::audit_postfix_cmds_tag %>
+-a always,exit -F path=/sbin/postdrop -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_postfix_cmds_tag %>
 <%   } -%>
 
--a always,exit -F path=/usr/sbin/postqueue -k <%= $auditd::config::audit_profiles::simp::audit_postfix_cmds_tag %>
+-a always,exit -F path=/usr/sbin/postqueue -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_postfix_cmds_tag %>
 <%   if $facts['os']['release']['major'] > '6'  { -%>
--a always,exit -F path=/sbin/postqueue -k <%= $auditd::config::audit_profiles::simp::audit_postfix_cmds_tag %>
+-a always,exit -F path=/sbin/postqueue -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_postfix_cmds_tag %>
 <%   } -%>
 <% } -%>
 <% if $auditd::config::audit_profiles::simp::audit_ssh_keysign_cmd  { -%>
 
 ## Audit the execution of the ssh-keysign command
--a always,exit -F path=/usr/libexec/openssh/ssh-keysign -k <%= $auditd::config::audit_profiles::simp::audit_ssh_keysign_cmd_tag %>
+-a always,exit -F path=/usr/libexec/openssh/ssh-keysign -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_ssh_keysign_cmd_tag %>
 <% } -%>
 <% if $auditd::config::audit_profiles::simp::audit_crontab_cmd  { -%>
 
 ## Audit the execution of the crontab command
--a always,exit -F path=/usr/bin/crontab -k <%= $auditd::config::audit_profiles::simp::audit_crontab_cmd_tag %>
+-a always,exit -F path=/usr/bin/crontab -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_crontab_cmd_tag %>
 <%   if $facts['os']['release']['major'] > '6'  { -%>
--a always,exit -F path=/bin/crontab -k <%= $auditd::config::audit_profiles::simp::audit_crontab_cmd_tag %>
+-a always,exit -F path=/bin/crontab -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_crontab_cmd_tag %>
 <%   } -%>
 <% } -%>
 <% if $auditd::config::audit_profiles::simp::audit_pam_timestamp_check_cmd  { -%>
 
 ## Audit the execution of the pam_timestamp_check command
 <%   if $facts['os']['release']['major'] > '6'  { -%>
--a always,exit -F path=/usr/sbin/pam_timestamp_check -k <%= $auditd::config::audit_profiles::simp::audit_pam_timestamp_check_cmd_tag %>
+-a always,exit -F path=/usr/sbin/pam_timestamp_check -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_pam_timestamp_check_cmd_tag %>
 <%   } -%>
--a always,exit -F path=/sbin/pam_timestamp_check -k <%= $auditd::config::audit_profiles::simp::audit_pam_timestamp_check_cmd_tag %>
+-a always,exit -F path=/sbin/pam_timestamp_check -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_pam_timestamp_check_cmd_tag %>
 <% } -%>
 <% if $auditd::config::audit_profiles::simp::audit_selinux_cmds  { -%>
 
@@ -136,25 +136,25 @@
 # NOTE:  These rules come before the *xattr* checks, to ensure the
 #        correct tag is recorded.
 #
--a always,exit -F path=/usr/sbin/semanage -k <%= $auditd::config::audit_profiles::simp::audit_selinux_cmds_tag %>
+-a always,exit -F path=/usr/sbin/semanage -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_selinux_cmds_tag %>
 <%   if $facts['os']['release']['major'] > '6'  { -%>
--a always,exit -F path=/sbin/semanage -k <%= $auditd::config::audit_profiles::simp::audit_selinux_cmds_tag %>
+-a always,exit -F path=/sbin/semanage -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_selinux_cmds_tag %>
 <%   } -%>
 
--a always,exit -F path=/usr/sbin/setsebool -k <%= $auditd::config::audit_profiles::simp::audit_selinux_cmds_tag %>
+-a always,exit -F path=/usr/sbin/setsebool -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_selinux_cmds_tag %>
 <%   if $facts['os']['release']['major'] > '6'  { -%>
--a always,exit -F path=/sbin/setsebool -k <%= $auditd::config::audit_profiles::simp::audit_selinux_cmds_tag %>
+-a always,exit -F path=/sbin/setsebool -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_selinux_cmds_tag %>
 <%   } -%>
 
--a always,exit -F path=/usr/bin/chcon -k <%= $auditd::config::audit_profiles::simp::audit_selinux_cmds_tag %>
+-a always,exit -F path=/usr/bin/chcon -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_selinux_cmds_tag %>
 <%   if $facts['os']['release']['major'] > '6'  { -%>
--a always,exit -F path=/bin/chcon -k <%= $auditd::config::audit_profiles::simp::audit_selinux_cmds_tag %>
+-a always,exit -F path=/bin/chcon -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_selinux_cmds_tag %>
 <%   } -%>
 
 <%   if $facts['os']['release']['major'] > '6'  { -%>
--a always,exit -F path=/usr/sbin/setfiles -k <%= $auditd::config::audit_profiles::simp::audit_selinux_cmds_tag %>
+-a always,exit -F path=/usr/sbin/setfiles -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_selinux_cmds_tag %>
 <%   } -%>
--a always,exit -F path=/sbin/setfiles -k <%= $auditd::config::audit_profiles::simp::audit_selinux_cmds_tag %>
+-a always,exit -F path=/sbin/setfiles -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_selinux_cmds_tag %>
 <% } -%>
 
 ## Permissions auditing separated by chown, chmod, and attr
@@ -183,9 +183,9 @@
 
 ## Audit rename/removal operations
 <%   if $facts['hardwaremodel'] == "x86_64"  { -%>
--a always,exit -F arch=b64 -S rename,renameat,rmdir,unlink,unlinkat -k <%= $auditd::config::audit_profiles::simp::audit_rename_remove_tag %>
+-a always,exit -F arch=b64 -S rename,renameat,rmdir,unlink,unlinkat -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_rename_remove_tag %>
 <%   } -%>
--a always,exit -F arch=b32 -S rename,renameat,rmdir,unlink,unlinkat -k <%= $auditd::config::audit_profiles::simp::audit_rename_remove_tag %>
+-a always,exit -F arch=b32 -S rename,renameat,rmdir,unlink,unlinkat -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_rename_remove_tag %>
 <% } -%>
 <% if $auditd::config::audit_profiles::simp::audit_su_root_activity  { -%>
 
@@ -289,9 +289,9 @@
 <%   } -%>
 -a always,exit -F arch=b32 -F path=/bin/mount -k <%= $auditd::config::audit_profiles::simp::audit_mount_tag %>
 <%   if $facts['os']['release']['major'] > '6'  { -%>
--a always,exit -F path=/usr/bin/umount -k <%= $auditd::config::audit_profiles::simp::audit_mount_tag %>
+-a always,exit -F path=/usr/bin/umount -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_mount_tag %>
 <%   } -%>
--a always,exit -F path=/bin/umount -k <%= $auditd::config::audit_profiles::simp::audit_mount_tag %>
+-a always,exit -F path=/bin/umount -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_mount_tag %>
 <% } -%>
 <% if $auditd::config::audit_profiles::simp::audit_umask  { -%>
 
