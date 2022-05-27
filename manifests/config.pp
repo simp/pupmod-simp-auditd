@@ -89,16 +89,11 @@ class auditd::config {
   }
 
   file { '/var/log/audit':
-    ensure => 'directory',
-    owner  => 'root',
-    group  => $auditd::log_group,
-    mode   => 'o-rwx'
-  }
-
-  file { $auditd::log_file:
-    owner => 'root',
-    group => $auditd::log_group,
-    mode  => $log_file_mode
+    ensure  => 'directory',
+    owner   => 'root',
+    group   => $auditd::log_group,
+    mode    => $log_file_mode,
+    recurse => true
   }
 
   if $auditd::syslog {
