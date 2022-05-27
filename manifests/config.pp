@@ -19,11 +19,6 @@ class auditd::config {
     $profiles = $auditd::default_audit_profiles
   }
 
-  $log_dir_mode = $auditd::log_group ? {
-    'root'  => '0700',
-    default => '0750',
-  }
-
   $log_file_mode = $auditd::log_group ? {
     'root'  => '0600',
     default => '0640',
@@ -94,16 +89,11 @@ class auditd::config {
   }
 
   file { '/var/log/audit':
-    ensure => 'directory',
-    owner  => 'root',
-    group  => $auditd::log_group,
-    mode   => $log_dir_mode,
-  }
-
-  file { $auditd::log_file:
-    owner => 'root',
-    group => $auditd::log_group,
-    mode  => $log_file_mode
+    ensure  => 'directory',
+    owner   => 'root',
+    group   => $auditd::log_group,
+    mode    => $log_file_mode,
+    recurse => true
   }
 
   if $auditd::syslog {

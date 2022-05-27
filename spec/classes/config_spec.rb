@@ -53,17 +53,11 @@ describe 'auditd' do
           it { is_expected.to_not contain_class('auditd::config::logging').that_notifies('Class[auditd::service]') }
           it {
             is_expected.to contain_file('/var/log/audit').with({
-              :ensure => 'directory',
-              :owner  => 'root',
-              :group  => 'root',
-              :mode   => 'o-rwx'
-            })
-          }
-          it {
-            is_expected.to contain_file('/var/log/audit/audit.log').with({
-              :owner  => 'root',
-              :group  => 'root',
-              :mode   => '0600'
+              :ensure  => 'directory',
+              :owner   => 'root',
+              :group   => 'root',
+              :mode    => '0600',
+              :recurse => true
             })
           }
           it { is_expected.to contain_class('auditd::config::audit_profiles') }
@@ -128,18 +122,11 @@ describe 'auditd' do
 
           it {
             is_expected.to contain_file('/var/log/audit').with({
-              :ensure => 'directory',
-              :owner  => 'root',
-              :group  => 'rspec',
-              :mode   => 'o-rwx'
-            })
-          }
-
-          it {
-            is_expected.to contain_file('/var/log/audit/audit.log').with({
-              :owner  => 'root',
-              :group  => 'rspec',
-              :mode   => '0640'
+              :ensure  => 'directory',
+              :owner   => 'root',
+              :group   => 'rspec',
+              :mode    => '0640',
+              :recurse => true
             })
           }
         end
