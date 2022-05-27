@@ -55,7 +55,7 @@ describe 'auditd' do
 
         it {
           is_expected.not_to contain_file('/etc/audit/rules.d/50_00_stig_base.rules').with_content(
-            %r(^-a always,exit -F arch=b\d\d -S \w*chown\w* -F auid>=\d+ -F auid!=4294967295 -F key=perm_mod$)
+            %r(^-a always,exit -F arch=b\d\d -S \w*chown\w* -F auid>=\d+ -F auid!=unset -F key=perm_mod$)
           )
         }
       end
@@ -66,7 +66,7 @@ describe 'auditd' do
 
         it {
           is_expected.not_to contain_file('/etc/audit/rules.d/50_00_stig_base.rules').with_content(
-            %r(^-a always,exit -F arch=b\d\d -S \w*chmod\w* -F auid>=\d+ -F auid!=4294967295 -F key=perm_mod$)
+            %r(^-a always,exit -F arch=b\d\d -S \w*chmod\w* -F auid>=\d+ -F auid!=unset -F key=perm_mod$)
           )
         }
       end
@@ -77,7 +77,7 @@ describe 'auditd' do
 
         it {
           is_expected.not_to contain_file('/etc/audit/rules.d/50_00_stig_base.rules').with_content(
-            %r(^-a always,exit -F arch=b\d\d -S \w*attr -F auid>=\d+ -F auid!=4294967295 -F key=perm_mod$)
+            %r(^-a always,exit -F arch=b\d\d -S \w*attr -F auid>=\d+ -F auid!=unset -F key=perm_mod$)
           )
         }
       end
@@ -88,11 +88,11 @@ describe 'auditd' do
 
         it {
           is_expected.not_to contain_file('/etc/audit/rules.d/50_00_stig_base.rules').with_content(
-            %r{^-a always,exit -F path=/usr/bin/(chcon|semanage|setsebool) -F perm=x -F auid>=\d+ -F auid!=4294967295 -F key=privileged-priv_change}
+            %r{^-a always,exit -F path=/usr/bin/(chcon|semanage|setsebool) -F perm=x -F auid>=\d+ -F auid!=unset -F key=privileged-priv_change}
           )
 
           is_expected.not_to contain_file('/etc/audit/rules.d/50_00_stig_base.rules').with_content(
-            %r(^-a always,exit -F path=/(usr/)?sbin/setfiles -F perm=x -F auid>=\d+ -F auid!=4294967295 -F key=privileged-priv_change)
+            %r(^-a always,exit -F path=/(usr/)?sbin/setfiles -F perm=x -F auid>=\d+ -F auid!=unset -F key=privileged-priv_change)
           )
         }
       end
@@ -101,11 +101,11 @@ describe 'auditd' do
         let(:params) {{ :default_audit_profiles => ['stig'] }}
         let(:hieradata) { 'stig_audit_profile/disable__audit_priv_cmds' }
         [
-          %r{^-a always,exit -F path=/(usr/)?bin/su -F perm=x -F auid>=\d+ -F auid!=4294967295 -F key=privileged-priv_change$},
-          %r{^-a always,exit -F path=/usr/bin/sudo -F perm=x -F auid>=\d+ -F auid!=4294967295 -F key=privileged-priv_change$},
-          %r{^-a always,exit -F path=/usr/bin/newgrp -F perm=x -F auid>=\d+ -F auid!=4294967295 -F key=privileged-priv_change$},
-          %r{^-a always,exit -F path=/usr/bin/chsh -F perm=x -F auid>=\d+ -F auid!=4294967295 -F key=privileged-priv_change$},
-          %r{^-a always,exit -F path=/(usr/)?bin/sudoedit -F perm=x -F auid>=\d+ -F auid!=4294967295 -F key=privileged-priv_change$}
+          %r{^-a always,exit -F path=/(usr/)?bin/su -F perm=x -F auid>=\d+ -F auid!=unset -F key=privileged-priv_change$},
+          %r{^-a always,exit -F path=/usr/bin/sudo -F perm=x -F auid>=\d+ -F auid!=unset -F key=privileged-priv_change$},
+          %r{^-a always,exit -F path=/usr/bin/newgrp -F perm=x -F auid>=\d+ -F auid!=unset -F key=privileged-priv_change$},
+          %r{^-a always,exit -F path=/usr/bin/chsh -F perm=x -F auid>=\d+ -F auid!=unset -F key=privileged-priv_change$},
+          %r{^-a always,exit -F path=/(usr/)?bin/sudoedit -F perm=x -F auid>=\d+ -F auid!=unset -F key=privileged-priv_change$}
         ].each do |command_regex|
           it {
             is_expected.not_to contain_file('/etc/audit/rules.d/50_00_stig_base.rules').

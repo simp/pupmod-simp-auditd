@@ -1,3 +1,8 @@
+* Fri May 13 2022 Mike Riddle <mike@sicura.us> - 8.7.2
+- Changed the auditd_sample_rulesets fact to look in both
+  /usr/share/audit/sample-rules and /usr/share/doc/audit*/rules for
+  sample rulesets.
+
 * Thu Mar 24 2022 Mike Riddle <mike@sicura.us> - 8.7.1
 - Fixed a bug preventing overflow_action from being set properly
 

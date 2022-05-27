@@ -91,7 +91,7 @@ describe 'auditd' do
         'chown'                       => 'disable__audit_chown',
         'attr'                        => 'disable__audit_attr',
         'su-root-activity'            => 'disable__audit_su_root_activity',
-        'suid-root-exec'              => 'disable__audit_suid_sgid',
+        'suid-exec'                   => 'disable__audit_suid_sgid',
         'modules'                     => 'disable__audit_kernel_modules',
         'audit_time_rules'            => 'disable__audit_time',
         'audit_network_modifications' => 'disable__audit_locale',

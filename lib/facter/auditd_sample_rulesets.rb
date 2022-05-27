@@ -13,13 +13,13 @@ Facter.add('auditd_sample_rulesets') do
   confine :kernel => 'Linux'
 
   confine do
-    File.exist?('/usr/share/audit/sample-rules')
+    !Facter.value(:auditd_sample_ruleset_location).nil?
   end
 
   setcode do
     retval = {}
 
-    Dir['/usr/share/audit/sample-rules/*.rules'].map { |x|
+    Dir["#{Facter.value(:auditd_sample_ruleset_location)}/*.rules"].map { |x|
       order, name = File.basename(x, '.rules').split('-', 2)
       retval[name] = { 'order' => order }
     }

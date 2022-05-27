@@ -36,19 +36,14 @@ describe 'run the SSG against the appropriate fixtures for stig audit profile' d
           'audit_rules_unsuccessful_',
           'audit_rules_file_',
           'audit_rules_media_export',
-          # https://github.com/ComplianceAsCode/content/issues/7020
-          'auditd_data_disk_error_action',
-          # https://github.com/ComplianceAsCode/content/issues/7022
-          'auditd_data_disk_full_action',
-          # https://github.com/ComplianceAsCode/content/issues/7021
-          'auditd_data_retention_max_log_file_action',
           # Requires krb5, we encrypt via syslog
           'audispd_encrypt_sent_records',
           # We send via syslog
           'audispd_configure_remote_server',
           # Dragged in by EL8 but we're not applying an OSPP profile
           'audit_rules_for_ospp',
-          # 
+          # We do this using lname and the 'user' setting
+          'auditd_name_format'
         ]
 
         @ssg_report[:data] = @ssg.process_ssg_results(filter, exclusions)

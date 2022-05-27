@@ -210,9 +210,11 @@
 
 ## Audit the execution of suid and sgid binaries.
 <%   if $facts['hardwaremodel'] == "x86_64"  { -%>
--a always,exit -F arch=b64 -F euid=0 -F uid!=0 -S execve -k <%= $auditd::config::audit_profiles::simp::audit_suid_sgid_tag %>
+-a always,exit -F arch=b64 -S execve -C uid!=euid -F euid=0 -k <%= $auditd::config::audit_profiles::simp::audit_suid_sgid_tag %>
+-a always,exit -F arch=b64 -S execve -C gid!=egid -F egid=0 -k <%= $auditd::config::audit_profiles::simp::audit_suid_sgid_tag %>
 <%   } -%>
--a always,exit -F arch=b32 -F euid=0 -F uid!=0 -S execve -k <%= $auditd::config::audit_profiles::simp::audit_suid_sgid_tag %>
+-a always,exit -F arch=b32 -S execve -C uid!=euid -F euid=0 -k <%= $auditd::config::audit_profiles::simp::audit_suid_sgid_tag %>
+-a always,exit -F arch=b32 -S execve -C gid!=egid -F egid=0 -k <%= $auditd::config::audit_profiles::simp::audit_suid_sgid_tag %>
 <% } -%>
 <% if $auditd::config::audit_profiles::simp::audit_kernel_modules  { -%>
 
