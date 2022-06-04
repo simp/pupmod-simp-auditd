@@ -1,3 +1,6 @@
+* Fri Jun 03 2022 Trevor Vaughan <trevor@sicura.us> - 8.7.4
+- Ensure that permissions do not flap on rotated audit log files
+
 * Fri May 27 2022 Zach Schulte <zschulte@broadinstitute.org> - 8.7.3
 - Fix the permissions on `/var/log/audit`
 

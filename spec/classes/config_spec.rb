@@ -56,7 +56,7 @@ describe 'auditd' do
               :ensure  => 'directory',
               :owner   => 'root',
               :group   => 'root',
-              :mode    => '0600',
+              :mode    => 'u+rwX,g-rwx,o-rwx',
               :recurse => true
             })
           }
@@ -125,7 +125,7 @@ describe 'auditd' do
               :ensure  => 'directory',
               :owner   => 'root',
               :group   => 'rspec',
-              :mode    => '0640',
+              :mode    => 'u+rwX,g+rX,g-w,o-rwx',
               :recurse => true
             })
           }
