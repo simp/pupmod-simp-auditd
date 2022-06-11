@@ -25,8 +25,8 @@ class auditd::config {
   }
 
   $log_file_mode = $auditd::log_group ? {
-    'root'  => 'u+rwX,g-rwx,o-rwx',
-    default => 'u+rwX,g+rX,g-w,o-rwx'
+    'root'  => 'u+rX,g-rwx,o-rwx',
+    default => 'u+rX,g+rX,g-w,o-rwx'
   }
 
   file { '/etc/audit':
