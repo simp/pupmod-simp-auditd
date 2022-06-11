@@ -91,7 +91,7 @@ describe 'auditd class with simp audit profile' do
         end
 
         it 'should fix incorrect permissions' do
-          on(host, 'chmod 400 /var/log/audit/audit.log')
+          on(host, 'chmod 666 /var/log/audit/audit.log')
           apply_manifest_on(host, manifest, :catch_failures => true)
           result = on(host, "/bin/find /var/log/audit/audit.log -perm 0600")
           expect(result.output).to include('/var/log/audit/audit.log')
