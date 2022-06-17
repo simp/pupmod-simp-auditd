@@ -1,3 +1,6 @@
+* Sat Jun 11 2022 Trevor Vaughan <trevor@sicura.us> - 8.7.5
+- Actually fix flapping on rotated audit log files
+
 * Fri Jun 03 2022 Trevor Vaughan <trevor@sicura.us> - 8.7.4
 - Ensure that permissions do not flap on rotated audit log files
 
