@@ -1,3 +1,6 @@
+* Fri Jun 24 2022 Trevor Vaughan <trevor@sicura.us> - 8.8.0
+- Add support for Amazon Linux 2
+
 * Sat Jun 11 2022 Trevor Vaughan <trevor@sicura.us> - 8.7.5
 - Actually fix flapping on rotated audit log files
 

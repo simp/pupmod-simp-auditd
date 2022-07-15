@@ -44,55 +44,55 @@
 
 ## Audit the execution of password commands
 -a always,exit -F path=/usr/bin/passwd -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
-<%   if $facts['os']['release']['major'] > '6'  { -%>
+<%   if ($facts['os']['release']['major'] > '6') or (($facts['os']['name'] == 'Amazon') and ($facts['os']['release']['major'] < '3')) { -%>
 -a always,exit -F path=/bin/passwd -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
 <%   } -%>
 
-<%   if $facts['os']['release']['major'] > '6'  { -%>
+<%   if ($facts['os']['release']['major'] > '6') or (($facts['os']['name'] == 'Amazon') and ($facts['os']['release']['major'] < '3')) { -%>
 -a always,exit -F path=/usr/sbin/unix_chkpwd -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
 <%   } -%>
 -a always,exit -F path=/sbin/unix_chkpwd -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
 
 -a always,exit -F path=/usr/bin/gpasswd -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
-<%   if $facts['os']['release']['major'] > '6'  { -%>
+<%   if ($facts['os']['release']['major'] > '6') or (($facts['os']['name'] == 'Amazon') and ($facts['os']['release']['major'] < '3')) { -%>
 -a always,exit -F path=/bin/gpasswd -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
 <%   } -%>
 
 -a always,exit -F path=/usr/bin/chage -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
-<%   if $facts['os']['release']['major'] > '6'  { -%>
+<%   if ($facts['os']['release']['major'] > '6') or (($facts['os']['name'] == 'Amazon') and ($facts['os']['release']['major'] < '3')) { -%>
 -a always,exit -F path=/bin/chage -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
 <%   } -%>
 
 -a always,exit -F path=/usr/sbin/userhelper -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
-<%   if $facts['os']['release']['major'] > '6'  { -%>
+<%   if ($facts['os']['release']['major'] > '6') or (($facts['os']['name'] == 'Amazon') and ($facts['os']['release']['major'] < '3')) { -%>
 -a always,exit -F path=/sbin/userhelper -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_passwd_cmds_tag %>
 <%   } -%>
 <% } -%>
 <% if $auditd::config::audit_profiles::simp::audit_priv_cmds  { -%>
 
 ## Audit the execution of privilege-related commands
-<%   if $facts['os']['release']['major'] > '6'  { -%>
+<%   if ($facts['os']['release']['major'] > '6') or (($facts['os']['name'] == 'Amazon') and ($facts['os']['release']['major'] < '3')) { -%>
 -a always,exit -F path=/usr/bin/su -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
 <%   } -%>
 -a always,exit -F path=/bin/su -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
 
 -a always,exit -F path=/usr/bin/sudo -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
-<%   if $facts['os']['release']['major'] > '6'  { -%>
+<%   if ($facts['os']['release']['major'] > '6') or (($facts['os']['name'] == 'Amazon') and ($facts['os']['release']['major'] < '3')) { -%>
 -a always,exit -F path=/bin/sudo -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
 <%   } -%>
 
 -a always,exit -F path=/usr/bin/newgrp -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
-<%   if $facts['os']['release']['major'] > '6'  { -%>
+<%   if ($facts['os']['release']['major'] > '6') or (($facts['os']['name'] == 'Amazon') and ($facts['os']['release']['major'] < '3')) { -%>
 -a always,exit -F path=/bin/newgrp -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
 <%   } -%>
 
 -a always,exit -F path=/usr/bin/chsh -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
-<%   if $facts['os']['release']['major'] > '6'  { -%>
+<%   if ($facts['os']['release']['major'] > '6') or (($facts['os']['name'] == 'Amazon') and ($facts['os']['release']['major'] < '3')) { -%>
 -a always,exit -F path=/bin/chsh -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
 <%   } -%>
 
 -a always,exit -F path=/usr/bin/sudoedit -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
-<%   if $facts['os']['release']['major'] > '6'  { -%>
+<%   if ($facts['os']['release']['major'] > '6') or (($facts['os']['name'] == 'Amazon') and ($facts['os']['release']['major'] < '3')) { -%>
 -a always,exit -F path=/bin/sudoedit -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_priv_cmds_tag %>
 <%   } -%>
 <% } -%>
@@ -100,12 +100,12 @@
 
 ## Audit the execution of postfix-related commands
 -a always,exit -F path=/usr/sbin/postdrop -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_postfix_cmds_tag %>
-<%   if $facts['os']['release']['major'] > '6'  { -%>
+<%   if ($facts['os']['release']['major'] > '6') or (($facts['os']['name'] == 'Amazon') and ($facts['os']['release']['major'] < '3')) { -%>
 -a always,exit -F path=/sbin/postdrop -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_postfix_cmds_tag %>
 <%   } -%>
 
 -a always,exit -F path=/usr/sbin/postqueue -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_postfix_cmds_tag %>
-<%   if $facts['os']['release']['major'] > '6'  { -%>
+<%   if ($facts['os']['release']['major'] > '6') or (($facts['os']['name'] == 'Amazon') and ($facts['os']['release']['major'] < '3')) { -%>
 -a always,exit -F path=/sbin/postqueue -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_postfix_cmds_tag %>
 <%   } -%>
 <% } -%>
@@ -118,14 +118,14 @@
 
 ## Audit the execution of the crontab command
 -a always,exit -F path=/usr/bin/crontab -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_crontab_cmd_tag %>
-<%   if $facts['os']['release']['major'] > '6'  { -%>
+<%   if ($facts['os']['release']['major'] > '6') or (($facts['os']['name'] == 'Amazon') and ($facts['os']['release']['major'] < '3')) { -%>
 -a always,exit -F path=/bin/crontab -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_crontab_cmd_tag %>
 <%   } -%>
 <% } -%>
 <% if $auditd::config::audit_profiles::simp::audit_pam_timestamp_check_cmd  { -%>
 
 ## Audit the execution of the pam_timestamp_check command
-<%   if $facts['os']['release']['major'] > '6'  { -%>
+<%   if ($facts['os']['release']['major'] > '6') or (($facts['os']['name'] == 'Amazon') and ($facts['os']['release']['major'] < '3')) { -%>
 -a always,exit -F path=/usr/sbin/pam_timestamp_check -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_pam_timestamp_check_cmd_tag %>
 <%   } -%>
 -a always,exit -F path=/sbin/pam_timestamp_check -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_pam_timestamp_check_cmd_tag %>
@@ -137,21 +137,21 @@
 #        correct tag is recorded.
 #
 -a always,exit -F path=/usr/sbin/semanage -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_selinux_cmds_tag %>
-<%   if $facts['os']['release']['major'] > '6'  { -%>
+<%   if ($facts['os']['release']['major'] > '6') or (($facts['os']['name'] == 'Amazon') and ($facts['os']['release']['major'] < '3')) { -%>
 -a always,exit -F path=/sbin/semanage -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_selinux_cmds_tag %>
 <%   } -%>
 
 -a always,exit -F path=/usr/sbin/setsebool -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_selinux_cmds_tag %>
-<%   if $facts['os']['release']['major'] > '6'  { -%>
+<%   if ($facts['os']['release']['major'] > '6') or (($facts['os']['name'] == 'Amazon') and ($facts['os']['release']['major'] < '3')) { -%>
 -a always,exit -F path=/sbin/setsebool -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_selinux_cmds_tag %>
 <%   } -%>
 
 -a always,exit -F path=/usr/bin/chcon -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_selinux_cmds_tag %>
-<%   if $facts['os']['release']['major'] > '6'  { -%>
+<%   if ($facts['os']['release']['major'] > '6') or (($facts['os']['name'] == 'Amazon') and ($facts['os']['release']['major'] < '3')) { -%>
 -a always,exit -F path=/bin/chcon -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_selinux_cmds_tag %>
 <%   } -%>
 
-<%   if $facts['os']['release']['major'] > '6'  { -%>
+<%   if ($facts['os']['release']['major'] > '6') or (($facts['os']['name'] == 'Amazon') and ($facts['os']['release']['major'] < '3')) { -%>
 -a always,exit -F path=/usr/sbin/setfiles -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_selinux_cmds_tag %>
 <%   } -%>
 -a always,exit -F path=/sbin/setfiles -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_selinux_cmds_tag %>
@@ -219,19 +219,19 @@
 <% if $auditd::config::audit_profiles::simp::audit_kernel_modules  { -%>
 
 ## Audit the loading and unloading of kernel modules.
-<%   if $facts['os']['release']['major'] > '6'  { -%>
+<%   if ($facts['os']['release']['major'] > '6') or (($facts['os']['name'] == 'Amazon') and ($facts['os']['release']['major'] < '3')) { -%>
 -w /usr/bin/kmod -p x -k <%= $auditd::config::audit_profiles::simp::audit_kernel_modules_tag %>
 -w /bin/kmod -p x -k <%= $auditd::config::audit_profiles::simp::audit_kernel_modules_tag %>
 <%   } -%>
-<%   if $facts['os']['release']['major'] > '6'  { -%>
+<%   if ($facts['os']['release']['major'] > '6') or (($facts['os']['name'] == 'Amazon') and ($facts['os']['release']['major'] < '3')) { -%>
 -w /usr/sbin/insmod -p x -k <%= $auditd::config::audit_profiles::simp::audit_kernel_modules_tag %>
 <%   } -%>
 -w /sbin/insmod -p x -k <%= $auditd::config::audit_profiles::simp::audit_kernel_modules_tag %>
-<%   if $facts['os']['release']['major'] > '6'  { -%>
+<%   if ($facts['os']['release']['major'] > '6') or (($facts['os']['name'] == 'Amazon') and ($facts['os']['release']['major'] < '3')) { -%>
 -w /usr/sbin/rmmod -p x -k <%= $auditd::config::audit_profiles::simp::audit_kernel_modules_tag %>
 <%   } -%>
 -w /sbin/rmmod -p x -k <%= $auditd::config::audit_profiles::simp::audit_kernel_modules_tag %>
-<%   if $facts['os']['release']['major'] > '6'  { -%>
+<%   if ($facts['os']['release']['major'] > '6') or (($facts['os']['name'] == 'Amazon') and ($facts['os']['release']['major'] < '3')) { -%>
 -w /usr/sbin/modprobe -p x -k <%= $auditd::config::audit_profiles::simp::audit_kernel_modules_tag %>
 <%   } -%>
 -w /sbin/modprobe -p x -k <%= $auditd::config::audit_profiles::simp::audit_kernel_modules_tag %>
@@ -266,7 +266,7 @@
 -w /etc/hosts -p wa -k <%= $auditd::config::audit_profiles::simp::audit_locale_tag %>
 -w /etc/hostname -p wa -k <%= $auditd::config::audit_profiles::simp::audit_locale_tag %>
 -w /etc/sysconfig/network -p wa -k <%= $auditd::config::audit_profiles::simp::audit_locale_tag %>
-<%   if $facts['os']['release']['major'] > '6'  { -%>
+<%   if ($facts['os']['release']['major'] > '6') or (($facts['os']['name'] == 'Amazon') and ($facts['os']['release']['major'] < '3')) { -%>
 -a always,exit -F dir=/etc/NetworkManager/ -F perm=wa -k <%= $auditd::config::audit_profiles::simp::audit_locale_tag %>
 <%   } -%>
 <% } -%>
@@ -279,16 +279,16 @@
 -a always,exit -F arch=b32 -S mount,umount,umount2 -k <%= $auditd::config::audit_profiles::simp::audit_mount_tag %>
 
 <%   if $facts['hardwaremodel'] == "x86_64"  { -%>
-<%     if $facts['os']['release']['major'] > '6'  { -%>
+<%     if ($facts['os']['release']['major'] > '6') or (($facts['os']['name'] == 'Amazon') and ($facts['os']['release']['major'] < '3')) { -%>
 -a always,exit -F arch=b64 -F path=/usr/bin/mount -k <%= $auditd::config::audit_profiles::simp::audit_mount_tag %>
 <%     } -%>
 -a always,exit -F arch=b64 -F path=/bin/mount -k <%= $auditd::config::audit_profiles::simp::audit_mount_tag %>
 <%   } -%>
-<%   if $facts['os']['release']['major'] > '6'  { -%>
+<%   if ($facts['os']['release']['major'] > '6') or (($facts['os']['name'] == 'Amazon') and ($facts['os']['release']['major'] < '3')) { -%>
 -a always,exit -F arch=b32 -F path=/usr/bin/mount -k <%= $auditd::config::audit_profiles::simp::audit_mount_tag %>
 <%   } -%>
 -a always,exit -F arch=b32 -F path=/bin/mount -k <%= $auditd::config::audit_profiles::simp::audit_mount_tag %>
-<%   if $facts['os']['release']['major'] > '6'  { -%>
+<%   if ($facts['os']['release']['major'] > '6') or (($facts['os']['name'] == 'Amazon') and ($facts['os']['release']['major'] < '3')) { -%>
 -a always,exit -F path=/usr/bin/umount -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_mount_tag %>
 <%   } -%>
 -a always,exit -F path=/bin/umount -F perm=x -k <%= $auditd::config::audit_profiles::simp::audit_mount_tag %>
@@ -439,12 +439,12 @@
 <% } -%>
 <% if $auditd::config::audit_profiles::simp::audit_yum_cmd  { -%>
 -w /usr/bin/yum -p x -k <%= $auditd::config::audit_profiles::simp::audit_yum_cmd_tag %>
-<%   if $facts['os']['release']['major'] > '6'  { -%>
+<%   if ($facts['os']['release']['major'] > '6') or (($facts['os']['name'] == 'Amazon') and ($facts['os']['release']['major'] < '3')) { -%>
 -w /bin/yum -p x -k <%= $auditd::config::audit_profiles::simp::audit_yum_cmd_tag %>
 <%   } -%>
 <% } -%>
 <% if $auditd::config::audit_profiles::simp::audit_rpm_cmd  { -%>
-<%   if $facts['os']['release']['major'] > '6'  { -%>
+<%   if ($facts['os']['release']['major'] > '6') or (($facts['os']['name'] == 'Amazon') and ($facts['os']['release']['major'] < '3')) { -%>
 -w /usr/bin/rpm -p x -k <%= $auditd::config::audit_profiles::simp::audit_rpm_cmd_tag %>
 <%   } -%>
 -w /bin/rpm -p x -k <%= $auditd::config::audit_profiles::simp::audit_rpm_cmd_tag %>
