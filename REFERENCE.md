@@ -275,7 +275,7 @@ Default value: `16384`
 
 Data type: `Integer[1,600000]`
 
-Sets the backlog_wait_time option. Some versions of auditctl don't support this parameter because it's an compile option.
+Sets the backlog_wait_time option. Some versions of auditd don't support this parameter because it's an compile option.
 
 Default value: ``undef``
 
