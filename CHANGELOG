@@ -1,4 +1,4 @@
-* Fri Jul 29 2022 Benedikt Fischer <108938973+befischer-noris@users.noreply.github.com> - 8.9.0
+* Fri Jul 29 2022 Benedikt Fischer <benedikt.fischer@noris.de> - 8.8.0
 - Make parameter backlog_wait_time optional because there are auditd versions not supporting it
 
 * Fri Jun 24 2022 Trevor Vaughan <trevor@sicura.us> - 8.8.0
