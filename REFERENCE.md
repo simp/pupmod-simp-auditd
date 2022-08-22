@@ -82,7 +82,6 @@ The following parameters are available in the `auditd` class:
 * [`at_boot`](#at_boot)
 * [`buffer_size`](#buffer_size)
 * [`backlog_wait_time`](#backlog_wait_time)
-* [`backlog_wait_time_enable`](#backlog_wait_time_enable)
 * [`disk_error_action`](#disk_error_action)
 * [`disk_full_action`](#disk_full_action)
 * [`disp_qos`](#disp_qos)
@@ -276,17 +275,9 @@ Default value: `16384`
 
 Data type: `Integer[1,600000]`
 
+Sets the backlog_wait_time option. Some versions of auditctl don't support this parameter because it's an compile option.
 
-
-Default value: `60000`
-
-##### <a name="backlog_wait_time_enable"></a>`backlog_wait_time_enable`
-
-Data type: `Boolean`
-
-Disable the [`backlog_wait_time`](#backlog_wait_time) parameter completly. You will need to set this to true if you want to use older audit versions on RHEL <= 7.
-
-Default value: ``false``
+Default value: ``undef``
 
 ##### <a name="disk_error_action"></a>`disk_error_action`
 
