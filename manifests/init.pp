@@ -223,7 +223,7 @@ class auditd (
   Auditd::SpaceLeftAction                 $admin_space_left_action  = 'rotate',
   Boolean                                 $at_boot                  = true,
   Integer[0]                              $buffer_size              = 16384,
-  Integer[1,600000]                       $backlog_wait_time        = 60000,
+  Optional[Integer[1,600000]]             $backlog_wait_time        = undef,
   Auditd::DiskErrorAction                 $disk_error_action        = 'syslog',
   Auditd::DiskFullAction                  $disk_full_action         = 'rotate',
   Enum['lossy','lossless']                $disp_qos                 = 'lossy',

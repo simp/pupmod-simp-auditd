@@ -275,9 +275,9 @@ Default value: `16384`
 
 Data type: `Integer[1,600000]`
 
+Sets the backlog_wait_time option. Some versions of auditd don't support this parameter because it's an compile option.
 
-
-Default value: `60000`
+Default value: ``undef``
 
 ##### <a name="disk_error_action"></a>`disk_error_action`
 
