@@ -250,7 +250,7 @@ describe 'auditd' do
                   :content => complete_content + "\n"
                 })
 
-                if (facts[:auditd_major_version].nil? && (facts[:os][:release][:major] == '8')) ||
+                if (facts[:auditd_major_version].nil? && (facts[:os][:release][:major] >= '8')) ||
                    (facts[:auditd_major_version] == '3')
                   is_expected.to contain_file('/etc/audit/auditd.conf').with_content(%r(^local_events = .*$))
                 else
