@@ -365,10 +365,12 @@
 
 ## Generally good things to audit.
 <% if $auditd::config::audit_profiles::simp::_audit_cfg_grub  { -%>
-<%   if versioncmp($facts['grub_version'], '2') < 0  { -%>
+<%   if $facts['grub_version'] { -%>
+<%     if versioncmp($facts['grub_version'], '2') < 0  { -%>
 -w /boot/grub/grub.conf -p wa -k <%= $auditd::config::audit_profiles::simp::_audit_cfg_grub_tag %>
-<%   } else { -%>
+<%     } else { -%>
 -w /etc/grub.d -p wa -k <%= $auditd::config::audit_profiles::simp::_audit_cfg_grub_tag %>
+<%     } -%>
 <%   } -%>
 <% } -%>
 <% if $auditd::config::audit_profiles::simp::audit_cfg_sys  { -%>
