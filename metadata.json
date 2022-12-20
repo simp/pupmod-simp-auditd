@@ -48,6 +48,14 @@
         "8"
       ]
     },
+
+    {
+      "operatingsystem": "AlmaLinux",
+      "operatingsystemrelease": [
+        "7",
+        "8"
+      ]
+    },
     {
       "operatingsystem": "RedHat",
       "operatingsystemrelease": [
