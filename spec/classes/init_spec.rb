@@ -45,6 +45,14 @@ describe 'auditd' do
           it { is_expected.to contain_class('auditd::install').that_comes_before('Class[auditd::config::grub]') }
           it { is_expected.to contain_class('auditd::config::grub').with_enable(true) }
           it { is_expected.to_not contain_class('auditd::config::logging') }
+
+          context 'on a host without grub' do
+            let(:facts) { super().merge(grub_version: nil) }
+
+            it { is_expected.to contain_class('auditd::install') }
+            it { is_expected.not_to contain_class('auditd::install').that_comes_before('Class[auditd::config::grub]') }
+            it { is_expected.not_to contain_class('auditd::config::grub') }
+          end
         end
 
         context 'auditd with space_left < admin_space_left' do
