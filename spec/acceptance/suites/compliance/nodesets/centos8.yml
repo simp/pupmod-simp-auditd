@@ -1,19 +1,20 @@
-<%
--%>
+---
 HOSTS:
   el8:
     roles:
-      - default
-      - el8
-    platform:   el-8-x86_64
-    box:        generic/centos8
-    hypervisor: vagrant
+    - default
+    - el8
+    platform: el-8-x86_64
+    box: generic/centos8
+    hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
     yum_repos:
       chef-current:
-        baseurl: 'https://packages.chef.io/repos/yum/current/el/8/$basearch'
+        baseurl: https://packages.chef.io/repos/yum/current/el/8/$basearch
         gpgkeys:
-          - https://packages.chef.io/chef.asc
-
+        - https://packages.chef.io/chef.asc
+    family: centos-cloud/centos-stream-8
+    gce_machine_type: n1-standard-2
 CONFIG:
   log_level: verbose
-  type:      aio
+  type: aio
+  puppet_collection: "<%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'puppet7') %>"
