@@ -1,21 +1,21 @@
-<%
-  vagrant_memsize = ENV['BEAKER_VAGRANT_MEMSIZE'] ? ENV['BEAKER_VAGRANT_MEMSIZE'] : 256
--%>
+---
 HOSTS:
   el9:
     roles:
-      - default
-      - el9
-    platform:   el-9-x86_64
-    box:        almalinux/centos-stream-9
-    hypervisor: vagrant
+    - default
+    - el9
+    platform: el-9-x86_64
+    box: almalinux/centos-stream-9
+    hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
     yum_repos:
       chef-current:
-        baseurl: 'https://packages.chef.io/repos/yum/current/el/8/$basearch'
+        baseurl: https://packages.chef.io/repos/yum/current/el/8/$basearch
         gpgkeys:
-          - https://packages.chef.io/chef.asc
-
+        - https://packages.chef.io/chef.asc
+    family:
+    gce_machine_type: n1-standard-2
 CONFIG:
   log_level: verbose
-  type:      aio
-  vagrant_memsize: <%= vagrant_memsize %>
+  type: aio
+  vagrant_memsize: 256
+  puppet_collection: "<%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'puppet7') %>"
