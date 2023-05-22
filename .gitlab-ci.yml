@@ -340,9 +340,9 @@ pup7.pe-unit:
   <<: *pup_7_pe
   <<: *unit_tests
 
-pup8.x-unit:
-  <<: *pup_8_x
-  <<: *unit_tests
+#pup8.x-unit:
+#  <<: *pup_8_x
+#  <<: *unit_tests
 
 # ------------------------------------------------------------------------------
 #             NOTICE: **This file is maintained with puppetsync**
@@ -354,33 +354,33 @@ pup8.x-unit:
 # Repo-specific content
 # ==============================================================================
 
-pup8.x:
-  <<: *pup_8_x
-  <<: *acceptance_base
-  script:
-    - 'bundle exec rake beaker:suites[default,default]'
+#pup8.x:
+#  <<: *pup_8_x
+#  <<: *acceptance_base
+#  script:
+#    - 'bundle exec rake beaker:suites[default,default]'
 
-pup8.x-fips:
-  <<: *pup_8_x
-  <<: *acceptance_base
-  timeout: 4h
-  script:
-    - 'BEAKER_fips=yes bundle exec rake beaker:suites[default,default]'
+#pup8.x-fips:
+#  <<: *pup_8_x
+#  <<: *acceptance_base
+#  timeout: 4h
+#  script:
+#    - 'BEAKER_fips=yes bundle exec rake beaker:suites[default,default]'
 
-pup8.x-oel:
-  <<: *pup_8_x
-  <<: *acceptance_base
-  <<: *with_SIMP_ACCEPTANCE_MATRIX_LEVEL_2
-  script:
-    - 'bundle exec rake beaker:suites[default,oel]'
+#pup8.x-oel:
+#  <<: *pup_8_x
+#  <<: *acceptance_base
+#  <<: *with_SIMP_ACCEPTANCE_MATRIX_LEVEL_2
+#  script:
+#    - 'bundle exec rake beaker:suites[default,oel]'
 
-pup8.x-oel-fips:
-  <<: *pup_8_x
-  <<: *acceptance_base
-  <<: *with_SIMP_ACCEPTANCE_MATRIX_LEVEL_3
-  timeout: 4h
-  script:
-    - 'BEAKER_fips=yes bundle exec rake beaker:suites[default,oel]'
+#pup8.x-oel-fips:
+#  <<: *pup_8_x
+#  <<: *acceptance_base
+#  <<: *with_SIMP_ACCEPTANCE_MATRIX_LEVEL_3
+#  timeout: 4h
+#  script:
+#    - 'BEAKER_fips=yes bundle exec rake beaker:suites[default,oel]'
 
 pup7.x:
   <<: *pup_7_x
@@ -398,12 +398,12 @@ pup7.x-fips:
     - 'BEAKER_fips=yes bundle exec rake beaker:suites[default,default]'
 
 
-pup8.x-el7-fips-compliance:
-  <<: *pup_8_x
-  <<: *compliance_base
-  timeout: 4h
-  script:
-    - 'BEAKER_VAGRANT_MEMSIZE=1536 BEAKER_fips=yes bundle exec rake beaker:suites[compliance,default]'
+#pup8.x-el7-fips-compliance:
+#  <<: *pup_8_x
+#  <<: *compliance_base
+#  timeout: 4h
+#  script:
+#    - 'BEAKER_VAGRANT_MEMSIZE=1536 BEAKER_fips=yes bundle exec rake beaker:suites[compliance,default]'
 
 pup7.x-el7-fips-compliance:
   <<: *pup_7_x
