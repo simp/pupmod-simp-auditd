@@ -12,7 +12,7 @@ HOSTS:
         baseurl: https://packages.chef.io/repos/yum/current/el/8/$basearch
         gpgkeys:
         - https://packages.chef.io/chef.asc
-    family:
+    family: 
     gce_machine_type: n1-standard-2
 CONFIG:
   log_level: verbose
