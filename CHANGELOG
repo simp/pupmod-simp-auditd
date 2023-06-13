@@ -1,3 +1,6 @@
+* Tue Jun 13 2023 Mike Riddle <mike@sicura.us> - 8.9.1
+- All of the rule files will now have the same mode defined for /etc/audit/rules.d
+
 * Tue Nov 15 2022 Joshua Hoblitt <josh@hoblitt.com> - 8.9.0
 - do not include auditd::config::grub on hosts without grub
 - fix simp base profile to work when grub_version fact is not set

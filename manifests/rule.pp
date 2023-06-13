@@ -38,7 +38,6 @@ define auditd::rule (
   include 'auditd'
 
   if $auditd::enable {
-
     $_safe_name = regsubst($name, '(/|\s)', '__', 'G')
 
     if $order {
@@ -64,8 +63,9 @@ define auditd::rule (
     $_rule_id = "${_order}.${_safe_name}.rules"
 
     file { "/etc/audit/rules.d/${_rule_id}":
+      mode    => $auditd::config::config_file_mode,
       content => epp("${module_name}/rule.epp", { content => $content }),
-      notify  => Class['auditd::service']
+      notify  => Class['auditd::service'],
     }
   }
   else {
