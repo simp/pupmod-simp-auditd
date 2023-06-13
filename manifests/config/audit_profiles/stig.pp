@@ -211,6 +211,7 @@ class auditd::config::audit_profiles::stig (
   $_idx = auditd::get_array_index($_short_name, $auditd::config::profiles)
 
   file { "/etc/audit/rules.d/50_${_idx}_${_short_name}_base.rules":
+    mode    => $auditd::config::config_file_mode,
     content => epp("${module_name}/rule_profiles/stig/base.epp")
   }
 }
