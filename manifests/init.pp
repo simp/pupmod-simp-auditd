@@ -206,7 +206,7 @@ class auditd (
   Optional[Variant[Enum['simp'],Boolean]] $default_audit_profile    = undef,
   Array[Auditd::AuditProfile]             $default_audit_profiles   = [ 'simp' ],
   Boolean                                 $audit_auditd_config      = true,
-  String                                  $lname                    = $facts['fqdn'],
+  String                                  $lname                    = $facts['networking']['fqdn'],
 
   # Rule Tweaks
   Boolean                                 $ignore_anonymous         = true,

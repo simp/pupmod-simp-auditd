@@ -189,7 +189,7 @@ describe 'auditd' do
               freq = 20
               num_logs = 5
               name_format = USER
-              name = #{facts[:fqdn]}
+              name = #{facts[:networking][:fqdn]}
               max_log_file = 24
               max_log_file_action = rotate
               space_left = 80
