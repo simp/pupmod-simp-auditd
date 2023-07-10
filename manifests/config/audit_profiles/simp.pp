@@ -382,7 +382,7 @@
 #
 class auditd::config::audit_profiles::simp (
   Auditd::RootAuditLevel      $root_audit_level                                         = $::auditd::root_audit_level,
-  Boolean                     $audit_32bit_operations                                   = $facts['hardwaremodel'] ? { 'x86_64' => true, default => false },
+  Boolean                     $audit_32bit_operations                                   = $facts['os']['hardware'] ? { 'x86_64' => true, default => false },
   String[1]                   $audit_32bit_operations_tag                               = '32bit-api',
   Boolean                     $audit_auditd_cmds                                        = true,
   String[1]                   $audit_auditd_cmds_tag                                    = 'access-audit-trail',
