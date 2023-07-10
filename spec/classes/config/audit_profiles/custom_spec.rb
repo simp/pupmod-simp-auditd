@@ -9,7 +9,10 @@ describe 'auditd::config::audit_profiles::custom' do
         <<-EOM
           function assert_private() { }
 
-          class auditd::config ( $profiles = ['custom'] ){}
+          class auditd::config (
+            $profiles = ['custom'],
+            $config_file_mode = '0600'
+          ){}
           include auditd::config
         EOM
       }
@@ -93,7 +96,8 @@ describe 'auditd::config::audit_profiles::custom' do
             function assert_private() { }
 
             class auditd::config (
-              $profiles = ['simp', 'custom', 'stig']
+              $profiles = ['simp', 'custom', 'stig'],
+              $config_file_mode = '0600'
             ){}
             include auditd::config
           EOM
