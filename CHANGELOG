@@ -1,3 +1,6 @@
+* Thu Aug 17 2023 Mike Riddle <mike@sicura.us> - 8.10.1
+- Add RHEL 9 hieradata
+
 * Wed Jul 12 2023 Chris Tessmer <chris.tessmer@onyxpoint.com> - 8.10.0
 - Add RockyLinux 8 support
 
