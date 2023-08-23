@@ -1,3 +1,6 @@
+* Wed Aug 23 2023 Steven Pritchard <steve@sicura.us> - 8.11.0
+- Add AlmaLinux 8 support
+
 * Thu Aug 17 2023 Mike Riddle <mike@sicura.us> - 8.10.1
 - Add RHEL 9 hieradata
 
