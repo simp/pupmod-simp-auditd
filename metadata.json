@@ -1,6 +1,6 @@
 {
   "name": "simp-auditd",
-  "version": "8.12.0",
+  "version": "8.13.0",
   "author": "SIMP Team",
   "summary": "A SIMP puppet module for managing auditd and audispd",
   "license": "Apache-2.0",
@@ -61,7 +61,8 @@
       "operatingsystem": "OracleLinux",
       "operatingsystemrelease": [
         "7",
-        "8"
+        "8",
+        "9"
       ]
     },
     {
