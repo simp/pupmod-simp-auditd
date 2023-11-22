@@ -198,6 +198,9 @@
 #     of `auditd` so this attempts to do "the right thing" when `log_format` is
 #     set to `NOLOG` for legacy support.
 #
+# @param purge_auditd_rules
+#   Whether or not to purge existing auditd rules under /etc/audit/rules.d
+#
 # @author https://github.com/simp/pupmod-simp-auditd/graphs/contributors
 #
 class auditd (
@@ -257,7 +260,8 @@ class auditd (
   Optional[Array[Pattern['^.*_t$']]]      $target_selinux_types     = undef,
   Integer[0]                              $uid_min                  = Integer(pick(fact('uid_min'), 1000)),
   Optional[Boolean]                       $verify_email             = undef,
-  Boolean                                 $write_logs               = $log_format ? { /^(?i:nolog)$/ => false, default => true }
+  Boolean                                 $write_logs               = $log_format ? { /^(?i:nolog)$/ => false, default => true },
+  Boolean                                 $purge_auditd_rules       = false,
 ) {
 
   include 'auditd::service'
