@@ -69,6 +69,7 @@ describe 'auditd' do
         context 'with purge behaviour false' do
           let(:params) {{ :purge_auditd_rules => false }}
 
+          it { is_expected.to compile.with_all_deps }
           it {
             is_expected.to contain_file('/etc/audit').with({
               :ensure  => 'directory',
