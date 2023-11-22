@@ -66,6 +66,21 @@ describe 'auditd' do
           it { is_expected.to_not contain_class('auditd::config::audisp::syslog') }
         end   # Default params
 
+        context 'with purge behaviour false' do
+          let(:params) {{ :purge_auditd_rules => false }}
+
+          it {
+            is_expected.to contain_file('/etc/audit').with({
+              :ensure  => 'directory',
+              :owner   => 'root',
+              :group   => 'root',
+              :mode    => '0600',
+              :recurse => true,
+              :purge   => false
+            })
+          }
+        end
+
         context 'with empty default_audit_profiles' do
           let(:params) {{ :default_audit_profiles => [] }}
 

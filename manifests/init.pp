@@ -261,7 +261,7 @@ class auditd (
   Integer[0]                              $uid_min                  = Integer(pick(fact('uid_min'), 1000)),
   Optional[Boolean]                       $verify_email             = undef,
   Boolean                                 $write_logs               = $log_format ? { /^(?i:nolog)$/ => false, default => true },
-  Boolean                                 $purge_auditd_rules       = false,
+  Boolean                                 $purge_auditd_rules       = true,
 ) {
 
   include 'auditd::service'
