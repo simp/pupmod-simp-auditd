@@ -116,6 +116,7 @@ The following parameters are available in the `auditd` class:
 * [`uid_min`](#-auditd--uid_min)
 * [`verify_email`](#-auditd--verify_email)
 * [`write_logs`](#-auditd--write_logs)
+* [`purge_auditd_rules`](#-auditd--purge_auditd_rules)
 
 ##### <a name="-auditd--enable"></a>`enable`
 
@@ -592,6 +593,14 @@ Whether or not to write logs to disk.
   set to `NOLOG` for legacy support.
 
 Default value: `$log_format ? { /^(?i:nolog)$/ => false, default => true`
+
+##### <a name="-auditd--purge_auditd_rules"></a>`purge_auditd_rules`
+
+Data type: `Boolean`
+
+Whether or not to purge existing auditd rules under /etc/audit/rules.d
+
+Default value: `true`
 
 ### <a name="auditd--config"></a>`auditd::config`
 
