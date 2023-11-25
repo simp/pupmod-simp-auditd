@@ -1,3 +1,6 @@
+* Wed Nov 22 2023 ben <benrobertson9876@gmail.com> - 8.14.0
+- (SIMP-10744) Add purge behaviour for auditd rules
+
 * Tue Oct 24 2023 Joshua Hoblitt <josh@hoblitt.com> - 8.13.0
 - Add EL9 support
 
