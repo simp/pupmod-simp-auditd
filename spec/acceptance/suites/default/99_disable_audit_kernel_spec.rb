@@ -10,16 +10,16 @@ describe 'auditd class with simp auditd profile' do
   let(:enable_hieradata) {
     {
       'pki::cacerts_sources'    => ['file:///etc/pki/simp-testing/pki/cacerts'] ,
-      'pki::private_key_source' => "file:///etc/pki/simp-testing/pki/private/%{fqdn}.pem",
-      'pki::public_key_source'  => "file:///etc/pki/simp-testing/pki/public/%{fqdn}.pub",
+      'pki::private_key_source' => "file:///etc/pki/simp-testing/pki/private/%{facts.networking.fqdn}.pem",
+      'pki::public_key_source'  => "file:///etc/pki/simp-testing/pki/public/%{facts.networking.fqdn}.pub",
     }
   }
 
   let(:disable_hieradata) {
     {
       'pki::cacerts_sources'    => ['file:///etc/pki/simp-testing/pki/cacerts'] ,
-      'pki::private_key_source' => "file:///etc/pki/simp-testing/pki/private/%{fqdn}.pem",
-      'pki::public_key_source'  => "file:///etc/pki/simp-testing/pki/public/%{fqdn}.pub",
+      'pki::private_key_source' => "file:///etc/pki/simp-testing/pki/private/%{facts.networking.fqdn}.pem",
+      'pki::public_key_source'  => "file:///etc/pki/simp-testing/pki/public/%{facts.networking.fqdn}.pub",
       'auditd::at_boot' => false
     }
   }

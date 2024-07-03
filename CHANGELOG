@@ -1,3 +1,6 @@
+* Wed Jul 03 2024 Steven Pritchard <steve@sicura.us> - 8.14.1
+- Clean up legacy fact usage for Puppet 8 compatibility
+
 * Wed Nov 22 2023 ben <benrobertson9876@gmail.com> - 8.14.0
 - (SIMP-10744) Add purge behaviour for auditd rules
 
