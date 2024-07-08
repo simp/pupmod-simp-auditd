@@ -387,88 +387,128 @@ describe 'auditd' do
       context 'with deprecated parameters' do
         context 'disable audit_cfg_sudoers using deprecated audit_sudoers' do
           let(:hieradata) { 'simp_audit_profile/disable__audit_sudoers' }
+
           [
             %r{^-w /etc/sudoers -p wa -k CFG_sys$},
             %r{^-w /etc/sudoers.d/ -p wa -k CFG_sys$},
           ].each do |command_regex|
-            it {
-              is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').
-                with_content(command_regex)
-            }
+            it do
+              if Puppet[:strict] == :error
+                is_expected.to compile.and_raise_error(%r{'auditd::config::audit_profiles::simp::audit_sudoers' is deprecated\.})
+              else
+                is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').
+                  with_content(command_regex)
+              end
+            end
           end
         end
 
         context 'set audit_cfg_sudoers rule key using deprecated audit_sudoers_tag' do
           let(:hieradata) { 'simp_audit_profile/set__audit_sudoers_tag' }
+
           [
             %r{^-w /etc/sudoers -p wa -k old_sudoers_tag$},
             %r{^-w /etc/sudoers.d/ -p wa -k old_sudoers_tag$},
           ].each do |command_regex|
-            it {
-              is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').
-                with_content(command_regex)
-            }
+            it do
+              if Puppet[:strict] == :error
+                is_expected.to compile.and_raise_error(%r{'auditd::config::audit_profiles::simp::audit_sudoers_tag' is deprecated\.})
+              else
+                is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').
+                  with_content(command_regex)
+              end
+            end
           end
 
           [
             %r{^-w /etc/sudoers -p wa -k CFG_sys$},
             %r{^-w /etc/sudoers.d/ -p wa -k CFG_sys$},
           ].each do |command_regex|
-            it {
-              is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').
-                with_content(command_regex)
-            }
+            it do
+              if Puppet[:strict] == :error
+                is_expected.to compile.and_raise_error(%r{'auditd::config::audit_profiles::simp::audit_sudoers_tag' is deprecated\.})
+              else
+                is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').
+                  with_content(command_regex)
+              end
+            end
           end
         end
 
         context 'disable audit_cfg_grub using deprecated audit_grub' do
           let(:hieradata) { 'simp_audit_profile/disable__audit_grub' }
-          it {
-            is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-              %r{^.* -k CFG_grub$}
-            )
-          }
+
+          it do
+            if Puppet[:strict] == :error
+              is_expected.to compile.and_raise_error(%r{'auditd::config::audit_profiles::simp::audit_grub' is deprecated\.})
+            else
+              is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
+                %r{^.* -k CFG_grub$}
+              )
+            end
+          end
         end
 
         context 'set audit_cfg_grub rule key using deprecated audit_grub_tag' do
           let(:hieradata) { 'simp_audit_profile/set__audit_grub_tag' }
 
-          it {
-            is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-              %r{^.*grub.(d|conf).* -k old_grub_tag$}
-            )
-          }
+          it do
+            if Puppet[:strict] == :error
+              is_expected.to compile.and_raise_error(%r{'auditd::config::audit_profiles::simp::audit_grub_tag' is deprecated\.})
+            else
+              is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
+                %r{^.*grub.(d|conf).* -k old_grub_tag$}
+              )
+            end
+          end
 
-          it {
-            is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-              %r{^.* -k CFG_grub$}
-            )
-          }
+          it do
+            if Puppet[:strict] == :error
+              is_expected.to compile.and_raise_error(%r{'auditd::config::audit_profiles::simp::audit_grub_tag' is deprecated\.})
+            else
+              is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
+                %r{^.* -k CFG_grub$}
+              )
+            end
+          end
         end
 
         context 'disable audit_cfg_yum using deprecated audit_yum' do
           let(:hieradata) { 'simp_audit_profile/disable__audit_yum' }
-          it {
-            is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-              %r{^.* -k yum_config$}
-            )
-          }
+
+          it do
+            if Puppet[:strict] == :error
+              is_expected.to compile.and_raise_error(%r{'auditd::config::audit_profiles::simp::audit_yum' is deprecated\.})
+            else
+              is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
+                %r{^.* -k yum_config$}
+              )
+            end
+          end
         end
 
         context 'set audit_cfg_yum rule key using deprecated audit_yum_tag' do
           let(:hieradata) { 'simp_audit_profile/set__audit_yum_tag' }
 
-          it {
-            is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-              %r{^.*/etc/yum.* -k old_yum_tag$}
-            )
-          }
+          it do
+            if Puppet[:strict] == :error
+              is_expected.to compile.and_raise_error(%r{'auditd::config::audit_profiles::simp::audit_yum_tag' is deprecated\.})
+            else
+              is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
+                %r{^.*/etc/yum.* -k old_yum_tag$}
+              )
+            end
+          end
 
-          it {
-            is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-              %r{^.* -k yum_config$}
-            )
-          }
+          it do
+            if Puppet[:strict] == :error
+              is_expected.to compile.and_raise_error(%r{'auditd::config::audit_profiles::simp::audit_yum_tag' is deprecated\.})
+            else
+              is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
+                %r{^.* -k yum_config$}
+              )
+            end
+          end
         end
       end
     end
