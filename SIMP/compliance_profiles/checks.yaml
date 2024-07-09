@@ -211,7 +211,7 @@ checks:
     - audit_rules_dac_modification_lchown
   oval:com.puppet.forge.simp.auditd.config.audit_profiles.simp.audit_grub:
     settings:
-      parameter: auditd::config::audit_profiles::simp::audit_grub
+      parameter: auditd::config::audit_profiles::simp::audit_cfg_grub
       value: true
     type: puppet-class-parameter
     controls:
@@ -332,7 +332,7 @@ checks:
       - AU-2
   oval:com.puppet.forge.simp.auditd.config.audit_profiles.simp.audit_sudoers:
     settings:
-      parameter: auditd::config::audit_profiles::simp::audit_sudoers
+      parameter: auditd::config::audit_profiles::simp::audit_cfg_sudoers
       value: true
     type: puppet-class-parameter
     controls:
@@ -387,7 +387,7 @@ checks:
       - AU-2
   oval:com.puppet.forge.simp.auditd.config.audit_profiles.simp.audit_yum:
     settings:
-      parameter: auditd::config::audit_profiles::simp::audit_yum
+      parameter: auditd::config::audit_profiles::simp::audit_cfg_yum
       value: true
     type: puppet-class-parameter
     controls:

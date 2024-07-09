@@ -149,26 +149,44 @@ describe 'auditd' do
 
         context 'with deprecated parameters' do
           context 'with default_audit_profile = true' do
-            let(:params) {{ :default_audit_profile => true }}
+            let(:params) {{ default_audit_profile: true }}
 
-            it { is_expected.to contain_class('auditd::config::audit_profiles') }
-            it { is_expected.to contain_class('auditd::config::audit_profiles::simp') }
+            it do
+              if Puppet[:strict] == :error
+                is_expected.to compile.and_raise_error(%r{'auditd::default_audit_profile' is deprecated\.})
+              else
+                is_expected.to contain_class('auditd::config::audit_profiles')
+                is_expected.to contain_class('auditd::config::audit_profiles::simp')
+              end
+            end
           end
 
           context 'with default_audit_profile = false' do
-            let(:params) {{ :default_audit_profile => false }}
+            let(:params) {{ default_audit_profile: false }}
 
-            it { is_expected.to compile.with_all_deps }
-            it { is_expected.to_not contain_class('auditd::config::audit_profiles') }
-            it { is_expected.to_not contain_class('auditd::config::audit_profiles::simp') }
+            it do
+              if Puppet[:strict] == :error
+                is_expected.to compile.and_raise_error(%r{'auditd::default_audit_profile' is deprecated\.})
+              else
+                is_expected.to compile.with_all_deps
+                is_expected.not_to contain_class('auditd::config::audit_profiles')
+                is_expected.not_to contain_class('auditd::config::audit_profiles::simp')
+              end
+            end
           end
-        end
 
-        context "with default_audit_profile = 'simp'" do
-          let(:params) {{ :default_audit_profile => 'simp' }}
+          context "with default_audit_profile = 'simp'" do
+            let(:params) {{ default_audit_profile: 'simp' }}
 
-          it { is_expected.to contain_class('auditd::config::audit_profiles') }
-          it { is_expected.to contain_class('auditd::config::audit_profiles::simp') }
+            it do
+              if Puppet[:strict] == :error
+                is_expected.to compile.and_raise_error(%r{'auditd::default_audit_profile' is deprecated\.})
+              else
+                is_expected.to contain_class('auditd::config::audit_profiles')
+                is_expected.to contain_class('auditd::config::audit_profiles::simp')
+              end
+            end
+          end
         end
 
         context "with default_audit_profiles = 'built_in'" do

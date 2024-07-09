@@ -1,3 +1,6 @@
+* Mon Jul 08 2024 Steven Pritchard <steve@sicura.us> - 8.14.2
+- Remove calls to deprecated parameters (for Puppet 8 compatibility)
+
 * Wed Jul 03 2024 Steven Pritchard <steve@sicura.us> - 8.14.1
 - Clean up legacy fact usage for Puppet 8 compatibility
 
