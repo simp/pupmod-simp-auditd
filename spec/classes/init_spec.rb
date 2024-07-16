@@ -85,13 +85,11 @@ describe 'auditd' do
         end
 
         context 'auditd 2.8.5' do
-          context 'with space_left as a percentage' do
-            let(:facts) do
-              base_facts.merge({
-                :auditd_version => '2.8.5'
-              })
-            end
+          let(:facts) do
+            base_facts.merge(auditd_version: '2.8.5')
+          end
 
+          context 'with space_left as a percentage' do
             let(:params) do
               {
                 :space_left => '20%'
@@ -102,12 +100,6 @@ describe 'auditd' do
           end
 
           context 'with admin_space_left as a percentage' do
-            let(:facts) do
-              base_facts.merge({
-                :auditd_version => '2.8.5'
-              })
-            end
-
             let(:params) do
               {
                 :admin_space_left => '20%'
@@ -116,6 +108,29 @@ describe 'auditd' do
 
             it { is_expected.to compile.with_all_deps }
             it { is_expected.to contain_class('auditd').with_space_left('21%') }
+          end
+
+          context 'auditd with space_left < admin_space_left as percentages' do
+            let(:params) do
+              {
+                space_left: '5%',
+                admin_space_left: '25%',
+              }
+            end
+
+            it { is_expected.to compile.and_raise_error(%r{Auditd requires \$space_left to be greater than \$admin_space_left, otherwise it will not start}) }
+          end
+
+          context 'auditd with space_left > admin_space_left as percentages' do
+            let(:params) do
+              {
+                space_left: '25%',
+                admin_space_left: '5%',
+              }
+            end
+
+            it { is_expected.to compile.with_all_deps }
+            it { is_expected.to contain_class('auditd').with_space_left('25%').with_admin_space_left('5%') }
           end
         end
 
