@@ -1,3 +1,6 @@
+* Tue Jul 16 2024 Steven Pritchard <steve@sicura.us> - 8.14.3
+- Fix comparison of space_left and admin_space_left as percentages
+
 * Mon Jul 08 2024 Steven Pritchard <steve@sicura.us> - 8.14.2
 - Remove calls to deprecated parameters (for Puppet 8 compatibility)
 
