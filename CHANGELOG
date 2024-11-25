@@ -1,3 +1,6 @@
+* Mon Nov 25 2024 Steven Pritchard <steve@sicura-us> - 8.14.4
+- Fix more use of legacy facts
+
 * Tue Jul 16 2024 Steven Pritchard <steve@sicura.us> - 8.14.3
 - Fix comparison of space_left and admin_space_left as percentages
 
