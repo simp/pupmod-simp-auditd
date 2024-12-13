@@ -8,13 +8,12 @@ require 'spec_helper'
 describe 'auditd' do
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
-
-      let(:facts){ os_facts }
+      let(:facts) { os_facts }
 
       it { is_expected.to compile.with_all_deps }
 
       context 'with auditd::config::audit_profile::stig default parameters' do
-        let(:params) {{ :default_audit_profiles => ['stig'] }}
+        let(:params) { { default_audit_profiles: ['stig'] } }
 
         it {
           expected = File.read('spec/classes/config/audit_profiles/expected/stig_el7_base_rules.txt')
@@ -35,87 +34,87 @@ describe 'auditd' do
         'privileged-postfix'          => 'stig_audit_profile/disable__audit_postfix_cmds',
         'privileged-ssh'              => 'stig_audit_profile/disable__audit_ssh_keysign_cmd',
         'privileged-cron'             => 'stig_audit_profile/disable__audit_crontab_cmd',
-        'privileged-pam'              => 'stig_audit_profile/disable__audit_pam_timestamp_check_cmd',
-      }.each do |key, hiera_file|
+        'privileged-pam'              => 'stig_audit_profile/disable__audit_pam_timestamp_check_cmd', }.each do |key, hiera_file|
         context "with #{key} auditing disabled" do
-          let(:params) {{ :default_audit_profiles => ['stig'] }}
+          let(:params) { { default_audit_profiles: ['stig'] } }
           let(:hieradata) { hiera_file }
 
           it {
             is_expected.not_to contain_file('/etc/audit/rules.d/50_00_stig_base.rules').with_content(
-              %r{^.* -F key=#{key}$}
+              %r{^.* -F key=#{key}$},
             )
           }
         end
       end
 
       context 'with chown auditing disabled' do
-        let(:params) {{ :default_audit_profiles => ['stig'] }}
+        let(:params) { { default_audit_profiles: ['stig'] } }
         let(:hieradata) { 'stig_audit_profile/disable__audit_chown' }
 
         it {
           is_expected.not_to contain_file('/etc/audit/rules.d/50_00_stig_base.rules').with_content(
-            %r(^-a always,exit -F arch=b\d\d -S \w*chown\w* -F auid>=\d+ -F auid!=unset -F key=perm_mod$)
+            %r{^-a always,exit -F arch=b\d\d -S \w*chown\w* -F auid>=\d+ -F auid!=unset -F key=perm_mod$},
           )
         }
       end
 
       context 'with chmod auditing disabled' do
-        let(:params) {{ :default_audit_profiles => ['stig'] }}
+        let(:params) { { default_audit_profiles: ['stig'] } }
         let(:hieradata) { 'stig_audit_profile/disable__audit_chmod' }
 
         it {
           is_expected.not_to contain_file('/etc/audit/rules.d/50_00_stig_base.rules').with_content(
-            %r(^-a always,exit -F arch=b\d\d -S \w*chmod\w* -F auid>=\d+ -F auid!=unset -F key=perm_mod$)
+            %r{^-a always,exit -F arch=b\d\d -S \w*chmod\w* -F auid>=\d+ -F auid!=unset -F key=perm_mod$},
           )
         }
       end
 
       context 'with attr auditing disabled' do
-        let(:params) {{ :default_audit_profiles => ['stig'] }}
+        let(:params) { { default_audit_profiles: ['stig'] } }
         let(:hieradata) { 'stig_audit_profile/disable__audit_attr' }
 
         it {
           is_expected.not_to contain_file('/etc/audit/rules.d/50_00_stig_base.rules').with_content(
-            %r(^-a always,exit -F arch=b\d\d -S \w*attr -F auid>=\d+ -F auid!=unset -F key=perm_mod$)
+            %r{^-a always,exit -F arch=b\d\d -S \w*attr -F auid>=\d+ -F auid!=unset -F key=perm_mod$},
           )
         }
       end
 
       context 'with selinux command auditing disabled' do
-        let(:params) {{ :default_audit_profiles => ['stig'] }}
+        let(:params) { { default_audit_profiles: ['stig'] } }
         let(:hieradata) { 'stig_audit_profile/disable__audit_selinux_cmds' }
 
         it {
           is_expected.not_to contain_file('/etc/audit/rules.d/50_00_stig_base.rules').with_content(
-            %r{^-a always,exit -F path=/usr/bin/(chcon|semanage|setsebool) -F perm=x -F auid>=\d+ -F auid!=unset -F key=privileged-priv_change}
+            %r{^-a always,exit -F path=/usr/bin/(chcon|semanage|setsebool) -F perm=x -F auid>=\d+ -F auid!=unset -F key=privileged-priv_change},
           )
 
           is_expected.not_to contain_file('/etc/audit/rules.d/50_00_stig_base.rules').with_content(
-            %r(^-a always,exit -F path=/(usr/)?sbin/setfiles -F perm=x -F auid>=\d+ -F auid!=unset -F key=privileged-priv_change)
+            %r{^-a always,exit -F path=/(usr/)?sbin/setfiles -F perm=x -F auid>=\d+ -F auid!=unset -F key=privileged-priv_change},
           )
         }
       end
 
       context 'with privilege-related command auditing disabled' do
-        let(:params) {{ :default_audit_profiles => ['stig'] }}
+        let(:params) { { default_audit_profiles: ['stig'] } }
         let(:hieradata) { 'stig_audit_profile/disable__audit_priv_cmds' }
+
         [
           %r{^-a always,exit -F path=/(usr/)?bin/su -F perm=x -F auid>=\d+ -F auid!=unset -F key=privileged-priv_change$},
           %r{^-a always,exit -F path=/usr/bin/sudo -F perm=x -F auid>=\d+ -F auid!=unset -F key=privileged-priv_change$},
           %r{^-a always,exit -F path=/usr/bin/newgrp -F perm=x -F auid>=\d+ -F auid!=unset -F key=privileged-priv_change$},
           %r{^-a always,exit -F path=/usr/bin/chsh -F perm=x -F auid>=\d+ -F auid!=unset -F key=privileged-priv_change$},
-          %r{^-a always,exit -F path=/(usr/)?bin/sudoedit -F perm=x -F auid>=\d+ -F auid!=unset -F key=privileged-priv_change$}
+          %r{^-a always,exit -F path=/(usr/)?bin/sudoedit -F perm=x -F auid>=\d+ -F auid!=unset -F key=privileged-priv_change$},
         ].each do |command_regex|
           it {
-            is_expected.not_to contain_file('/etc/audit/rules.d/50_00_stig_base.rules').
-              with_content(command_regex)
+            is_expected.not_to contain_file('/etc/audit/rules.d/50_00_stig_base.rules')
+              .with_content(command_regex)
           }
         end
       end
 
       context 'with all custom tags' do
-        let(:params) {{ :default_audit_profiles => ['stig'] }}
+        let(:params) { { default_audit_profiles: ['stig'] } }
         let(:hieradata) { 'stig_audit_profile/all_custom_tags' }
 
         it 'uses custom tags as rule keys' do
@@ -125,15 +124,17 @@ describe 'auditd' do
       end
 
       context 'with multiple audit profiles' do
-        let(:params) {{ :default_audit_profiles => ['stig', 'simp'] }}
+        let(:params) { { default_audit_profiles: ['stig', 'simp'] } }
 
         it {
-            expected = File.read('spec/classes/config/audit_profiles/expected/stig_el7_base_rules.txt')
-            is_expected.to contain_file('/etc/audit/rules.d/50_00_stig_base.rules').with_content(expected)
+          expected = File.read('spec/classes/config/audit_profiles/expected/stig_el7_base_rules.txt')
+          is_expected.to contain_file('/etc/audit/rules.d/50_00_stig_base.rules').with_content(expected)
         }
 
-        it { is_expected.to contain_file('/etc/audit/rules.d/50_01_simp_base.rules').with_content(
-          /#### auditd::config::audit_profiles::simp Audit Rules ####/)
+        it {
+          is_expected.to contain_file('/etc/audit/rules.d/50_01_simp_base.rules').with_content(
+          %r{#### auditd::config::audit_profiles::simp Audit Rules ####},
+        )
         }
       end
     end

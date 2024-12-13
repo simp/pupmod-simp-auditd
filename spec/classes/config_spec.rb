@@ -9,147 +9,147 @@ describe 'auditd' do
   context 'supported operating systems' do
     on_supported_os.each do |os, os_facts|
       context "on #{os}" do
-        let (:facts) {os_facts}
+        let(:facts) { os_facts }
 
         context 'with default parameters' do
-          let (:params) {{ }}
+          let(:params) { {} }
 
           it { is_expected.to compile.with_all_deps }
           it {
             is_expected.to contain_file('/etc/audit/rules.d').with({
-              :ensure  => 'directory',
-              :owner   => 'root',
-              :group   => 'root',
-              :mode    => '0600',
-              :recurse => true,
-              :purge   => true
-            })
+                                                                     ensure: 'directory',
+              owner: 'root',
+              group: 'root',
+              mode: '0600',
+              recurse: true,
+              purge: true
+                                                                   })
           }
           it {
             is_expected.to contain_file('/etc/audit/audit.rules').with({
-              :owner => 'root',
-              :group => 'root',
-              :mode  => 'o-rwx'
-            })
+                                                                         owner: 'root',
+              group: 'root',
+              mode: 'o-rwx'
+                                                                       })
           }
           it {
             is_expected.to contain_file('/etc/audit/audit.rules.prev').with({
-              :owner => 'root',
-              :group => 'root',
-              :mode  => 'o-rwx'
-            })
+                                                                              owner: 'root',
+              group: 'root',
+              mode: 'o-rwx'
+                                                                            })
           }
           it {
             is_expected.to contain_file('/etc/audit').with({
-              :ensure  => 'directory',
-              :owner   => 'root',
-              :group   => 'root',
-              :mode    => '0600',
-              :recurse => true,
-              :purge   => true
-            })
+                                                             ensure: 'directory',
+              owner: 'root',
+              group: 'root',
+              mode: '0600',
+              recurse: true,
+              purge: true
+                                                           })
           }
-          it { is_expected.to_not contain_augeas('auditd/USE_AUGENRULES') }
-          it { is_expected.to_not contain_class('auditd::config::logging').that_notifies('Class[auditd::service]') }
+          it { is_expected.not_to contain_augeas('auditd/USE_AUGENRULES') }
+          it { is_expected.not_to contain_class('auditd::config::logging').that_notifies('Class[auditd::service]') }
           it {
             is_expected.to contain_file('/var/log/audit').with({
-              :ensure  => 'directory',
-              :owner   => 'root',
-              :group   => 'root',
-              :mode    => 'u+rX,g-rwx,o-rwx',
-              :recurse => true
-            })
+                                                                 ensure: 'directory',
+              owner: 'root',
+              group: 'root',
+              mode: 'u+rX,g-rwx,o-rwx',
+              recurse: true
+                                                               })
           }
           it { is_expected.to contain_class('auditd::config::audit_profiles') }
           it { is_expected.to contain_class('auditd::config::audit_profiles::simp') }
-          it { is_expected.to_not contain_class('auditd::config::audisp') }
-          it { is_expected.to_not contain_class('auditd::config::audisp::syslog') }
-        end   # Default params
+          it { is_expected.not_to contain_class('auditd::config::audisp') }
+          it { is_expected.not_to contain_class('auditd::config::audisp::syslog') }
+        end # Default params
 
         context 'with purge behaviour false' do
-          let(:params) {{ :purge_auditd_rules => false }}
+          let(:params) { { purge_auditd_rules: false } }
 
           it { is_expected.to compile.with_all_deps }
           it {
             is_expected.to contain_file('/etc/audit/rules.d').with({
-              :ensure  => 'directory',
-              :owner   => 'root',
-              :group   => 'root',
-              :mode    => '0600',
-              :recurse => true,
-              :purge   => false
-            })
+                                                                     ensure: 'directory',
+              owner: 'root',
+              group: 'root',
+              mode: '0600',
+              recurse: true,
+              purge: false
+                                                                   })
           }
         end
 
         context 'with empty default_audit_profiles' do
-          let(:params) {{ :default_audit_profiles => [] }}
+          let(:params) { { default_audit_profiles: [] } }
 
           it { is_expected.to compile.with_all_deps }
-          it { is_expected.to_not contain_class('auditd::config::audit_profiles') }
+          it { is_expected.not_to contain_class('auditd::config::audit_profiles') }
         end
 
         context 'with different log_group' do
-          let(:params) {{ log_group: 'rspec' }}
+          let(:params) { { log_group: 'rspec' } }
 
           it { is_expected.to compile.with_all_deps }
           it {
             is_expected.to contain_file('/etc/audit').with({
-              :ensure  => 'directory',
-              :owner   => 'root',
-              :group   => 'rspec',
-              :mode    => '0640',
-              :recurse => true,
-              :purge   => true
-            })
+                                                             ensure: 'directory',
+              owner: 'root',
+              group: 'rspec',
+              mode: '0640',
+              recurse: true,
+              purge: true
+                                                           })
           }
           it {
             is_expected.to contain_file('/etc/audit/rules.d').with({
-              :ensure  => 'directory',
-              :owner   => 'root',
-              :group   => 'rspec',
-              :mode    => '0640',
-              :recurse => true,
-              :purge   => true
-            })
+                                                                     ensure: 'directory',
+              owner: 'root',
+              group: 'rspec',
+              mode: '0640',
+              recurse: true,
+              purge: true
+                                                                   })
           }
           it {
             is_expected.to contain_file('/etc/audit/audit.rules').with({
-              :owner => 'root',
-              :group => 'rspec',
-              :mode  => 'o-rwx'
-            })
+                                                                         owner: 'root',
+              group: 'rspec',
+              mode: 'o-rwx'
+                                                                       })
           }
           it {
             is_expected.to contain_file('/etc/audit/audit.rules.prev').with({
-              :owner => 'root',
-              :group => 'rspec',
-              :mode  => 'o-rwx'
-            })
+                                                                              owner: 'root',
+              group: 'rspec',
+              mode: 'o-rwx'
+                                                                            })
           }
 
           it {
             is_expected.to contain_file('/etc/audit/auditd.conf').with({
-              :owner => 'root',
-              :group => 'rspec',
-              :mode  => '0640'
-            })
+                                                                         owner: 'root',
+              group: 'rspec',
+              mode: '0640'
+                                                                       })
           }
 
           it {
             is_expected.to contain_file('/var/log/audit').with({
-              :ensure  => 'directory',
-              :owner   => 'root',
-              :group   => 'rspec',
-              :mode    => 'u+rX,g+rX,g-w,o-rwx',
-              :recurse => true
-            })
+                                                                 ensure: 'directory',
+              owner: 'root',
+              group: 'rspec',
+              mode: 'u+rX,g+rX,g-w,o-rwx',
+              recurse: true
+                                                               })
           }
         end
 
         context 'with deprecated parameters' do
           context 'with default_audit_profile = true' do
-            let(:params) {{ default_audit_profile: true }}
+            let(:params) { { default_audit_profile: true } }
 
             it do
               if Puppet[:strict] == :error
@@ -162,7 +162,7 @@ describe 'auditd' do
           end
 
           context 'with default_audit_profile = false' do
-            let(:params) {{ default_audit_profile: false }}
+            let(:params) { { default_audit_profile: false } }
 
             it do
               if Puppet[:strict] == :error
@@ -176,7 +176,7 @@ describe 'auditd' do
           end
 
           context "with default_audit_profile = 'simp'" do
-            let(:params) {{ default_audit_profile: 'simp' }}
+            let(:params) { { default_audit_profile: 'simp' } }
 
             it do
               if Puppet[:strict] == :error
@@ -190,7 +190,7 @@ describe 'auditd' do
         end
 
         context "with default_audit_profiles = 'built_in'" do
-          let(:params) {{ :default_audit_profiles => ['built_in'] }}
+          let(:params) { { default_audit_profiles: ['built_in'] } }
 
           it { is_expected.to contain_class('auditd::config::audit_profiles') }
           it { is_expected.to contain_class('auditd::config::audit_profiles::built_in') }
@@ -201,19 +201,19 @@ describe 'auditd' do
         # default for rhel 8 but version 2 is the default for el6 and el7.
         # Neither fact is available if auditing in the kernel is not enabled.
         [
-          { :auditd_version => '3.0', :auditd_major_version => '3' },
-          { :auditd_version => '2.4.5', :auditd_major_version => '2' },
-          { :auditd_version => nil, :auditd_major_version => nil }
-        ].each do |  more_facts |
+          { auditd_version: '3.0', auditd_major_version: '3' },
+          { auditd_version: '2.4.5', auditd_major_version: '2' },
+          { auditd_version: nil, auditd_major_version: nil },
+        ].each do |more_facts|
           context "with auditd version #{more_facts[:auditd_major_version].inspect}" do
-
-            let(:facts) {
+            let(:facts) do
               _facts = Marshal.load(Marshal.dump(os_facts))
               _facts[:auditd_version] = more_facts[:auditd_version]
               _facts[:auditd_major_version] = more_facts[:auditd_major_version]
               _facts
-              }
-            let(:expected_content){ <<-EOM.gsub(/^\s+/,'')
+            end
+            let(:expected_content) do
+              <<-EOM.gsub(%r{^\s+}, '')
               # This file is managed by Puppet (module 'auditd')
               log_file = /var/log/audit/audit.log
               log_format = raw
@@ -233,17 +233,20 @@ describe 'auditd' do
               disk_full_action = rotate
               disk_error_action = syslog
               EOM
-            }
-            let(:extra_content){<<-EOM.gsub(/^\s+/,'')
+            end
+            let(:extra_content) do
+              <<-EOM.gsub(%r{^\s+}, '')
               write_logs = yes
               EOM
-            }
-            let(:v2_content){<<-EOM.gsub(/^\s+/,'')
+            end
+            let(:v2_content) do
+              <<-EOM.gsub(%r{^\s+}, '')
               disp_qos = lossy
               dispatcher = /sbin/audispd
               EOM
-            }
-            let(:v3_content){<<-EOM.gsub(/^\s+/,'')
+            end
+            let(:v3_content) do
+              <<-EOM.gsub(%r{^\s+}, '')
               # Auditd Version 3.0 or later specific options
               local_events = yes
               verify_email = yes
@@ -252,72 +255,70 @@ describe 'auditd' do
               max_restarts = 10
               plugin_dir = /etc/audit/plugins.d
               EOM
-            }
-            let(:end_content){<<-EOM.gsub(/^\s+/,'')
+            end
+            let(:end_content) do
+              <<-EOM.gsub(%r{^\s+}, '')
               # This entry must be after verify_email if verify_email is to work
               # Note: verify_email is only an auditd version 3 option
               action_mail_acct = root
               EOM
-            }
+            end
 
             context 'with default parameters' do
-              let(:params) {{ }}
+              let(:params) { {} }
 
               it {
-                if (facts[:auditd_major_version].nil? && (facts[:os][:release][:major] < '8')) ||
-                   (facts[:auditd_major_version] == '2')
+                complete_content = if (facts[:auditd_major_version].nil? && (facts[:os][:release][:major] < '8')) ||
+                                      (facts[:auditd_major_version] == '2')
 
-                  if facts[:auditd_version] &&  (facts[:auditd_version] < '2.5.2')
-                    # If version 2.5.2 does not have option write_logs
-                    complete_content = expected_content + v2_content + end_content
-                  else
-                    complete_content = expected_content + extra_content + v2_content + end_content
-                  end
-                else
-                  complete_content = expected_content + extra_content + v3_content + end_content
-                end
+                                     if facts[:auditd_version] && (facts[:auditd_version] < '2.5.2')
+                                       # If version 2.5.2 does not have option write_logs
+                                       expected_content + v2_content + end_content
+                                     else
+                                       expected_content + extra_content + v2_content + end_content
+                                     end
+                                   else
+                                     expected_content + extra_content + v3_content + end_content
+                                   end
 
                 is_expected.to contain_file('/etc/audit/auditd.conf').with({
-                  :owner   => 'root',
-                  :group   => 'root',
-                  :mode    => '0600',
-                  :content => complete_content + "\n"
-                })
+                                                                             owner: 'root',
+                  group: 'root',
+                  mode: '0600',
+                  content: complete_content + "\n"
+                                                                           })
 
                 if (facts[:auditd_major_version].nil? && (facts[:os][:release][:major] >= '8')) ||
                    (facts[:auditd_major_version] == '3')
-                  is_expected.to contain_file('/etc/audit/auditd.conf').with_content(%r(^local_events = .*$))
+                  is_expected.to contain_file('/etc/audit/auditd.conf').with_content(%r{^local_events = .*$})
                 else
-                  is_expected.to contain_file('/etc/audit/auditd.conf').with_content(%r(^disp_qos = .*$))
+                  is_expected.to contain_file('/etc/audit/auditd.conf').with_content(%r{^disp_qos = .*$})
                 end
               }
-
             end
 
             context 'with syslog enabled' do
-              let(:params) {{ :syslog => true }}
+              let(:params) { { syslog: true } }
 
               it { is_expected.to contain_class('auditd::config::logging').that_notifies('Class[auditd::service]') }
               # Test private class config::logging
               it {
                 if facts[:auditd_version].nil? || facts[:auditd_major_version] >= '3'
-                  is_expected.to_not contain_class('auditd::config::audisp')
+                  is_expected.not_to contain_class('auditd::config::audisp')
                 else
                   is_expected.to contain_class('auditd::config::audisp')
                 end
               }
               it {
                 if facts[:auditd_version].nil?
-                  is_expected.to_not contain_class('auditd::config::audisp::syslog')
+                  is_expected.not_to contain_class('auditd::config::audisp::syslog')
                 else
                   is_expected.to contain_class('auditd::config::audisp::syslog')
                 end
               }
             end
-
-          end  # End auditd version context
-        end  # End auditd version loop
-
+          end # End auditd version context
+        end # End auditd version loop
       end # End OS Context
     end # End OS loop
   end

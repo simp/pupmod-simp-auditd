@@ -8,15 +8,13 @@ require 'spec_helper'
 describe 'auditd' do
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
-
-      let(:facts){
+      let(:facts) do
         os_facts
-      }
+      end
 
       it { is_expected.to compile.with_all_deps }
 
       context 'with default parameters' do
-
         it {
           expected = File.read('spec/classes/config/audit_profiles/expected/simp_el7_basic_rules.txt')
           is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(expected)
@@ -25,8 +23,8 @@ describe 'auditd' do
         it 'specifies a key specified for each rule' do
           base_rules = catalogue.resource('File[/etc/audit/rules.d/50_00_simp_base.rules]')[:content].split("\n")
 
-          rules_with_tags = base_rules.select{|x| x =~ / -k / }
-          rules_with_tags.delete_if{|x| x =~ / -k \S+/}
+          rules_with_tags = base_rules.select { |x| x.include?(' -k ') }
+          rules_with_tags.delete_if { |x| x =~ %r{ -k \S+} }
 
           expect(rules_with_tags).to be_empty
         end
@@ -34,36 +32,35 @@ describe 'auditd' do
         it 'disables chmod auditing by default' do
           # chmod is disabled by default (SIMP-2250)
           is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-            %r(^-a always,exit -F arch=b\d\d -S chmod,fchmod,fchmodat -k chmod$)
+            %r{^-a always,exit -F arch=b\d\d -S chmod,fchmod,fchmodat -k chmod$},
           )
         end
 
         it 'disables rename/remove auditing by default' do
           is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-            %r(^-a always,exit -F arch=b\d\d -S rename,renameat,rmdir,unlink,unlinkat -F perm=x -k delete)
+            %r{^-a always,exit -F arch=b\d\d -S rename,renameat,rmdir,unlink,unlinkat -F perm=x -k delete},
           )
         end
 
         it 'disables umask auditing by default' do
           is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-            %r(^-a always,exit -F arch=b\d\d -S umask -k umask)
+            %r{^-a always,exit -F arch=b\d\d -S umask -k umask},
           )
         end
 
         it 'disables package command auditing is disabled by default' do
           is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-            %r{^-w /(usr/)?bin/(rpm|yum) -p x}
+            %r{^-w /(usr/)?bin/(rpm|yum) -p x},
           )
-
         end
 
         it 'disables selinux commands auditing by default' do
           is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-            %r{^-a always,exit -F path=/usr/bin/(chcon|semanage|setsebool) -F perm=x -k privileged-priv_change}
+            %r{^-a always,exit -F path=/usr/bin/(chcon|semanage|setsebool) -F perm=x -k privileged-priv_change},
           )
 
           is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-            %r(^-a always,exit -F path=/(usr/)?sbin/setfiles -F perm=x -k privileged-priv_change)
+            %r{^-a always,exit -F path=/(usr/)?sbin/setfiles -F perm=x -k privileged-priv_change},
           )
         end
 
@@ -72,17 +69,17 @@ describe 'auditd' do
 
           it 'disables auditing of grub' do
             is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-              %r{^-w /boot/grub/grub.conf}
+              %r{^-w /boot/grub/grub.conf},
             )
             is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-              %r{^-w /etc/grub.d}
+              %r{^-w /etc/grub.d},
             )
           end
         end
       end
 
       context 'with root audit level set to aggressive' do
-        let(:params) {{ :root_audit_level => 'aggressive' }}
+        let(:params) { { root_audit_level: 'aggressive' } }
 
         it {
           expected = File.read('spec/classes/config/audit_profiles/expected/simp_el7_aggressive_rules.txt')
@@ -91,7 +88,7 @@ describe 'auditd' do
       end
 
       context 'with root audit level set to insane' do
-        let(:params) {{ :root_audit_level => 'insane' }}
+        let(:params) { { root_audit_level: 'insane' } }
 
         it {
           expected = File.read('spec/classes/config/audit_profiles/expected/simp_el7_insane_rules.txt')
@@ -125,14 +122,13 @@ describe 'auditd' do
         'privileged-postfix'          => 'disable__audit_postfix_cmds',
         'privileged-ssh'              => 'disable__audit_ssh_keysign_cmd',
         'privileged-cron'             => 'disable__audit_crontab_cmd',
-        'privileged-pam'              => 'disable__audit_pam_timestamp_check_cmd',
-      }.each do |key, hiera_file|
+        'privileged-pam'              => 'disable__audit_pam_timestamp_check_cmd', }.each do |key, hiera_file|
         context "with #{key} auditing disabled" do
           let(:hieradata) { "simp_audit_profile/#{hiera_file}" }
 
           it {
             is_expected.not_to contain_file('/etc/audit/rules.d/50_00_base.rules').with_content(
-              %r{^.* -k #{key}$}
+              %r{^.* -k #{key}$},
             )
           }
         end
@@ -140,36 +136,38 @@ describe 'auditd' do
 
       context 'with privilege-related command auditing disabled' do
         let(:hieradata) { 'simp_audit_profile/disable__audit_priv_cmds' }
+
         [
           %r{^-a always,exit -F path=/(usr/)?bin/su -F perm=x -k privileged-priv_change$},
           %r{^-a always,exit -F path=/usr/bin/sudo -F perm=x -k privileged-priv_change$},
           %r{^-a always,exit -F path=/usr/bin/newgrp -F perm=x -k privileged-priv_change$},
           %r{^-a always,exit -F path=/usr/bin/chsh -F perm=x -k privileged-priv_change$},
-          %r{^-a always,exit -F path=/(usr/)?bin/sudoedit -F perm=x -k privileged-priv_change$}
+          %r{^-a always,exit -F path=/(usr/)?bin/sudoedit -F perm=x -k privileged-priv_change$},
         ].each do |command_regex|
           it {
-            is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').
-              with_content(command_regex)
+            is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules')
+              .with_content(command_regex)
           }
         end
       end
 
       context 'with sudoers config auditing disabled' do
         let(:hieradata) { 'simp_audit_profile/disable__audit_cfg_sudoers' }
+
         [
           %r{^-w /etc/sudoers -p wa -k CFG_sys$},
           %r{^-w /etc/sudoers.d/ -p wa -k CFG_sys$},
         ].each do |command_regex|
           it {
-            is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').
-              with_content(command_regex)
+            is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules')
+              .with_content(command_regex)
           }
         end
-
       end
 
       context 'with other system config auditing disabled' do
         let(:hieradata) { 'simp_audit_profile/disable__audit_cfg_sys' }
+
         [
           %r{^-w /etc/default -p wa -k CFG_sys$},
           %r{^-w /etc/exports -p wa -k CFG_sys$},
@@ -203,8 +201,8 @@ describe 'auditd' do
           %r{^-w /var/spool/at -p wa -k CFG_sys$},
         ].each do |command_regex|
           it {
-            is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').
-              with_content(command_regex)
+            is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules')
+              .with_content(command_regex)
           }
         end
       end
@@ -214,7 +212,7 @@ describe 'auditd' do
 
         it {
           is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules'). with_content(
-            %r{^-a always,exit -F arch=b\d\d -S ptrace -k paranoid$}
+            %r{^-a always,exit -F arch=b\d\d -S ptrace -k paranoid$},
           )
         }
       end
@@ -224,7 +222,7 @@ describe 'auditd' do
 
         it {
           is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-            %r{^-a always,exit -F arch=b\d\d -S personality -k paranoid$}
+            %r{^-a always,exit -F arch=b\d\d -S personality -k paranoid$},
           )
         }
       end
@@ -234,7 +232,7 @@ describe 'auditd' do
 
         it {
           is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-            %r(^-a always,exit -F arch=b\d\d -S chmod,fchmod,fchmodat -k chmod$)
+            %r{^-a always,exit -F arch=b\d\d -S chmod,fchmod,fchmodat -k chmod$},
           )
         }
       end
@@ -244,13 +242,13 @@ describe 'auditd' do
 
         it {
           is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-            %r(^-a always,exit -F arch=b64 -S rename,renameat,rmdir,unlink,unlinkat -F perm=x -k delete)
+            %r{^-a always,exit -F arch=b64 -S rename,renameat,rmdir,unlink,unlinkat -F perm=x -k delete},
           )
         }
 
         it {
           is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-            %r(^-a always,exit -F arch=b32 -S rename,renameat,rmdir,unlink,unlinkat -F perm=x -k delete)
+            %r{^-a always,exit -F arch=b32 -S rename,renameat,rmdir,unlink,unlinkat -F perm=x -k delete},
           )
         }
       end
@@ -260,7 +258,7 @@ describe 'auditd' do
 
         it {
           is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-            %r(^-a always,exit -F arch=b\d\d -S umask -k umask)
+            %r{^-a always,exit -F arch=b\d\d -S umask -k umask},
           )
         }
       end
@@ -270,25 +268,25 @@ describe 'auditd' do
 
         it {
           is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-            %r(^-a always,exit -F path=/usr/bin/chcon -F perm=x -k privileged-priv_change)
+            %r{^-a always,exit -F path=/usr/bin/chcon -F perm=x -k privileged-priv_change},
           )
         }
 
         it {
           is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-            %r(^-a always,exit -F path=/usr/sbin/semanage -F perm=x -k privileged-priv_change)
+            %r{^-a always,exit -F path=/usr/sbin/semanage -F perm=x -k privileged-priv_change},
           )
         }
 
         it {
           is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-            %r(^-a always,exit -F path=/usr/sbin/setsebool -F perm=x -k privileged-priv_change)
+            %r{^-a always,exit -F path=/usr/sbin/setsebool -F perm=x -k privileged-priv_change},
           )
         }
 
         it {
           is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-            %r(^-a always,exit -F path=/(usr/)?sbin/setfiles -F perm=x -k privileged-priv_change)
+            %r{^-a always,exit -F path=/(usr/)?sbin/setfiles -F perm=x -k privileged-priv_change},
           )
         }
       end
@@ -298,7 +296,7 @@ describe 'auditd' do
 
         it {
           is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-            %r(^-w /(usr/)?bin/yum -p x)
+            %r{^-w /(usr/)?bin/yum -p x},
           )
         }
       end
@@ -308,31 +306,32 @@ describe 'auditd' do
 
         it {
           is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-            %r(^-w /(usr/)?bin/rpm -p x)
+            %r{^-w /(usr/)?bin/rpm -p x},
           )
         }
       end
 
-
       context 'with all auditing options enabled and custom tags' do
         let(:hieradata) { 'simp_audit_profile/enable_all_custom_tags' }
-        let(:params) {{ :root_audit_level => 'insane' }}
+        let(:params) { { root_audit_level: 'insane' } }
 
         it 'uses custom tags as rule keys' do
-          expected = File.read('spec/classes/config/audit_profiles/expected/simp_el7_all_rules_custom_tags.txt')
+          File.read('spec/classes/config/audit_profiles/expected/simp_el7_all_rules_custom_tags.txt')
         end
       end
 
       context 'with multiple audit profiles' do
-        let(:params) {{ :default_audit_profiles => ['simp', 'stig'] }}
+        let(:params) { { default_audit_profiles: ['simp', 'stig'] } }
 
         it {
-            expected = File.read('spec/classes/config/audit_profiles/expected/simp_el7_basic_rules.txt')
-            is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(expected)
+          expected = File.read('spec/classes/config/audit_profiles/expected/simp_el7_basic_rules.txt')
+          is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(expected)
         }
 
-        it { is_expected.to contain_file('/etc/audit/rules.d/50_01_stig_base.rules').with_content(
-          /#### auditd::config::audit_profiles::stig Audit Rules ####/)
+        it {
+          is_expected.to contain_file('/etc/audit/rules.d/50_01_stig_base.rules').with_content(
+          %r{#### auditd::config::audit_profiles::stig Audit Rules ####},
+        )
         }
       end
 
@@ -341,44 +340,44 @@ describe 'auditd' do
 
         # EL 7.3
         context '2.6.5' do
-          let(:facts) {
+          let(:facts) do
             new_facts = Marshal.load(Marshal.dump(os_facts))
             new_facts[:auditd_version] = '2.6.5'
 
             new_facts
-          }
+          end
 
           context 'default options' do
             it do
-              expect(auditd_conf[:content]).to match(/log_format = raw/)
-              expect(auditd_conf[:content]).to match(/write_logs = yes/)
+              expect(auditd_conf[:content]).to match(%r{log_format = raw})
+              expect(auditd_conf[:content]).to match(%r{write_logs = yes})
             end
           end
 
           context 'write_logs = false' do
-            let(:params) {{ :write_logs => false }}
+            let(:params) { { write_logs: false } }
 
             it do
-              expect(auditd_conf[:content]).to match(/log_format = raw/)
-              expect(auditd_conf[:content]).to match(/write_logs = no/)
+              expect(auditd_conf[:content]).to match(%r{log_format = raw})
+              expect(auditd_conf[:content]).to match(%r{write_logs = no})
             end
           end
 
           context 'log_format = NOLOG' do
-            let(:params) {{ :log_format => 'NOLOG' }}
+            let(:params) { { log_format: 'NOLOG' } }
 
             it do
-              expect(auditd_conf[:content]).to match(/log_format = raw/)
-              expect(auditd_conf[:content]).to match(/write_logs = no/)
+              expect(auditd_conf[:content]).to match(%r{log_format = raw})
+              expect(auditd_conf[:content]).to match(%r{write_logs = no})
             end
           end
 
           context 'log_format = ENRICHED' do
-            let(:params) {{ :log_format => 'ENRICHED' }}
+            let(:params) { { log_format: 'ENRICHED' } }
 
             it do
-              expect(auditd_conf[:content]).to match(/log_format = ENRICHED/)
-              expect(auditd_conf[:content]).to match(/write_logs = yes/)
+              expect(auditd_conf[:content]).to match(%r{log_format = ENRICHED})
+              expect(auditd_conf[:content]).to match(%r{write_logs = yes})
             end
           end
         end
@@ -396,8 +395,8 @@ describe 'auditd' do
               if Puppet[:strict] == :error
                 is_expected.to compile.and_raise_error(%r{'auditd::config::audit_profiles::simp::audit_sudoers' is deprecated\.})
               else
-                is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').
-                  with_content(command_regex)
+                is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules')
+                  .with_content(command_regex)
               end
             end
           end
@@ -414,8 +413,8 @@ describe 'auditd' do
               if Puppet[:strict] == :error
                 is_expected.to compile.and_raise_error(%r{'auditd::config::audit_profiles::simp::audit_sudoers_tag' is deprecated\.})
               else
-                is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').
-                  with_content(command_regex)
+                is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules')
+                  .with_content(command_regex)
               end
             end
           end
@@ -428,8 +427,8 @@ describe 'auditd' do
               if Puppet[:strict] == :error
                 is_expected.to compile.and_raise_error(%r{'auditd::config::audit_profiles::simp::audit_sudoers_tag' is deprecated\.})
               else
-                is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').
-                  with_content(command_regex)
+                is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules')
+                  .with_content(command_regex)
               end
             end
           end
@@ -443,7 +442,7 @@ describe 'auditd' do
               is_expected.to compile.and_raise_error(%r{'auditd::config::audit_profiles::simp::audit_grub' is deprecated\.})
             else
               is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-                %r{^.* -k CFG_grub$}
+                %r{^.* -k CFG_grub$},
               )
             end
           end
@@ -457,7 +456,7 @@ describe 'auditd' do
               is_expected.to compile.and_raise_error(%r{'auditd::config::audit_profiles::simp::audit_grub_tag' is deprecated\.})
             else
               is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-                %r{^.*grub.(d|conf).* -k old_grub_tag$}
+                %r{^.*grub.(d|conf).* -k old_grub_tag$},
               )
             end
           end
@@ -467,7 +466,7 @@ describe 'auditd' do
               is_expected.to compile.and_raise_error(%r{'auditd::config::audit_profiles::simp::audit_grub_tag' is deprecated\.})
             else
               is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-                %r{^.* -k CFG_grub$}
+                %r{^.* -k CFG_grub$},
               )
             end
           end
@@ -481,7 +480,7 @@ describe 'auditd' do
               is_expected.to compile.and_raise_error(%r{'auditd::config::audit_profiles::simp::audit_yum' is deprecated\.})
             else
               is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-                %r{^.* -k yum_config$}
+                %r{^.* -k yum_config$},
               )
             end
           end
@@ -495,7 +494,7 @@ describe 'auditd' do
               is_expected.to compile.and_raise_error(%r{'auditd::config::audit_profiles::simp::audit_yum_tag' is deprecated\.})
             else
               is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-                %r{^.*/etc/yum.* -k old_yum_tag$}
+                %r{^.*/etc/yum.* -k old_yum_tag$},
               )
             end
           end
@@ -505,7 +504,7 @@ describe 'auditd' do
               is_expected.to compile.and_raise_error(%r{'auditd::config::audit_profiles::simp::audit_yum_tag' is deprecated\.})
             else
               is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(
-                %r{^.* -k yum_config$}
+                %r{^.* -k yum_config$},
               )
             end
           end
