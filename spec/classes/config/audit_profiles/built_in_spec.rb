@@ -9,25 +9,25 @@ describe 'auditd' do
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
       let(:facts) do
-        _facts = Marshal.load(Marshal.dump(os_facts))
-        if _facts[:os][:release][:major] < '8'
-          _facts[:auditd_major_version] = '2'
-          _facts[:auditd_sample_ruleset_location] = '/usr/share/doc/audit-2.8.5/rules'
+        f = Marshal.load(Marshal.dump(os_facts))
+        if f[:os][:release][:major] < '8'
+          f[:auditd_major_version] = '2'
+          f[:auditd_sample_ruleset_location] = '/usr/share/doc/audit-2.8.5/rules'
         else
-          _facts[:auditd_major_version] = '3'
-          _facts[:auditd_sample_ruleset_location] = '/usr/share/audit/sample-rules'
+          f[:auditd_major_version] = '3'
+          f[:auditd_sample_ruleset_location] = '/usr/share/audit/sample-rules'
         end
-        _facts[:auditd_sample_rulesets] = {
+        f[:auditd_sample_rulesets] = {
           'base-config' => { 'order' => 10, },
-                    'no-audit'    => { 'order' => 10, },
-                    'loginuid'    => { 'order' => 11, },
-                    'stig'        => { 'order' => 30, },
-                    'privileged'  => { 'order' => 31, },
-                    'networking'  => { 'order' => 71, },
-                    'finalize'    => { 'order' => 99, },
+          'no-audit'    => { 'order' => 10, },
+          'loginuid'    => { 'order' => 11, },
+          'stig'        => { 'order' => 30, },
+          'privileged'  => { 'order' => 31, },
+          'networking'  => { 'order' => 71, },
+          'finalize'    => { 'order' => 99, },
         }
 
-        _facts
+        f
       end
 
       context 'with default parameters' do
@@ -39,7 +39,7 @@ describe 'auditd' do
           {
             default_audit_profiles: [
               'built_in',
-            ]
+            ],
           }
         end
 
@@ -54,37 +54,37 @@ describe 'auditd' do
 
           is_expected.to compile.with_all_deps
           if facts[:auditd_major_version] == '3'
-            is_expected.to contain_file('/etc/audit/rules.d/10-base-config.rules').with({
-                                                                                          ensure: 'file',
+            is_expected.to contain_file('/etc/audit/rules.d/10-base-config.rules').with(
+              ensure: 'file',
               source: 'file:///usr/share/audit/sample-rules/10-base-config.rules',
-                                                                                        }).that_notifies('Class[auditd::service]')
+            ).that_notifies('Class[auditd::service]')
 
-            is_expected.to contain_file('/etc/audit/rules.d/10-no-audit.rules').with({
-                                                                                       ensure: 'file',
+            is_expected.to contain_file('/etc/audit/rules.d/10-no-audit.rules').with(
+              ensure: 'file',
               source: 'file:///usr/share/audit/sample-rules/10-no-audit.rules',
-                                                                                     }).that_notifies('Class[auditd::service]')
+            ).that_notifies('Class[auditd::service]')
 
-            is_expected.to contain_file('/etc/audit/rules.d/99-finalize.rules').with({
-                                                                                       ensure: 'file',
+            is_expected.to contain_file('/etc/audit/rules.d/99-finalize.rules').with(
+              ensure: 'file',
               source: 'file:///usr/share/audit/sample-rules/99-finalize.rules',
-                                                                                     }).that_notifies('Class[auditd::service]')
+            ).that_notifies('Class[auditd::service]')
 
             is_expected.to contain_notify('bad_sample_set not found')
           else
-            is_expected.to contain_file('/etc/audit/rules.d/10-base-config.rules').with({
-                                                                                          ensure: 'file',
+            is_expected.to contain_file('/etc/audit/rules.d/10-base-config.rules').with(
+              ensure: 'file',
               source: 'file:///usr/share/doc/audit-2.8.5/rules/10-base-config.rules',
-                                                                                        }).that_notifies('Class[auditd::service]')
+            ).that_notifies('Class[auditd::service]')
 
-            is_expected.to contain_file('/etc/audit/rules.d/10-no-audit.rules').with({
-                                                                                       ensure: 'file',
+            is_expected.to contain_file('/etc/audit/rules.d/10-no-audit.rules').with(
+              ensure: 'file',
               source: 'file:///usr/share/doc/audit-2.8.5/rules/10-no-audit.rules',
-                                                                                     }).that_notifies('Class[auditd::service]')
+            ).that_notifies('Class[auditd::service]')
 
-            is_expected.to contain_file('/etc/audit/rules.d/99-finalize.rules').with({
-                                                                                       ensure: 'file',
+            is_expected.to contain_file('/etc/audit/rules.d/99-finalize.rules').with(
+              ensure: 'file',
               source: 'file:///usr/share/doc/audit-2.8.5/rules/99-finalize.rules',
-                                                                                     }).that_notifies('Class[auditd::service]')
+            ).that_notifies('Class[auditd::service]')
           end
         }
       end
@@ -109,43 +109,51 @@ describe 'auditd' do
 
           is_expected.to compile.with_all_deps
           if facts[:auditd_major_version] == '3'
-            is_expected.to contain_exec('generate_privileged_script').with({
-                                                                             command: "sha512sum /usr/share/audit/sample-rules/31-privileged.rules > /usr/share/audit/sample-rules/.31-privileged.rules.sha512 && sed -e 's|^#||' -e 's|>[[:space:]][[:alnum:]]*.rules|> /usr/share/audit/sample-rules/31-privileged.rules.evaluated|' /usr/share/audit/sample-rules/31-privileged.rules > /usr/local/sbin/generate_privileged_audit_sample_rules.sh",
+            is_expected.to contain_exec('generate_privileged_script').with(
+              command: [
+                'sha512sum /usr/share/audit/sample-rules/31-privileged.rules > /usr/share/audit/sample-rules/.31-privileged.rules.sha512',
+                "&& sed -e 's|^#||' -e 's|>[[:space:]][[:alnum:]]*.rules|> /usr/share/audit/sample-rules/31-privileged.rules.evaluated|' /usr/share/audit/sample-rules/31-privileged.rules",
+                '> /usr/local/sbin/generate_privileged_audit_sample_rules.sh',
+              ].join(' '),
               path: ['/usr/bin', '/usr/sbin', '/bin', '/sbin'],
               unless: [
                 'test -f /usr/share/audit/sample-rules/.31-privileged.rules.sha512',
                 'sha512sum -c --status /usr/share/audit/sample-rules/.31-privileged.rules.sha512',
               ],
-                                                                           }).that_notifies('Exec[build_privileged_ruleset]')
+            ).that_notifies('Exec[build_privileged_ruleset]')
 
-            is_expected.to contain_exec('build_privileged_ruleset').with({
-                                                                           command: '/bin/bash "/usr/local/sbin/generate_privileged_audit_sample_rules.sh"',
+            is_expected.to contain_exec('build_privileged_ruleset').with(
+              command: '/bin/bash "/usr/local/sbin/generate_privileged_audit_sample_rules.sh"',
               refreshonly: true,
-                                                                         })
+            )
 
-            is_expected.to contain_file('/etc/audit/rules.d/31-privileged.rules').with({
-                                                                                         ensure: 'file',
+            is_expected.to contain_file('/etc/audit/rules.d/31-privileged.rules').with(
+              ensure: 'file',
               source: 'file:///usr/share/audit/sample-rules/31-privileged.rules.evaluated',
-                                                                                       }).that_notifies('Class[auditd::service]').that_requires('Exec[build_privileged_ruleset]')
+            ).that_notifies('Class[auditd::service]').that_requires('Exec[build_privileged_ruleset]')
           else
-            is_expected.to contain_exec('generate_privileged_script').with({
-                                                                             command: "sha512sum /usr/share/doc/audit-2.8.5/rules/31-privileged.rules > /usr/share/doc/audit-2.8.5/rules/.31-privileged.rules.sha512 && sed -e 's|^#||' -e 's|>[[:space:]][[:alnum:]]*.rules|> /usr/share/doc/audit-2.8.5/rules/31-privileged.rules.evaluated|' /usr/share/doc/audit-2.8.5/rules/31-privileged.rules > /usr/local/sbin/generate_privileged_audit_sample_rules.sh",
+            is_expected.to contain_exec('generate_privileged_script').with(
+              command: [
+                'sha512sum /usr/share/doc/audit-2.8.5/rules/31-privileged.rules > /usr/share/doc/audit-2.8.5/rules/.31-privileged.rules.sha512',
+                "&& sed -e 's|^#||' -e 's|>[[:space:]][[:alnum:]]*.rules|> /usr/share/doc/audit-2.8.5/rules/31-privileged.rules.evaluated|' /usr/share/doc/audit-2.8.5/rules/31-privileged.rules",
+                '> /usr/local/sbin/generate_privileged_audit_sample_rules.sh',
+              ].join(' '),
               path: ['/usr/bin', '/usr/sbin', '/bin', '/sbin'],
               unless: [
                 'test -f /usr/share/doc/audit-2.8.5/rules/.31-privileged.rules.sha512',
                 'sha512sum -c --status /usr/share/doc/audit-2.8.5/rules/.31-privileged.rules.sha512',
               ],
-                                                                           }).that_notifies('Exec[build_privileged_ruleset]')
+            ).that_notifies('Exec[build_privileged_ruleset]')
 
-            is_expected.to contain_exec('build_privileged_ruleset').with({
-                                                                           command: '/bin/bash "/usr/local/sbin/generate_privileged_audit_sample_rules.sh"',
+            is_expected.to contain_exec('build_privileged_ruleset').with(
+              command: '/bin/bash "/usr/local/sbin/generate_privileged_audit_sample_rules.sh"',
               refreshonly: true,
-                                                                         })
+            )
 
-            is_expected.to contain_file('/etc/audit/rules.d/31-privileged.rules').with({
-                                                                                         ensure: 'file',
+            is_expected.to contain_file('/etc/audit/rules.d/31-privileged.rules').with(
+              ensure: 'file',
               source: 'file:///usr/share/doc/audit-2.8.5/rules/31-privileged.rules.evaluated',
-                                                                                       }).that_notifies('Class[auditd::service]').that_requires('Exec[build_privileged_ruleset]')
+            ).that_notifies('Class[auditd::service]').that_requires('Exec[build_privileged_ruleset]')
           end
         }
       end
@@ -213,36 +221,36 @@ describe 'auditd' do
         # audit::config::audit_profiles::built_in validation
         it {
           if facts[:auditd_major_version] == '3'
-            is_expected.to contain_file('/etc/audit/rules.d/10-base-config.rules').with({
-                                                                                          ensure: 'file',
+            is_expected.to contain_file('/etc/audit/rules.d/10-base-config.rules').with(
+              ensure: 'file',
               source: 'file:///usr/share/audit/sample-rules/10-base-config.rules',
-                                                                                        }).that_notifies('Class[auditd::service]')
+            ).that_notifies('Class[auditd::service]')
 
-            is_expected.to contain_file('/etc/audit/rules.d/10-no-audit.rules').with({
-                                                                                       ensure: 'file',
+            is_expected.to contain_file('/etc/audit/rules.d/10-no-audit.rules').with(
+              ensure: 'file',
               source: 'file:///usr/share/audit/sample-rules/10-no-audit.rules',
-                                                                                     }).that_notifies('Class[auditd::service]')
+            ).that_notifies('Class[auditd::service]')
 
-            is_expected.to contain_file('/etc/audit/rules.d/99-finalize.rules').with({
-                                                                                       ensure: 'file',
+            is_expected.to contain_file('/etc/audit/rules.d/99-finalize.rules').with(
+              ensure: 'file',
               source: 'file:///usr/share/audit/sample-rules/99-finalize.rules',
-                                                                                     }).that_notifies('Class[auditd::service]')
+            ).that_notifies('Class[auditd::service]')
 
           else
-            is_expected.to contain_file('/etc/audit/rules.d/10-base-config.rules').with({
-                                                                                          ensure: 'file',
+            is_expected.to contain_file('/etc/audit/rules.d/10-base-config.rules').with(
+              ensure: 'file',
               source: 'file:///usr/share/doc/audit-2.8.5/rules/10-base-config.rules',
-                                                                                        }).that_notifies('Class[auditd::service]')
+            ).that_notifies('Class[auditd::service]')
 
-            is_expected.to contain_file('/etc/audit/rules.d/10-no-audit.rules').with({
-                                                                                       ensure: 'file',
+            is_expected.to contain_file('/etc/audit/rules.d/10-no-audit.rules').with(
+              ensure: 'file',
               source: 'file:///usr/share/doc/audit-2.8.5/rules/10-no-audit.rules',
-                                                                                     }).that_notifies('Class[auditd::service]')
+            ).that_notifies('Class[auditd::service]')
 
-            is_expected.to contain_file('/etc/audit/rules.d/99-finalize.rules').with({
-                                                                                       ensure: 'file',
+            is_expected.to contain_file('/etc/audit/rules.d/99-finalize.rules').with(
+              ensure: 'file',
               source: 'file:///usr/share/doc/audit-2.8.5/rules/99-finalize.rules',
-                                                                                     }).that_notifies('Class[auditd::service]')
+            ).that_notifies('Class[auditd::service]')
           end
           is_expected.to contain_notify('bad_sample_set not found')
         }

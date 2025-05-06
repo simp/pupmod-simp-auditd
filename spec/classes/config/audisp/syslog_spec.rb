@@ -22,40 +22,40 @@ describe 'auditd::config::audisp::syslog' do
             let(:facts) { os_facts.merge(more_facts) }
             context 'without any parameters' do
               let(:params) { {} }
-              let(:expected_content2) do
-                <<EOM
-# This File is managed by Puppet
-#
-# This file controls the configuration of the syslog plugin.
-active = yes
-direction = out
-path = builtin_syslog
-type = builtin
-args = LOG_INFO LOG_LOCAL5
-format = string
-EOM
+              let(:expected_content_v2) do # rubocop:disable RSpec/IndexedLet
+                <<~EOM
+                  # This File is managed by Puppet
+                  #
+                  # This file controls the configuration of the syslog plugin.
+                  active = yes
+                  direction = out
+                  path = builtin_syslog
+                  type = builtin
+                  args = LOG_INFO LOG_LOCAL5
+                  format = string
+                EOM
               end
-              let(:expected_content3) do
-                <<EOM
-# This File is managed by Puppet
-#
-# This file controls the configuration of the syslog plugin.
-active = yes
-direction = out
-path = /bin/audisp-syslog
-type = always
-args = LOG_INFO LOG_LOCAL5
-format = string
-EOM
+              let(:expected_content_v3) do # rubocop:disable RSpec/IndexedLet
+                <<~EOM
+                  # This File is managed by Puppet
+                  #
+                  # This file controls the configuration of the syslog plugin.
+                  active = yes
+                  direction = out
+                  path = /bin/audisp-syslog
+                  type = always
+                  args = LOG_INFO LOG_LOCAL5
+                  format = string
+                EOM
               end
 
               it { is_expected.to compile.with_all_deps }
               it {
                 if facts['auditd_major_version'] == '3'
-                  is_expected.to contain_file('/etc/audit/plugins.d/syslog.conf').with_content(expected_content3)
+                  is_expected.to contain_file('/etc/audit/plugins.d/syslog.conf').with_content(expected_content_v3)
                   is_expected.to contain_package('audisp-syslog')
                 else
-                  is_expected.to contain_file('/etc/audisp/plugins.d/syslog.conf').with_content(expected_content2)
+                  is_expected.to contain_file('/etc/audisp/plugins.d/syslog.conf').with_content(expected_content_v2)
                   is_expected.not_to contain_package('audisp-syslog')
                 end
               }
@@ -71,39 +71,39 @@ EOM
                priority: 'LOG_NOTICE'
                 }
               end
-              let(:expected_content2) do
-                <<EOM
-# This File is managed by Puppet
-#
-# This file controls the configuration of the syslog plugin.
-active = no
-direction = out
-path = builtin_syslog
-type = builtin
-args = LOG_NOTICE LOG_LOCAL6
-format = string
-EOM
+              let(:expected_content_v2) do # rubocop:disable RSpec/IndexedLet
+                <<~EOM
+                  # This File is managed by Puppet
+                  #
+                  # This file controls the configuration of the syslog plugin.
+                  active = no
+                  direction = out
+                  path = builtin_syslog
+                  type = builtin
+                  args = LOG_NOTICE LOG_LOCAL6
+                  format = string
+                EOM
               end
-              let(:expected_content3) do
-                <<EOM
-# This File is managed by Puppet
-#
-# This file controls the configuration of the syslog plugin.
-active = no
-direction = out
-path = /bin/audisp-syslog
-type = always
-args = LOG_NOTICE LOG_LOCAL6
-format = string
-EOM
+              let(:expected_content_v3) do # rubocop:disable RSpec/IndexedLet
+                <<~EOM
+                  # This File is managed by Puppet
+                  #
+                  # This file controls the configuration of the syslog plugin.
+                  active = no
+                  direction = out
+                  path = /bin/audisp-syslog
+                  type = always
+                  args = LOG_NOTICE LOG_LOCAL6
+                  format = string
+                EOM
               end
 
               it { is_expected.to compile.with_all_deps }
               it {
                 if facts['auditd_major_version'] == '3'
-                  is_expected.to contain_file('/etc/audit/plugins.d/syslog.conf').with_content(expected_content3)
+                  is_expected.to contain_file('/etc/audit/plugins.d/syslog.conf').with_content(expected_content_v3)
                 else
-                  is_expected.to contain_file('/etc/audisp/plugins.d/syslog.conf').with_content(expected_content2)
+                  is_expected.to contain_file('/etc/audisp/plugins.d/syslog.conf').with_content(expected_content_v2)
                 end
                 is_expected.not_to contain_package('audisp-syslog')
               }

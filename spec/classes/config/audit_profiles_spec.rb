@@ -8,16 +8,16 @@ describe 'auditd' do
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
       let(:facts) do
-        _facts = Marshal.load(Marshal.dump(os_facts))
-        unless _facts[:auditd_major_version]
-          _facts[:auditd_major_version] = if _facts[:os][:release][:major] < '8'
-                                            '2'
-                                          else
-                                            '3'
-                                          end
+        f = Marshal.load(Marshal.dump(os_facts))
+        unless f[:auditd_major_version]
+          f[:auditd_major_version] = if f[:os][:release][:major] < '8'
+                                       '2'
+                                     else
+                                       '3'
+                                     end
         end
 
-        _facts
+        f
       end
 
       context 'with default parameters' do

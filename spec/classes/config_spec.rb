@@ -207,10 +207,10 @@ describe 'auditd' do
         ].each do |more_facts|
           context "with auditd version #{more_facts[:auditd_major_version].inspect}" do
             let(:facts) do
-              _facts = Marshal.load(Marshal.dump(os_facts))
-              _facts[:auditd_version] = more_facts[:auditd_version]
-              _facts[:auditd_major_version] = more_facts[:auditd_major_version]
-              _facts
+              f = Marshal.load(Marshal.dump(os_facts))
+              f[:auditd_version] = more_facts[:auditd_version]
+              f[:auditd_major_version] = more_facts[:auditd_major_version]
+              f
             end
             let(:expected_content) do
               <<-EOM.gsub(%r{^\s+}, '')
