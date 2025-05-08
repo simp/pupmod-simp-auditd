@@ -1,3 +1,8 @@
+* Thu May 08 2025 Richard Gardner <rick@sicura-us> - 9.0.0
+- Remove EOL OS's support (EL7, CentOS8)
+- Stardardize beaker nodesets
+- beaker test improvements
+
 * Mon Nov 25 2024 Steven Pritchard <steve@sicura-us> - 8.14.4
 - Fix more use of legacy facts
 

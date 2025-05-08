@@ -111,7 +111,7 @@ class auditd::config::audisp::syslog (
       # servers and/or written to local syslog files, but you still have
       # access to the records in the local audit log files.
       rsyslog::rule::drop { 'audispd':
-        rule   => '$programname == \'audispd\'',
+        rule => '$programname == \'audispd\'',
       }
     }
   }
