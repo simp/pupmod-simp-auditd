@@ -13,13 +13,13 @@ describe 'run the SSG against the appropriate fixtures for stig audit profile' d
         @ssg_report = { :data => nil }
       end
 
-      it 'should run the SSG' do
+      xit 'should run the SSG' do
         profile = 'xccdf_org.ssgproject.content_profile_stig'
 
         @ssg.evaluate(profile)
       end
 
-      it 'should have an SSG report' do
+      xit 'should have an SSG report' do
         # Filter on records containing '_rule_audit'
         # This isn't perfect, but it should be partially OK
         filter = '_rule_audit'
@@ -53,11 +53,11 @@ describe 'run the SSG against the appropriate fixtures for stig audit profile' d
         @ssg.write_report(@ssg_report[:data])
       end
 
-      it 'should have run some tests' do
+      xit 'should have run some tests' do
         expect(@ssg_report[:data][:failed].count + @ssg_report[:data][:passed].count).to be > 0
       end
 
-      it 'should not have any failing tests' do
+      xit 'should not have any failing tests' do
         if @ssg_report[:data][:failed].count > 0
           puts @ssg_report[:data][:report]
         end

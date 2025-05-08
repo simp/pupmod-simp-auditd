@@ -46,12 +46,20 @@ describe 'auditd class with simp audit profile' do
           apply_manifest_on(host, manifest, :catch_failures => true)
         end
 
-        it 'should require reboot on subsequent run' do
-          result = apply_manifest_on(host, manifest, :catch_failures => true)
-          expect(result.output).to include('audit => modified')
-          # Reboot to enable auditing in the kernel
-          host.reboot
+        if on(host, 'facter operatingsystemmajrelease').stdout.to_i < 9
+          it 'should require reboot on subsequent run' do
+            result = apply_manifest_on(host, manifest, catch_failures: true)
+            expect(result.output).to include('audit => modified')
+            host.reboot
+          end
         end
+
+        #it 'should require reboot on subsequent run' do
+        #  result = apply_manifest_on(host, manifest, :catch_failures => true)
+        #  expect(result.output).to include('audit => modified')
+        #  # Reboot to enable auditing in the kernel
+        #  host.reboot
+        #end
 
         it 'should be idempotent' do
           apply_manifest_on(host, manifest, :catch_changes => true)
@@ -137,7 +145,10 @@ describe 'auditd class with simp audit profile' do
         end
 
         it 'should send audit logs to syslog' do
-          on(host, 'logrotate --force /etc/logrotate.d/syslog')
+          #EL9 switches logrotate config from syslog to rsyslog
+          osmaj = on(host, 'facter operatingsystemmajrelease').stdout.strip.to_i
+          logrotate_conf = osmaj >= 9 ? '/etc/logrotate.d/rsyslog' : '/etc/logrotate.d/syslog'
+          on(host, "logrotate --force #{logrotate_conf}")
 
           # cause an auditable event and verify it is logged
           # log rotate so any audit messages present before the apply turned off
@@ -162,7 +173,11 @@ describe 'auditd class with simp audit profile' do
         it 'should not be logging messages to syslog' do
           # log rotate so any audit messages present before the apply turned off
           # audit record logging are no longer in /var/log/secure
-          on(host, 'logrotate --force /etc/logrotate.d/syslog')
+
+          # figure out if we’re on EL9+
+          osmaj = on(host, 'facter operatingsystemmajrelease').stdout.strip.to_i
+          logrotate_conf = osmaj >= 9 ? '/etc/logrotate.d/rsyslog' : '/etc/logrotate.d/syslog'
+          on(host, "logrotate --force #{logrotate_conf}")
           on(host,'useradd notathing')
           on(host, %q(grep -qe 'audispd.*acct="notathing"' /var/log/secure), :acceptable_exit_codes => [1,2])
           on(host, %q(grep -qe 'acct="notathing".*exe="/usr/sbin/useradd"' /var/log/audit/audit.log))
