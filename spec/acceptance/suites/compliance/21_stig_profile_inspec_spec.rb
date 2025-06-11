@@ -17,6 +17,7 @@ describe 'run inspec against the appropriate fixtures for stig audit profile' do
             )
 
           if File.exist?(profile_path)
+            # rubocop:disable RSpec/InstanceVariable
             before(:all) do
               @inspec = Simp::BeakerHelpers::Inspec.new(host, profile)
 
@@ -52,8 +53,9 @@ describe 'run inspec against the appropriate fixtures for stig audit profile' do
 
               expect(@inspec_report[:data][:score]).to eq(100)
             end
+            # rubocop:enable RSpec/InstanceVariable
           else
-            it 'runs inspec' do
+            it 'runs inspec without a matching profile' do
               skip("No matching profile available at #{profile_path}")
             end
           end
