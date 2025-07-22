@@ -48,7 +48,7 @@ describe 'auditd class with simp audit profile' do
 
         it 'should require reboot on subsequent run' do
           result = apply_manifest_on(host, manifest, :catch_failures => true)
-          expect(result.output).to include('audit => modified')
+          expect(result.output).to include('auditd service => The auditd service cannot be started when the kernel is not enforcing auditing')
           # Reboot to enable auditing in the kernel
           host.reboot
         end
