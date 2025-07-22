@@ -134,18 +134,15 @@ jobs:
     strategy:
       matrix:
         node:
-          - docker_alma8
-          - docker_alma9
-          - docker_alma10
-          - docker_centos9
-          - docker_centos10
-          - docker_oel8
-          - docker_oel9
-          - docker_rhel8
-          - docker_rhel9
-          - docker_rhel10
-          - docker_rocky8
-          - docker_rocky9
+          - almalinux8
+          - almalinux9
+          - default
+          - oel8
+          - oel9
+          - rhel8
+          - rhel9
+          - rocky8
+          - rocky9
       fail-fast: false
     steps:
       - name: checkout repo
