@@ -12,7 +12,7 @@ HOSTS:
       # Puppet Deps
       - 'yum install -y rsync openssl openssh-server'
       # Ensure audit is installed
-      - 'yum install -y audit'
+      - 'yum install -y auditd'
 CONFIG:
   log_level: verbose
   type: aio
