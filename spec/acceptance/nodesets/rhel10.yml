@@ -6,6 +6,8 @@ HOSTS:
     platform: el-10-x86_64
     box: generic/rhel10
     hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
+    vagrant_memsize: 2048
+    vagrant_cpus: 2
     yum_repos:
       epel:
         mirrorlist: https://mirrors.fedoraproject.org/metalink?repo=epel-10&arch=$basearch

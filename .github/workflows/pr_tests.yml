@@ -153,11 +153,14 @@ jobs:
           ruby-version: 3.2
       - name: bundle install
         run: |
-          bundle install
-      - name: Setup podman
+          bundle install   
+      - name: Setup libvirt for Vagrant
+        if: ${{ inputs.beaker_hypervisor == 'vagrant_libvirt' && inputs.install_vagrant_dependencies == true }}
         run: |
-          systemctl start --user podman.socket
-          echo "DOCKER_HOST=unix:///run/user/$(id -u)/podman/podman.sock" >> "$GITHUB_ENV"
+          sudo add-apt-repository ppa:evgeni/vagrant
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends vagrant vagrant-libvirt libvirt-daemon-system libvirt-daemon qemu-system-x86 qemu-utils dnsmasq
+          sudo chmod 666 /var/run/libvirt/libvirt-sock
       - name: beaker
         run: |
           bundle exec rake beaker:suites[default,${{ matrix.node }}]
