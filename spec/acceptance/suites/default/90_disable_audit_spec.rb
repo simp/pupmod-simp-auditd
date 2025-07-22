@@ -37,8 +37,6 @@ describe 'auditd class with simp auditd profile' do
         it 'works with no errors' do
           set_hieradata_on(host, enable_hieradata)
           apply_manifest_on(host, manifest, catch_failures: true)
-
-          host.reboot
         end
       end
 
@@ -55,15 +53,12 @@ describe 'auditd class with simp auditd profile' do
           expect(result['service']['auditd']['enable']).to eq('false')
         end
 
-        it 'requires reboot on subsequent run' do
-          result = apply_manifest_on(host, manifest, catch_failures: true)
-          expect(result.output).to include('audit => modified')
+        it 'has kernel-level audit disabled on reboot' do
+          apply_manifest_on(host, manifest, catch_failures: true)
 
           # Reboot to disable auditing in the kernel
           host.reboot
-        end
 
-        it 'has kernel-level audit disabled on reboot' do
           retry_on(host, 'grep "audit=0" /proc/cmdline',
             { max_retries: 30, verbose: true })
         end

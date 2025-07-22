@@ -22,26 +22,24 @@
 # @author https://github.com/simp/pupmod-simp-auditd/graphs/contributors
 #
 class auditd::service (
-  Variant[String[1],Boolean] $ensure                  = pick(getvar('auditd::enable'), 'running'),
-  Boolean                    $enable                  = pick(getvar('auditd::enable'), true),
-  Boolean                    $bypass_kernel_check     = false,
-  Boolean                    $warn_if_reboot_required = true
-){
+  Variant[String[1],Boolean] $ensure                  = $auditd::enable,
+  Boolean                    $enable                  = $auditd::enable,
+  Boolean                    $warn_if_reboot_required = $auditd::warn_if_reboot_required
+) {
   assert_private()
 
-  if $bypass_kernel_check or $facts.dig('simplib__auditd', 'kernel_enforcing') {
+  if $warn_if_reboot_required {
+    reboot_notify { "${auditd::service_name} service":
+      reason => "The ${auditd::service_name} service cannot be started when the kernel is not enforcing auditing",
+    }
+  }
+  else {
     # CCE-27058-7
     service { $auditd::service_name:
       ensure  => $ensure,
       enable  => $enable,
-      start   => "/sbin/service ${auditd::service_name} start",
-      stop    => "/sbin/service ${auditd::service_name} stop",
-      restart => "/sbin/service ${auditd::service_name} restart"
-    }
-  }
-  elsif $warn_if_reboot_required {
-    reboot_notify { "${auditd::service_name} service":
-      reason =>  "The ${auditd::service_name} service cannot be started when the kernel is not enforcing auditing"
+      stop    => "${auditd::auditctl_command} --signal stop",
+      restart => "${auditd::auditctl_command} --signal stop; /usr/bin/systemctl start ${auditd::service_name}",
     }
   }
 }
