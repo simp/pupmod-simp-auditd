@@ -136,13 +136,7 @@ jobs:
         node:
           - almalinux8
           - almalinux9
-          - default
-          - oel8
-          - oel9
-          - rhel8
-          - rhel9
-          - rocky8
-          - rocky9
+          - almalinux10
       fail-fast: false
     steps:
       - name: checkout repo
