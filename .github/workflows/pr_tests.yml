@@ -153,9 +153,8 @@ jobs:
           ruby-version: 3.2
       - name: bundle install
         run: |
-          bundle install   
+          bundle install
       - name: Setup libvirt for Vagrant
-        if: ${{ inputs.beaker_hypervisor == 'vagrant_libvirt' && inputs.install_vagrant_dependencies == true }}
         run: |
           sudo add-apt-repository ppa:evgeni/vagrant
           sudo apt-get update
