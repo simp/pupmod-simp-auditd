@@ -26,9 +26,6 @@ on:
   pull_request:
     types: [opened, reopened, synchronize]
 
-env:
-  PUPPET_VERSION: '~> 7'
-
 jobs:
   puppet-syntax:
     name: 'Puppet Syntax'
