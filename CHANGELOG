@@ -1,3 +1,7 @@
+* Tue Jul 22 2025 Mike Riddle <mike@sicura.us> - 9.0.0
+- Removed EL 7 support
+- Added EL 10 support
+
 * Mon Nov 25 2024 Steven Pritchard <steve@sicura-us> - 8.14.4
 - Fix more use of legacy facts
 

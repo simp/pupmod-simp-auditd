@@ -1,21 +1,8 @@
 ---
 HOSTS:
-  oel7:
-    roles:
-    - default
-    - el7
-    platform: el-7-x86_64
-    box: generic/oracle7
-    hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
-    yum_repos:
-      chef-current:
-        baseurl: https://packages.chef.io/repos/yum/current/el/7/$basearch
-        gpgkeys:
-        - https://packages.chef.io/chef.asc
-    family: sicura-image-build/oracle-linux-7
-    gce_machine_type: n1-standard-2
   oel8:
     roles:
+    - default
     - el8
     platform: el-8-x86_64
     box: generic/oracle8
