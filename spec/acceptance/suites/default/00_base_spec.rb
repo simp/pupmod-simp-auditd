@@ -49,7 +49,7 @@ describe 'auditd class with simp audit profile' do
         end
 
         it 'should require reboot on subsequent run' do
-          result = apply_manifest_on(host, manifest, :catch_failures => true)
+          result = apply_manifest_on(host, manifest, :catch_failures => false)
           expect(result.output).to include('audit => modified')
           # Reboot to enable auditing in the kernel
           host.reboot
