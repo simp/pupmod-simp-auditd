@@ -41,9 +41,11 @@ describe 'auditd class with simp audit profile' do
   hosts.each do |host|
     context "on #{host}" do
       context 'default parameters' do
-        it 'should work with no errors' do
+        it 'should work with a guaranteed failure' do
           set_hieradata_on(host, hieradata)
-          apply_manifest_on(host, manifest, :catch_failures => true)
+          # There is a guaranteed failure here because the auditd service cannot be restarted due to configuration
+          # in the systemd: RefuseManualStop=yes.
+          apply_manifest_on(host, manifest, :catch_failures => false)
         end
 
         it 'should require reboot on subsequent run' do
