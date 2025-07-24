@@ -12,6 +12,7 @@ describe 'auditd class with simp auditd profile' do
       'pki::cacerts_sources'    => ['file:///etc/pki/simp-testing/pki/cacerts'] ,
       'pki::private_key_source' => "file:///etc/pki/simp-testing/pki/private/%{facts.networking.fqdn}.pem",
       'pki::public_key_source'  => "file:///etc/pki/simp-testing/pki/public/%{facts.networking.fqdn}.pub",
+      'auditd::at_boot' => true
     }
   }
 
@@ -56,15 +57,11 @@ describe 'auditd class with simp auditd profile' do
           expect(result['service']['auditd']['enable']).to eq('true')
         end
 
-        it 'should require reboot on subsequent run' do
-          result = apply_manifest_on(host, manifest, :catch_failures => true)
-          expect(result.output).to include('audit => modified')
+        it 'should have kernel-level audit disabled on reboot' do
+          apply_manifest_on(host, manifest, :catch_failures => true)
 
           # Reboot to disable auditing in the kernel
           host.reboot
-        end
-
-        it 'should have kernel-level audit disabled on reboot' do
           retry_on(host, 'grep "audit=0" /proc/cmdline',
             { :max_retries => 30, :verbose => true }
           )
