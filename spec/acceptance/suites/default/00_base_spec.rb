@@ -41,7 +41,7 @@ describe 'auditd class with simp audit profile' do
   hosts.each do |host|
     context "on #{host}" do
       context 'default parameters' do
-        it 'should work with a guaranteed failure' do
+        it 'should work without errors' do
           set_hieradata_on(host, hieradata)
           # There is a guaranteed failure here because the auditd service cannot be restarted due to configuration
           # in the systemd: RefuseManualStop=yes.
@@ -49,7 +49,7 @@ describe 'auditd class with simp audit profile' do
         end
 
         it 'should require reboot on subsequent run' do
-          result = apply_manifest_on(host, manifest, :catch_failures => false)
+          result = apply_manifest_on(host, manifest, :catch_failures => true)
           expect(result.output).to include('audit => modified')
           # Reboot to enable auditing in the kernel
           host.reboot
@@ -60,6 +60,7 @@ describe 'auditd class with simp audit profile' do
         end
 
         it 'should have kernel-level audit enabled on reboot' do
+          host.reboot
           on(host, 'grep "audit=1" /proc/cmdline')
         end
 
@@ -85,7 +86,7 @@ describe 'auditd class with simp audit profile' do
         it 'should not send audit logs to syslog' do
           # log rotate so any audit messages present before the apply turned off
           # audit record logging are no longer in /var/log/secure
-          on(host, 'logrotate --force /etc/logrotate.d/syslog; service rsyslog restart; sleep 2')
+          on(host, 'logrotate --force /etc/logrotate.d/rsyslog; service rsyslog restart; sleep 2')
           # cause an auditable event
           on(host,'useradd thing1')
           on(host, %q(grep -qe 'acct="thing1".*exe="/usr/sbin/useradd"' /var/log/audit/audit.log))
@@ -94,6 +95,7 @@ describe 'auditd class with simp audit profile' do
 
         it 'should fix incorrect permissions' do
           on(host, 'chmod 666 /var/log/audit/audit.log')
+          # Ensure that puppet runs clean after rebooting to pick up audit changes
           apply_manifest_on(host, manifest, :catch_failures => true)
           result = on(host, "/bin/find /var/log/audit/audit.log -perm 0600")
           expect(result.output).to include('/var/log/audit/audit.log')
@@ -139,7 +141,7 @@ describe 'auditd class with simp audit profile' do
         end
 
         it 'should send audit logs to syslog' do
-          on(host, 'logrotate --force /etc/logrotate.d/syslog')
+          on(host, 'logrotate --force /etc/logrotate.d/rsyslog')
 
           # cause an auditable event and verify it is logged
           # log rotate so any audit messages present before the apply turned off
@@ -164,7 +166,7 @@ describe 'auditd class with simp audit profile' do
         it 'should not be logging messages to syslog' do
           # log rotate so any audit messages present before the apply turned off
           # audit record logging are no longer in /var/log/secure
-          on(host, 'logrotate --force /etc/logrotate.d/syslog')
+          on(host, 'logrotate --force /etc/logrotate.d/rsyslog')
           on(host,'useradd notathing')
           on(host, %q(grep -qe 'audispd.*acct="notathing"' /var/log/secure), :acceptable_exit_codes => [1,2])
           on(host, %q(grep -qe 'acct="notathing".*exe="/usr/sbin/useradd"' /var/log/audit/audit.log))

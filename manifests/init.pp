@@ -207,7 +207,7 @@ class auditd (
   # Control Parameters
   Boolean                                 $enable                   = true,
   Optional[Variant[Enum['simp'],Boolean]] $default_audit_profile    = undef,
-  Array[Auditd::AuditProfile]             $default_audit_profiles   = [ 'simp' ],
+  Array[Auditd::AuditProfile]             $default_audit_profiles   = ['simp'],
   Boolean                                 $audit_auditd_config      = true,
   String                                  $lname                    = $facts['networking']['fqdn'],
 
@@ -254,16 +254,17 @@ class auditd (
   Integer[0]                              $rate                     = 0,
   Auditd::RootAuditLevel                  $root_audit_level         = 'basic',
   String[1]                               $service_name             = 'auditd',
+  String[1]                               $auditctl_command         = '/usr/sbin/auditctl',
+  Boolean                                 $warn_if_reboot_required  = false,
   Variant[Integer[0],Pattern['^\d+%$']]   $space_left               = auditd::calculate_space_left($admin_space_left),
   Auditd::SpaceLeftAction                 $space_left_action        = 'syslog',
-  Boolean                                 $syslog                   = simplib::lookup('simp_options::syslog', {'default_value' => false }),   # CCE-26933-2
+  Boolean                                 $syslog                   = simplib::lookup('simp_options::syslog', { 'default_value' => false }),   # CCE-26933-2
   Optional[Array[Pattern['^.*_t$']]]      $target_selinux_types     = undef,
   Integer[0]                              $uid_min                  = Integer(pick(fact('uid_min'), 1000)),
   Optional[Boolean]                       $verify_email             = undef,
   Boolean                                 $write_logs               = $log_format ? { /^(?i:nolog)$/ => false, default => true },
   Boolean                                 $purge_auditd_rules       = true,
 ) {
-
   include 'auditd::service'
 
   if $enable {
