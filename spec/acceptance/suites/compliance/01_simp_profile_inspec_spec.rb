@@ -17,33 +17,35 @@ describe 'run inspec against the appropriate fixtures for simp audit profile' do
             )
 
           if File.exist?(profile_path)
-            # rubocop:disable RSpec/InstanceVariable
-            before(:all) do
-              @inspec = Simp::BeakerHelpers::Inspec.new(host, profile)
-              @inspec_report = { data: nil }
+            let(:inspec) do
+              Simp::BeakerHelpers::Inspec.enable_repo_on(hosts)
+              Simp::BeakerHelpers::Inspec.new(host, profile)
             end
 
-            it 'runs inspec' do
-              @inspec.run
+            let(:inspec_report_data) do
+              inspec.run
+              inspec.process_inspec_results
+            end
+
+            it 'runs inspec successfully' do
+              expect { inspec.run }.not_to raise_error
             end
 
             it 'has an inspec report' do
-              @inspec_report[:data] = @inspec.process_inspec_results
-
               info = [
                 'Results:',
-                "  * Passed: #{@inspec_report[:data][:passed]}",
-                "  * Failed: #{@inspec_report[:data][:failed]}",
-                "  * Skipped: #{@inspec_report[:data][:skipped]}",
+                "  * Passed: #{inspec_report_data[:passed]}",
+                "  * Failed: #{inspec_report_data[:failed]}",
+                "  * Skipped: #{inspec_report_data[:skipped]}",
               ]
 
               puts info.join("\n")
 
-              @inspec.write_report(@inspec_report[:data])
+              inspec.write_report(inspec_report_data)
             end
 
             it 'has run some tests' do
-              expect(@inspec_report[:data][:failed] + @inspec_report[:data][:passed]).to be > 0
+              expect(inspec_report_data[:failed] + inspec_report_data[:passed]).to be > 0
             end
 
             it 'does not have any failing tests' do
@@ -56,13 +58,12 @@ describe 'run inspec against the appropriate fixtures for simp audit profile' do
               #    - inspec_profiles/profiles/disa_stig-el7-baseline/controls/V-72209.rb
               #    - inspec should skip, as rsyslog is not setup
 
-              if @inspec_report[:data][:failed] > 0
-                puts @inspec_report[:data][:report]
+              if inspec_report_data[:failed] > 0
+                puts inspec_report_data[:report]
               end
 
-              expect(@inspec_report[:data][:failed]).to eq(0)
+              expect(inspec_report_data[:failed]).to eq(0)
             end
-            # rubocop:enable RSpec/InstanceVariable
           else
             it 'runs inspec without a matching profile' do
               skip("No matching profile available at #{profile_path}")
