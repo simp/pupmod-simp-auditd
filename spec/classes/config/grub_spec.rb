@@ -36,7 +36,7 @@ describe 'auditd::config::grub' do
         context 'when disabled' do
           let(:params) do
             {
-              enable: false
+              enable: false,
             }
           end
 

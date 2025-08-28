@@ -66,9 +66,9 @@ describe 'auditd::config::audisp::syslog' do
               let(:params) do
                 {
                   enable: false,
-               rsyslog: true,
-               facility: 'LOG_LOCAL6',
-               priority: 'LOG_NOTICE'
+                  rsyslog: true,
+                  facility: 'LOG_LOCAL6',
+                  priority: 'LOG_NOTICE',
                 }
               end
               let(:expected_content_v2) do # rubocop:disable RSpec/IndexedLet
@@ -115,7 +115,7 @@ describe 'auditd::config::audisp::syslog' do
               # appropriate priority for /usr/bin/logger, but not audisp
               let(:params) do
                 {
-                  priority: 'warn'
+                  priority: 'warn',
                 }
               end
 
@@ -126,7 +126,7 @@ describe 'auditd::config::audisp::syslog' do
               # appropriate facility for /usr/bin/logger, but not audisp
               let(:params) do
                 {
-                  facility: 'local6'
+                  facility: 'local6',
                 }
               end
 

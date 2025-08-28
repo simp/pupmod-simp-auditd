@@ -71,7 +71,7 @@ describe 'auditd' do
       context 'targeting specific SELinux types' do
         let(:params) do
           {
-            target_selinux_types: ['unconfined_t', 'bob_t']
+            target_selinux_types: ['unconfined_t', 'bob_t'],
           }
         end
 

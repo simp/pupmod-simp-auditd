@@ -7,33 +7,33 @@ describe 'auditd class with simp audit profile' do
 
   let(:hieradata) do
     {
-      'simp_options::syslog'    => true,
-      'pki::cacerts_sources'    => ['file:///etc/pki/simp-testing/pki/cacerts'],
-      'pki::private_key_source' => 'file:///etc/pki/simp-testing/pki/private/%{facts.networking.fqdn}.pem',
-      'pki::public_key_source'  => 'file:///etc/pki/simp-testing/pki/public/%{facts.networking.fqdn}.pub',
+      'simp_options::syslog'                 => true,
+      'pki::cacerts_sources'                 => ['file:///etc/pki/simp-testing/pki/cacerts'],
+      'pki::private_key_source'              => 'file:///etc/pki/simp-testing/pki/private/%{facts.networking.fqdn}.pem',
+      'pki::public_key_source'               => 'file:///etc/pki/simp-testing/pki/public/%{facts.networking.fqdn}.pub',
       'rsyslog::config::main_msg_queue_size' => 4321,
     }
   end
 
   let(:enable_audit_messages) do
     {
-      'auditd::syslog' => true,
-      'auditd::config::audisp::syslog::enable' => true,
+      'auditd::syslog'                                  => true,
+      'auditd::config::audisp::syslog::enable'          => true,
       'auditd::config::audisp::syslog::drop_audit_logs' => false,
-      'auditd::config::audisp::syslog::priority' => 'LOG_NOTICE'
+      'auditd::config::audisp::syslog::priority'        => 'LOG_NOTICE'
     }.merge(hieradata)
   end
 
   let(:disable_audit_messages) do
     {
-      'auditd::config::audisp::syslog::enable' => false,
+      'auditd::config::audisp::syslog::enable'          => false,
       'auditd::config::audisp::syslog::syslog_priority' => 'LOG_NOTICE',
-      'auditd::syslog' => true
+      'auditd::syslog'                                  => true
     }.merge(hieradata)
   end
 
   let(:manifest) do
-    <<-EOS
+    <<~EOS
       class { 'auditd': }
     EOS
   end

@@ -36,7 +36,7 @@ describe 'auditd::rule' do
                 '-a always,exit -F dir=${logdir} -F uid!=puppet -p wa -k Puppet_Log',
                 '-a always,exit -F dir=${rundir} -F uid!=puppet -p wa -k Puppet_Run',
                 '-a always,exit -F dir=${ssldir} -F uid!=puppet -p wa -k Puppet_SSL',
-              ]
+              ],
             }
           end
 
@@ -71,7 +71,7 @@ describe 'auditd::rule' do
           let(:params) do
             {
               order: '10',
-           content: '-a always,exit -F dir=${confdir} -F uid!=puppet -p wa -k Puppet_Config'
+              content: '-a always,exit -F dir=${confdir} -F uid!=puppet -p wa -k Puppet_Config',
             }
           end
 
@@ -85,7 +85,7 @@ describe 'auditd::rule' do
           let(:params) do
             {
               first: true,
-           content: 'audit stuff'
+              content: 'audit stuff',
             }
           end
 
@@ -99,8 +99,8 @@ describe 'auditd::rule' do
           let(:params) do
             {
               first: true,
-           absolute: true,
-           content: 'audit stuff'
+              absolute: true,
+              content: 'audit stuff',
             }
           end
 
@@ -114,7 +114,7 @@ describe 'auditd::rule' do
           let(:params) do
             {
               prepend: true,
-           content: 'audit stuff'
+              content: 'audit stuff',
             }
           end
 

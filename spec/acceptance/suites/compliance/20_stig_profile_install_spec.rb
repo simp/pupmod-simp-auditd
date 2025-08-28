@@ -4,43 +4,43 @@ test_name 'auditd STIG enforcement of stig profile'
 
 describe 'auditd STIG enforcement of stig profile' do
   let(:manifest) do
-    <<-EOS
+    <<~EOS
       include 'auditd'
     EOS
   end
 
   let(:hieradata) do
-    <<-EOF
----
-simp_options::pki: true
-simp_options::pki::source: '/etc/pki/simp-testing/pki'
-auditd::default_audit_profiles:
-  - 'stig'
+    <<~EOF
+      ---
+      simp_options::pki: true
+      simp_options::pki::source: '/etc/pki/simp-testing/pki'
+      auditd::default_audit_profiles:
+        - 'stig'
 
-compliance_markup::enforcement:
-  - 'disa_stig'
+      compliance_markup::enforcement:
+        - 'disa_stig'
 
-# Add extra setuid/setgid commands installed on the centos7 vbox
-# - OSCAP scan for 'stig' profile fails otherwise
-# - Inspec scan for 'stig' profile does *NOT* fail otherwise
-auditd::config::audit_profiles::stig::suid_sgid_cmds:
-  - '/usr/bin/screen'
-  EOF
+      # Add extra setuid/setgid commands installed on the centos7 vbox
+      # - OSCAP scan for 'stig' profile fails otherwise
+      # - Inspec scan for 'stig' profile does *NOT* fail otherwise
+      auditd::config::audit_profiles::stig::suid_sgid_cmds:
+        - '/usr/bin/screen'
+    EOF
   end
 
   hosts.each do |host|
     let(:hiera_yaml) do
-      <<-EOM
----
-version: 5
-hierarchy:
-  - name: Common
-    path: common.yaml
-  - name: Compliance
-    lookup_key: compliance_markup::enforcement
-defaults:
-  data_hash: yaml_data
-  datadir: "#{hiera_datadir(host)}"
+      <<~EOM
+        ---
+        version: 5
+        hierarchy:
+          - name: Common
+            path: common.yaml
+          - name: Compliance
+            lookup_key: compliance_markup::enforcement
+        defaults:
+          data_hash: yaml_data
+          datadir: "#{hiera_datadir(host)}"
       EOM
     end
 

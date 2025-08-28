@@ -20,8 +20,8 @@ describe 'auditd' do
               auditd_version: '2.4.1',
               simplib__auditd: {
                 'enabled' => true,
-                'kernel_enforcing' => true
-              }
+                'kernel_enforcing' => true,
+              },
             },
           )
         end
@@ -35,13 +35,13 @@ describe 'auditd' do
 
           it_behaves_like 'a structured module'
           it {
-            is_expected.to contain_service('auditd').with({
-                                                            ensure: true,
+            is_expected.to contain_service('auditd').with(
+              ensure: true,
               enable: true,
               start: '/sbin/service auditd start',
               stop: '/sbin/service auditd stop',
-              restart: '/sbin/service auditd restart'
-                                                          })
+              restart: '/sbin/service auditd restart',
+            )
           }
           it { is_expected.to contain_class('auditd::install').that_comes_before('Class[auditd::config::grub]') }
           it { is_expected.to contain_class('auditd::config::grub').with_enable(true) }
@@ -60,7 +60,7 @@ describe 'auditd' do
           let(:params) do
             {
               space_left: 20,
-           admin_space_left: 25
+              admin_space_left: 25,
             }
           end
 
@@ -70,7 +70,7 @@ describe 'auditd' do
         context 'with space_left as a percentage' do
           let(:params) do
             {
-              space_left: '20%'
+              space_left: '20%',
             }
           end
 
@@ -80,7 +80,7 @@ describe 'auditd' do
         context 'with space_left as a percentage' do
           let(:params) do
             {
-              admin_space_left: '20%'
+              admin_space_left: '20%',
             }
           end
 
@@ -95,7 +95,7 @@ describe 'auditd' do
           context 'with space_left as a percentage' do
             let(:params) do
               {
-                space_left: '20%'
+                space_left: '20%',
               }
             end
 
@@ -105,7 +105,7 @@ describe 'auditd' do
           context 'with admin_space_left as a percentage' do
             let(:params) do
               {
-                admin_space_left: '20%'
+                admin_space_left: '20%',
               }
             end
 
@@ -140,7 +140,7 @@ describe 'auditd' do
         context 'auditd with auditing disabled' do
           let(:params) do
             {
-              enable: false
+              enable: false,
             }
           end
 
@@ -158,8 +158,8 @@ describe 'auditd' do
       let(:facts) do
         {
           os: {
-            'name' => 'Solaris'
-          }
+            'name' => 'Solaris',
+          },
         }
       end
 

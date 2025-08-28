@@ -6,12 +6,12 @@ describe 'auditd::config::audit_profiles::custom' do
       let(:facts) { os_facts }
 
       let(:common_pre_condition) do
-        <<-EOM
+        <<~EOM
           function assert_private() { }
 
           class auditd::config (
             $profiles = ['custom'],
-            $config_file_mode = '0600'
+            $config_file_mode = '0600',
           ){}
           include auditd::config
         EOM
@@ -25,7 +25,7 @@ describe 'auditd::config::audit_profiles::custom' do
             rules: [
               'First Rule',
               'Second Rule',
-            ]
+            ],
           }
         end
 
@@ -37,12 +37,12 @@ describe 'auditd::config::audit_profiles::custom' do
         context 'with EPP template specified' do
           let(:params) do
             {
-              template: 'foo/bar.epp'
+              template: 'foo/bar.epp',
             }
           end
 
           let(:pre_condition) do
-            <<-EOM
+            <<~EOM
               #{common_pre_condition}
 
               function epp($arg) >> String { 'EPP!' }
@@ -56,12 +56,12 @@ describe 'auditd::config::audit_profiles::custom' do
         context 'with ERB template specified' do
           let(:params) do
             {
-              template: 'foo/bar.erb'
+              template: 'foo/bar.erb',
             }
           end
 
           let(:pre_condition) do
-            <<-EOM
+            <<~EOM
               #{common_pre_condition}
 
               function template($arg) >> String { 'ERB!' }
@@ -75,7 +75,7 @@ describe 'auditd::config::audit_profiles::custom' do
         context 'with an invalid template name specified' do
           let(:params) do
             {
-              template: 'foo/bar.bad'
+              template: 'foo/bar.bad',
             }
           end
 
@@ -92,7 +92,7 @@ describe 'auditd::config::audit_profiles::custom' do
           let(:params) do
             {
               rules: ['RULEZ'],
-           template: 'foo/bar.epp'
+              template: 'foo/bar.epp',
             }
           end
 
@@ -102,12 +102,12 @@ describe 'auditd::config::audit_profiles::custom' do
 
       context 'with other profiles specified' do
         let(:pre_condition) do
-          <<-EOM
+          <<~EOM
             function assert_private() { }
 
             class auditd::config (
               $profiles = ['simp', 'custom', 'stig'],
-              $config_file_mode = '0600'
+              $config_file_mode = '0600',
             ){}
             include auditd::config
           EOM
@@ -118,7 +118,7 @@ describe 'auditd::config::audit_profiles::custom' do
             rules: [
               'First Rule',
               'Second Rule',
-            ]
+            ],
           }
         end
 

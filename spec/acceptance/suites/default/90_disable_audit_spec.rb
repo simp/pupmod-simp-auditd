@@ -6,27 +6,27 @@ test_name 'disabling auditing via auditd class'
 describe 'auditd class with simp auditd profile' do
   let(:enable_hieradata) do
     YAML.safe_load <<~HIERA
-    ---
-    pki::cacerts_sources:
-    - 'file:///etc/pki/simp-testing/pki/cacerts'
-    pki::private_key_source: 'file:///etc/pki/simp-testing/pki/private/%{facts.networking.fqdn}.pem'
-    pki::public_key_source:  'file:///etc/pki/simp-testing/pki/public/%{facts.networking.fqdn}.pub'
+      ---
+      pki::cacerts_sources:
+      - 'file:///etc/pki/simp-testing/pki/cacerts'
+      pki::private_key_source: 'file:///etc/pki/simp-testing/pki/private/%{facts.networking.fqdn}.pem'
+      pki::public_key_source:  'file:///etc/pki/simp-testing/pki/public/%{facts.networking.fqdn}.pub'
     HIERA
   end
 
   let(:disable_hieradata) do
     YAML.safe_load <<~HIERA
-    ---
-    pki::cacerts_sources:
-    - 'file:///etc/pki/simp-testing/pki/cacerts'
-    pki::private_key_source: 'file:///etc/pki/simp-testing/pki/private/%{facts.networking.fqdn}.pem'
-    pki::public_key_source:  'file:///etc/pki/simp-testing/pki/public/%{facts.networking.fqdn}.pub'
-    auditd::enable: false
+      ---
+      pki::cacerts_sources:
+      - 'file:///etc/pki/simp-testing/pki/cacerts'
+      pki::private_key_source: 'file:///etc/pki/simp-testing/pki/private/%{facts.networking.fqdn}.pem'
+      pki::public_key_source:  'file:///etc/pki/simp-testing/pki/public/%{facts.networking.fqdn}.pub'
+      auditd::enable: false
     HIERA
   end
 
   let(:manifest) do
-    <<-EOS
+    <<~EOS
       class { 'auditd': }
     EOS
   end

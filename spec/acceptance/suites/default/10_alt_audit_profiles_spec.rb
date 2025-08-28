@@ -25,30 +25,30 @@ describe 'auditd class with alternative audit profiles' do
 
   let(:simp_profile_insane_enable_optional) do
     {
-      'auditd::root_audit_level'                                 => 'insane',
-      'auditd::config::audit_profiles::simp::audit_chmod'        => true,
+      'auditd::root_audit_level'                                  => 'insane',
+      'auditd::config::audit_profiles::simp::audit_chmod'         => true,
       'auditd::config::audit_profiles::simp::audit_rename_remove' => true,
-      'auditd::config::audit_profiles::simp::audit_umask'        => true,
-      'auditd::config::audit_profiles::simp::audit_selinux_cmds' => true,
-      'auditd::config::audit_profiles::simp::audit_yum_cmd'      => true,
-      'auditd::config::audit_profiles::simp::audit_rpm_cmd'      => true,
+      'auditd::config::audit_profiles::simp::audit_umask'         => true,
+      'auditd::config::audit_profiles::simp::audit_selinux_cmds'  => true,
+      'auditd::config::audit_profiles::simp::audit_yum_cmd'       => true,
+      'auditd::config::audit_profiles::simp::audit_rpm_cmd'       => true,
     }.merge(hieradata)
   end
 
   let(:stig_profile) do
     {
-      'auditd::default_audit_profiles' => [ 'stig' ]
+      'auditd::default_audit_profiles' => [ 'stig' ],
     }.merge(hieradata)
   end
 
   let(:simp_plus_stig_profiles) do
     {
-      'auditd::default_audit_profiles' => [ 'simp', 'stig' ]
+      'auditd::default_audit_profiles' => [ 'simp', 'stig' ],
     }.merge(hieradata)
   end
 
   let(:manifest) do
-    <<-EOS
+    <<~EOS
       class { 'auditd': }
     EOS
   end

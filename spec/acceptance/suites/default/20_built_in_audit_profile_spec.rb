@@ -81,7 +81,7 @@ describe 'auditd class with sample rulesets' do
   end
 
   let(:manifest) do
-    <<-EOS
+    <<~EOS
       class { 'auditd': }
     EOS
   end
