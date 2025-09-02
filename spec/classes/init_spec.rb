@@ -17,12 +17,12 @@ describe 'auditd' do
           os_facts.merge(
             {
               # Oldest version shipping with EL7
-              :auditd_version => '2.4.1',
-              :simplib__auditd => {
+              auditd_version: '2.4.1',
+              simplib__auditd: {
                 'enabled' => true,
-                'kernel_enforcing' => true
-              }
-            }
+                'kernel_enforcing' => true,
+              },
+            },
           )
         end
 
@@ -31,20 +31,21 @@ describe 'auditd' do
         end
 
         context 'auditd with default parameters' do
-          let(:params) {{ }}
+          let(:params) { {} }
+
           it_behaves_like 'a structured module'
           it {
-            is_expected.to contain_service('auditd').with({
-              :ensure  => true,
-              :enable  => true,
-              :start   => "/sbin/service auditd start",
-              :stop    => "/sbin/service auditd stop",
-              :restart => "/sbin/service auditd restart"
-            })
+            is_expected.to contain_service('auditd').with(
+              ensure: true,
+              enable: true,
+              start: '/sbin/service auditd start',
+              stop: '/sbin/service auditd stop',
+              restart: '/sbin/service auditd restart',
+            )
           }
           it { is_expected.to contain_class('auditd::install').that_comes_before('Class[auditd::config::grub]') }
           it { is_expected.to contain_class('auditd::config::grub').with_enable(true) }
-          it { is_expected.to_not contain_class('auditd::config::logging') }
+          it { is_expected.not_to contain_class('auditd::config::logging') }
 
           context 'on a host without grub' do
             let(:facts) { super().merge(grub_version: nil) }
@@ -56,32 +57,34 @@ describe 'auditd' do
         end
 
         context 'auditd with space_left < admin_space_left' do
-          let(:params) {{
-            :space_left       => 20,
-            :admin_space_left => 25
-          }}
+          let(:params) do
+            {
+              space_left: 20,
+              admin_space_left: 25,
+            }
+          end
 
-          it { is_expected.to compile.and_raise_error(/Auditd requires \$space_left to be greater than \$admin_space_left, otherwise it will not start/) }
+          it { is_expected.to compile.and_raise_error(%r{Auditd requires \$space_left to be greater than \$admin_space_left, otherwise it will not start}) }
         end
 
         context 'with space_left as a percentage' do
           let(:params) do
             {
-              :space_left => '20%'
+              space_left: '20%',
             }
           end
 
-          it { is_expected.to compile.and_raise_error(/cannot contain "%"/) }
+          it { is_expected.to compile.and_raise_error(%r{cannot contain "%"}) }
         end
 
         context 'with space_left as a percentage' do
           let(:params) do
             {
-              :admin_space_left => '20%'
+              admin_space_left: '20%',
             }
           end
 
-          it { is_expected.to compile.and_raise_error(/cannot contain "%"/) }
+          it { is_expected.to compile.and_raise_error(%r{cannot contain "%"}) }
         end
 
         context 'auditd 2.8.5' do
@@ -92,7 +95,7 @@ describe 'auditd' do
           context 'with space_left as a percentage' do
             let(:params) do
               {
-                :space_left => '20%'
+                space_left: '20%',
               }
             end
 
@@ -102,7 +105,7 @@ describe 'auditd' do
           context 'with admin_space_left as a percentage' do
             let(:params) do
               {
-                :admin_space_left => '20%'
+                admin_space_left: '20%',
               }
             end
 
@@ -135,13 +138,15 @@ describe 'auditd' do
         end
 
         context 'auditd with auditing disabled' do
-          let(:params) {{
-            :enable => false
-          }}
+          let(:params) do
+            {
+              enable: false,
+            }
+          end
 
           it { is_expected.to contain_class('auditd::config::grub').with_enable(false) }
-          it { is_expected.to_not contain_class('auditd::install') }
-          it { is_expected.to_not contain_class('auditd::config') }
+          it { is_expected.not_to contain_class('auditd::install') }
+          it { is_expected.not_to contain_class('auditd::config') }
           it { is_expected.to contain_class('auditd::service') }
         end
       end
@@ -150,15 +155,15 @@ describe 'auditd' do
 
   context 'unsupported operating system' do
     describe 'auditd without any parameters on Solaris/Nexenta' do
-      let(:facts) {
+      let(:facts) do
         {
-          :os => {
-            'name' => 'Solaris'
-          }
+          os: {
+            'name' => 'Solaris',
+          },
         }
-      }
+      end
 
-     it { expect { is_expected.to contain_package('auditd') }.to raise_error(Puppet::Error) }
+      it { expect { is_expected.to contain_package('auditd') }.to raise_error(Puppet::Error) }
     end
   end
 end

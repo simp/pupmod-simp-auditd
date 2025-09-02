@@ -2,11 +2,9 @@ require 'spec_helper'
 
 describe 'auditd::get_array_index' do
   let(:test_array) { ['elemA', 'elemB', 'elemC'] }
-  let(:long_test_array) {
-    array = []
-    (0..99).each { |num| array << "elem#{num}" }
-    array
-  }
+  let(:long_test_array) do
+    (0..99).map { |num| "elem#{num}" }
+  end
 
   it 'returns the index 0-padded to 2 digits, when num_digits is not specified' do
     is_expected.to run.with_params('elemA', test_array).and_return('00')
@@ -27,8 +25,7 @@ describe 'auditd::get_array_index' do
 
   it 'fails when the element is not in the array' do
     expect { is_expected.to run.with_params('elemX', test_array) }.to raise_error(
-      /auditd::get_array_index: elemX is not found in/)
+      %r{auditd::get_array_index: elemX is not found in},
+    )
   end
-
 end
-

@@ -1,4 +1,7 @@
-* Mon Nov 25 2024 Steven Pritchard <steve@sicura-us> - 8.14.4
+* Wed Aug 27 2025 Steven Pritchard <steve@sicura.us> - 8.14.5
+- Clean up for rubocop
+
+* Mon Nov 25 2024 Steven Pritchard <steve@sicura.us> - 8.14.4
 - Fix more use of legacy facts
 
 * Tue Jul 16 2024 Steven Pritchard <steve@sicura.us> - 8.14.3
