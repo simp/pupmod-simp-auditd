@@ -58,7 +58,7 @@ describe 'run the SSG against the appropriate fixtures for stig audit profile' d
       end
 
       it 'does not have any failing tests' do
-        if @ssg_report[:data][:failed].count > 0
+        if @ssg_report[:data][:failed].any?
           puts @ssg_report[:data][:report]
         end
 
