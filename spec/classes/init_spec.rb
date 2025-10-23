@@ -38,9 +38,8 @@ describe 'auditd' do
             is_expected.to contain_service('auditd').with(
               ensure: true,
               enable: true,
-              start: '/sbin/service auditd start',
-              stop: '/sbin/service auditd stop',
-              restart: '/sbin/service auditd restart',
+              stop: '/usr/sbin/auditctl --signal stop',
+              restart: '/usr/sbin/auditctl --signal stop; /usr/bin/systemctl start auditd',
             )
           }
           it { is_expected.to contain_class('auditd::install').that_comes_before('Class[auditd::config::grub]') }
