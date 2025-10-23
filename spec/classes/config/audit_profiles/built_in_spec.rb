@@ -10,7 +10,7 @@ describe 'auditd' do
     context "on #{os}" do
       let(:facts) do
         f = Marshal.load(Marshal.dump(os_facts))
-        if f[:os][:release][:major] < '8'
+        if f[:os][:release][:major].to_i < 8
           f[:auditd_major_version] = '2'
           f[:auditd_sample_ruleset_location] = '/usr/share/doc/audit-2.8.5/rules'
         else

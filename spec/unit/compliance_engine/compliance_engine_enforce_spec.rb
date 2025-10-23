@@ -37,7 +37,7 @@ describe 'compliance_markup', type: :class do
         context "with compliance profile '#{target_profile}'" do
           let(:facts) do
             unless os_facts[:auditd_major_version]
-              os_facts[:auditd_major_version] = if os_facts[:os][:release][:major] < '8'
+              os_facts[:auditd_major_version] = if os_facts[:os][:release][:major].to_i < 8
                                                   '2'
                                                 else
                                                   '3'

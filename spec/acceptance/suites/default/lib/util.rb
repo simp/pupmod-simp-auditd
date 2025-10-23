@@ -1,3 +1,7 @@
+# AuditdTestUtil namespace
+module AuditdTestUtil
+end
+
 # An object that holds the assessment of a given nodes ruleset
 class AuditdTestUtil::AuditdRules
   RULE_IGNORE_LIST = [
