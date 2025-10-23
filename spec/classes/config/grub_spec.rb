@@ -5,7 +5,7 @@ describe 'auditd::config::grub' do
     on_supported_os.each do |os, facts|
       context "on #{os}" do
         let(:facts) do
-          if ['RedHat', 'CentOS'].include?(facts[:os][:name]) && facts[:os][:release][:major].to_s < '7'
+          if ['RedHat', 'CentOS'].include?(facts[:os][:name]) && facts[:os][:release][:major].to_i < 7
             facts[:apache_version] = '2.2'
             facts[:grub_version] = '0.9'
           else
@@ -13,7 +13,7 @@ describe 'auditd::config::grub' do
             facts[:grub_version] = '2.0~beta'
           end
           unless facts[:auditd_major_version]
-            facts[:auditd_major_version] = if facts[:os][:release][:major] < '8'
+            facts[:auditd_major_version] = if facts[:os][:release][:major].to_i < 8
                                              '2'
                                            else
                                              '3'
