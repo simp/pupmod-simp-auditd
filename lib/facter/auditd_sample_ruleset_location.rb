@@ -7,14 +7,13 @@
 Facter.add('auditd_sample_ruleset_location') do
   confine kernel: 'Linux'
 
-  confine do
-    File.directory?('/usr/share/audit/sample-rules') || !Dir.glob('/usr/share/doc/audit*/rules').empty?
-  end
-
   setcode do
-    retval = '/usr/share/audit/sample-rules' if File.directory?('/usr/share/audit/sample-rules')
-    retval = Dir.glob('/usr/share/doc/audit*/rules').first unless Dir.glob('/usr/share/doc/audit*/rules').empty?
+    candidates = [
+      '/usr/share/audit/sample-rules',
+      '/usr/share/audit-rules',
+      '/usr/share/doc/auditd/examples/rules',
+    ] + Dir.glob('/usr/share/doc/audit*/rules')
 
-    retval
+    candidates.find { |d| File.directory?(d) && !Dir.glob("#{d}/*.rules").empty? }
   end
 end

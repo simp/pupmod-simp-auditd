@@ -86,7 +86,7 @@ describe 'auditd class with simp audit profile' do
         it 'does not send audit logs to syslog' do
           # log rotate so any audit messages present before the apply turned off
           # audit record logging are no longer in /var/log/secure
-          on(host, 'logrotate --force /etc/logrotate.d/rsyslog; service rsyslog restart; sleep 2')
+          on(host, 'logrotate --force /etc/logrotate.d/rsyslog; systemctl restart rsyslog; sleep 2')
           # cause an auditable event
           on(host, 'useradd thing1')
           on(host, %q(grep -qe 'acct="thing1".*exe="/usr/sbin/useradd"' /var/log/audit/audit.log))
@@ -168,8 +168,12 @@ describe 'auditd class with simp audit profile' do
           # audit record logging are no longer in /var/log/secure
           on(host, 'logrotate --force /etc/logrotate.d/rsyslog')
           on(host, 'useradd notathing')
-          on(host, %q(grep -qe 'audispd.*acct="notathing"' /var/log/secure), acceptable_exit_codes: [1, 2])
-          on(host, %q(grep -qe 'acct="notathing".*exe="/usr/sbin/useradd"' /var/log/audit/audit.log))
+        end
+        describe file('/var/log/secure') do
+          its(:content) { is_expected.not_to match %r{audispd.*acct="notathing"} }
+        end
+        describe file('/var/log/audit/audit.log') do
+          its(:content) { is_expected.to match %r{acct="notathing".*exe="/usr/sbin/useradd"} }
         end
       end
     end
