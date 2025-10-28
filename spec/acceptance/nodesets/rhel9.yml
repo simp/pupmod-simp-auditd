@@ -1,17 +1,22 @@
 ---
 HOSTS:
-  el9:
+  server-el9:
     roles:
-    - default
     - el9
     platform: el-9-x86_64
-    box: generic/centos9
+    box: generic/rhel9
     hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
     vagrant_memsize: 2048
     vagrant_cpus: 2
-    family: centos-cloud/centos-stream-9
+    yum_repos:
+      epel:
+        mirrorlist: https://mirrors.fedoraproject.org/metalink?repo=epel-9&arch=$basearch
+        gpgkeys:
+        - https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-9
+    family: rhel-cloud/rhel-9
     gce_machine_type: n1-standard-2
 CONFIG:
+  validate: false
   log_level: verbose
   type: aio
   puppet_collection: <%= ENV.fetch('BEAKER_PUPPET_COLLECTION', '~') %>

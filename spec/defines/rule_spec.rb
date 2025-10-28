@@ -9,7 +9,7 @@ describe 'auditd::rule' do
         let(:facts) do
           f = Marshal.load(Marshal.dump(os_facts))
           unless f[:auditd_major_version]
-            f[:auditd_major_version] = if f[:os][:release][:major] < '8'
+            f[:auditd_major_version] = if f[:os][:release][:major].to_i < 8
                                          '2'
                                        else
                                          '3'

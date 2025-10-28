@@ -36,6 +36,7 @@ group :test do
   gem 'simp-rake-helpers', ENV.fetch('SIMP_RAKE_HELPERS_VERSION', '~> 5.24.0')
   # renovate: datasource=rubygems versioning=ruby
   gem 'simp-rspec-puppet-facts', ENV.fetch('SIMP_RSPEC_PUPPET_FACTS_VERSION', '~> 4.0.0')
+  gem 'syslog'
 end
 
 group :development do
@@ -47,6 +48,7 @@ end
 group :system_tests do
   gem 'bcrypt_pbkdf'
   gem 'beaker'
+  gem 'beaker_puppet_helpers'
   gem 'beaker-rspec'
   # renovate: datasource=rubygems versioning=ruby
   gem 'simp-beaker-helpers', ENV.fetch('SIMP_BEAKER_HELPERS_VERSION', '~> 2.0.0')

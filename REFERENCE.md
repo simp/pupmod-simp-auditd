@@ -117,6 +117,8 @@ The following parameters are available in the `auditd` class:
 * [`verify_email`](#-auditd--verify_email)
 * [`write_logs`](#-auditd--write_logs)
 * [`purge_auditd_rules`](#-auditd--purge_auditd_rules)
+* [`auditctl_command`](#-auditd--auditctl_command)
+* [`warn_if_reboot_required`](#-auditd--warn_if_reboot_required)
 
 ##### <a name="-auditd--enable"></a>`enable`
 
@@ -148,7 +150,7 @@ of audit rules.
 - @see `auditd::config::audit_profiles` for more details about this
   configuration.
 
-Default value: `[ 'simp' ]`
+Default value: `['simp']`
 
 ##### <a name="-auditd--audit_auditd_config"></a>`audit_auditd_config`
 
@@ -547,7 +549,7 @@ to be backwards compatable.  If you want to ensure the plugin is disabled,
 set auditd::config::audisp::syslog::enable to false.
 If this is set to false the plugin settings are not managed by puppet.
 
-Default value: `simplib::lookup('simp_options::syslog', {'default_value' => false })`
+Default value: `simplib::lookup('simp_options::syslog', { 'default_value' => false })`
 
 ##### <a name="-auditd--target_selinux_types"></a>`target_selinux_types`
 
@@ -601,6 +603,22 @@ Data type: `Boolean`
 Whether or not to purge existing auditd rules under /etc/audit/rules.d
 
 Default value: `true`
+
+##### <a name="-auditd--auditctl_command"></a>`auditctl_command`
+
+Data type: `String[1]`
+
+
+
+Default value: `'/usr/sbin/auditctl'`
+
+##### <a name="-auditd--warn_if_reboot_required"></a>`warn_if_reboot_required`
+
+Data type: `Boolean`
+
+
+
+Default value: `false`
 
 ### <a name="auditd--config"></a>`auditd::config`
 
@@ -2354,7 +2372,7 @@ Data type: `Variant[String[1],Boolean]`
 
 ``ensure`` state from the service resource
 
-Default value: `pick(getvar('auditd::enable'), 'running')`
+Default value: `$auditd::enable`
 
 ##### <a name="-auditd--service--enable"></a>`enable`
 
@@ -2362,19 +2380,15 @@ Data type: `Boolean`
 
 ``enable`` state from the service resource
 
-Default value: `pick(getvar('auditd::enable'), true)`
+Default value: `$auditd::enable`
 
 ##### <a name="-auditd--service--bypass_kernel_check"></a>`bypass_kernel_check`
-
-Data type: `Boolean`
 
 Do not check to see if the kernel is enforcing auditing before trying to
 manage the service.
 
 * This may be required if auditing is not being actively managed in the
   kernel and someone has stopped the auditd service by hand.
-
-Default value: `false`
 
 ##### <a name="-auditd--service--warn_if_reboot_required"></a>`warn_if_reboot_required`
 
@@ -2383,7 +2397,7 @@ Data type: `Boolean`
 Add a ``reboot_notify`` warning if the system requires a reboot before the
 service can be managed.
 
-Default value: `true`
+Default value: `$auditd::warn_if_reboot_required`
 
 ## Defined types
 
@@ -2505,7 +2519,7 @@ The array
 
 Data type: `Optional[Integer]`
 
-The minimum number of digits the index should be. 
+The minimum number of digits the index should be.
 It will be '0'-padded to meet this number.
 
 ### <a name="auditd--validate_init_params"></a>`auditd::validate_init_params`
