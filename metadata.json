@@ -1,6 +1,6 @@
 {
   "name": "simp-auditd",
-  "version": "9.0.0",
+  "version": "9.0.1",
   "author": "SIMP Team",
   "summary": "A SIMP puppet module for managing auditd and audispd",
   "license": "Apache-2.0",
@@ -61,14 +61,16 @@
       "operatingsystem": "OracleLinux",
       "operatingsystemrelease": [
         "8",
-        "9"
+        "9",
+        "10"
       ]
     },
     {
       "operatingsystem": "Rocky",
       "operatingsystemrelease": [
         "8",
-        "9"
+        "9",
+        "10"
       ]
     },
     {
