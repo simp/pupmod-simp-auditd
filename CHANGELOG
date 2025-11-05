@@ -1,3 +1,6 @@
+* Wed Nov 05 2025 Mike Riddle <mike@sicura.us> - 9.0.1
+- Added oel 10 and rocky 10 support
+
 * Tue Jul 22 2025 Mike Riddle <mike@sicura.us> - 9.0.0
 - Removed EL 7 support
 - Added EL 10 support
