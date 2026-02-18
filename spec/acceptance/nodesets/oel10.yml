@@ -1,16 +1,15 @@
 ---
 HOSTS:
-  el10:
+  oel10:
     roles:
-    - default
     - el10
     platform: el-10-x86_64
-    box: generic/centos10
+    box: generic/oracle10
     hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
     vagrant_memsize: 2048
     vagrant_cpus: 2
     # There are not currently any el10 images available on google cloud
-    # family: centos-cloud/centos-stream-10
+    # family: sicura-image-build/oracle-linux-10
     # gce_machine_type: n1-standard-2
 CONFIG:
   log_level: verbose
