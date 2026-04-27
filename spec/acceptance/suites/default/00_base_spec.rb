@@ -107,9 +107,10 @@ describe 'auditd class with simp audit profile' do
         audit_version = result.stdout
         audit_major_version = audit_version.split('.')[0].to_i
 
+        # auditd 4.x uses a builtin syslog plugin; no separate dispatcher process
         dispatcher = if audit_major_version < 3
                        'audispd'
-                     else
+                     elsif audit_major_version < 4
                        'audisp-syslog'
                      end
 
@@ -119,6 +120,7 @@ describe 'auditd class with simp audit profile' do
         end
 
         it 'is running the audit dispatcher' do
+          skip('auditd 4.x uses builtin syslog; no separate dispatcher process') unless dispatcher
           on(host, "pgrep #{dispatcher}")
         end
 
@@ -152,6 +154,7 @@ describe 'auditd class with simp audit profile' do
         end
 
         it 'restarts the dispatcher if killed' do
+          skip('auditd 4.x uses builtin syslog; no separate dispatcher process') unless dispatcher
           on(host, "pkill #{dispatcher}")
           apply_manifest_on(host, manifest, catch_failures: true)
           on(host, "pgrep #{dispatcher}")
