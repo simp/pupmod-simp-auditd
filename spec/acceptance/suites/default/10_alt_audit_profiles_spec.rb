@@ -69,7 +69,7 @@ describe 'auditd class with alternative audit profiles' do
         it 'loads valid rules' do
           # make sure the rules have been regenerated
           # (search for rule only contained in new rule set)
-          retry_on(host, 'grep execve /etc/audit/audit.rules | grep renameat',
+          retry_on(host, "{ #{AuditdTestUtil::AUDIT_RULES_CMD}; } | grep execve | grep renameat",
             { max_retries: 30, verbose: true })
 
           results = AuditdTestUtil::AuditdRules.new(host)
@@ -94,7 +94,7 @@ describe 'auditd class with alternative audit profiles' do
         it 'loads valid rules' do
           # make sure the rules have been regenerated
           # (search for tag only contained in new rule set)
-          retry_on(host, 'grep package_changes /etc/audit/audit.rules',
+          retry_on(host, "{ #{AuditdTestUtil::AUDIT_RULES_CMD}; } | grep package_changes",
             { max_retries: 30, verbose: true })
 
           results = AuditdTestUtil::AuditdRules.new(host)
@@ -119,7 +119,7 @@ describe 'auditd class with alternative audit profiles' do
         it 'loads valid rules' do
           # make sure the rules have been regenerated
           # (search for tag only contained in new rule set)
-          retry_on(host, 'cat /etc/audit/audit.rules | grep identity',
+          retry_on(host, "{ #{AuditdTestUtil::AUDIT_RULES_CMD}; } | grep identity",
             { max_retries: 30, verbose: true })
 
           results = AuditdTestUtil::AuditdRules.new(host)
@@ -139,7 +139,7 @@ describe 'auditd class with alternative audit profiles' do
         it 'loads valid rules' do
           # make sure the rules have been regenerated
           # (search for tag only contained in new rule set)
-          retry_on(host, 'cat /etc/audit/audit.rules | grep su-root-activity',
+          retry_on(host, "{ #{AuditdTestUtil::AUDIT_RULES_CMD}; } | grep su-root-activity",
             { max_retries: 30, verbose: true })
 
           results = AuditdTestUtil::AuditdRules.new(host)

@@ -124,10 +124,10 @@ describe 'auditd class with simp audit profile' do
 
         it 'has audit.rules has been generated with SIMP rules' do
           # spot check that audit.rules has been generated with SIMP rules
-          on(host, "grep -qe '^-c$' /etc/audit/audit.rules")
-          on(host, %q(grep -qe '\-a never,exit \-F auid=-1' /etc/audit/audit.rules))
-          on(host, %q(grep -qe '\-a always,exit \-F perm=a \-F exit=-EACCES \-k access' /etc/audit/audit.rules))
-          on(host, %q(grep -qe '\-w /var/log/audit -p wa \-k audit-logs' /etc/audit/audit.rules))
+          on(host, "{ #{AuditdTestUtil::AUDIT_RULES_CMD}; } | grep -qe '^-c$'")
+          on(host, "{ #{AuditdTestUtil::AUDIT_RULES_CMD}; } | grep -qe '\\-a never,exit \\-F auid=-1'")
+          on(host, "{ #{AuditdTestUtil::AUDIT_RULES_CMD}; } | grep -qe '\\-a always,exit \\-F perm=a \\-F exit=-EACCES \\-k access'")
+          on(host, "{ #{AuditdTestUtil::AUDIT_RULES_CMD}; } | grep -qe '\\-w /var/log/audit -p wa \\-k audit-logs'")
           # spot check that loaded audit rules contain SIMP rules
           # NOTE:  Loaded rules are normalized as follows:
           #   - Implicit '-S all' is included in '-a' rules without a '-S' option
