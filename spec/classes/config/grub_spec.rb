@@ -27,9 +27,9 @@ describe 'auditd::config::grub' do
         context 'without any parameters' do
           let(:params) { {} }
 
-          it { is_expected.to contain_kernel_parameter('audit').with_value('1') }
+          it { is_expected.to contain_kernel_parameter('audit:all').with_value('1') }
           it {
-            is_expected.to contain_reboot_notify('audit').that_subscribes_to('Kernel_parameter[audit]')
+            is_expected.to contain_reboot_notify('audit:all').that_subscribes_to('Kernel_parameter[audit:all]')
           }
         end
 
@@ -40,9 +40,9 @@ describe 'auditd::config::grub' do
             }
           end
 
-          it { is_expected.to contain_kernel_parameter('audit').with_value('0') }
+          it { is_expected.to contain_kernel_parameter('audit:all').with_value('0') }
           it {
-            is_expected.to contain_reboot_notify('audit').that_subscribes_to('Kernel_parameter[audit]')
+            is_expected.to contain_reboot_notify('audit:all').that_subscribes_to('Kernel_parameter[audit:all]')
           }
         end
       end
