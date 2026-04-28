@@ -150,7 +150,15 @@ describe 'auditd class with simp audit profile' do
           # audit record logging are no longer in /var/log/secure
           on(host, 'useradd thing2')
           on(host, %q(grep -qe 'acct="thing2".*exe="/usr/sbin/useradd"' /var/log/audit/audit.log))
-          on(host, %q(grep -qe 'audispd.*type=SYSCALL msg=audit.*comm="useradd.*key="audit_account_changes"' /var/log/secure))
+
+          if audit_major_version >= 4
+            # auditd 4.x uses builtin syslog plugin; syslog identifier differs from 'audispd'.
+            # Check syslog files first; fall back to journal (captures all syslog traffic on EL10).
+            on(host, 'grep -rqe \'key="audit_account_changes"\' /var/log/secure /var/log/messages 2>/dev/null || ' \
+                     'journalctl --since=-5min --no-pager -q 2>/dev/null | grep -q \'key="audit_account_changes"\'')
+          else
+            on(host, %q(grep -qe 'audispd.*type=SYSCALL msg=audit.*comm="useradd.*key="audit_account_changes"' /var/log/secure))
+          end
         end
 
         it 'restarts the dispatcher if killed' do

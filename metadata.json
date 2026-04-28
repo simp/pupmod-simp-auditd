@@ -23,7 +23,7 @@
     },
     {
       "name": "puppet/augeasproviders_grub",
-      "version_requirement": ">= 6.0.0 < 7.0.0"
+      "version_requirement": ">= 6.0.1-rc0 < 7.0.0"
     }
   ],
   "simp": {
