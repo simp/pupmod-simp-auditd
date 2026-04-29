@@ -6,10 +6,11 @@ module AuditdTestUtil
   AUDIT_RULES_CMD = 'cat /etc/audit/audit.rules 2>/dev/null || ' \
                     'find /etc/audit/rules.d -name "*.rules" | sort | xargs cat'.freeze
 
-  # Shell expression to locate auditctl regardless of whether it lives in
-  # /usr/sbin (EL8/9) or /usr/bin (EL10+, where sbin is merged into bin).
-  # Explicitly checks /usr/bin first so it works without depending on PATH.
-  AUDITCTL_CMD = '$([ -x /usr/bin/auditctl ] && echo /usr/bin/auditctl || echo /usr/sbin/auditctl)'.freeze
+  # Shell expression to locate auditctl regardless of where it lives.
+  # Searches the four classic bin directories without relying on PATH so it
+  # works whether auditctl is at /usr/bin (EL10 UsrMerge), /usr/sbin (EL8/9),
+  # or /sbin (pre-merge images). Symlinks are included (no -type f).
+  AUDITCTL_CMD = '$(find /usr/bin /usr/sbin /bin /sbin -maxdepth 1 -name auditctl 2>/dev/null | head -1 || echo /usr/sbin/auditctl)'.freeze
 end
 
 # An object that holds the assessment of a given nodes ruleset
