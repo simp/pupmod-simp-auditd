@@ -254,7 +254,7 @@ class auditd (
   Integer[0]                              $rate                     = 0,
   Auditd::RootAuditLevel                  $root_audit_level         = 'basic',
   String[1]                               $service_name             = 'auditd',
-  String[1]                               $auditctl_command         = '/usr/sbin/auditctl',
+  String[1]                               $auditctl_command         = pick(fact('auditd_auditctl_cmd'), '/usr/sbin/auditctl'),
   Boolean                                 $warn_if_reboot_required  = false,
   Variant[Integer[0],Pattern['^\d+%$']]   $space_left               = auditd::calculate_space_left($admin_space_left),
   Auditd::SpaceLeftAction                 $space_left_action        = 'syslog',

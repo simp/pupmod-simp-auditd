@@ -28,6 +28,14 @@ RSpec.configure do |c|
 
   # Configure all nodes in nodeset
   c.before :suite do
+    # Ensure the audit package is present before any tests run. On some EL10
+    # Vagrant images (minimal install) it is not included by default, which
+    # causes Facter's simplib__auditd fact to be absent and prevents Puppet
+    # from finding auditctl on the first catalog apply.
+    hosts.each do |host|
+      on(host, 'dnf install -y audit 2>/dev/null || yum install -y audit 2>/dev/null || true')
+    end
+
     # Install modules and dependencies from spec/fixtures/modules
     copy_fixture_modules_to(hosts)
     begin
