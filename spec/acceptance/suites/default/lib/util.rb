@@ -76,7 +76,7 @@ class AuditdTestUtil::AuditdRules
     on(host, "chmod 600 #{tempname}")
 
     auditctl_output = on(host,
-      "#{AUDITCTL_CMD} -R #{tempname}",
+      "#{AuditdTestUtil::AUDITCTL_CMD} -R #{tempname}",
       accept_all_exit_codes: true).output.lines.map(&:strip)
 
     error_found = false
