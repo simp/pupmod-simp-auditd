@@ -8,7 +8,8 @@ module AuditdTestUtil
 
   # Shell expression to locate auditctl regardless of whether it lives in
   # /usr/sbin (EL8/9) or /usr/bin (EL10+, where sbin is merged into bin).
-  AUDITCTL_CMD = '$(command -v auditctl 2>/dev/null || echo /usr/sbin/auditctl)'.freeze
+  # Explicitly checks /usr/bin first so it works without depending on PATH.
+  AUDITCTL_CMD = '$([ -x /usr/bin/auditctl ] && echo /usr/bin/auditctl || echo /usr/sbin/auditctl)'.freeze
 end
 
 # An object that holds the assessment of a given nodes ruleset

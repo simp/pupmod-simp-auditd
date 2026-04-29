@@ -33,7 +33,7 @@ RSpec.configure do |c|
     # causes Facter's simplib__auditd fact to be absent and prevents Puppet
     # from finding auditctl on the first catalog apply.
     hosts.each do |host|
-      on(host, 'dnf install -y audit 2>/dev/null || yum install -y audit 2>/dev/null || true')
+      on(host, 'rpm -q audit || dnf install -y audit || yum install -y audit')
     end
 
     # Install modules and dependencies from spec/fixtures/modules
