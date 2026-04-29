@@ -1,6 +1,4 @@
 ---
-# auditd 4.x ships with a builtin syslog plugin; audisp-syslog no longer runs
-# as a separate process. No external package is required.
 auditd::plugin_dir: '/etc/audit/plugins.d'
 auditd::config::audisp::syslog::type: 'always'
 auditd::config::audisp::syslog::syslog_path: '/sbin/audisp-syslog'

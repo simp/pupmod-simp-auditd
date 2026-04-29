@@ -17,5 +17,5 @@ class auditd::config::grub (
 
   kernel_parameter { 'audit:all': value => $_enable }
 
-  reboot_notify { 'audit': subscribe => Kernel_parameter['audit:all'] }
+  reboot_notify { 'audit:all': subscribe => Kernel_parameter['audit:all'] }
 }

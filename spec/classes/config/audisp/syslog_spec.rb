@@ -18,7 +18,7 @@ describe 'auditd::config::audisp::syslog' do
         end
 
         context 'for all versions of auditd' do
-          [{ auditd_version: '3.0', auditd_major_version: '3' }, { auditd_version: '2.8.4', auditd_major_version: '2' }].each do |more_facts|
+          [{ auditd_version: '4.0', auditd_major_version: '4' }, { auditd_version: '3.0', auditd_major_version: '3' }, { auditd_version: '2.8.4', auditd_major_version: '2' }].each do |more_facts|
             let(:facts) { os_facts.merge(more_facts) }
             context 'without any parameters' do
               let(:params) { {} }
@@ -48,10 +48,26 @@ describe 'auditd::config::audisp::syslog' do
                   format = string
                 EOM
               end
+              let(:expected_content_v4) do # rubocop:disable RSpec/IndexedLet
+                <<~EOM
+                  # This File is managed by Puppet
+                  #
+                  # This file controls the configuration of the syslog plugin.
+                  active = yes
+                  direction = out
+                  path = /bin/audisp-syslog
+                  type = always
+                  args = LOG_INFO LOG_LOCAL5
+                  format = string
+                EOM
+              end
 
               it { is_expected.to compile.with_all_deps }
               it {
-                if facts['auditd_major_version'] == '3'
+                if facts['auditd_major_version'] == '4'
+                  is_expected.to contain_file('/etc/audit/plugins.d/syslog.conf').with_content(expected_content_v4)
+                  is_expected.to contain_package('audisp-syslog')
+                elsif facts['auditd_major_version'] == '3'
                   is_expected.to contain_file('/etc/audit/plugins.d/syslog.conf').with_content(expected_content_v3)
                   is_expected.to contain_package('audisp-syslog')
                 else
@@ -97,10 +113,25 @@ describe 'auditd::config::audisp::syslog' do
                   format = string
                 EOM
               end
+              let(:expected_content_v4) do # rubocop:disable RSpec/IndexedLet
+                <<~EOM
+                  # This File is managed by Puppet
+                  #
+                  # This file controls the configuration of the syslog plugin.
+                  active = yes
+                  direction = out
+                  path = /bin/audisp-syslog
+                  type = always
+                  args = LOG_INFO LOG_LOCAL5
+                  format = string
+                EOM
+              end
 
               it { is_expected.to compile.with_all_deps }
               it {
-                if facts['auditd_major_version'] == '3'
+                if facts['auditd_major_version'] == '4'
+                  is_expected.to contain_file('/etc/audit/plugins.d/syslog.conf').with_content(expected_content_v4)
+                elsif facts['auditd_major_version'] == '3'
                   is_expected.to contain_file('/etc/audit/plugins.d/syslog.conf').with_content(expected_content_v3)
                 else
                   is_expected.to contain_file('/etc/audisp/plugins.d/syslog.conf').with_content(expected_content_v2)
