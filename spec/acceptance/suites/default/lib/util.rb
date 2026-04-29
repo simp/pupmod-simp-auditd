@@ -5,6 +5,10 @@ module AuditdTestUtil
   # reading /etc/audit/rules.d/*.rules in sorted order (what augenrules does).
   AUDIT_RULES_CMD = 'cat /etc/audit/audit.rules 2>/dev/null || ' \
                     'find /etc/audit/rules.d -name "*.rules" | sort | xargs cat'.freeze
+
+  # Shell expression to locate auditctl regardless of whether it lives in
+  # /usr/sbin (EL8/9) or /usr/bin (EL10+, where sbin is merged into bin).
+  AUDITCTL_CMD = '$(command -v auditctl 2>/dev/null || echo /usr/sbin/auditctl)'.freeze
 end
 
 # An object that holds the assessment of a given nodes ruleset
@@ -72,7 +76,7 @@ class AuditdTestUtil::AuditdRules
     on(host, "chmod 600 #{tempname}")
 
     auditctl_output = on(host,
-      "/usr/sbin/auditctl -R #{tempname}",
+      "#{AUDITCTL_CMD} -R #{tempname}",
       accept_all_exit_codes: true).output.lines.map(&:strip)
 
     error_found = false

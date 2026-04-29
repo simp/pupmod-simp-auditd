@@ -135,7 +135,7 @@ describe 'auditd class with simp audit profile' do
           #   - Implicit '-S all' is included in '-a' rules without a '-S' option
           #   - '-a' arguments are reordered to have action,list instead of list,action.
           #   - '-k keyname' arguments are expanded to '-F key=keyname' for '-a' rules
-          result = on(host, '/usr/sbin/auditctl -l')
+          result = on(host, "#{AuditdTestUtil::AUDITCTL_CMD} -l")
           expect(result.output).to include('-a never,exit -S all -F auid=-1')
           expect(result.output).to include('-a always,exit -S all -F perm=a -F exit=-EACCES -F key=access')
           # On El6 it adds / to the end of directories but not on later versions.
