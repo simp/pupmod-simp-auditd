@@ -20,3 +20,11 @@ Facter.add('auditd_major_version') do
     auditd_version&.split('.')&.first
   end
 end
+
+Facter.add('auditd_auditctl_cmd') do
+  confine kernel: 'Linux'
+
+  setcode do
+    Facter::Util::Resolution.which('auditctl')
+  end
+end

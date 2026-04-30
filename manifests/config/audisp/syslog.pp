@@ -75,7 +75,7 @@ class auditd::config::audisp::syslog (
   Boolean                         $rsyslog         = simplib::lookup('simp_options::syslog', { 'default_value' => false }),   #deprecated see @param
   String                          $package_ensure  = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' }),
 ) {
-  if versioncmp($facts['auditd_version'], '3.0') >= 0  and $enable {
+  if versioncmp($facts['auditd_version'], '3.0') >= 0  and $enable and $pkg_name {
     package { $pkg_name :
       ensure => $package_ensure,
     }

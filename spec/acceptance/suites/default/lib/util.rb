@@ -1,5 +1,12 @@
 # AuditdTestUtil namespace
 module AuditdTestUtil
+  # Shell command to read audit rules. On EL10+ with auditd 4.x,
+  # /etc/audit/audit.rules is not generated automatically, so fall back to
+  # reading /etc/audit/rules.d/*.rules in sorted order (what augenrules does).
+  AUDIT_RULES_CMD = 'cat /etc/audit/audit.rules 2>/dev/null || ' \
+                    'find /etc/audit/rules.d -name "*.rules" | sort | xargs cat'.freeze
+
+  AUDITCTL_CMD = '/usr/sbin/auditctl'.freeze
 end
 
 # An object that holds the assessment of a given nodes ruleset
@@ -40,7 +47,16 @@ class AuditdTestUtil::AuditdRules
     @rules        = []
     @warnings     = []
     @errors       = []
-    @system_rules = on(host, 'cat /etc/audit/audit.rules').stdout.lines.map(&:strip)
+
+    # On EL10+ with auditd 4.x, /etc/audit/audit.rules is not generated automatically
+    # during service startup; rules are loaded directly from /etc/audit/rules.d/.
+    # Fall back to reading rules.d files in sorted order (replicating what augenrules does).
+    compiled = on(host, 'cat /etc/audit/audit.rules', accept_all_exit_codes: true)
+    @system_rules = if compiled.exit_code.zero?
+                      compiled.stdout.lines.map(&:strip)
+                    else
+                      on(host, 'find /etc/audit/rules.d -name "*.rules" | sort | xargs cat').stdout.lines.map(&:strip)
+                    end
 
     return unless @system_rules.grep(%r{no rules}i).empty?
     require 'securerandom'
@@ -58,7 +74,7 @@ class AuditdTestUtil::AuditdRules
     on(host, "chmod 600 #{tempname}")
 
     auditctl_output = on(host,
-      "auditctl -R #{tempname}",
+      "#{AuditdTestUtil::AUDITCTL_CMD} -R #{tempname}",
       accept_all_exit_codes: true).output.lines.map(&:strip)
 
     error_found = false

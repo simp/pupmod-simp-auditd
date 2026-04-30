@@ -28,6 +28,14 @@ RSpec.configure do |c|
 
   # Configure all nodes in nodeset
   c.before :suite do
+    hosts.each do |host|
+      on(host, 'rpm -q audit || dnf install -y audit || yum install -y audit')
+      # On EL10+, /usr/sbin/auditctl is provided by the audit-rules package
+      # rather than audit itself.
+      os_major = host[:platform][%r{el-(\d+)}, 1].to_i
+      on(host, 'dnf install -y audit-rules') if os_major >= 10
+    end
+
     # Install modules and dependencies from spec/fixtures/modules
     copy_fixture_modules_to(hosts)
     begin

@@ -24,26 +24,54 @@ describe 'auditd::config::grub' do
 
         it { is_expected.to compile.with_all_deps }
 
-        context 'without any parameters' do
-          let(:params) { {} }
+        context 'with augeasproviders_grub >= 6.0.0' do
+          context 'without any parameters' do
+            let(:params) { { augeasproviders_grub_version: '6.0.0' } }
 
-          it { is_expected.to contain_kernel_parameter('audit').with_value('1') }
-          it {
-            is_expected.to contain_reboot_notify('audit').that_subscribes_to('Kernel_parameter[audit]')
-          }
-        end
-
-        context 'when disabled' do
-          let(:params) do
-            {
-              enable: false,
+            it { is_expected.to contain_kernel_parameter('audit:all').with_value('1') }
+            it {
+              is_expected.to contain_reboot_notify('audit:all').that_subscribes_to('Kernel_parameter[audit:all]')
             }
           end
 
-          it { is_expected.to contain_kernel_parameter('audit').with_value('0') }
-          it {
-            is_expected.to contain_reboot_notify('audit').that_subscribes_to('Kernel_parameter[audit]')
-          }
+          context 'when disabled' do
+            let(:params) do
+              {
+                enable: false,
+                augeasproviders_grub_version: '6.0.0',
+              }
+            end
+
+            it { is_expected.to contain_kernel_parameter('audit:all').with_value('0') }
+            it {
+              is_expected.to contain_reboot_notify('audit:all').that_subscribes_to('Kernel_parameter[audit:all]')
+            }
+          end
+        end
+
+        context 'with augeasproviders_grub < 6.0.0' do
+          context 'without any parameters' do
+            let(:params) { { augeasproviders_grub_version: '5.0.0' } }
+
+            it { is_expected.to contain_kernel_parameter('audit').with_value('1') }
+            it {
+              is_expected.to contain_reboot_notify('audit').that_subscribes_to('Kernel_parameter[audit]')
+            }
+          end
+
+          context 'when disabled' do
+            let(:params) do
+              {
+                enable: false,
+                augeasproviders_grub_version: '5.0.0',
+              }
+            end
+
+            it { is_expected.to contain_kernel_parameter('audit').with_value('0') }
+            it {
+              is_expected.to contain_reboot_notify('audit').that_subscribes_to('Kernel_parameter[audit]')
+            }
+          end
         end
       end
     end

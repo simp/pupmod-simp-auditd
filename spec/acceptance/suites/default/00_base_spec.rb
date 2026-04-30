@@ -50,7 +50,7 @@ describe 'auditd class with simp audit profile' do
 
         it 'requires reboot on subsequent run' do
           result = apply_manifest_on(host, manifest, catch_failures: true)
-          expect(result.output).to include('audit => modified')
+          expect(result.output).to include('audit:all => modified')
           # Reboot to enable auditing in the kernel
           host.reboot
         end
@@ -107,9 +107,10 @@ describe 'auditd class with simp audit profile' do
         audit_version = result.stdout
         audit_major_version = audit_version.split('.')[0].to_i
 
+        # auditd 4.x uses a builtin syslog plugin; no separate dispatcher process
         dispatcher = if audit_major_version < 3
                        'audispd'
-                     else
+                     elsif audit_major_version < 4
                        'audisp-syslog'
                      end
 
@@ -119,21 +120,22 @@ describe 'auditd class with simp audit profile' do
         end
 
         it 'is running the audit dispatcher' do
+          skip('auditd 4.x uses builtin syslog; no separate dispatcher process') unless dispatcher
           on(host, "pgrep #{dispatcher}")
         end
 
         it 'has audit.rules has been generated with SIMP rules' do
           # spot check that audit.rules has been generated with SIMP rules
-          on(host, "grep -qe '^-c$' /etc/audit/audit.rules")
-          on(host, %q(grep -qe '\-a never,exit \-F auid=-1' /etc/audit/audit.rules))
-          on(host, %q(grep -qe '\-a always,exit \-F perm=a \-F exit=-EACCES \-k access' /etc/audit/audit.rules))
-          on(host, %q(grep -qe '\-w /var/log/audit -p wa \-k audit-logs' /etc/audit/audit.rules))
+          on(host, "{ #{AuditdTestUtil::AUDIT_RULES_CMD}; } | grep -qe '^-c$'")
+          on(host, "{ #{AuditdTestUtil::AUDIT_RULES_CMD}; } | grep -qe '\\-a never,exit \\-F auid=-1'")
+          on(host, "{ #{AuditdTestUtil::AUDIT_RULES_CMD}; } | grep -qe '\\-a always,exit \\-F perm=a \\-F exit=-EACCES \\-k access'")
+          on(host, "{ #{AuditdTestUtil::AUDIT_RULES_CMD}; } | grep -qe '\\-w /var/log/audit -p wa \\-k audit-logs'")
           # spot check that loaded audit rules contain SIMP rules
           # NOTE:  Loaded rules are normalized as follows:
           #   - Implicit '-S all' is included in '-a' rules without a '-S' option
           #   - '-a' arguments are reordered to have action,list instead of list,action.
           #   - '-k keyname' arguments are expanded to '-F key=keyname' for '-a' rules
-          result = on(host, 'auditctl -l')
+          result = on(host, "#{AuditdTestUtil::AUDITCTL_CMD} -l")
           expect(result.output).to include('-a never,exit -S all -F auid=-1')
           expect(result.output).to include('-a always,exit -S all -F perm=a -F exit=-EACCES -F key=access')
           # On El6 it adds / to the end of directories but not on later versions.
@@ -148,10 +150,19 @@ describe 'auditd class with simp audit profile' do
           # audit record logging are no longer in /var/log/secure
           on(host, 'useradd thing2')
           on(host, %q(grep -qe 'acct="thing2".*exe="/usr/sbin/useradd"' /var/log/audit/audit.log))
-          on(host, %q(grep -qe 'audispd.*type=SYSCALL msg=audit.*comm="useradd.*key="audit_account_changes"' /var/log/secure))
+
+          if audit_major_version >= 4
+            # auditd 4.x uses builtin syslog plugin; syslog identifier differs from 'audispd'.
+            # Check syslog files first; fall back to journal (captures all syslog traffic on EL10).
+            on(host, 'grep -rqe \'key="audit_account_changes"\' /var/log/secure /var/log/messages 2>/dev/null || ' \
+                     'journalctl --since=-5min --no-pager -q 2>/dev/null | grep -q \'key="audit_account_changes"\'')
+          else
+            on(host, %q(grep -qe 'audispd.*type=SYSCALL msg=audit.*comm="useradd.*key="audit_account_changes"' /var/log/secure))
+          end
         end
 
         it 'restarts the dispatcher if killed' do
+          skip('auditd 4.x uses builtin syslog; no separate dispatcher process') unless dispatcher
           on(host, "pkill #{dispatcher}")
           apply_manifest_on(host, manifest, catch_failures: true)
           on(host, "pgrep #{dispatcher}")
