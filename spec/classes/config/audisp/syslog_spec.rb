@@ -118,11 +118,11 @@ describe 'auditd::config::audisp::syslog' do
                   # This File is managed by Puppet
                   #
                   # This file controls the configuration of the syslog plugin.
-                  active = yes
+                  active = no
                   direction = out
                   path = /bin/audisp-syslog
                   type = always
-                  args = LOG_INFO LOG_LOCAL5
+                  args = LOG_NOTICE LOG_LOCAL6
                   format = string
                 EOM
               end

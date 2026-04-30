@@ -119,4 +119,4 @@ Many array parameters (e.g., syscall lists, ignore lists) use `lookup_options: m
 
 ## Supported Platforms
 
-RHEL-family OS versions 8, 9, and 10 (CentOS, RedHat, AlmaLinux, Rocky, OracleLinux, Amazon Linux 2). Puppet 7.x and 8.x.
+RHEL-family OS versions 8, 9, and 10 (CentOS, RedHat, AlmaLinux, Rocky, OracleLinux, Amazon Linux 2). Puppet 8.x.
