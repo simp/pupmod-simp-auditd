@@ -19,7 +19,7 @@ class auditd::config {
     $profiles = $auditd::default_audit_profiles
   }
 
-  $config_file_mode = $auditd::log_group ? {
+  $config_file_mode = $auditd::config_group ? {
     'root'  => '0600',
     default => '0640'
   }
@@ -32,16 +32,17 @@ class auditd::config {
   file { '/etc/audit':
     ensure  => 'directory',
     owner   => 'root',
-    group   => $auditd::log_group,
+    group   => $auditd::config_group,
     mode    => $config_file_mode,
     recurse => true,
-    purge   => true
+    purge   => true,
+    force   => true,
   }
 
   file { '/etc/audit/rules.d':
     ensure  => 'directory',
     owner   => 'root',
-    group   => $auditd::log_group,
+    group   => $auditd::config_group,
     mode    => $config_file_mode,
     recurse => true,
     purge   => $auditd::purge_auditd_rules
@@ -52,8 +53,8 @@ class auditd::config {
     '/etc/audit/audit.rules.prev'
   ]:
     owner => 'root',
-    group => $auditd::log_group,
-    mode  => 'o-rwx'
+    group => $auditd::config_group,
+    mode  => $config_file_mode,
   }
 
   # Build the auditd.conf from parts
@@ -78,7 +79,7 @@ class auditd::config {
 
   file { '/etc/audit/auditd.conf':
     owner   => 'root',
-    group   => $auditd::log_group,
+    group   => $auditd::config_group,
     mode    => $config_file_mode,
     content => "${_auditd_conf_common}${_auditd_conf_main}${_auditd_conf_last}\n",
     notify  => Class['auditd::service']
@@ -88,7 +89,7 @@ class auditd::config {
     file { $auditd::plugin_dir:
       ensure => 'directory',
       owner  => 'root',
-      group  => $auditd::log_group,
+      group  => $auditd::config_group,
       mode   => '0750'
     }
   }

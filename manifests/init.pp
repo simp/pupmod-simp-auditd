@@ -239,6 +239,7 @@ class auditd (
   Stdlib::Absolutepath                    $log_file                 = '/var/log/audit/audit.log',
   Auditd::LogFormat                       $log_format               = 'raw',
   String                                  $log_group                = 'root',
+  String                                  $config_group             = 'root',
   Boolean                                 $loginuid_immutable       = true,
   Integer[0]                              $max_log_file             = 24,
   Auditd::MaxLogFileAction                $max_log_file_action      = 'rotate',
