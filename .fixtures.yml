@@ -1,7 +1,6 @@
 ---
 fixtures:
   repositories:
-    compliance_markup: https://github.com/simp/pupmod-simp-compliance_markup.git
     augeasproviders_core: https://github.com/simp/augeasproviders_core.git
     augeasproviders_grub: https://github.com/voxpupuli/puppet-augeasproviders_grub.git
     concat: https://github.com/simp/puppetlabs-concat.git
