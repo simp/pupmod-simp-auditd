@@ -3,6 +3,7 @@
 - Drop Puppet 7/Ruby 2.7 support
 - Replace puppet with openvox
 - Update module dependencies
+- Drop EOL CentOS 8
 
 * Mon Apr 27 2026 Mike Riddle <mike@sicura.us> - 9.0.2
 - Fixes broken kernel_parameter call with latest augeasproviders_grub
