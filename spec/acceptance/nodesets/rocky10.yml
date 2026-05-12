@@ -1,6 +1,6 @@
 ---
 HOSTS:
-  el10:
+  rocky10:
     roles:
     - el10
     platform: el-10-x86_64
