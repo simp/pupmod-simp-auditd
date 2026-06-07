@@ -103,16 +103,19 @@ describe 'auditd class with simp audit profile' do
       end
 
       context 'allowing audit syslog messages' do
-        result = on(host, 'rpm -q --qf "%{VERSION}\n" audit')
-        audit_version = result.stdout
-        audit_major_version = audit_version.split('.')[0].to_i
+        let(:audit_major_version) do
+          result = on(host, 'rpm -q --qf "%{VERSION}\n" audit')
+          result.stdout.split('.')[0].to_i
+        end
 
         # auditd 4.x uses a builtin syslog plugin; no separate dispatcher process
-        dispatcher = if audit_major_version < 3
-                       'audispd'
-                     elsif audit_major_version < 4
-                       'audisp-syslog'
-                     end
+        let(:dispatcher) do
+          if audit_major_version < 3
+            'audispd'
+          elsif audit_major_version < 4
+            'audisp-syslog'
+          end
+        end
 
         it 'works with no errors' do
           set_hieradata_on(host, enable_audit_messages)
