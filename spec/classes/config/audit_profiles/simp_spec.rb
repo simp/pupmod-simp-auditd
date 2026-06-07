@@ -349,8 +349,8 @@ describe 'auditd' do
 
           context 'default options' do
             it do
-              expect(auditd_conf[:content]).to match(%r{log_format = raw})
-              expect(auditd_conf[:content]).to match(%r{write_logs = yes})
+              expect(auditd_conf[:content]).to include('log_format = raw')
+              expect(auditd_conf[:content]).to include('write_logs = yes')
             end
           end
 
@@ -358,8 +358,8 @@ describe 'auditd' do
             let(:params) { { write_logs: false } }
 
             it do
-              expect(auditd_conf[:content]).to match(%r{log_format = raw})
-              expect(auditd_conf[:content]).to match(%r{write_logs = no})
+              expect(auditd_conf[:content]).to include('log_format = raw')
+              expect(auditd_conf[:content]).to include('write_logs = no')
             end
           end
 
@@ -367,8 +367,8 @@ describe 'auditd' do
             let(:params) { { log_format: 'NOLOG' } }
 
             it do
-              expect(auditd_conf[:content]).to match(%r{log_format = raw})
-              expect(auditd_conf[:content]).to match(%r{write_logs = no})
+              expect(auditd_conf[:content]).to include('log_format = raw')
+              expect(auditd_conf[:content]).to include('write_logs = no')
             end
           end
 
@@ -376,8 +376,8 @@ describe 'auditd' do
             let(:params) { { log_format: 'ENRICHED' } }
 
             it do
-              expect(auditd_conf[:content]).to match(%r{log_format = ENRICHED})
-              expect(auditd_conf[:content]).to match(%r{write_logs = yes})
+              expect(auditd_conf[:content]).to include('log_format = ENRICHED')
+              expect(auditd_conf[:content]).to include('write_logs = yes')
             end
           end
         end
