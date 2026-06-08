@@ -6,7 +6,7 @@
   "license": "Apache-2.0",
   "source": "https://github.com/simp/pupmod-simp-auditd",
   "project_page": "https://github.com/simp/pupmod-simp-auditd",
-  "issues_url": "https://simp-project.atlassian.net",
+  "issues_url": "https://github.com/simp/pupmod-simp-auditd/issues",
   "tags": [
     "simp",
     "auditd",
@@ -30,7 +30,7 @@
     "optional_dependencies": [
       {
         "name": "simp/rsyslog",
-        "version_requirement": ">= 7.6.0 < 9.0.0"
+        "version_requirement": ">= 7.6.0 < 10.0.0"
       }
     ]
   },
