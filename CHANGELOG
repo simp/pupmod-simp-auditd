@@ -9,6 +9,7 @@
   puppet_collection default on openvox8 across all nodesets
 - Source Oracle Linux vagrant boxes from oracle.github.io upstream JSON
   metadata instead of the deprecated generic/oracle* boxes
+- Point `issues_url` at GitHub Issues; allow `simp-rsyslog` 9.x.
 
 * Mon Apr 27 2026 Mike Riddle <mike@sicura.us> - 9.0.2
 - Fixes broken kernel_parameter call with latest augeasproviders_grub
