@@ -1,3 +1,16 @@
+* Mon May 11 2026 Steven Pritchard <steve@sicura.us> - 10.0.0
+- Remove unmaintained Compliance Engine data
+- Drop Puppet 7/Ruby 2.7 support
+- Replace puppet with openvox
+- Update module dependencies
+- Drop support for end-of-life platforms (Amazon Linux 2, CentOS 8)
+- Promote EL10 to the default acceptance nodeset; add Rocky Linux 10 and
+  Oracle Linux 10 vagrant nodesets; standardize the Beaker
+  puppet_collection default on openvox8 across all nodesets
+- Source Oracle Linux vagrant boxes from oracle.github.io upstream JSON
+  metadata instead of the deprecated generic/oracle* boxes
+- Point `issues_url` at GitHub Issues; allow `simp-rsyslog` 9.x.
+
 * Mon Apr 27 2026 Mike Riddle <mike@sicura.us> - 9.0.2
 - Fixes broken kernel_parameter call with latest augeasproviders_grub
 
