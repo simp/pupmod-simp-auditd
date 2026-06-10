@@ -45,7 +45,8 @@ class auditd::config {
     group   => $auditd::config_group,
     mode    => $config_file_mode,
     recurse => true,
-    purge   => $auditd::purge_auditd_rules
+    purge   => $auditd::purge_auditd_rules,
+    force   => true,
   }
 
   file { [
