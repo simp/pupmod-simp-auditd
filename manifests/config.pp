@@ -20,8 +20,8 @@ class auditd::config {
   }
 
   $config_file_mode = $auditd::config_group ? {
-    'root'  => '0600',
-    default => '0640'
+    'root'  => 'u+rwX,g-rwx,o-rwx',
+    default => 'u+rwX,g+rX,g-w,o-rwx'
   }
 
   $log_file_mode = $auditd::log_group ? {
