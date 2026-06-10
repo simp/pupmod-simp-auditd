@@ -1,3 +1,8 @@
+* Thu Jul 16 2026 Nicholas Markowski <nicholas.markowski@onyxpoint.com> - 10.1.0
+- Decouple log and config permissions, add new config_group parameter
+- Use symbolic mode for config file mode so directories are traversable
+- Add force parameter to purge on /etc/audit resource
+
 * Thu Jul 09 2026 Steven Pritchard <steve@sicura.us> - 10.0.1
 - Documented parameters, added data types, and resolved puppet-lint offenses
 
