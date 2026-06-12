@@ -23,6 +23,7 @@ describe 'auditd' do
               mode: 'u+rwX,g-rwx,o-rwx',
               recurse: true,
               purge: true,
+              force: true,
             )
           }
           it {
@@ -79,6 +80,7 @@ describe 'auditd' do
               mode: 'u+rwX,g-rwx,o-rwx',
               recurse: true,
               purge: false,
+              force: true,
             )
           }
         end
@@ -94,12 +96,15 @@ describe 'auditd' do
           let(:params) { { log_group: 'rspec' } }
 
           it { is_expected.to compile.with_all_deps }
+          # config_group defaults to log_group so existing deployments that
+          # set only log_group retain their pre-config_group /etc/audit
+          # ownership.
           it {
             is_expected.to contain_file('/etc/audit').with(
               ensure: 'directory',
               owner: 'root',
-              group: 'root',
-              mode: 'u+rwX,g-rwx,o-rwx',
+              group: 'rspec',
+              mode: 'u+rwX,g+rX,g-w,o-rwx',
               recurse: true,
               purge: true,
               force: true,
@@ -109,32 +114,33 @@ describe 'auditd' do
             is_expected.to contain_file('/etc/audit/rules.d').with(
               ensure: 'directory',
               owner: 'root',
-              group: 'root',
-              mode: 'u+rwX,g-rwx,o-rwx',
+              group: 'rspec',
+              mode: 'u+rwX,g+rX,g-w,o-rwx',
               recurse: true,
               purge: true,
+              force: true,
             )
           }
           it {
             is_expected.to contain_file('/etc/audit/audit.rules').with(
               owner: 'root',
-              group: 'root',
-              mode: 'u+rwX,g-rwx,o-rwx',
+              group: 'rspec',
+              mode: 'u+rwX,g+rX,g-w,o-rwx',
             )
           }
           it {
             is_expected.to contain_file('/etc/audit/audit.rules.prev').with(
               owner: 'root',
-              group: 'root',
-              mode: 'u+rwX,g-rwx,o-rwx',
+              group: 'rspec',
+              mode: 'u+rwX,g+rX,g-w,o-rwx',
             )
           }
 
           it {
             is_expected.to contain_file('/etc/audit/auditd.conf').with(
               owner: 'root',
-              group: 'root',
-              mode: 'u+rwX,g-rwx,o-rwx',
+              group: 'rspec',
+              mode: 'u+rwX,g+rX,g-w,o-rwx',
             )
           }
 
@@ -172,6 +178,7 @@ describe 'auditd' do
               mode: 'u+rwX,g+rX,g-w,o-rwx',
               recurse: true,
               purge: true,
+              force: true,
             )
           }
           it {
