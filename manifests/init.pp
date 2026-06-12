@@ -103,6 +103,14 @@
 #   * 'ENRICHED' is only available in auditd >= 2.6.0
 #
 # @param log_group
+#   The group that owns `/var/log/audit` and the audit log files.
+#
+# @param config_group
+#   The group that owns `/etc/audit` and the audit configuration files.
+#   Setting this to a non-`root` group allows that group to read the audit
+#   configuration without having write access to the audit logs. Defaults
+#   to `$log_group` so existing deployments that set only `log_group`
+#   retain their prior `/etc/audit` ownership.
 #
 # @param loginuid_immutable
 #   Sets the --loginuid-immutable option
@@ -239,6 +247,7 @@ class auditd (
   Stdlib::Absolutepath                    $log_file                 = '/var/log/audit/audit.log',
   Auditd::LogFormat                       $log_format               = 'raw',
   String                                  $log_group                = 'root',
+  String                                  $config_group             = $log_group,
   Boolean                                 $loginuid_immutable       = true,
   Integer[0]                              $max_log_file             = 24,
   Auditd::MaxLogFileAction                $max_log_file_action      = 'rotate',
