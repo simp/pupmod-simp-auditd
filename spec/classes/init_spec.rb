@@ -55,6 +55,35 @@ describe 'auditd' do
           end
         end
 
+        # Exercises the SIMP business logic: with no parameters passed,
+        # $package_ensure and $syslog resolve through
+        # simplib::lookup('simp_options::package_ensure' / 'simp_options::syslog').
+        # The hieradata fixture sets both to values distinct from the class
+        # defaults ('installed' / false), so a pass proves the lookup path
+        # (not the default) supplied them.
+        # See spec/fixtures/hieradata/simp_options.yaml.
+        context 'with simp_options site keys set in hiera' do
+          let(:params) { {} }
+          let(:hieradata) { 'simp_options' }
+
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_package('audit').with(ensure: 'latest') }
+          it { is_expected.to contain_class('auditd').with_syslog(true) }
+        end
+
+        # manifests/service.pp branches on $warn_if_reboot_required: when true it
+        # emits a reboot_notify (warning that auditd cannot be (re)started until
+        # the kernel is enforcing auditing) INSTEAD of managing the service
+        # resource. Every other context exercises only the false branch, so this
+        # pins the true branch -- otherwise the reboot path has no unit coverage.
+        context 'with warn_if_reboot_required => true' do
+          let(:params) { { warn_if_reboot_required: true } }
+
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_reboot_notify('auditd service') }
+          it { is_expected.not_to contain_service('auditd') }
+        end
+
         context 'auditd with space_left < admin_space_left' do
           let(:params) do
             {
