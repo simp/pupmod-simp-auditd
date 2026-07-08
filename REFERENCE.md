@@ -610,7 +610,7 @@ Data type: `String[1]`
 
 
 
-Default value: `'/usr/sbin/auditctl'`
+Default value: `pick(fact('auditd_auditctl_cmd'), '/usr/sbin/auditctl')`
 
 ##### <a name="-auditd--warn_if_reboot_required"></a>`warn_if_reboot_required`
 
@@ -658,11 +658,15 @@ Data type: `Integer`
 
 (deprecated)
 
+Default value: `'%{alias('auditd::q_depth')}'`
+
 ##### <a name="-auditd--config--audisp--overflow_action"></a>`overflow_action`
 
 Data type: `Auditd::OverflowAction`
 
 (deprecated)
+
+Default value: `'%{alias('auditd::overflow_action')}'`
 
 ##### <a name="-auditd--config--audisp--priority_boost"></a>`priority_boost`
 
@@ -670,17 +674,23 @@ Data type: `Integer`
 
 (deprecated)
 
+Default value: `'%{alias('auditd::priority_boost')}'`
+
 ##### <a name="-auditd--config--audisp--max_restarts"></a>`max_restarts`
 
 Data type: `Integer`
 
 (deprecated)
 
+Default value: `'%{alias('auditd::max_restarts')}'`
+
 ##### <a name="-auditd--config--audisp--name_format"></a>`name_format`
 
 Data type: `Auditd::NameFormat`
 
 (deprecated)
+
+Default value: `'%{alias('auditd::name_format')}'`
 
 ##### <a name="-auditd--config--audisp--specific_name"></a>`specific_name`
 
@@ -787,11 +797,15 @@ Data type: `String`
 
 The path to the syslog plugin executable.
 
+Default value: `'builtin_syslog'`
+
 ##### <a name="-auditd--config--audisp--syslog--type"></a>`type`
 
 Data type: `String`
 
 The type of auditd plugin.
+
+Default value: `'builtin'`
 
 ##### <a name="-auditd--config--audisp--syslog--pkg_name"></a>`pkg_name`
 
@@ -1119,11 +1133,15 @@ Data type: `Array[String[1]]`
 
 Commands to be audited if enabled by `audit_auditd_cmds`
 
+Default value: `['/usr/sbin/aulast', '/usr/sbin/aulastlogin', '/usr/sbin/aureport', '/usr/sbin/ausearch', '/usr/sbin/auvirt']`
+
 ##### <a name="-auditd--config--audit_profiles--simp--basic_root_audit_syscalls"></a>`basic_root_audit_syscalls`
 
 Data type: `Array[String[1]]`
 
 Basic syscalls to audit for su-root activity
+
+Default value: `['capset', 'mknod', 'mknodat', 'pivot_root', 'quotactl', 'setsid', 'adjtimex', 'settimeofday', 'setuid', 'swapoff', 'swapon']`
 
 ##### <a name="-auditd--config--audit_profiles--simp--aggressive_root_audit_syscalls"></a>`aggressive_root_audit_syscalls`
 
@@ -1131,11 +1149,15 @@ Data type: `Array[String[1]]`
 
 Aggressive syscalls to audit for su-root activity
 
+Default value: `['capset', 'mknod', 'mknodat', 'pivot_root', 'quotactl', 'setsid', 'adjtimex', 'settimeofday', 'setuid', 'swapoff', 'swapon', 'execve', 'rename', 'renameat', 'rmdir', 'unlink', 'unlinkat']`
+
 ##### <a name="-auditd--config--audit_profiles--simp--insane_root_audit_syscalls"></a>`insane_root_audit_syscalls`
 
 Data type: `Array[String[1]]`
 
 Insane syscalls to audit for su-root activity
+
+Default value: `['capset', 'mknod', 'mknodat', 'pivot_root', 'quotactl', 'setsid', 'adjtimex', 'settimeofday', 'setuid', 'swapoff', 'swapon', 'execve', 'rename', 'renameat', 'rmdir', 'unlink', 'unlinkat', 'write', 'chown', 'fchown', 'fchownat', 'lchown', 'creat', 'fork', 'vfork', 'link', 'linkat', 'symlink', 'symlinkat', 'mkdir', 'mkdirat']`
 
 ##### <a name="-auditd--config--audit_profiles--simp--audit_unsuccessful_file_operations"></a>`audit_unsuccessful_file_operations`
 
@@ -1866,6 +1888,8 @@ Data type: `Array[Stdlib::Absolutepath]`
 
 List of applications to be audited when `audit_suspicious_apps` is enabled
 
+Default value: `['/usr/bin/nc', '/usr/bin/ncat', '/usr/bin/nmap', '/usr/bin/rawshark', '/usr/bin/socat', '/usr/bin/wireshark', '/usr/sbin/tcpdump', '/usr/sbin/traceroute', '/usr/sbin/traceroute6']`
+
 ##### <a name="-auditd--config--audit_profiles--simp--audit_systemd"></a>`audit_systemd`
 
 Data type: `Boolean`
@@ -2336,6 +2360,7 @@ Enables/disables auditing at boot time.
 The following parameters are available in the `auditd::config::grub` class:
 
 * [`enable`](#-auditd--config--grub--enable)
+* [`augeasproviders_grub_version`](#-auditd--config--grub--augeasproviders_grub_version)
 
 ##### <a name="-auditd--config--grub--enable"></a>`enable`
 
@@ -2344,6 +2369,16 @@ Data type: `Boolean`
 Enable auditing in the kernel at boot time.
 
 Default value: `true`
+
+##### <a name="-auditd--config--grub--augeasproviders_grub_version"></a>`augeasproviders_grub_version`
+
+Data type: `String`
+
+The version of the puppet/augeasproviders_grub module in use. Versions
+>= 6.0.0 use the kernel parameter name 'audit:all'; older versions use
+'audit'. Defaults to the installed module version read from its metadata.
+
+Default value: `load_module_metadata('augeasproviders_grub')['version']`
 
 ### <a name="auditd--config--logging"></a>`auditd::config::logging`
 
