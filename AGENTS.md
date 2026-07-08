@@ -87,7 +87,7 @@ The module supports auditd v2 and v3, which have different `auditd.conf` configu
 
 Module defaults live in `data/`:
 - `common.yaml` — module-wide defaults and deep merge lookup options
-- `auditd/version-2.yaml` / `auditd/version-3.yaml` — auditd-version-specific defaults
+- `auditd/version-2.yaml` / `auditd/version-3.yaml` / `auditd/version-4.yaml` — auditd-version-specific defaults
 - `os/<distro>-<major>.yaml` — OS-specific overrides (mainly `plugin_dir` paths)
 
 Many array parameters (e.g., syscall lists, ignore lists) use `lookup_options: merge: unique` to allow Hiera to combine values from multiple layers rather than replacing them.
@@ -115,8 +115,8 @@ Many array parameters (e.g., syscall lists, ignore lists) use `lookup_options: m
 
 **Required**: `puppetlabs/stdlib`, `simp/simplib`, `puppet/augeasproviders_grub`
 
-**Optional**: `simp/rsyslog` (syslog forwarding), `simp/pki`, `simp/compliance_markup`
+**Optional**: `simp/rsyslog` — pulled in only when audisp→syslog forwarding is enabled (`auditd::config::audisp::syslog` calls `simplib::assert_optional_dependency($module_name, 'simp/rsyslog')`). Not declared in `metadata.json` dependencies.
 
 ## Supported Platforms
 
-RHEL-family OS versions 8, 9, and 10 (CentOS, RedHat, AlmaLinux, Rocky, OracleLinux, Amazon Linux 2). Puppet 8.x.
+RHEL-family: RedHat/AlmaLinux/Rocky/OracleLinux 8, 9, and 10, plus CentOS 9 and 10. OpenVox 8.x.
