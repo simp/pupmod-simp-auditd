@@ -115,7 +115,7 @@ Many array parameters (e.g., syscall lists, ignore lists) use `lookup_options: m
 
 **Required**: `puppetlabs/stdlib`, `simp/simplib`, `puppet/augeasproviders_grub`
 
-**Optional**: `simp/rsyslog` — pulled in only when audisp→syslog forwarding is enabled (`auditd::config::audisp::syslog` calls `simplib::assert_optional_dependency($module_name, 'simp/rsyslog')`). Not declared in `metadata.json` dependencies.
+**Optional**: `simp/rsyslog` — pulled in only when audisp→syslog forwarding is enabled (`manifests/config/audisp/syslog.pp` calls `simplib::assert_optional_dependency` for `'simp/rsyslog'`). Not declared in `metadata.json` dependencies.
 
 ## Supported Platforms
 
