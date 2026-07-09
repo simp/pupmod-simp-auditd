@@ -7,7 +7,7 @@
 class auditd::install {
   assert_private()
 
-  package { $::auditd::package_name:
-    ensure => $::auditd::package_ensure
+  package { $auditd::package_name:
+    ensure => $auditd::package_ensure
   }
 }

@@ -9,9 +9,9 @@ class auditd::config {
 
   if $auditd::default_audit_profile != undef {
     deprecation('auditd::default_audit_profile',
-      "'auditd::default_audit_profile' is deprecated. Use 'auditd::default_audit_profiles' instead")
+    "'auditd::default_audit_profile' is deprecated. Use 'auditd::default_audit_profiles' instead")
     if $auditd::default_audit_profile {
-      $profiles = [ 'simp' ]
+      $profiles = ['simp']
     } else {
       $profiles = []
     }
@@ -48,12 +48,12 @@ class auditd::config {
   }
 
   file { [
-    '/etc/audit/audit.rules',
-    '/etc/audit/audit.rules.prev'
-  ]:
-    owner => 'root',
-    group => $auditd::log_group,
-    mode  => 'o-rwx'
+      '/etc/audit/audit.rules',
+      '/etc/audit/audit.rules.prev'
+    ]:
+      owner => 'root',
+      group => $auditd::log_group,
+      mode  => 'o-rwx'
   }
 
   # Build the auditd.conf from parts
@@ -63,7 +63,7 @@ class auditd::config {
   if $facts['auditd_version'] {
     if (versioncmp($facts['auditd_version'], '3.0') < 0) {
       $_auditd_conf_main = epp("${module_name}/etc/audit/auditd.2.conf.epp")
-    } else  {
+    } else {
       $_auditd_conf_main = epp("${module_name}/etc/audit/auditd.3.conf.epp")
     }
   } else {

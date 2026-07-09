@@ -34,7 +34,6 @@
 # @author https://github.com/simp/pupmod-simp-auditd/graphs/contributors
 #
 class auditd::config::audit_profiles {
-
   assert_private()
 
   $_common_template_path = "${module_name}/rule_profiles/common"

@@ -1,3 +1,6 @@
+* Thu Jul 09 2026 Steven Pritchard <steve@sicura.us> - 10.0.1
+- Documented parameters, added data types, and resolved puppet-lint offenses
+
 * Mon May 11 2026 Steven Pritchard <steve@sicura.us> - 10.0.0
 - Remove unmaintained Compliance Engine data
 - Drop Puppet 7/Ruby 2.7 support

@@ -37,7 +37,6 @@ class auditd::config::audisp (
   Auditd::NameFormat     $name_format,
   String                 $specific_name    = $facts['networking']['fqdn']
 ) {
-
   if  versioncmp($facts['auditd_version'], '3.0') < 0 {
     include auditd::config::audisp_service
 

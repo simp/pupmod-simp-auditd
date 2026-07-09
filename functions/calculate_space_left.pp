@@ -4,7 +4,7 @@
 #
 function auditd::calculate_space_left (
   Variant[Integer[0],Pattern['^\d+%$']] $admin_space_left
-){
+) {
   if $admin_space_left.is_a(Integer) {
     $admin_space_left + 30
   }
