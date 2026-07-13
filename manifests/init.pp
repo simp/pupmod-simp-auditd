@@ -120,7 +120,7 @@
 # @param name_format
 # @param num_logs
 #
-# @param  overflow_action
+# @param overflow_action
 #  sets the overflow action.
 #
 # @param package_name
@@ -154,6 +154,17 @@
 #
 # @param service_name
 #   The name of the auditd service.
+#
+# @param auditctl_command
+#   The path to the `auditctl` command to use when stopping or restarting
+#   the `auditd` service.
+#   * Defaults to the ``auditd_auditctl_cmd`` fact when present, otherwise
+#     falls back to ``/usr/sbin/auditctl``.
+#
+# @param warn_if_reboot_required
+#   Add a ``reboot_notify`` warning, instead of managing the `auditd`
+#   service, if the system requires a reboot before the kernel will
+#   enforce auditing.
 #
 # @param space_left
 #   Must be larger than `$admin_space_left`.
@@ -327,9 +338,8 @@ class auditd (
     -> Class['auditd']
 
     if fact('grub_version') {
-      Class['auditd::install'] -> Class['::auditd::config::grub']
+      Class['auditd::install'] -> Class['auditd::config::grub']
     }
-
   }
   else {
     $_grub_enable = false

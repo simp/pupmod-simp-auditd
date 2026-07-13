@@ -85,10 +85,10 @@ class auditd::config::audisp::syslog (
     mode    => $auditd::config::config_file_mode,
     owner   => 'root',
     content => epp("${module_name}/plugins/syslog_conf", {
-        enable => $enable,
-        path   => $syslog_path,
-        type   => $type,
-        args   => "${priority} ${facility}"
+      enable => $enable,
+      path   => $syslog_path,
+      type   => $type,
+      args   => "${priority} ${facility}"
     }),
   }
   #

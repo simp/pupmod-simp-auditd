@@ -1,3 +1,6 @@
+* Thu Jul 09 2026 Steven Pritchard <steve@sicura.us> - 10.0.1
+- Documented parameters, added data types, and resolved puppet-lint offenses
+
 * Mon May 11 2026 Steven Pritchard <steve@sicura.us> - 10.0.0
 - Remove unmaintained Compliance Engine data
 - Drop Puppet 7/Ruby 2.7 support
@@ -17,12 +20,12 @@
 * Wed Nov 05 2025 Mike Riddle <mike@sicura.us> - 9.0.1
 - Added oel 10 and rocky 10 support
 
+* Wed Aug 27 2025 Steven Pritchard <steve@sicura.us> - 8.14.5
+- Clean up for rubocop
+
 * Tue Jul 22 2025 Mike Riddle <mike@sicura.us> - 9.0.0
 - Removed EL 7 support
 - Added EL 10 support
-
-* Wed Aug 27 2025 Steven Pritchard <steve@sicura.us> - 8.14.5
-- Clean up for rubocop
 
 * Mon Nov 25 2024 Steven Pritchard <steve@sicura.us> - 8.14.4
 - Fix more use of legacy facts
@@ -392,13 +395,13 @@
 - Audit kernel module tools from /usr/bin as well as /bin and /sbin
 - Correct auditing /var/log/tallylock, it should have been /var/log/tallylog
 
-* Thu Feb 22 2017 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.0.1-0
+* Wed Feb 22 2017 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.0.1-0
 - Changed auditd::failure_mode to '1' by default since the compliant audit
   rules were causing routine system restarts. The new value will default to
   sending printk messages when the buffer is full.
 - Changed all rules that were exit,always to be always,exit
 
-* Tue Jan 12 2017 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.0.0-0
+* Thu Jan 12 2017 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.0.0-0
 - In response to the DISA STIG Requirements
   - Added 'open_by_handle_at' to the 'access' key
   - Added watches on /varlog/faillock and /var/log/tallylock

@@ -381,7 +381,7 @@
 #   record
 #
 class auditd::config::audit_profiles::simp (
-  Auditd::RootAuditLevel      $root_audit_level                                         = $::auditd::root_audit_level,
+  Auditd::RootAuditLevel      $root_audit_level                                         = $auditd::root_audit_level,
   Boolean                     $audit_32bit_operations                                   = $facts['os']['hardware'] ? { 'x86_64' => true, default => false },
   String[1]                   $audit_32bit_operations_tag                               = '32bit-api',
   Boolean                     $audit_auditd_cmds                                        = true,
@@ -488,7 +488,7 @@ class auditd::config::audit_profiles::simp (
 
   if $audit_sudoers != undef {
     deprecation("${name}::audit_sudoers",
-      "'${name}::audit_sudoers' is deprecated. Use '${name}::audit_cfg_sudoers' instead")
+    "'${name}::audit_sudoers' is deprecated. Use '${name}::audit_cfg_sudoers' instead")
     $_audit_cfg_sudoers = $audit_sudoers
   } else {
     $_audit_cfg_sudoers = $audit_cfg_sudoers
@@ -496,7 +496,7 @@ class auditd::config::audit_profiles::simp (
 
   if $audit_sudoers_tag != undef {
     deprecation("${name}::audit_sudoers_tag",
-      "'${name}::audit_sudoers_tag' is deprecated. Use '${name}::audit_cfg_sudoers_tag' instead")
+    "'${name}::audit_sudoers_tag' is deprecated. Use '${name}::audit_cfg_sudoers_tag' instead")
     $_audit_cfg_sudoers_tag = $audit_sudoers_tag
   } else {
     $_audit_cfg_sudoers_tag = $audit_cfg_sudoers_tag
@@ -504,7 +504,7 @@ class auditd::config::audit_profiles::simp (
 
   if $audit_grub != undef {
     deprecation("${name}::audit_grub",
-      "'${name}::audit_grub' is deprecated. Use '${name}::audit_cfg_grub' instead")
+    "'${name}::audit_grub' is deprecated. Use '${name}::audit_cfg_grub' instead")
     $_audit_cfg_grub = $audit_grub
   } else {
     $_audit_cfg_grub = $audit_cfg_grub
@@ -512,7 +512,7 @@ class auditd::config::audit_profiles::simp (
 
   if $audit_grub_tag != undef {
     deprecation("${name}::audit_grub_tag",
-      "'${name}::audit_grub_tag' is deprecated. Use '${name}::audit_cfg_grub_tag' instead")
+    "'${name}::audit_grub_tag' is deprecated. Use '${name}::audit_cfg_grub_tag' instead")
     $_audit_cfg_grub_tag = $audit_grub_tag
   } else {
     $_audit_cfg_grub_tag = $audit_cfg_grub_tag
@@ -520,7 +520,7 @@ class auditd::config::audit_profiles::simp (
 
   if $audit_yum != undef {
     deprecation("${name}::audit_yum",
-      "'${name}::audit_yum' is deprecated. Use '${name}::'audit_cfg_yum instead")
+    "'${name}::audit_yum' is deprecated. Use '${name}::'audit_cfg_yum instead")
     $_audit_cfg_yum = $audit_yum
   } else {
     $_audit_cfg_yum = $audit_cfg_yum
@@ -528,7 +528,7 @@ class auditd::config::audit_profiles::simp (
 
   if $audit_yum_tag != undef {
     deprecation("${name}::audit_yum_tag",
-      "'${name}::audit_yum_tag' is deprecated. Use '${name}::'audit_cfg_yum_tag instead")
+    "'${name}::audit_yum_tag' is deprecated. Use '${name}::'audit_cfg_yum_tag instead")
     $_audit_cfg_yum_tag = $audit_yum_tag
   } else {
     $_audit_cfg_yum_tag = $audit_cfg_yum_tag

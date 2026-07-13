@@ -161,7 +161,7 @@
 #   record
 #
 class auditd::config::audit_profiles::stig (
-  Integer[0]       $uid_min                                = $::auditd::uid_min,
+  Integer[0]       $uid_min                                = $auditd::uid_min,
   Boolean          $audit_unsuccessful_file_operations     = true,
   String[1]        $audit_unsuccessful_file_operations_tag = 'access',
   Boolean          $audit_chown                            = true,
@@ -203,7 +203,6 @@ class auditd::config::audit_profiles::stig (
   Boolean          $audit_pam_timestamp_check_cmd          = true,
   String[1]        $audit_pam_timestamp_check_cmd_tag      = 'privileged-pam',
 ) {
-
   assert_private()
   $_suid_sgid_cmds = unique($default_suid_sgid_cmds + $suid_sgid_cmds)
 

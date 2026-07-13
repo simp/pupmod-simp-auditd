@@ -16,5 +16,4 @@ class auditd::config::audisp_service {
     unless  => "/usr/bin/pgrep -f ${auditd::dispatcher}",
     notify  => Class['auditd::service'],
   }
-
 }

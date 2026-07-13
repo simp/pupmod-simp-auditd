@@ -109,6 +109,8 @@ The following parameters are available in the `auditd` class:
 * [`rate`](#-auditd--rate)
 * [`root_audit_level`](#-auditd--root_audit_level)
 * [`service_name`](#-auditd--service_name)
+* [`auditctl_command`](#-auditd--auditctl_command)
+* [`warn_if_reboot_required`](#-auditd--warn_if_reboot_required)
 * [`space_left`](#-auditd--space_left)
 * [`space_left_action`](#-auditd--space_left_action)
 * [`syslog`](#-auditd--syslog)
@@ -117,8 +119,6 @@ The following parameters are available in the `auditd` class:
 * [`verify_email`](#-auditd--verify_email)
 * [`write_logs`](#-auditd--write_logs)
 * [`purge_auditd_rules`](#-auditd--purge_auditd_rules)
-* [`auditctl_command`](#-auditd--auditctl_command)
-* [`warn_if_reboot_required`](#-auditd--warn_if_reboot_required)
 
 ##### <a name="-auditd--enable"></a>`enable`
 
@@ -516,6 +516,27 @@ The name of the auditd service.
 
 Default value: `'auditd'`
 
+##### <a name="-auditd--auditctl_command"></a>`auditctl_command`
+
+Data type: `String[1]`
+
+The path to the `auditctl` command to use when stopping or restarting
+the `auditd` service.
+* Defaults to the ``auditd_auditctl_cmd`` fact when present, otherwise
+  falls back to ``/usr/sbin/auditctl``.
+
+Default value: `pick(fact('auditd_auditctl_cmd'), '/usr/sbin/auditctl')`
+
+##### <a name="-auditd--warn_if_reboot_required"></a>`warn_if_reboot_required`
+
+Data type: `Boolean`
+
+Add a ``reboot_notify`` warning, instead of managing the `auditd`
+service, if the system requires a reboot before the kernel will
+enforce auditing.
+
+Default value: `false`
+
 ##### <a name="-auditd--space_left"></a>`space_left`
 
 Data type: `Variant[Integer[0],Pattern['^\d+%$']]`
@@ -604,22 +625,6 @@ Whether or not to purge existing auditd rules under /etc/audit/rules.d
 
 Default value: `true`
 
-##### <a name="-auditd--auditctl_command"></a>`auditctl_command`
-
-Data type: `String[1]`
-
-
-
-Default value: `'/usr/sbin/auditctl'`
-
-##### <a name="-auditd--warn_if_reboot_required"></a>`warn_if_reboot_required`
-
-Data type: `Boolean`
-
-
-
-Default value: `false`
-
 ### <a name="auditd--config"></a>`auditd::config`
 
 NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
@@ -658,11 +663,15 @@ Data type: `Integer`
 
 (deprecated)
 
+Default value: `'%{alias('auditd::q_depth')}'`
+
 ##### <a name="-auditd--config--audisp--overflow_action"></a>`overflow_action`
 
 Data type: `Auditd::OverflowAction`
 
 (deprecated)
+
+Default value: `'%{alias('auditd::overflow_action')}'`
 
 ##### <a name="-auditd--config--audisp--priority_boost"></a>`priority_boost`
 
@@ -670,17 +679,23 @@ Data type: `Integer`
 
 (deprecated)
 
+Default value: `'%{alias('auditd::priority_boost')}'`
+
 ##### <a name="-auditd--config--audisp--max_restarts"></a>`max_restarts`
 
 Data type: `Integer`
 
 (deprecated)
 
+Default value: `'%{alias('auditd::max_restarts')}'`
+
 ##### <a name="-auditd--config--audisp--name_format"></a>`name_format`
 
 Data type: `Auditd::NameFormat`
 
 (deprecated)
+
+Default value: `'%{alias('auditd::name_format')}'`
 
 ##### <a name="-auditd--config--audisp--specific_name"></a>`specific_name`
 
@@ -787,11 +802,15 @@ Data type: `String`
 
 The path to the syslog plugin executable.
 
+Default value: `'builtin_syslog'`
+
 ##### <a name="-auditd--config--audisp--syslog--type"></a>`type`
 
 Data type: `String`
 
 The type of auditd plugin.
+
+Default value: `'builtin'`
 
 ##### <a name="-auditd--config--audisp--syslog--pkg_name"></a>`pkg_name`
 
@@ -1078,7 +1097,7 @@ Options can be, 'basic', 'aggressive', 'insane'
  - Insane: Adds syscall rules for write, creat and variants of chown,
    fork, link and mkdir
 
-Default value: `$::auditd::root_audit_level`
+Default value: `$auditd::root_audit_level`
 
 ##### <a name="-auditd--config--audit_profiles--simp--audit_32bit_operations"></a>`audit_32bit_operations`
 
@@ -1119,11 +1138,15 @@ Data type: `Array[String[1]]`
 
 Commands to be audited if enabled by `audit_auditd_cmds`
 
+Default value: `['/usr/sbin/aulast', '/usr/sbin/aulastlogin', '/usr/sbin/aureport', '/usr/sbin/ausearch', '/usr/sbin/auvirt']`
+
 ##### <a name="-auditd--config--audit_profiles--simp--basic_root_audit_syscalls"></a>`basic_root_audit_syscalls`
 
 Data type: `Array[String[1]]`
 
 Basic syscalls to audit for su-root activity
+
+Default value: `['capset', 'mknod', 'mknodat', 'pivot_root', 'quotactl', 'setsid', 'adjtimex', 'settimeofday', 'setuid', 'swapoff', 'swapon']`
 
 ##### <a name="-auditd--config--audit_profiles--simp--aggressive_root_audit_syscalls"></a>`aggressive_root_audit_syscalls`
 
@@ -1131,11 +1154,15 @@ Data type: `Array[String[1]]`
 
 Aggressive syscalls to audit for su-root activity
 
+Default value: `['capset', 'mknod', 'mknodat', 'pivot_root', 'quotactl', 'setsid', 'adjtimex', 'settimeofday', 'setuid', 'swapoff', 'swapon', 'execve', 'rename', 'renameat', 'rmdir', 'unlink', 'unlinkat']`
+
 ##### <a name="-auditd--config--audit_profiles--simp--insane_root_audit_syscalls"></a>`insane_root_audit_syscalls`
 
 Data type: `Array[String[1]]`
 
 Insane syscalls to audit for su-root activity
+
+Default value: `['capset', 'mknod', 'mknodat', 'pivot_root', 'quotactl', 'setsid', 'adjtimex', 'settimeofday', 'setuid', 'swapoff', 'swapon', 'execve', 'rename', 'renameat', 'rmdir', 'unlink', 'unlinkat', 'write', 'chown', 'fchown', 'fchownat', 'lchown', 'creat', 'fork', 'vfork', 'link', 'linkat', 'symlink', 'symlinkat', 'mkdir', 'mkdirat']`
 
 ##### <a name="-auditd--config--audit_profiles--simp--audit_unsuccessful_file_operations"></a>`audit_unsuccessful_file_operations`
 
@@ -1866,6 +1893,8 @@ Data type: `Array[Stdlib::Absolutepath]`
 
 List of applications to be audited when `audit_suspicious_apps` is enabled
 
+Default value: `['/usr/bin/nc', '/usr/bin/ncat', '/usr/bin/nmap', '/usr/bin/rawshark', '/usr/bin/socat', '/usr/bin/wireshark', '/usr/sbin/tcpdump', '/usr/sbin/traceroute', '/usr/sbin/traceroute6']`
+
 ##### <a name="-auditd--config--audit_profiles--simp--audit_systemd"></a>`audit_systemd`
 
 Data type: `Boolean`
@@ -1991,7 +2020,7 @@ is inserted *before* the UID-limiting rule in the rules list.  When using
 `auditd::rule`, you can create such a rule by setting the `absolute`
 parameter to be 'first'.
 
-Default value: `$::auditd::uid_min`
+Default value: `$auditd::uid_min`
 
 ##### <a name="-auditd--config--audit_profiles--stig--audit_unsuccessful_file_operations"></a>`audit_unsuccessful_file_operations`
 
@@ -2336,6 +2365,7 @@ Enables/disables auditing at boot time.
 The following parameters are available in the `auditd::config::grub` class:
 
 * [`enable`](#-auditd--config--grub--enable)
+* [`augeasproviders_grub_version`](#-auditd--config--grub--augeasproviders_grub_version)
 
 ##### <a name="-auditd--config--grub--enable"></a>`enable`
 
@@ -2344,6 +2374,16 @@ Data type: `Boolean`
 Enable auditing in the kernel at boot time.
 
 Default value: `true`
+
+##### <a name="-auditd--config--grub--augeasproviders_grub_version"></a>`augeasproviders_grub_version`
+
+Data type: `String`
+
+The version of the puppet/augeasproviders_grub module in use. Versions
+>= 6.0.0 use the kernel parameter name 'audit:all'; older versions use
+'audit'. Defaults to the installed module version read from its metadata.
+
+Default value: `load_module_metadata('augeasproviders_grub')['version']`
 
 ### <a name="auditd--config--logging"></a>`auditd::config::logging`
 
@@ -2363,7 +2403,6 @@ The following parameters are available in the `auditd::service` class:
 
 * [`ensure`](#-auditd--service--ensure)
 * [`enable`](#-auditd--service--enable)
-* [`bypass_kernel_check`](#-auditd--service--bypass_kernel_check)
 * [`warn_if_reboot_required`](#-auditd--service--warn_if_reboot_required)
 
 ##### <a name="-auditd--service--ensure"></a>`ensure`
@@ -2381,14 +2420,6 @@ Data type: `Boolean`
 ``enable`` state from the service resource
 
 Default value: `$auditd::enable`
-
-##### <a name="-auditd--service--bypass_kernel_check"></a>`bypass_kernel_check`
-
-Do not check to see if the kernel is enforcing auditing before trying to
-manage the service.
-
-* This may be required if auditing is not being actively managed in the
-  kernel and someone has stopped the auditd service by hand.
 
 ##### <a name="-auditd--service--warn_if_reboot_required"></a>`warn_if_reboot_required`
 

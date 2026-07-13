@@ -8,13 +8,6 @@
 # @param enable
 #   ``enable`` state from the service resource
 #
-# @param bypass_kernel_check
-#   Do not check to see if the kernel is enforcing auditing before trying to
-#   manage the service.
-#
-#   * This may be required if auditing is not being actively managed in the
-#     kernel and someone has stopped the auditd service by hand.
-#
 # @param warn_if_reboot_required
 #   Add a ``reboot_notify`` warning if the system requires a reboot before the
 #   service can be managed.
