@@ -40,6 +40,22 @@ describe 'auditd class with simp audit profile' do
 
   hosts.each do |host|
     context "on #{host}" do
+      # Exercise noop from a clean state: on a fresh node the Sicura console
+      # previews the module with `puppet apply --noop`, which must not error.
+      # This runs before the applies below configure auditd, so it is the
+      # genuine fresh-node preview. A post-convergence noop check is omitted
+      # (`--noop --detailed-exitcodes` always exits 0). No package removal (as
+      # with fips/ssh): a fresh node already has the base `audit` package, so
+      # the honest clean state is "installed but not yet SIMP-managed", which is
+      # exactly what a bare noop of the module's manifest previews. Unlike the
+      # real apply (`catch_failures: false`, since the auditd service cannot be
+      # manually restarted), noop triggers no restart, so failures are real.
+      context 'in noop mode from a clean state' do
+        it 'applies without errors in noop mode' do
+          apply_manifest_on(host, manifest, catch_failures: true, noop: true)
+        end
+      end
+
       context 'default parameters' do
         it 'works without errors' do
           set_hieradata_on(host, hieradata)
