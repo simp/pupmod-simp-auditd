@@ -94,6 +94,7 @@ The following parameters are available in the `auditd` class:
 * [`local_events`](#-auditd--local_events)
 * [`log_format`](#-auditd--log_format)
 * [`log_group`](#-auditd--log_group)
+* [`config_group`](#-auditd--config_group)
 * [`loginuid_immutable`](#-auditd--loginuid_immutable)
 * [`max_log_file`](#-auditd--max_log_file)
 * [`max_log_file_action`](#-auditd--max_log_file_action)
@@ -380,9 +381,21 @@ Default value: `'raw'`
 
 Data type: `String`
 
-
+The group that owns `/var/log/audit` and the audit log files.
 
 Default value: `'root'`
+
+##### <a name="-auditd--config_group"></a>`config_group`
+
+Data type: `String`
+
+The group that owns `/etc/audit` and the audit configuration files.
+Setting this to a non-`root` group allows that group to read the audit
+configuration without having write access to the audit logs. Defaults
+to `$log_group` so existing deployments that set only `log_group`
+retain their prior `/etc/audit` ownership.
+
+Default value: `$log_group`
 
 ##### <a name="-auditd--loginuid_immutable"></a>`loginuid_immutable`
 
