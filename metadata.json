@@ -1,6 +1,6 @@
 {
   "name": "simp-auditd",
-  "version": "10.1.1",
+  "version": "10.1.2",
   "author": "SIMP Team",
   "summary": "A SIMP puppet module for managing auditd and audispd",
   "license": "Apache-2.0",
@@ -15,11 +15,11 @@
   "dependencies": [
     {
       "name": "puppetlabs/stdlib",
-      "version_requirement": ">= 8.0.0 < 10.0.0"
+      "version_requirement": ">= 8.0.0 < 11.0.0"
     },
     {
       "name": "simp/simplib",
-      "version_requirement": ">= 4.9.0 < 6.0.0"
+      "version_requirement": ">= 4.9.0 < 8.0.0"
     },
     {
       "name": "puppet/augeasproviders_grub",
