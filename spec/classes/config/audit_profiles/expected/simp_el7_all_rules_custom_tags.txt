@@ -41,6 +41,7 @@
 -a always,exit -F path=/bin/newgrp -F perm=x -k my_priv_cmds
 
 -a always,exit -F path=/usr/bin/chsh -F perm=x -k my_priv_cmds
+-a always,exit -F path=/bin/chsh -F perm=x -k my_priv_cmds
 
 -a always,exit -F path=/usr/bin/sudoedit -F perm=x -k my_priv_cmds
 -a always,exit -F path=/bin/sudoedit -F perm=x -k my_priv_cmds
@@ -64,6 +65,8 @@
 -a always,exit -F path=/sbin/pam_timestamp_check -F perm=x -k my_pam_timestamp_check_cmd
 
 ## Audit selinux commands
+# NOTE:  These rules come before the *xattr* checks, to ensure the
+#        correct tag is recorded.
 #
 -a always,exit -F path=/usr/sbin/semanage -F perm=x -k my_selinux_cmds
 -a always,exit -F path=/sbin/semanage -F perm=x -k my_selinux_cmds
@@ -146,6 +149,7 @@
 -a always,exit -F path=/bin/umount -F perm=x -k my_mount
 
 ## Audit umask changes.
+# This is uselessly noisy in most cases
 -a always,exit -F arch=b64 -S umask -k my_umask
 -a always,exit -F arch=b32 -S umask -k my_umask
 
@@ -257,15 +261,13 @@
 -w /bin/yum -p x -k my_yum_cmd
 -w /usr/bin/rpm -p x -k my_rpm_cmd
 -w /bin/rpm -p x -k my_rpm_cmd
--a always,exit -F arch=b64 -S ptrace -F a0=0x4 -k paranoid_code_injection
--a always,exit -F arch=b64 -S ptrace -F a0=0x5 -k paranoid_data_injection
--a always,exit -F arch=b64 -S ptrace -F a0=0x6 -k paranoid_register_injection
--a always,exit -F arch=b64 -S ptrace -k paranoid
--a always,exit -F arch=b32 -S ptrace -F a0=0x4 -k paranoid_code_injection
--a always,exit -F arch=b32 -S ptrace -F a0=0x5 -k paranoid_data_injection
--a always,exit -F arch=b32 -S ptrace -F a0=0x6 -k paranoid_register_injection
--a always,exit -F arch=b32 -S ptrace -k paranoid
--a always,exit -F arch=b64 -S personality -k paranoid
--a always,exit -F arch=b32 -S personality -k paranoid
+-a always,exit -F arch=b64 -S ptrace -F a0=0x4 -k my_ptrace_code_injection
+-a always,exit -F arch=b64 -S ptrace -F a0=0x5 -k my_ptrace_data_injection
+-a always,exit -F arch=b64 -S ptrace -F a0=0x6 -k my_ptrace_register_injection
+-a always,exit -F arch=b64 -S ptrace -k my_ptrace
+-a always,exit -F arch=b32 -S ptrace -F a0=0x4 -k my_ptrace_code_injection
+-a always,exit -F arch=b32 -S ptrace -F a0=0x5 -k my_ptrace_data_injection
+-a always,exit -F arch=b32 -S ptrace -F a0=0x6 -k my_ptrace_register_injection
+-a always,exit -F arch=b32 -S ptrace -k my_ptrace
 -a always,exit -F arch=b64 -S personality -k my_personality
 -a always,exit -F arch=b32 -S personality -k my_personality

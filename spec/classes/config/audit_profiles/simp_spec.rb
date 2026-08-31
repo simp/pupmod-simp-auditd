@@ -316,7 +316,8 @@ describe 'auditd' do
         let(:params) { { root_audit_level: 'insane' } }
 
         it 'uses custom tags as rule keys' do
-          File.read('spec/classes/config/audit_profiles/expected/simp_el7_all_rules_custom_tags.txt')
+          expected = File.read('spec/classes/config/audit_profiles/expected/simp_el7_all_rules_custom_tags.txt')
+          is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(expected)
         end
       end
 
