@@ -1,0 +1,7 @@
+---
+# Exercises the simplib::lookup('simp_options::package_ensure', ...) and
+# simplib::lookup('simp_options::syslog', ...) fallbacks in manifests/init.pp.
+# The values are deliberately distinct from the class defaults ('installed' /
+# false) so the unit test proves the lookup path resolved them.
+simp_options::package_ensure: 'latest'
+simp_options::syslog: true
