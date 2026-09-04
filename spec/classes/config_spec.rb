@@ -332,9 +332,7 @@ describe 'auditd' do
               let(:params) { {} }
 
               it {
-                complete_content = if (facts[:auditd_major_version].nil? && (facts[:os][:release][:major].to_i < 8)) ||
-                                      (facts[:auditd_major_version] == '2')
-
+                complete_content = if facts[:auditd_major_version] == '2'
                                      if facts[:auditd_version] && (facts[:auditd_version] < '2.5.2')
                                        # If version 2.5.2 does not have option write_logs
                                        expected_content + v2_content + end_content
