@@ -78,11 +78,9 @@ class auditd::config {
       $_auditd_conf_main = epp("${module_name}/etc/audit/auditd.3.conf.epp")
     }
   } else {
-    # If auditd version is unknown use 'best guess' at default OS version
-    $_auditd_conf_main = Integer($facts['os']['release']['major']) < 8 ? {
-      false   => epp("${module_name}/etc/audit/auditd.3.conf.epp"),
-      default => epp("${module_name}/etc/audit/auditd.2.conf.epp")
-    }
+    # If the auditd version is unknown, assume version 3, which is the
+    # default on all supported operating systems.
+    $_auditd_conf_main = epp("${module_name}/etc/audit/auditd.3.conf.epp")
   }
 
   $_auditd_conf_last = epp("${module_name}/etc/audit/auditd.last.conf.epp")

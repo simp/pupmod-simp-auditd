@@ -1,9 +1,13 @@
 * Mon Aug 31 2026 Hazel Caballero <hazel@sicura.us> - 10.1.3
-- Remove unreachable Amazon Linux 2 conditional branches from the
-  `rule_profiles` templates. Amazon Linux 2 was dropped from
-  `operatingsystem_support` in 10.0.0, so the `$facts['os']['name'] ==
-  'Amazon'` clauses could never match. No change to the generated rules on
-  any supported OS.
+- Remove dead OS-version conditionals from the `rule_profiles` templates.
+  Amazon Linux 2 was dropped from `operatingsystem_support` in 10.0.0 and
+  the minimum supported release is now EL8, so the `$facts['os']['name'] ==
+  'Amazon'` clauses and the `os.release.major > 6` / `< 8` guards around
+  them are constant on every supported OS. No change to the generated rules
+  on any supported OS; nodes still running an unsupported release (e.g.
+  Amazon Linux 2 or EL7) will see the EL8+ rule set.
+- When the `auditd_version` fact is unavailable, always fall back to the
+  auditd 3 configuration template instead of guessing from the OS release.
 
 * Mon Aug 24 2026 Steven Pritchard <steve@sicura.us> - 10.1.2
 - [puppetsync] Update metadata.json dependency ranges from the Forge
