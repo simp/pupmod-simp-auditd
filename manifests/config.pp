@@ -45,6 +45,13 @@ class auditd::config {
   # Note that CIS 6.3.4.7 wants a group owner of 'root' specifically, so a site
   # that sets $config_group to a non-root group trades that rule away here just
   # as it already does for /etc/audit and /etc/audit/auditd.conf.
+  #
+  # Those resources spell the same triple out longhand below rather than
+  # splatting this hash. That is deliberate: this hash is named for rules.d
+  # because that is the bug it fixes, and widening it to every /etc/audit
+  # resource is a rename ($config_file_attributes) plus a behavior change for
+  # files this issue did not touch. If it grows a parameter later, they should
+  # be folded in at that point.
   $rule_file_attributes = {
     'owner' => 'root',
     'group' => $auditd::config_group,

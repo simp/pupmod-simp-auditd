@@ -8,6 +8,16 @@ require 'spec_helper'
 describe 'auditd' do
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
+      # see $auditd::config::rule_file_attributes
+      let(:rule_file_attrs) do
+        {
+          ensure: 'file',
+          owner: 'root',
+          group: 'root',
+          mode: 'u+rwX,g-rwx,o-rwx',
+        }
+      end
+
       let(:facts) do
         f = Marshal.load(Marshal.dump(os_facts))
         if f[:os][:release][:major].to_i < 8
@@ -55,53 +65,29 @@ describe 'auditd' do
           is_expected.to compile.with_all_deps
           if facts[:auditd_major_version] == '3'
             is_expected.to contain_file('/etc/audit/rules.d/10-base-config.rules').with(
-              ensure: 'file',
-              owner: 'root',
-              group: 'root',
-              mode: 'u+rwX,g-rwx,o-rwx',
-              source: 'file:///usr/share/audit/sample-rules/10-base-config.rules',
+              rule_file_attrs.merge(source: 'file:///usr/share/audit/sample-rules/10-base-config.rules'),
             ).that_notifies('Class[auditd::service]')
 
             is_expected.to contain_file('/etc/audit/rules.d/10-no-audit.rules').with(
-              ensure: 'file',
-              owner: 'root',
-              group: 'root',
-              mode: 'u+rwX,g-rwx,o-rwx',
-              source: 'file:///usr/share/audit/sample-rules/10-no-audit.rules',
+              rule_file_attrs.merge(source: 'file:///usr/share/audit/sample-rules/10-no-audit.rules'),
             ).that_notifies('Class[auditd::service]')
 
             is_expected.to contain_file('/etc/audit/rules.d/99-finalize.rules').with(
-              ensure: 'file',
-              owner: 'root',
-              group: 'root',
-              mode: 'u+rwX,g-rwx,o-rwx',
-              source: 'file:///usr/share/audit/sample-rules/99-finalize.rules',
+              rule_file_attrs.merge(source: 'file:///usr/share/audit/sample-rules/99-finalize.rules'),
             ).that_notifies('Class[auditd::service]')
 
             is_expected.to contain_notify('bad_sample_set not found')
           else
             is_expected.to contain_file('/etc/audit/rules.d/10-base-config.rules').with(
-              ensure: 'file',
-              owner: 'root',
-              group: 'root',
-              mode: 'u+rwX,g-rwx,o-rwx',
-              source: 'file:///usr/share/doc/audit-2.8.5/rules/10-base-config.rules',
+              rule_file_attrs.merge(source: 'file:///usr/share/doc/audit-2.8.5/rules/10-base-config.rules'),
             ).that_notifies('Class[auditd::service]')
 
             is_expected.to contain_file('/etc/audit/rules.d/10-no-audit.rules').with(
-              ensure: 'file',
-              owner: 'root',
-              group: 'root',
-              mode: 'u+rwX,g-rwx,o-rwx',
-              source: 'file:///usr/share/doc/audit-2.8.5/rules/10-no-audit.rules',
+              rule_file_attrs.merge(source: 'file:///usr/share/doc/audit-2.8.5/rules/10-no-audit.rules'),
             ).that_notifies('Class[auditd::service]')
 
             is_expected.to contain_file('/etc/audit/rules.d/99-finalize.rules').with(
-              ensure: 'file',
-              owner: 'root',
-              group: 'root',
-              mode: 'u+rwX,g-rwx,o-rwx',
-              source: 'file:///usr/share/doc/audit-2.8.5/rules/99-finalize.rules',
+              rule_file_attrs.merge(source: 'file:///usr/share/doc/audit-2.8.5/rules/99-finalize.rules'),
             ).that_notifies('Class[auditd::service]')
           end
         }
@@ -146,11 +132,7 @@ describe 'auditd' do
             )
 
             is_expected.to contain_file('/etc/audit/rules.d/31-privileged.rules').with(
-              ensure: 'file',
-              owner: 'root',
-              group: 'root',
-              mode: 'u+rwX,g-rwx,o-rwx',
-              source: 'file:///usr/share/audit/sample-rules/31-privileged.rules.evaluated',
+              rule_file_attrs.merge(source: 'file:///usr/share/audit/sample-rules/31-privileged.rules.evaluated'),
             ).that_notifies('Class[auditd::service]').that_requires('Exec[build_privileged_ruleset]')
           else
             is_expected.to contain_exec('generate_privileged_script').with(
@@ -172,11 +154,7 @@ describe 'auditd' do
             )
 
             is_expected.to contain_file('/etc/audit/rules.d/31-privileged.rules').with(
-              ensure: 'file',
-              owner: 'root',
-              group: 'root',
-              mode: 'u+rwX,g-rwx,o-rwx',
-              source: 'file:///usr/share/doc/audit-2.8.5/rules/31-privileged.rules.evaluated',
+              rule_file_attrs.merge(source: 'file:///usr/share/doc/audit-2.8.5/rules/31-privileged.rules.evaluated'),
             ).that_notifies('Class[auditd::service]').that_requires('Exec[build_privileged_ruleset]')
           end
         }
@@ -246,52 +224,28 @@ describe 'auditd' do
         it {
           if facts[:auditd_major_version] == '3'
             is_expected.to contain_file('/etc/audit/rules.d/10-base-config.rules').with(
-              ensure: 'file',
-              owner: 'root',
-              group: 'root',
-              mode: 'u+rwX,g-rwx,o-rwx',
-              source: 'file:///usr/share/audit/sample-rules/10-base-config.rules',
+              rule_file_attrs.merge(source: 'file:///usr/share/audit/sample-rules/10-base-config.rules'),
             ).that_notifies('Class[auditd::service]')
 
             is_expected.to contain_file('/etc/audit/rules.d/10-no-audit.rules').with(
-              ensure: 'file',
-              owner: 'root',
-              group: 'root',
-              mode: 'u+rwX,g-rwx,o-rwx',
-              source: 'file:///usr/share/audit/sample-rules/10-no-audit.rules',
+              rule_file_attrs.merge(source: 'file:///usr/share/audit/sample-rules/10-no-audit.rules'),
             ).that_notifies('Class[auditd::service]')
 
             is_expected.to contain_file('/etc/audit/rules.d/99-finalize.rules').with(
-              ensure: 'file',
-              owner: 'root',
-              group: 'root',
-              mode: 'u+rwX,g-rwx,o-rwx',
-              source: 'file:///usr/share/audit/sample-rules/99-finalize.rules',
+              rule_file_attrs.merge(source: 'file:///usr/share/audit/sample-rules/99-finalize.rules'),
             ).that_notifies('Class[auditd::service]')
 
           else
             is_expected.to contain_file('/etc/audit/rules.d/10-base-config.rules').with(
-              ensure: 'file',
-              owner: 'root',
-              group: 'root',
-              mode: 'u+rwX,g-rwx,o-rwx',
-              source: 'file:///usr/share/doc/audit-2.8.5/rules/10-base-config.rules',
+              rule_file_attrs.merge(source: 'file:///usr/share/doc/audit-2.8.5/rules/10-base-config.rules'),
             ).that_notifies('Class[auditd::service]')
 
             is_expected.to contain_file('/etc/audit/rules.d/10-no-audit.rules').with(
-              ensure: 'file',
-              owner: 'root',
-              group: 'root',
-              mode: 'u+rwX,g-rwx,o-rwx',
-              source: 'file:///usr/share/doc/audit-2.8.5/rules/10-no-audit.rules',
+              rule_file_attrs.merge(source: 'file:///usr/share/doc/audit-2.8.5/rules/10-no-audit.rules'),
             ).that_notifies('Class[auditd::service]')
 
             is_expected.to contain_file('/etc/audit/rules.d/99-finalize.rules').with(
-              ensure: 'file',
-              owner: 'root',
-              group: 'root',
-              mode: 'u+rwX,g-rwx,o-rwx',
-              source: 'file:///usr/share/doc/audit-2.8.5/rules/99-finalize.rules',
+              rule_file_attrs.merge(source: 'file:///usr/share/doc/audit-2.8.5/rules/99-finalize.rules'),
             ).that_notifies('Class[auditd::service]')
           end
           is_expected.to contain_notify('bad_sample_set not found')

@@ -90,27 +90,16 @@ describe 'auditd class with simp audit profile' do
         end
 
         it 'repairs owner/group on /etc/audit/rules.d/*.rules' do
-          # The rules.d files are declared explicitly (they carry
-          # content/source), so the recurse on File['/etc/audit/rules.d']
-          # cannot manage them -- Puppet discards a recursion-generated child
-          # when an explicit resource already exists for that path. Before
-          # they carried owner/group themselves they kept whatever group they
-          # were created with (root's primary group, which is not always
-          # 'root') and Puppet never repaired it, failing CIS 6.3.4.6/6.3.4.7.
-          # Unlike audit.rules, augenrules only reads these files, so
-          # enforcing ownership here does not fight it.
-          rules_files = on(host, 'ls /etc/audit/rules.d/*.rules').stdout.split("\n").map(&:strip).reject(&:empty?)
-          expect(rules_files).not_to be_empty
-
+          # see $auditd::config::rule_file_attributes for why these files
+          # cannot be managed by the recurse on File['/etc/audit/rules.d']
           on(host, 'groupadd -f auditd_rspec')
-          on(host, 'chgrp auditd_rspec /etc/audit/rules.d/*.rules')
-          on(host, 'chown nobody /etc/audit/rules.d/*.rules')
+          on(host, 'chown nobody:auditd_rspec /etc/audit/rules.d/*.rules')
 
           apply_manifest_on(host, manifest, catch_failures: true)
 
-          rules_files.each do |f|
-            expect(on(host, "stat -c '%U:%G' #{f}").stdout.strip).to eq('root:root')
-          end
+          ownership = on(host, "stat -c '%U:%G %n' /etc/audit/rules.d/*.rules").stdout.split("\n").reject(&:empty?)
+          expect(ownership).not_to be_empty
+          expect(ownership.reject { |l| l.start_with?('root:root ') }).to eq([])
 
           # and enforcing it stays idempotent
           apply_manifest_on(host, manifest, catch_changes: true)

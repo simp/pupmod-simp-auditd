@@ -32,9 +32,7 @@ describe 'auditd::config::audit_profiles::custom' do
         it { is_expected.to compile.with_all_deps }
         it { is_expected.to contain_file('/etc/audit/rules.d/50_00_custom_base.rules').with_content(params[:rules].join("\n") + "\n") }
 
-        # CIS 6.3.4.6/6.3.4.7 -- the recurse on File['/etc/audit/rules.d']
-        # cannot manage an explicitly declared file, so this resource has to
-        # carry owner/group itself.
+        # see $auditd::config::rule_file_attributes
         it {
           is_expected.to contain_file('/etc/audit/rules.d/50_00_custom_base.rules').with(
             owner: 'root',

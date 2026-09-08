@@ -1,0 +1,3 @@
+---
+auditd::config::audit_profiles::custom::rules:
+  - '-w /etc/passwd -p wa -k passwd_changes'

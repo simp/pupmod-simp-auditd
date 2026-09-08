@@ -7,10 +7,8 @@ require 'spec_helper'
 
 describe 'auditd' do
   # Every file this module declares in /etc/audit/rules.d with the default
-  # (simp) profile. These are declared explicitly, so the recurse on
-  # File['/etc/audit/rules.d'] cannot manage their permissions -- they have to
-  # carry owner/group/mode themselves or they keep whatever group root's
-  # primary group happened to be (CIS 6.3.4.6/6.3.4.7).
+  # (simp) profile; see $auditd::config::rule_file_attributes for why these
+  # must carry owner/group/mode themselves.
   RULES_D_FILES = [
     '/etc/audit/rules.d/00_head.rules',
     '/etc/audit/rules.d/05_default_drop.rules',
@@ -119,6 +117,37 @@ describe 'auditd' do
               force: true,
             )
           }
+        end
+
+        # custom_spec.rb drives auditd::config::audit_profiles::custom through a
+        # stubbed auditd::config, so it can only prove the splat is wired -- it
+        # cannot catch a regression in the real $rule_file_attributes. Exercise
+        # the custom profile through the real class here so the actual
+        # owner/group/mode are pinned.
+        context "with default_audit_profiles ['custom']" do
+          let(:params) { { default_audit_profiles: ['custom'] } }
+          let(:hieradata) { 'custom_audit_profile/rules' }
+
+          it { is_expected.to compile.with_all_deps }
+          it {
+            is_expected.to contain_file('/etc/audit/rules.d/50_00_custom_base.rules').with(
+              owner: 'root',
+              group: 'root',
+              mode: 'u+rwX,g-rwx,o-rwx',
+            )
+          }
+
+          context 'with a non-root config_group' do
+            let(:params) { { default_audit_profiles: ['custom'], config_group: 'rspec' } }
+
+            it {
+              is_expected.to contain_file('/etc/audit/rules.d/50_00_custom_base.rules').with(
+                owner: 'root',
+                group: 'rspec',
+                mode: 'u+rwX,g+rX,g-w,o-rwx',
+              )
+            }
+          end
         end
 
         context 'with empty default_audit_profiles' do
