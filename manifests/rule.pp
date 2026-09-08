@@ -63,7 +63,7 @@ define auditd::rule (
     $_rule_id = "${_order}.${_safe_name}.rules"
 
     file { "/etc/audit/rules.d/${_rule_id}":
-      mode    => $auditd::config::config_file_mode,
+      *       => $auditd::config::rule_file_attributes,
       content => epp("${module_name}/rule.epp", { content => $content }),
       notify  => Class['auditd::service'],
     }

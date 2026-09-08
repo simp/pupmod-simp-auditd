@@ -26,6 +26,29 @@ describe 'auditd::rule' do
             is_expected.to contain_class('auditd')
             is_expected.to contain_file("/etc/audit/rules.d/75.#{title}.rules").with_content(%r{#{params[:content]}})
           }
+
+          # CIS 6.3.4.6/6.3.4.7 -- the recurse on File['/etc/audit/rules.d']
+          # cannot manage an explicitly declared file, so this resource has to
+          # carry owner/group itself.
+          it {
+            is_expected.to contain_file("/etc/audit/rules.d/75.#{title}.rules").with(
+              owner: 'root',
+              group: 'root',
+              mode: 'u+rwX,g-rwx,o-rwx',
+            )
+          }
+        end
+
+        context 'with a non-root config_group' do
+          let(:pre_condition) { "class { 'auditd': config_group => 'rspec' }" }
+
+          it {
+            is_expected.to contain_file("/etc/audit/rules.d/75.#{title}.rules").with(
+              owner: 'root',
+              group: 'rspec',
+              mode: 'u+rwX,g+rX,g-w,o-rwx',
+            )
+          }
         end
 
         context 'when :content is an Array' do

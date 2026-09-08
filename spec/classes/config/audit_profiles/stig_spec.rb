@@ -19,6 +19,17 @@ describe 'auditd' do
           expected = File.read('spec/classes/config/audit_profiles/expected/stig_el7_base_rules.txt')
           is_expected.to contain_file('/etc/audit/rules.d/50_00_stig_base.rules').with_content(expected)
         }
+
+        # CIS 6.3.4.6/6.3.4.7 -- the recurse on File['/etc/audit/rules.d']
+        # cannot manage an explicitly declared file, so this resource has to
+        # carry owner/group itself.
+        it {
+          is_expected.to contain_file('/etc/audit/rules.d/50_00_stig_base.rules').with(
+            owner: 'root',
+            group: 'root',
+            mode: 'u+rwX,g-rwx,o-rwx',
+          )
+        }
       end
 
       # check disabling of parameters for which the key is unique

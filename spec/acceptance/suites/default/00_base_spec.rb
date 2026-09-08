@@ -89,6 +89,33 @@ describe 'auditd class with simp audit profile' do
           expect(on(host, "stat -c '%a' /etc/audit/audit.rules").stdout.strip).to eq('640')
         end
 
+        it 'repairs owner/group on /etc/audit/rules.d/*.rules' do
+          # The rules.d files are declared explicitly (they carry
+          # content/source), so the recurse on File['/etc/audit/rules.d']
+          # cannot manage them -- Puppet discards a recursion-generated child
+          # when an explicit resource already exists for that path. Before
+          # they carried owner/group themselves they kept whatever group they
+          # were created with (root's primary group, which is not always
+          # 'root') and Puppet never repaired it, failing CIS 6.3.4.6/6.3.4.7.
+          # Unlike audit.rules, augenrules only reads these files, so
+          # enforcing ownership here does not fight it.
+          rules_files = on(host, 'ls /etc/audit/rules.d/*.rules').stdout.split("\n").map(&:strip).reject(&:empty?)
+          expect(rules_files).not_to be_empty
+
+          on(host, 'groupadd -f auditd_rspec')
+          on(host, 'chgrp auditd_rspec /etc/audit/rules.d/*.rules')
+          on(host, 'chown nobody /etc/audit/rules.d/*.rules')
+
+          apply_manifest_on(host, manifest, catch_failures: true)
+
+          rules_files.each do |f|
+            expect(on(host, "stat -c '%U:%G' #{f}").stdout.strip).to eq('root:root')
+          end
+
+          # and enforcing it stays idempotent
+          apply_manifest_on(host, manifest, catch_changes: true)
+        end
+
         it 'has kernel-level audit enabled on reboot' do
           host.reboot
           on(host, 'grep "audit=1" /proc/cmdline')

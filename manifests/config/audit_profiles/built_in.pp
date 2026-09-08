@@ -41,7 +41,7 @@ class auditd::config::audit_profiles::built_in (
           # and drop into place only if we need to
           file { "/etc/audit/rules.d/${_order}-${_ruleset}.rules":
             ensure  => 'file',
-            mode    => $auditd::config::config_file_mode,
+            *       => $auditd::config::rule_file_attributes,
             source  => "file://${_sample_rules_basedir}/${_order}-${_ruleset}.rules.evaluated",
             notify  => Class['auditd::service'],
             require => Exec['build_privileged_ruleset'],
@@ -49,7 +49,7 @@ class auditd::config::audit_profiles::built_in (
         } else {
           file { "/etc/audit/rules.d/${_order}-${_ruleset}.rules":
             ensure => 'file',
-            mode   => $auditd::config::config_file_mode,
+            *      => $auditd::config::rule_file_attributes,
             source => "file://${_sample_rules_basedir}/${_order}-${_ruleset}.rules",
             notify => Class['auditd::service'],
           }

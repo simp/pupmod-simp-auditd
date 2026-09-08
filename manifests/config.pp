@@ -29,6 +29,28 @@ class auditd::config {
     default => 'u+rX,g+rX,g-w,o-rwx'
   }
 
+  # Ownership and permissions for every file this module drops into
+  # /etc/audit/rules.d. Those files are declared explicitly (they carry
+  # content/source), so the recurse on File['/etc/audit/rules.d'] below cannot
+  # manage them: Puppet discards a recursion-generated child whenever an
+  # explicit resource already exists for that path. Without this, the files
+  # keep whatever group they were created with -- root's primary group, which
+  # is not always 'root' -- and Puppet never repairs it (CIS 6.3.4.6/6.3.4.7).
+  #
+  # Splat this into each rules.d file resource rather than repeating the
+  # attributes, so a new rules file cannot silently omit them. Enforcing them
+  # is idempotent because augenrules only reads rules.d; it rewrites
+  # /etc/audit/audit.rules instead (see the $audit_rules_* parameters).
+  #
+  # Note that CIS 6.3.4.7 wants a group owner of 'root' specifically, so a site
+  # that sets $config_group to a non-root group trades that rule away here just
+  # as it already does for /etc/audit and /etc/audit/auditd.conf.
+  $rule_file_attributes = {
+    'owner' => 'root',
+    'group' => $auditd::config_group,
+    'mode'  => $config_file_mode,
+  }
+
   file { '/etc/audit':
     ensure  => 'directory',
     owner   => 'root',
