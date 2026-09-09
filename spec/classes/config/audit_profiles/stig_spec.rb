@@ -19,6 +19,15 @@ describe 'auditd' do
           expected = File.read('spec/classes/config/audit_profiles/expected/stig_el7_base_rules.txt')
           is_expected.to contain_file('/etc/audit/rules.d/50_00_stig_base.rules').with_content(expected)
         }
+
+        # see $auditd::config::rule_file_attributes
+        it {
+          is_expected.to contain_file('/etc/audit/rules.d/50_00_stig_base.rules').with(
+            owner: 'root',
+            group: 'root',
+            mode: 'u+rwX,g-rwx,o-rwx',
+          )
+        }
       end
 
       # check disabling of parameters for which the key is unique

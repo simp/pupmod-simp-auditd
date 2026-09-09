@@ -11,7 +11,7 @@ describe 'auditd::config::audit_profiles::custom' do
 
           class auditd::config (
             $profiles = ['custom'],
-            $config_file_mode = '0600',
+            $rule_file_attributes = { 'owner' => 'root', 'group' => 'root', 'mode' => '0600' },
           ){}
           include auditd::config
         EOM
@@ -31,6 +31,15 @@ describe 'auditd::config::audit_profiles::custom' do
 
         it { is_expected.to compile.with_all_deps }
         it { is_expected.to contain_file('/etc/audit/rules.d/50_00_custom_base.rules').with_content(params[:rules].join("\n") + "\n") }
+
+        # see $auditd::config::rule_file_attributes
+        it {
+          is_expected.to contain_file('/etc/audit/rules.d/50_00_custom_base.rules').with(
+            owner: 'root',
+            group: 'root',
+            mode: '0600',
+          )
+        }
       end
 
       context 'when using templates' do
@@ -107,7 +116,7 @@ describe 'auditd::config::audit_profiles::custom' do
 
             class auditd::config (
               $profiles = ['simp', 'custom', 'stig'],
-              $config_file_mode = '0600',
+              $rule_file_attributes = { 'owner' => 'root', 'group' => 'root', 'mode' => '0600' },
             ){}
             include auditd::config
           EOM

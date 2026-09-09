@@ -26,6 +26,15 @@ describe 'auditd::rule' do
             is_expected.to contain_class('auditd')
             is_expected.to contain_file("/etc/audit/rules.d/75.#{title}.rules").with_content(%r{#{params[:content]}})
           }
+
+          # see $auditd::config::rule_file_attributes
+          it {
+            is_expected.to contain_file("/etc/audit/rules.d/75.#{title}.rules").with(
+              owner: 'root',
+              group: 'root',
+              mode: 'u+rwX,g-rwx,o-rwx',
+            )
+          }
         end
 
         context 'when :content is an Array' do

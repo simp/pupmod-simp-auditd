@@ -89,6 +89,22 @@ describe 'auditd class with simp audit profile' do
           expect(on(host, "stat -c '%a' /etc/audit/audit.rules").stdout.strip).to eq('640')
         end
 
+        it 'repairs owner/group on /etc/audit/rules.d/*.rules' do
+          # see $auditd::config::rule_file_attributes for why these files
+          # cannot be managed by the recurse on File['/etc/audit/rules.d']
+          on(host, 'groupadd -f auditd_rspec')
+          on(host, 'chown nobody:auditd_rspec /etc/audit/rules.d/*.rules')
+
+          apply_manifest_on(host, manifest, catch_failures: true)
+
+          ownership = on(host, "stat -c '%U:%G %n' /etc/audit/rules.d/*.rules").stdout.split("\n").reject(&:empty?)
+          expect(ownership).not_to be_empty
+          expect(ownership.reject { |l| l.start_with?('root:root ') }).to eq([])
+
+          # and enforcing it stays idempotent
+          apply_manifest_on(host, manifest, catch_changes: true)
+        end
+
         it 'has kernel-level audit enabled on reboot' do
           host.reboot
           on(host, 'grep "audit=1" /proc/cmdline')

@@ -20,6 +20,15 @@ describe 'auditd' do
           is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(expected)
         }
 
+        # see $auditd::config::rule_file_attributes
+        it {
+          is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with(
+            owner: 'root',
+            group: 'root',
+            mode: 'u+rwX,g-rwx,o-rwx',
+          )
+        }
+
         it 'specifies a key specified for each rule' do
           base_rules = catalogue.resource('File[/etc/audit/rules.d/50_00_simp_base.rules]')[:content].split("\n")
 

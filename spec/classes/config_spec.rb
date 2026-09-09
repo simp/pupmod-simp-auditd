@@ -6,6 +6,17 @@ require 'spec_helper'
 # This test also includes tests for private class auditd::config::logging
 
 describe 'auditd' do
+  # Every file this module declares in /etc/audit/rules.d with the default
+  # (simp) profile; see $auditd::config::rule_file_attributes for why these
+  # must carry owner/group/mode themselves.
+  RULES_D_FILES = [
+    '/etc/audit/rules.d/00_head.rules',
+    '/etc/audit/rules.d/05_default_drop.rules',
+    '/etc/audit/rules.d/99_tail.rules',
+    '/etc/audit/rules.d/50_00_simp_base.rules',
+    '/etc/audit/rules.d/75.audit_auditd_config.rules',
+  ].freeze
+
   context 'supported operating systems' do
     on_supported_os.each do |os, os_facts|
       context "on #{os}" do
@@ -45,6 +56,15 @@ describe 'auditd' do
               force: true,
             )
           }
+          RULES_D_FILES.each do |f|
+            it {
+              is_expected.to contain_file(f).with(
+                owner: 'root',
+                group: 'root',
+                mode: 'u+rwX,g-rwx,o-rwx',
+              )
+            }
+          end
           it { is_expected.not_to contain_augeas('auditd/USE_AUGENRULES') }
           it { is_expected.not_to contain_class('auditd::config::logging').that_notifies('Class[auditd::service]') }
           it {
@@ -99,6 +119,37 @@ describe 'auditd' do
           }
         end
 
+        # custom_spec.rb drives auditd::config::audit_profiles::custom through a
+        # stubbed auditd::config, so it can only prove the splat is wired -- it
+        # cannot catch a regression in the real $rule_file_attributes. Exercise
+        # the custom profile through the real class here so the actual
+        # owner/group/mode are pinned.
+        context "with default_audit_profiles ['custom']" do
+          let(:params) { { default_audit_profiles: ['custom'] } }
+          let(:hieradata) { 'custom_audit_profile/rules' }
+
+          it { is_expected.to compile.with_all_deps }
+          it {
+            is_expected.to contain_file('/etc/audit/rules.d/50_00_custom_base.rules').with(
+              owner: 'root',
+              group: 'root',
+              mode: 'u+rwX,g-rwx,o-rwx',
+            )
+          }
+
+          context 'with a non-root config_group' do
+            let(:params) { { default_audit_profiles: ['custom'], config_group: 'rspec' } }
+
+            it {
+              is_expected.to contain_file('/etc/audit/rules.d/50_00_custom_base.rules').with(
+                owner: 'root',
+                group: 'rspec',
+                mode: 'u+rwX,g+rX,g-w,o-rwx',
+              )
+            }
+          end
+        end
+
         context 'with empty default_audit_profiles' do
           let(:params) { { default_audit_profiles: [] } }
 
@@ -139,6 +190,16 @@ describe 'auditd' do
           # config_group (augenrules owns them; see the audit_rules_* params)
           ['/etc/audit/audit.rules', '/etc/audit/audit.rules.prev'].each do |f|
             it { is_expected.to contain_file(f).without_group }
+          end
+
+          RULES_D_FILES.each do |f|
+            it {
+              is_expected.to contain_file(f).with(
+                owner: 'root',
+                group: 'rspec',
+                mode: 'u+rwX,g+rX,g-w,o-rwx',
+              )
+            }
           end
 
           it {
@@ -190,6 +251,16 @@ describe 'auditd' do
           # config_group (augenrules owns them; see the audit_rules_* params)
           ['/etc/audit/audit.rules', '/etc/audit/audit.rules.prev'].each do |f|
             it { is_expected.to contain_file(f).without_group }
+          end
+
+          RULES_D_FILES.each do |f|
+            it {
+              is_expected.to contain_file(f).with(
+                owner: 'root',
+                group: 'rspec',
+                mode: 'u+rwX,g+rX,g-w,o-rwx',
+              )
+            }
           end
 
           it {

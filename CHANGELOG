@@ -1,3 +1,21 @@
+* Tue Sep 08 2026 Mike Riddle <mike@sicura.us> - 10.1.3
+- Manage `owner` and `group` on every file the module declares in
+  `/etc/audit/rules.d`. These resources are declared explicitly (they carry
+  `content`/`source`), so the `recurse` on `File['/etc/audit/rules.d']` could
+  not manage them: Puppet discards a recursion-generated child when an
+  explicit resource already exists for that path. The files therefore kept
+  whatever group they were created with -- root's primary group, which is not
+  always `root` -- and Puppet never repaired it, failing CIS 6.3.4.6/6.3.4.7.
+- Ownership and mode now come from a single `$auditd::config::rule_file_attributes`
+  hash splatted into each resource, so a new rules file cannot silently omit
+  them. `group` follows the existing `config_group` parameter.
+- Unlike `/etc/audit/audit.rules`, `augenrules` only reads `rules.d`, so
+  enforcing these permissions does not re-introduce the idempotency conflict
+  fixed in 10.1.1.
+- Add unit coverage across the simp, stig, custom, and built_in profiles and
+  the `auditd::rule` defined type, plus an acceptance test that corrupts the
+  ownership and confirms Puppet repairs it idempotently.
+
 * Mon Aug 24 2026 Steven Pritchard <steve@sicura.us> - 10.1.2
 - [puppetsync] Update metadata.json dependency ranges from the Forge
 
