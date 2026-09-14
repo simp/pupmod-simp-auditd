@@ -253,7 +253,7 @@ describe 'auditd' do
 
         # auditd::config::audit_profiles::simp validation
         it {
-          expected = File.read('spec/classes/config/audit_profiles/expected/simp_el7_basic_rules.txt')
+          expected = File.read('spec/classes/config/audit_profiles/expected/simp_basic_rules.txt')
           is_expected.to contain_file('/etc/audit/rules.d/50_01_simp_base.rules').with_content(expected)
         }
 
