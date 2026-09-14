@@ -1,9 +1,13 @@
 #### auditd::config::audit_profiles::simp Audit Rules ####
 # 64-bit systems should generally never call the 32-bit API. 32-bit syscalls
 # may be a sign of someone exploiting a hole in the API.
--a always,exit -F arch=b32 -S all -F key=32bit-api
--a always,exit -F arch=b64 -S accept -F a0=2 -F key=ipv4_in
--a always,exit -F arch=b64 -S accept -F a0=10 -F key=ipv6_in
+-a always,exit -F arch=b32 -S all -F key=my_32bit_operations
+-a always,exit -F arch=b64 -S accept -F a0=2 -F key=my_network_ipv4_accept
+-a always,exit -F arch=b64 -S accept -F a0=10 -F key=my_network_ipv6_accept
+-a always,exit -F arch=b64 -S connect -F a0=2 -F key=my_network_ipv4_connect
+-a always,exit -F arch=b32 -S connect -F a0=2 -F key=my_network_ipv4_connect
+-a always,exit -F arch=b64 -S connect -F a0=10 -F key=my_network_ipv6_connect
+-a always,exit -F arch=b32 -S connect -F a0=10 -F key=my_network_ipv6_connect
 
 ## Audit unsuccessful file operations
 -a always,exit -F arch=b64 -S creat,mkdir,mknod,link,symlink,mkdirat,mknodat,linkat,symlinkat,openat,open_by_handle_at,open,close,rename,renameat,truncate,ftruncate,rmdir,unlink,unlinkat -F exit=-EACCES -k my_unsuccessful_file_operations
@@ -183,27 +187,27 @@
 -w /etc/sudoers.d/ -p wa -k my_cfg_sudoers
 
 ## Audit accesses to the audit trail
--w /usr/sbin/aulast -p x -k access-audit-trail
--w /usr/sbin/aulastlogin -p x -k access-audit-trail
--w /usr/sbin/aureport -p x -k access-audit-trail
--w /usr/sbin/ausearch -p x -k access-audit-trail
--w /usr/sbin/auvirt -p x -k access-audit-trail
+-w /usr/sbin/aulast -p x -k my_auditd_cmds
+-w /usr/sbin/aulastlogin -p x -k my_auditd_cmds
+-w /usr/sbin/aureport -p x -k my_auditd_cmds
+-w /usr/sbin/ausearch -p x -k my_auditd_cmds
+-w /usr/sbin/auvirt -p x -k my_auditd_cmds
 
 ## Audit systemd components
--w /bin/systemctl -p x -k systemd
--w /usr/bin/systemctl -p x -k systemd
--w /etc/systemd/ -p wa -k systemd
+-w /bin/systemctl -p x -k my_systemd
+-w /usr/bin/systemctl -p x -k my_systemd
+-w /etc/systemd/ -p wa -k my_systemd
 
 ## Audit suspicious applications
--w /usr/bin/nc -p x -k suspicious_apps
--w /usr/bin/ncat -p x -k suspicious_apps
--w /usr/bin/nmap -p x -k suspicious_apps
--w /usr/bin/rawshark -p x -k suspicious_apps
--w /usr/bin/socat -p x -k suspicious_apps
--w /usr/bin/wireshark -p x -k suspicious_apps
--w /usr/sbin/tcpdump -p x -k suspicious_apps
--w /usr/sbin/traceroute -p x -k suspicious_apps
--w /usr/sbin/traceroute6 -p x -k suspicious_apps
+-w /usr/bin/nc -p x -k my_suspicious_apps
+-w /usr/bin/ncat -p x -k my_suspicious_apps
+-w /usr/bin/nmap -p x -k my_suspicious_apps
+-w /usr/bin/rawshark -p x -k my_suspicious_apps
+-w /usr/bin/socat -p x -k my_suspicious_apps
+-w /usr/bin/wireshark -p x -k my_suspicious_apps
+-w /usr/sbin/tcpdump -p x -k my_suspicious_apps
+-w /usr/sbin/traceroute -p x -k my_suspicious_apps
+-w /usr/sbin/traceroute6 -p x -k my_suspicious_apps
 
 ## Generally good things to audit.
 -w /etc/grub.d -p wa -k my_cfg_grub
