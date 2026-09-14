@@ -16,7 +16,7 @@ describe 'auditd' do
 
       context 'with default parameters' do
         it {
-          expected = File.read('spec/classes/config/audit_profiles/expected/simp_el7_basic_rules.txt')
+          expected = File.read('spec/classes/config/audit_profiles/expected/simp_basic_rules.txt')
           is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(expected)
         }
 
@@ -91,7 +91,7 @@ describe 'auditd' do
         let(:params) { { root_audit_level: 'aggressive' } }
 
         it {
-          expected = File.read('spec/classes/config/audit_profiles/expected/simp_el7_aggressive_rules.txt')
+          expected = File.read('spec/classes/config/audit_profiles/expected/simp_aggressive_rules.txt')
           is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(expected)
         }
       end
@@ -100,7 +100,7 @@ describe 'auditd' do
         let(:params) { { root_audit_level: 'insane' } }
 
         it {
-          expected = File.read('spec/classes/config/audit_profiles/expected/simp_el7_insane_rules.txt')
+          expected = File.read('spec/classes/config/audit_profiles/expected/simp_insane_rules.txt')
           is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(expected)
         }
       end
@@ -325,7 +325,7 @@ describe 'auditd' do
         let(:params) { { root_audit_level: 'insane' } }
 
         it 'uses custom tags as rule keys' do
-          expected = File.read('spec/classes/config/audit_profiles/expected/simp_el7_all_rules_custom_tags.txt')
+          expected = File.read('spec/classes/config/audit_profiles/expected/simp_all_rules_custom_tags.txt')
           is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(expected)
         end
 
@@ -347,7 +347,7 @@ describe 'auditd' do
         let(:params) { { default_audit_profiles: ['simp', 'stig'] } }
 
         it {
-          expected = File.read('spec/classes/config/audit_profiles/expected/simp_el7_basic_rules.txt')
+          expected = File.read('spec/classes/config/audit_profiles/expected/simp_basic_rules.txt')
           is_expected.to contain_file('/etc/audit/rules.d/50_00_simp_base.rules').with_content(expected)
         }
 
