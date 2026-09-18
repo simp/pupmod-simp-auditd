@@ -91,6 +91,7 @@ class auditd::config::audisp::syslog (
       type   => $type,
       args   => "${priority} ${facility}"
     }),
+    require => Package[$auditd::package_name],
   }
   #
   #  The below section is here for backwards compatability. It will be removed

@@ -65,7 +65,8 @@ class auditd::config::audit_profiles {
 
   file { '/etc/audit/rules.d/00_head.rules':
     *       => $auditd::config::rule_file_attributes,
-    content => epp("${_common_template_path}/head.epp")
+    content => epp("${_common_template_path}/head.epp"),
+    require => Package[$auditd::package_name],
   }
 
   # If the only profile is the 'built_in' profile, we should skip these to allow
@@ -73,12 +74,14 @@ class auditd::config::audit_profiles {
   unless ( length($auditd::config::profiles)  == 1 ) and ( 'built_in' in $auditd::config::profiles ) {
     file { '/etc/audit/rules.d/05_default_drop.rules':
       *       => $auditd::config::rule_file_attributes,
-      content => epp("${_common_template_path}/default_drop.epp")
+      content => epp("${_common_template_path}/default_drop.epp"),
+      require => Package[$auditd::package_name],
     }
 
     file { '/etc/audit/rules.d/99_tail.rules':
       *       => $auditd::config::rule_file_attributes,
-      content => epp("${_common_template_path}/tail.epp")
+      content => epp("${_common_template_path}/tail.epp"),
+      require => Package[$auditd::package_name],
     }
   }
 

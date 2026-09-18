@@ -30,6 +30,7 @@ class auditd::config::audit_profiles::built_in (
               "sha512sum -c --status ${_sample_rules_basedir}/.${_order}-${_ruleset}.rules.sha512"
             ],
             notify  => Exec['build_privileged_ruleset'],
+            require => Package[$auditd::package_name],
           }
 
           exec { 'build_privileged_ruleset':
@@ -44,14 +45,15 @@ class auditd::config::audit_profiles::built_in (
             *       => $auditd::config::rule_file_attributes,
             source  => "file://${_sample_rules_basedir}/${_order}-${_ruleset}.rules.evaluated",
             notify  => Class['auditd::service'],
-            require => Exec['build_privileged_ruleset'],
+            require => [Exec['build_privileged_ruleset'], Package[$auditd::package_name]],
           }
         } else {
           file { "/etc/audit/rules.d/${_order}-${_ruleset}.rules":
-            ensure => 'file',
-            *      => $auditd::config::rule_file_attributes,
-            source => "file://${_sample_rules_basedir}/${_order}-${_ruleset}.rules",
-            notify => Class['auditd::service'],
+            ensure  => 'file',
+            *       => $auditd::config::rule_file_attributes,
+            source  => "file://${_sample_rules_basedir}/${_order}-${_ruleset}.rules",
+            notify  => Class['auditd::service'],
+            require => Package[$auditd::package_name],
           }
         }
       } else {

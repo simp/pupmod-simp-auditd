@@ -331,10 +331,10 @@ describe 'auditd' do
           it { is_expected.to contain_class('auditd::config::audit_profiles::built_in') }
         end
 
-        # I have it go through both version on each os because right now the facts are not
-        # created for rhel 8 and I need the audit version 3.0 tested.  Auditd version is the
-        # default for rhel 8 but version 2 is the default for el6 and el7.
-        # Neither fact is available if auditing in the kernel is not enabled.
+        # Both auditd major versions are exercised on every OS because the
+        # facts are not generated for every supported release. Neither fact is
+        # available if auditing in the kernel is not enabled, so the unknown
+        # case is covered too.
         [
           { auditd_version: '3.0', auditd_major_version: '3' },
           { auditd_version: '2.4.5', auditd_major_version: '2' },
@@ -347,87 +347,77 @@ describe 'auditd' do
               f[:auditd_major_version] = more_facts[:auditd_major_version]
               f
             end
-            let(:expected_content) do
-              <<~EOM
-                # This file is managed by Puppet (module 'auditd')
-                log_file = /var/log/audit/audit.log
-                log_format = raw
-                log_group = root
-                priority_boost = 4
-                flush = incremental
-                freq = 20
-                num_logs = 5
-                name_format = USER
-                name = #{facts[:networking][:fqdn]}
-                max_log_file = 24
-                max_log_file_action = rotate
-                space_left = 80
-                space_left_action = syslog
-                admin_space_left = 50
-                admin_space_left_action = rotate
-                disk_full_action = rotate
-                disk_error_action = syslog
-              EOM
-            end
-            let(:extra_content) do
-              <<~EOM
-                write_logs = yes
-              EOM
-            end
-            let(:v2_content) do
-              <<~EOM
-                disp_qos = lossy
-                dispatcher = /sbin/audispd
-              EOM
-            end
-            let(:v3_content) do
-              <<~EOM
-                # Auditd Version 3.0 or later specific options
-                local_events = yes
-                verify_email = yes
-                overflow_action = SYSLOG
-                q_depth = 160
-                max_restarts = 10
-                plugin_dir = /etc/audit/plugins.d
-              EOM
-            end
-            let(:end_content) do
-              <<~EOM
-                # This entry must be after verify_email if verify_email is to work
-                # Note: verify_email is only an auditd version 3 option
-                action_mail_acct = root
-              EOM
+
+            # auditd.conf is edited key by key with ini_setting rather than
+            # rendered from a template, so assert the managed keys directly.
+            # Any key absent from this hash keeps the value the audit package
+            # shipped -- that is the point of the ini_setting approach.
+            let(:expected_settings) do
+              settings = {
+                'log_file' => '/var/log/audit/audit.log',
+                'log_format' => 'raw',
+                'log_group' => 'root',
+                'priority_boost' => 4,
+                'flush' => 'incremental',
+                'freq' => 20,
+                'num_logs' => 5,
+                'name_format' => 'USER',
+                'name' => facts[:networking][:fqdn],
+                'max_log_file' => 24,
+                'max_log_file_action' => 'rotate',
+                'space_left' => 80,
+                'space_left_action' => 'syslog',
+                'admin_space_left' => 50,
+                'admin_space_left_action' => 'rotate',
+                'disk_full_action' => 'rotate',
+                'disk_error_action' => 'syslog',
+                'write_logs' => 'yes',
+                'local_events' => 'yes',
+                'verify_email' => 'yes',
+                'overflow_action' => 'SYSLOG',
+                'q_depth' => 160,
+                'max_restarts' => 10,
+                'plugin_dir' => '/etc/audit/plugins.d',
+                'action_mail_acct' => 'root',
+              }
+
+              if more_facts[:auditd_major_version] == '2'
+                # auditd < 2.5.2 leaves $auditd::_write_logs unset, so the key
+                # is not managed at all, and the version-2 Hiera layer puts the
+                # plugin directory somewhere else.
+                settings.delete('write_logs')
+                settings['plugin_dir'] = '/etc/audisp/plugins.d'
+              end
+
+              settings
             end
 
             context 'with default parameters' do
               let(:params) { {} }
 
+              # The declaration for auditd.conf exists to enforce attributes and
+              # to keep the recurse/purge on /etc/audit from deleting the file.
+              # It must never manage contents, or every vendor key this module
+              # has no opinion about would be lost.
+              it { is_expected.to contain_file('/etc/audit/auditd.conf').with(owner: 'root', group: 'root', mode: 'u+rwX,g-rwx,o-rwx') }
+              it { is_expected.to contain_file('/etc/audit/auditd.conf').without_content }
+              it { is_expected.to contain_file('/etc/audit/auditd.conf').without_source }
+
               it {
-                complete_content = if facts[:auditd_major_version] == '2'
-                                     if facts[:auditd_version] && (facts[:auditd_version] < '2.5.2')
-                                       # If version 2.5.2 does not have option write_logs
-                                       expected_content + v2_content + end_content
-                                     else
-                                       expected_content + extra_content + v2_content + end_content
-                                     end
-                                   else
-                                     expected_content + extra_content + v3_content + end_content
-                                   end
-
-                is_expected.to contain_file('/etc/audit/auditd.conf').with(
-                  owner: 'root',
-                  group: 'root',
-                  mode: 'u+rwX,g-rwx,o-rwx',
-                  content: complete_content + "\n",
-                )
-
-                if (facts[:auditd_major_version].nil? && (facts[:os][:release][:major].to_i >= 8)) ||
-                   (facts[:auditd_major_version] == '3')
-                  is_expected.to contain_file('/etc/audit/auditd.conf').with_content(%r{^local_events = .*$})
-                else
-                  is_expected.to contain_file('/etc/audit/auditd.conf').with_content(%r{^disp_qos = .*$})
+                expected_settings.each do |setting, value|
+                  is_expected.to contain_ini_setting("auditd.conf #{setting}").with(
+                    path: '/etc/audit/auditd.conf',
+                    section: '',
+                    setting: setting,
+                    value: value,
+                  )
                 end
               }
+
+              # The keys the auditd 2.x template used to write are gone. No
+              # supported OS ships an auditd old enough to want them.
+              it { is_expected.not_to contain_ini_setting('auditd.conf disp_qos') }
+              it { is_expected.not_to contain_ini_setting('auditd.conf dispatcher') }
             end
 
             context 'with syslog enabled' do

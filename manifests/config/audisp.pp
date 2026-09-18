@@ -51,7 +51,8 @@ priority_boost  = ${priority_boost}
 max_restarts    = ${max_restarts}
 name_format     = ${name_format}
 name            = ${specific_name}
-"
+",
+      require => Package[$auditd::package_name],
     }
   }
 }

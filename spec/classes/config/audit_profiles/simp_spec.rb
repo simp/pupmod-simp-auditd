@@ -359,49 +359,45 @@ describe 'auditd' do
       end
 
       context 'with auditd version' do
-        let(:auditd_conf) { catalogue.resource('File[/etc/audit/auditd.conf]') }
-
-        # EL 7.3
-        context '2.6.5' do
+        # EL9. This replaced a 2.6.5 context: init.pp takes the same branch for
+        # anything at or above 2.6.0, so the coverage is identical and the fact
+        # now names a release we actually support.
+        context '3.1.5' do
           let(:facts) do
             new_facts = Marshal.load(Marshal.dump(os_facts))
-            new_facts[:auditd_version] = '2.6.5'
+            new_facts[:auditd_version] = '3.1.5'
 
             new_facts
           end
 
+          # auditd.conf is edited key by key with ini_setting, so assert the
+          # managed keys rather than the contents of a rendered file.
           context 'default options' do
-            it do
-              expect(auditd_conf[:content]).to include('log_format = raw')
-              expect(auditd_conf[:content]).to include('write_logs = yes')
-            end
+            it { is_expected.to contain_ini_setting('auditd.conf log_format').with_value('raw') }
+            it { is_expected.to contain_ini_setting('auditd.conf write_logs').with_value('yes') }
           end
 
           context 'write_logs = false' do
             let(:params) { { write_logs: false } }
 
-            it do
-              expect(auditd_conf[:content]).to include('log_format = raw')
-              expect(auditd_conf[:content]).to include('write_logs = no')
-            end
+            it { is_expected.to contain_ini_setting('auditd.conf log_format').with_value('raw') }
+            it { is_expected.to contain_ini_setting('auditd.conf write_logs').with_value('no') }
           end
 
           context 'log_format = NOLOG' do
             let(:params) { { log_format: 'NOLOG' } }
 
-            it do
-              expect(auditd_conf[:content]).to include('log_format = raw')
-              expect(auditd_conf[:content]).to include('write_logs = no')
-            end
+            # $auditd::write_logs defaults off when $log_format is NOLOG
+            # (init.pp), so NOLOG never reaches auditd.conf as a format.
+            it { is_expected.to contain_ini_setting('auditd.conf log_format').with_value('raw') }
+            it { is_expected.to contain_ini_setting('auditd.conf write_logs').with_value('no') }
           end
 
           context 'log_format = ENRICHED' do
             let(:params) { { log_format: 'ENRICHED' } }
 
-            it do
-              expect(auditd_conf[:content]).to include('log_format = ENRICHED')
-              expect(auditd_conf[:content]).to include('write_logs = yes')
-            end
+            it { is_expected.to contain_ini_setting('auditd.conf log_format').with_value('ENRICHED') }
+            it { is_expected.to contain_ini_setting('auditd.conf write_logs').with_value('yes') }
           end
         end
       end

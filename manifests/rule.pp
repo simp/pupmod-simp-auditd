@@ -66,6 +66,7 @@ define auditd::rule (
       *       => $auditd::config::rule_file_attributes,
       content => epp("${module_name}/rule.epp", { content => $content }),
       notify  => Class['auditd::service'],
+      require => Package[$auditd::package_name],
     }
   }
   else {

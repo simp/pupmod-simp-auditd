@@ -4,6 +4,7 @@ fixtures:
     augeasproviders_core: https://github.com/simp/augeasproviders_core.git
     augeasproviders_grub: https://github.com/voxpupuli/puppet-augeasproviders_grub.git
     concat: https://github.com/simp/puppetlabs-concat.git
+    inifile: https://github.com/simp/puppetlabs-inifile.git
     logrotate: https://github.com/simp/pupmod-simp-logrotate.git
     pki: https://github.com/simp/pupmod-simp-pki.git
     rsyslog: https://github.com/simp/pupmod-simp-rsyslog.git

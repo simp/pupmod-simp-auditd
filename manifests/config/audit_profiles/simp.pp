@@ -539,6 +539,7 @@ class auditd::config::audit_profiles::simp (
 
   file { "/etc/audit/rules.d/50_${_idx}_${_short_name}_base.rules":
     *       => $auditd::config::rule_file_attributes,
-    content => epp("${module_name}/rule_profiles/simp/base.epp")
+    content => epp("${module_name}/rule_profiles/simp/base.epp"),
+    require => Package[$auditd::package_name],
   }
 }

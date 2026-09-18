@@ -77,11 +77,27 @@ Custom rules are injected using the `auditd::rule` defined type (`manifests/rule
 
 ### Auditd Version Handling
 
-The module supports auditd v2 and v3, which have different `auditd.conf` configuration keys. The `auditd_version` and `auditd_major_version` custom facts (in `lib/facter/`) drive version-specific template selection. Templates are split across:
+Two custom facts in `lib/facter/auditd_version.rb` drive version-dependent behavior:
 
-- `templates/etc/audit/auditd.conf.epp` — common settings
-- `templates/etc/audit/auditd.2.conf.epp` — v2-only keys
-- `templates/etc/audit/auditd.3.conf.epp` — v3-only keys
+- `auditd_version` — full version string, gates code paths via `versioncmp`
+  (`init.pp`, `config/logging.pp`, `config/audisp.pp`, `config/audisp/syslog.pp`)
+- `auditd_major_version` — major number only, selects the
+  `data/auditd/version-%{facts.auditd_major_version}.yaml` Hiera layer (`hiera.yaml`)
+
+Both derive from the `simplib__auditd` structured fact, which does not resolve until
+auditing is enabled in the kernel, so either can be `undef`. `init.pp` and
+`config/logging.pp` test the fact before using it and fall back to the newest supported
+behavior. `config/audisp.pp` and `config/audisp/syslog.pp` call `versioncmp` unguarded;
+that is safe only because `config/logging.pp` is the sole thing that declares them and
+it already checks. Keep that guard in mind before declaring either class elsewhere.
+
+### auditd.conf
+
+Managed key-by-key with `ini_setting` (puppetlabs-inifile) in `manifests/config.pp`,
+rather than by rendering the whole file. The package's own `auditd.conf` stays in
+place and only the keys this module has an opinion about are edited — keys the module
+does not manage keep their vendor values. To manage a new key, add it to one of the
+`$_auditd_conf_*` hashes in `config.pp`.
 
 ### Hiera Data Structure
 

@@ -1,3 +1,27 @@
+* Fri Sep 18 2026 Hazel Caballero <hazel@sicura.us> - 10.2.0
+- Manage `/etc/audit/auditd.conf` key by key with `ini_setting` rather than
+  rendering the whole file from a template. The audit package ships a complete
+  `auditd.conf`, and overwriting it wholesale silently reverted every key this
+  module has no opinion about to auditd's compiled-in default. Only the managed
+  keys are edited now; the rest of the vendor file is left intact. Adds a
+  dependency on `puppetlabs-inifile`.
+- `File['/etc/audit/auditd.conf']` is retained with neither `content` nor
+  `source`. It no longer decides the file's contents, but it still enforces
+  ownership and mode, and it still shields the file from the `recurse`/`purge`
+  on `File['/etc/audit']`. An `ini_setting` does not claim a path for purge
+  purposes -- only a `file` resource does -- so without this declaration Puppet
+  would delete the vendor file on every run and the `ini_setting` resources
+  would recreate a stub holding just the managed keys.
+- Drop the auditd 2.x branch of the configuration file, along with the
+  `auditd.conf`, `auditd.2.conf`, `auditd.3.conf` and `auditd.last.conf`
+  templates. Every supported OS ships auditd 3.0 or later (the EL8 floor is
+  3.1.2), so the `disp_qos` and `dispatcher` keys are no longer written. No
+  change in behavior on any supported platform.
+- Add `require => Package[$auditd::package_name]` to every resource that writes
+  into `/etc/audit`. Ordering was already guaranteed transitively through the
+  parent-directory autorequire on `File['/etc/audit']`; stating it per resource
+  makes each one independent of that chain.
+
 * Thu Sep 24 2026 Steven Pritchard <steve@sicura.us> - 10.1.5
 - Install the `audit-rules` package on EL10. EL10 moved `auditctl`,
   `augenrules` and `/etc/audit/rules.d` out of `audit` into `audit-rules`,
