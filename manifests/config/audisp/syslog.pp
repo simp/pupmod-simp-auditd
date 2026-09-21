@@ -69,14 +69,14 @@ class auditd::config::audisp::syslog (
   Boolean                         $drop_audit_logs = true, #deprecated see @param
   Auditd::LogPriority             $priority        = 'LOG_INFO',
   Auditd::LogFacility             $facility        = 'LOG_LOCAL5',
-  Optional[String]                $pkg_name        = 'audispd-plugins',
+  String[1]                       $pkg_name        = 'audispd-plugins',
   String                          $syslog_path     = '/sbin/audisp-syslog',
   String                          $type            = 'always',
   Boolean                         $rsyslog         = false, #deprecated see @param
   String                          $package_ensure  = 'installed',
 ) {
   # See auditd::config::logging for why a missing auditd_version means 3.0.
-  if versioncmp(pick($facts['auditd_version'], '3.0'), '3.0') >= 0 and $enable and $pkg_name {
+  if versioncmp(pick($facts['auditd_version'], '3.0'), '3.0') >= 0 and $enable {
     package { $pkg_name :
       ensure => $package_ensure,
     }

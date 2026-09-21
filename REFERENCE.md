@@ -928,7 +928,7 @@ Default value: `'always'`
 
 ##### <a name="-auditd--config--audisp--syslog--pkg_name"></a>`pkg_name`
 
-Data type: `Optional[String]`
+Data type: `String[1]`
 
 The name of the plugin package to install.  Only needed for
 auditd version 3 and later.
