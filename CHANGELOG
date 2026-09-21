@@ -1,82 +1,48 @@
 * Mon Sep 21 2026 Hazel Caballero <hazel@sicura.us> - 11.0.0
-- BREAKING: a bare `include auditd` now declares `Package[audit]` and nothing
-  else. Previously it installed the package, replaced the kernel audit rules,
-  purged `/etc/audit/rules.d`, rewrote `auditd.conf`, took ownership of
-  `/etc/audit` and `/var/log/audit`, started and enabled the service, and added
-  `audit=1` to the kernel command line. Every resource beyond the package is
-  now declared only when a parameter asks for it, and those parameters default
-  to `undef`, `false` or `[]`. The SIMP values they used to carry move to the
+- BREAKING: a bare `include auditd` declares `Package[audit]` and nothing else.
+  Every other resource is declared only when a parameter asks for it. The
+  values previously applied by default are available through the new
   `simp:defaults` compliance profile.
-- BREAKING: `Service['auditd']` is declared only when `auditd::service_ensure`
-  or `auditd::service_enable` is set; `auditd::config::grub` is included only
-  when `auditd::at_boot` is set; the rule files are written only when
-  `auditd::default_audit_profiles` is non-empty; `/etc/audit/rules.d` is purged
-  only when `auditd::purge_auditd_rules` is `true`; `/var/log/audit` is managed
-  only when `auditd::log_group` is set; and `/etc/audit/auditd.conf` ownership
-  is managed only when `auditd::config_group` is set.
-- BREAKING: `/etc/audit` is no longer managed. The recursive `purge` that ran
-  over it deleted files the audit package owns -- `audit-stop.rules` and the
-  `audisp-*.conf` files -- and tightened the directory from the packaged `0750`
-  to `0700`. Both stop happening, and `rpm -V audit` comes back clean.
-- BREAKING: `auditd::admin_space_left` now requires `auditd::space_left`.
-  `space_left` used to default to `auditd::calculate_space_left($admin_space_left)`;
-  it is `undef` now, and because auditd refuses to start unless `space_left` is
-  greater than `admin_space_left`, setting one without the other fails the
-  catalogue rather than silently leaving the packaged value in place.
-  `auditd::calculate_space_left()` still ships for sites that want the old
-  computed value.
-- BREAKING: `auditd::config_group` no longer defaults to `auditd::log_group`.
-  The two answer different questions -- who may read the audit logs, versus who
-  may read the audit configuration -- and chaining them meant a site naming its
-  log shipper's group also disclosed which syscalls were being watched, and
-  traded away CIS 6.3.4.7. Unset, the configuration files fall back to group
+- BREAKING: resource gating. `Service['auditd']` requires
+  `auditd::service_ensure` or `auditd::service_enable`; `auditd::config::grub`
+  requires `auditd::at_boot`; the rule files require a non-empty
+  `auditd::default_audit_profiles`; purging `/etc/audit/rules.d` requires
+  `auditd::purge_auditd_rules`; `/var/log/audit` requires `auditd::log_group`;
+  `/etc/audit/auditd.conf` ownership requires `auditd::config_group`.
+- BREAKING: `/etc/audit` is no longer managed or purged.
+- BREAKING: `auditd::space_left` defaults to `undef`. Setting
+  `auditd::admin_space_left` without it fails the catalogue.
+  `auditd::calculate_space_left()` remains available.
+- BREAKING: `auditd::config_group` defaults to `undef` rather than
+  `auditd::log_group`. Unset, the configuration files fall back to group
   `root`.
 - BREAKING: `simp_options::package_ensure` and `simp_options::syslog` are no
-  longer consulted. `auditd::package_ensure` (default `installed`) and
-  `auditd::syslog` (default `false`) are ordinary parameters now.
-- BREAKING: every `auditd.conf` key parameter is `Optional` and unset by
-  default. Each key is written to `auditd.conf` only when its own parameter is
-  set, so setting one changes exactly one key.
-- Deprecate `auditd::enable`. `undef` does nothing, `true` prints a notice,
-  and `false` prints a notice and implies `service_ensure => stopped`,
-  `service_enable => false` and `at_boot => false` where those are unset. It no
-  longer stands the rest of the module down. `auditd::default_audit_profile` is
-  deprecated in favour of `auditd::default_audit_profiles`.
-- Remove the per-OS (`data/os/*.yaml`) and per-auditd-version
-  (`data/auditd/version-*.yaml`) Hiera layers. Every supported platform carried
-  identical values, so they expressed defaults rather than platform knowledge.
-  `hiera.yaml` keeps `common.yaml` alone. Dropping `version-2.yaml` means the
-  auditd 2 audisp layout is no longer selected automatically; a site that needs
-  it sets `auditd::plugin_dir`, `auditd::config::audisp::syslog::type` and
+  longer consulted. Use `auditd::package_ensure` (default `installed`) and
+  `auditd::syslog` (default `false`).
+- BREAKING: every `auditd.conf` key parameter is `Optional` and defaults to
+  `undef`. Each key is written only when its own parameter is set.
+- Add the `simp:defaults` compliance profile under `SIMP/compliance_profiles`,
+  which restores the pre-11.0.0 configuration when enforced.
+- Deprecate `auditd::enable` and `auditd::default_audit_profile`. `enable =>
+  false` prints a notice and implies `service_ensure => stopped`,
+  `service_enable => false` and `at_boot => false` where those are unset.
+- Remove the `data/os/*.yaml` and `data/auditd/version-*.yaml` Hiera layers;
+  `hiera.yaml` keeps `common.yaml` alone. The auditd 2 audisp layout is no
+  longer selected automatically; set `auditd::plugin_dir`,
+  `auditd::config::audisp::syslog::type` and
   `auditd::config::audisp::syslog::syslog_path` directly.
-- Fix an operator-precedence bug in `auditd::validate_init_params`. Puppet's
-  `and` binds more loosely than `=`, so `$_pct = ($x =~ String) and ('%' in $x)`
-  assigned only the `String` test and discarded the rest.
-- Add a spec for `auditd::calculate_space_left`, which had no direct coverage.
+- Fix an operator-precedence bug in `auditd::validate_init_params` where
+  `$_pct = ($x =~ String) and ('%' in $x)` assigned only the `String` test.
+- Add a spec for `auditd::calculate_space_left`.
 
 * Fri Sep 18 2026 Hazel Caballero <hazel@sicura.us> - 10.2.0
-- Manage `/etc/audit/auditd.conf` key by key with `ini_setting` rather than
-  rendering the whole file from a template. The audit package ships a complete
-  `auditd.conf`, and overwriting it wholesale silently reverted every key this
-  module has no opinion about to auditd's compiled-in default. Only the managed
-  keys are edited now; the rest of the vendor file is left intact. Adds a
-  dependency on `puppetlabs-inifile`.
-- `File['/etc/audit/auditd.conf']` is retained with neither `content` nor
-  `source`. It no longer decides the file's contents, but it still enforces
-  ownership and mode, and it still shields the file from the `recurse`/`purge`
-  on `File['/etc/audit']`. An `ini_setting` does not claim a path for purge
-  purposes -- only a `file` resource does -- so without this declaration Puppet
-  would delete the vendor file on every run and the `ini_setting` resources
-  would recreate a stub holding just the managed keys.
-- Drop the auditd 2.x branch of the configuration file, along with the
-  `auditd.conf`, `auditd.2.conf`, `auditd.3.conf` and `auditd.last.conf`
-  templates. Every supported OS ships auditd 3.0 or later (the EL8 floor is
-  3.1.2), so the `disp_qos` and `dispatcher` keys are no longer written. No
-  change in behavior on any supported platform.
-- Add `require => Package[$auditd::package_name]` to every resource that writes
-  into `/etc/audit`. Ordering was already guaranteed transitively through the
-  parent-directory autorequire on `File['/etc/audit']`; stating it per resource
-  makes each one independent of that chain.
+- Manage `/etc/audit/auditd.conf` key by key with `ini_setting` instead of
+  rendering the whole file from a template. Only the managed keys are edited;
+  the rest of the vendor file is left intact. Adds a dependency on
+  `puppetlabs-inifile`.
+- Retain `File['/etc/audit/auditd.conf']` with neither `content` nor `source`,
+  so it still enforces ownership and mode and still shields the file from the
+  `purge` on `File['/etc/audit']`.
 
 * Thu Sep 24 2026 Steven Pritchard <steve@sicura.us> - 10.1.5
 - Install the `audit-rules` package on EL10. EL10 moved `auditctl`,

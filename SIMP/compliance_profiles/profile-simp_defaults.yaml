@@ -1,0 +1,40 @@
+# The `simp:defaults` Sicura Compliance Engine profile.
+#
+# Enforcing it (Hiera `compliance_engine::enforcement: [simp:defaults]`) restores
+# the auditd configuration this module managed by default before 11.0.0. Checks
+# are listed directly (no controls indirection) and defined in checks.yaml.
+---
+version: 2.0.0
+profiles:
+  simp:defaults:
+    checks:
+      # Resource gates
+      simp:defaults.auditd.service_ensure: true
+      simp:defaults.auditd.service_enable: true
+      simp:defaults.auditd.at_boot: true
+      simp:defaults.auditd.default_audit_profiles: true
+      simp:defaults.auditd.audit_auditd_config: true
+      simp:defaults.auditd.purge_auditd_rules: true
+      simp:defaults.auditd.log_group: true
+      simp:defaults.auditd.config_group: true
+      # auditd.conf settings
+      simp:defaults.auditd.action_mail_acct: true
+      simp:defaults.auditd.admin_space_left: true
+      simp:defaults.auditd.space_left: true
+      simp:defaults.auditd.admin_space_left_action: true
+      simp:defaults.auditd.space_left_action: true
+      simp:defaults.auditd.disk_error_action: true
+      simp:defaults.auditd.disk_full_action: true
+      simp:defaults.auditd.flush: true
+      simp:defaults.auditd.freq: true
+      simp:defaults.auditd.log_file: true
+      simp:defaults.auditd.log_format: true
+      simp:defaults.auditd.max_log_file: true
+      simp:defaults.auditd.max_log_file_action: true
+      simp:defaults.auditd.name_format: true
+      simp:defaults.auditd.num_logs: true
+      simp:defaults.auditd.priority_boost: true
+      simp:defaults.auditd.q_depth: true
+      simp:defaults.auditd.overflow_action: true
+      simp:defaults.auditd.max_restarts: true
+      simp:defaults.auditd.write_logs: true

@@ -1,0 +1,187 @@
+# Sicura Compliance Engine checks restoring the auditd configuration this module
+# managed by default before 11.0.0, where a bare `include auditd` installs only
+# the package. One `puppet-class-parameter` check per restored parameter; the
+# `simp:defaults` profile lists them (see profile-simp_defaults.yaml).
+#
+# Values are the pre-11.0.0 *effective* value: the `data/common.yaml` override
+# where one existed, the `init.pp` literal otherwise. These five differed:
+#
+#   parameter        literal   effective
+#   priority_boost   3         4
+#   q_depth          400       160
+#   name_format      'user'    'USER'
+#   max_restarts     undef     10
+#   overflow_action  undef     'SYSLOG'
+#
+# No `confine:` keys: every per-OS and per-auditd-major data file was identical.
+#
+# Not restored: the /etc/audit purge and mode, `syslog`, `enable`.
+---
+version: 2.0.0
+checks:
+  # --- Resource gates: these decide whether a resource is declared at all. ---
+
+  # Replaces the deprecated `$enable`, which fed both attributes of
+  # Service['auditd'] as a Boolean.
+  simp:defaults.auditd.service_ensure:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::service_ensure
+      value: running
+  simp:defaults.auditd.service_enable:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::service_enable
+      value: true
+
+  # Adds `audit=1` to the boot loader. Unset, the boot loader is untouched.
+  simp:defaults.auditd.at_boot:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::at_boot
+      value: true
+
+  simp:defaults.auditd.default_audit_profiles:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::default_audit_profiles
+      value:
+        - simp
+  simp:defaults.auditd.audit_auditd_config:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::audit_auditd_config
+      value: true
+
+  # Removes rule files this module did not write; opt-in since 11.0.0.
+  simp:defaults.auditd.purge_auditd_rules:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::purge_auditd_rules
+      value: true
+
+  # Both an auditd.conf key and the switch declaring File['/var/log/audit'].
+  simp:defaults.auditd.log_group:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::log_group
+      value: root
+
+  # Declares File['/etc/audit/auditd.conf'] and group-owns /etc/audit/rules.d.
+  # Pre-11.0.0 this defaulted to `$log_group` (#243, issue #167); that chaining
+  # is gone, so the profile sets it explicitly.
+  simp:defaults.auditd.config_group:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config_group
+      value: root
+
+  # --- auditd.conf keys, each written as an ini_setting. ---
+  simp:defaults.auditd.action_mail_acct:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::action_mail_acct
+      value: root
+
+  # A pair: setting admin_space_left without space_left fails the catalogue.
+  # Do not drop either. 80 is auditd::calculate_space_left(50).
+  simp:defaults.auditd.admin_space_left:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::admin_space_left
+      value: 50
+  simp:defaults.auditd.space_left:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::space_left
+      value: 80
+
+  simp:defaults.auditd.admin_space_left_action:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::admin_space_left_action
+      value: rotate
+  simp:defaults.auditd.space_left_action:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::space_left_action
+      value: syslog
+  simp:defaults.auditd.disk_error_action:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::disk_error_action
+      value: syslog
+  simp:defaults.auditd.disk_full_action:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::disk_full_action
+      value: rotate
+  simp:defaults.auditd.flush:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::flush
+      value: incremental
+  simp:defaults.auditd.freq:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::freq
+      value: 20
+  simp:defaults.auditd.log_file:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::log_file
+      value: /var/log/audit/audit.log
+  simp:defaults.auditd.log_format:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::log_format
+      value: raw
+  simp:defaults.auditd.max_log_file:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::max_log_file
+      value: 24
+  simp:defaults.auditd.max_log_file_action:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::max_log_file_action
+      value: rotate
+
+  # Pulls $auditd::lname (the node FQDN) into auditd.conf alongside it, so the
+  # `name` key needs no check of its own.
+  simp:defaults.auditd.name_format:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::name_format
+      value: USER
+
+  simp:defaults.auditd.num_logs:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::num_logs
+      value: 5
+  simp:defaults.auditd.priority_boost:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::priority_boost
+      value: 4
+  simp:defaults.auditd.q_depth:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::q_depth
+      value: 160
+  simp:defaults.auditd.overflow_action:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::overflow_action
+      value: SYSLOG
+  simp:defaults.auditd.max_restarts:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::max_restarts
+      value: 10
+  simp:defaults.auditd.write_logs:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::write_logs
+      value: true
