@@ -15,6 +15,10 @@ describe 'auditd class with simp audit profile' do
       'auditd::at_boot'                      => true,
       'auditd::default_audit_profiles'       => ['simp'],
       'auditd::purge_auditd_rules'           => true,
+      # Generates the auditd-config watch rules (audit-logs, auditconfig,
+      # audittools). Defaulted true before 11.0.0; the SIMP rules assertion
+      # below greps for the /var/log/audit watch this emits.
+      'auditd::audit_auditd_config'          => true,
       # File['/var/log/audit'] and File['/etc/audit/rules.d'] are declared only
       # when these are set; the permission tests below depend on both.
       'auditd::log_group'                    => 'root',
