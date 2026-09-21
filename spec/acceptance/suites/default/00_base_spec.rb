@@ -40,7 +40,7 @@ describe 'auditd class with simp audit profile' do
   let(:disable_audit_messages) do
     {
       'auditd::config::audisp::syslog::enable'          => false,
-      'auditd::config::audisp::syslog::syslog_priority' => 'LOG_NOTICE',
+      'auditd::config::audisp::syslog::priority'        => 'LOG_NOTICE',
       'auditd::syslog'                                  => true
     }.merge(hieradata)
   end
