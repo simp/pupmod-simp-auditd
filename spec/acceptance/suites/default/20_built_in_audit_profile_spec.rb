@@ -11,6 +11,15 @@ describe 'auditd class with sample rulesets' do
 
   let(:hieradata) do
     {
+      # 11.0.0 makes every resource opt-in: a bare `include auditd` installs
+      # the package and nothing else. These are the gates this suite needs;
+      # they are knobs the `simp:defaults` profile sets.
+      'auditd::service_ensure'  => 'running',
+      'auditd::service_enable'  => true,
+      'auditd::at_boot'         => true,
+      'auditd::purge_auditd_rules' => true,
+      'auditd::log_group'       => 'root',
+      'auditd::config_group'    => 'root',
       'pki::cacerts_sources'    => ['file:///etc/pki/simp-testing/pki/cacerts'],
       'pki::private_key_source' => 'file:///etc/pki/simp-testing/pki/private/%{facts.networking.fqdn}.pem',
       'pki::public_key_source'  => 'file:///etc/pki/simp-testing/pki/public/%{facts.networking.fqdn}.pub',

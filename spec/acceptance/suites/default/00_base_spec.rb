@@ -5,9 +5,22 @@ test_name 'auditd class with simp audit profile'
 describe 'auditd class with simp audit profile' do
   require_relative('lib/util')
 
+  # 11.0.0 makes every resource opt-in: a bare `include auditd` installs the
+  # package and nothing else. Each auditd:: key below is a gate this suite
+  # asserts on, and is one of the knobs the `simp:defaults` profile sets.
   let(:hieradata) do
     {
-      'simp_options::syslog'                 => true,
+      'auditd::service_ensure'               => 'running',
+      'auditd::service_enable'               => true,
+      'auditd::at_boot'                      => true,
+      'auditd::default_audit_profiles'       => ['simp'],
+      'auditd::purge_auditd_rules'           => true,
+      # File['/var/log/audit'] and File['/etc/audit/rules.d'] are declared only
+      # when these are set; the permission tests below depend on both.
+      'auditd::log_group'                    => 'root',
+      'auditd::config_group'                 => 'root',
+      # Replaces simp_options::syslog, which 11.0.0 no longer consults.
+      'auditd::syslog'                       => true,
       'pki::cacerts_sources'                 => ['file:///etc/pki/simp-testing/pki/cacerts'],
       'pki::private_key_source'              => 'file:///etc/pki/simp-testing/pki/private/%{facts.networking.fqdn}.pem',
       'pki::public_key_source'               => 'file:///etc/pki/simp-testing/pki/public/%{facts.networking.fqdn}.pub',
