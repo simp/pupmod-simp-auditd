@@ -28,6 +28,10 @@ describe 'auditd class with simp audit profile' do
       'pki::cacerts_sources'                 => ['file:///etc/pki/simp-testing/pki/cacerts'],
       'pki::private_key_source'              => 'file:///etc/pki/simp-testing/pki/private/%{facts.networking.fqdn}.pem',
       'pki::public_key_source'               => 'file:///etc/pki/simp-testing/pki/public/%{facts.networking.fqdn}.pub',
+      # Inert as of 11.0.0: nothing includes the rsyslog module now that
+      # simp_options::syslog no longer feeds
+      # auditd::config::audisp::syslog::rsyslog. Left in place until that
+      # deprecated path is removed.
       'rsyslog::config::main_msg_queue_size' => 4321,
     }
   end
@@ -217,14 +221,14 @@ describe 'auditd class with simp audit profile' do
           on(host, 'useradd thing2')
           on(host, %q(grep -qe 'acct="thing2".*exe="/usr/sbin/useradd"' /var/log/audit/audit.log))
 
-          if audit_major_version >= 4
-            # auditd 4.x uses builtin syslog plugin; syslog identifier differs from 'audispd'.
-            # Check syslog files first; fall back to journal (captures all syslog traffic on EL10).
-            on(host, 'grep -rqe \'key="audit_account_changes"\' /var/log/secure /var/log/messages 2>/dev/null || ' \
-                     'journalctl --since=-5min --no-pager -q 2>/dev/null | grep -q \'key="audit_account_changes"\'')
-          else
-            on(host, %q(grep -qe 'audispd.*type=SYSCALL msg=audit.*comm="useradd.*key="audit_account_changes"' /var/log/secure))
-          end
+          # Which file the record lands in is the site rsyslog configuration's
+          # business, not this module's, and the syslog identifier differs
+          # between auditd 3 ('audisp-syslog') and 4 (builtin). 11.0.0 also no
+          # longer pulls in the SIMP rsyslog module by default, so the records
+          # are no longer routed to /var/log/secure. Check the syslog files,
+          # then fall back to the journal, which captures all syslog traffic.
+          on(host, 'grep -rqe \'key="audit_account_changes"\' /var/log/secure /var/log/messages 2>/dev/null || ' \
+                   'journalctl --since=-5min --no-pager -q 2>/dev/null | grep -q \'key="audit_account_changes"\'')
         end
 
         it 'restarts the dispatcher if killed' do
@@ -246,6 +250,11 @@ describe 'auditd class with simp audit profile' do
           on(host, 'logrotate --force /etc/logrotate.d/rsyslog')
           on(host, 'useradd notathing')
         end
+        # Knowingly inert: with the SIMP rsyslog module no longer included,
+        # nothing routes audit records to /var/log/secure, so this passes
+        # whether or not the plugin is disabled. Left until the deprecated
+        # rsyslog path is removed, at which point it should check
+        # /var/log/messages and the journal the way the positive test above does.
         describe file('/var/log/secure') do
           its(:content) { is_expected.not_to match %r{audispd.*acct="notathing"} }
         end
