@@ -12,6 +12,19 @@ describe 'auditd' do
         os_facts
       end
 
+      # The simp profile is opt-in now, and the watch rules on auditd's own
+      # configuration sit behind audit_auditd_config. This file tests the
+      # content of that profile, so it asks for it once here rather than in
+      # every context below.
+      let(:base_params) do
+        {
+          default_audit_profiles: ['simp'],
+          audit_auditd_config: true,
+        }
+      end
+
+      let(:params) { base_params }
+
       it { is_expected.to compile.with_all_deps }
 
       context 'with default parameters' do
@@ -88,7 +101,7 @@ describe 'auditd' do
       end
 
       context 'with root audit level set to aggressive' do
-        let(:params) { { root_audit_level: 'aggressive' } }
+        let(:params) { base_params.merge(root_audit_level: 'aggressive') }
 
         it {
           expected = File.read('spec/classes/config/audit_profiles/expected/simp_aggressive_rules.txt')
@@ -97,7 +110,7 @@ describe 'auditd' do
       end
 
       context 'with root audit level set to insane' do
-        let(:params) { { root_audit_level: 'insane' } }
+        let(:params) { base_params.merge(root_audit_level: 'insane') }
 
         it {
           expected = File.read('spec/classes/config/audit_profiles/expected/simp_insane_rules.txt')
@@ -322,7 +335,7 @@ describe 'auditd' do
 
       context 'with all auditing options enabled and custom tags' do
         let(:hieradata) { 'simp_audit_profile/enable_all_custom_tags' }
-        let(:params) { { root_audit_level: 'insane' } }
+        let(:params) { base_params.merge(root_audit_level: 'insane') }
 
         it 'uses custom tags as rule keys' do
           expected = File.read('spec/classes/config/audit_profiles/expected/simp_all_rules_custom_tags.txt')
@@ -344,7 +357,7 @@ describe 'auditd' do
       end
 
       context 'with multiple audit profiles' do
-        let(:params) { { default_audit_profiles: ['simp', 'stig'] } }
+        let(:params) { base_params.merge(default_audit_profiles: ['simp', 'stig']) }
 
         it {
           expected = File.read('spec/classes/config/audit_profiles/expected/simp_basic_rules.txt')
@@ -372,20 +385,26 @@ describe 'auditd' do
 
           # auditd.conf is edited key by key with ini_setting, so assert the
           # managed keys rather than the contents of a rendered file.
+          # log_format and write_logs are both opt-in keys now, so each context
+          # asks for what it asserts. The NOLOG context deliberately does not
+          # set write_logs: its whole point is that write_logs derives from
+          # log_format when it has not been given a value of its own.
           context 'default options' do
+            let(:params) { base_params.merge(log_format: 'raw', write_logs: true) }
+
             it { is_expected.to contain_ini_setting('auditd.conf log_format').with_value('raw') }
             it { is_expected.to contain_ini_setting('auditd.conf write_logs').with_value('yes') }
           end
 
           context 'write_logs = false' do
-            let(:params) { { write_logs: false } }
+            let(:params) { base_params.merge(log_format: 'raw', write_logs: false) }
 
             it { is_expected.to contain_ini_setting('auditd.conf log_format').with_value('raw') }
             it { is_expected.to contain_ini_setting('auditd.conf write_logs').with_value('no') }
           end
 
           context 'log_format = NOLOG' do
-            let(:params) { { log_format: 'NOLOG' } }
+            let(:params) { base_params.merge(log_format: 'NOLOG') }
 
             # $auditd::write_logs defaults off when $log_format is NOLOG
             # (init.pp), so NOLOG never reaches auditd.conf as a format.
@@ -394,7 +413,7 @@ describe 'auditd' do
           end
 
           context 'log_format = ENRICHED' do
-            let(:params) { { log_format: 'ENRICHED' } }
+            let(:params) { base_params.merge(log_format: 'ENRICHED', write_logs: true) }
 
             it { is_expected.to contain_ini_setting('auditd.conf log_format').with_value('ENRICHED') }
             it { is_expected.to contain_ini_setting('auditd.conf write_logs').with_value('yes') }

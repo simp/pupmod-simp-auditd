@@ -30,11 +30,11 @@
 # @author https://github.com/simp/pupmod-simp-auditd/graphs/contributors
 #
 class auditd::config::audisp (
-  Integer                $q_depth,
-  Auditd::OverflowAction $overflow_action,
-  Integer                $priority_boost,
-  Integer                $max_restarts,
-  Auditd::NameFormat     $name_format,
+  Integer                $q_depth          = 160,
+  Auditd::OverflowAction $overflow_action  = 'SYSLOG',
+  Integer                $priority_boost   = 4,
+  Integer                $max_restarts     = 10,
+  Auditd::NameFormat     $name_format      = 'USER',
   String                 $specific_name    = $facts['networking']['fqdn']
 ) {
   if  versioncmp($facts['auditd_version'], '3.0') < 0 {

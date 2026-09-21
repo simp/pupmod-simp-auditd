@@ -20,6 +20,20 @@ describe 'auditd' do
         f
       end
 
+      # The audit profiles are opt-in now: auditd::config only contains
+      # audit_profiles when default_audit_profiles is non-empty, and the
+      # watch rules on auditd's own config are behind audit_auditd_config.
+      # This file exists to test the content of that profile, so it asks for
+      # it once here instead of in every context below.
+      let(:base_params) do
+        {
+          default_audit_profiles: ['simp'],
+          audit_auditd_config: true,
+        }
+      end
+
+      let(:params) { base_params }
+
       context 'with default parameters' do
         it { is_expected.to compile.with_all_deps }
         it { is_expected.to contain_auditd__rule('audit_auditd_config').with_content(%r{-w /var/log/audit -p wa -k audit-logs}) }
@@ -70,9 +84,7 @@ describe 'auditd' do
 
       context 'targeting specific SELinux types' do
         let(:params) do
-          {
-            target_selinux_types: ['unconfined_t', 'bob_t'],
-          }
+          base_params.merge(target_selinux_types: ['unconfined_t', 'bob_t'])
         end
 
         it 'adds a rule to drop types not in the match list' do
@@ -87,7 +99,7 @@ describe 'auditd' do
       end
 
       context 'setting the root audit level to aggressive' do
-        let(:params) { { root_audit_level: 'aggressive' } }
+        let(:params) { base_params.merge(root_audit_level: 'aggressive') }
 
         it { is_expected.to compile.with_all_deps }
         it 'increases the buffer size (above basic setting)' do
@@ -98,7 +110,7 @@ describe 'auditd' do
       end
 
       context 'setting the root audit level to insane' do
-        let(:params) { { root_audit_level: 'insane' } }
+        let(:params) { base_params.merge(root_audit_level: 'insane') }
 
         it { is_expected.to compile.with_all_deps }
         it 'increases the buffer size (above aggressive setting)' do
@@ -109,7 +121,7 @@ describe 'auditd' do
       end
 
       context "setting default_audit_profiles to ['stig']" do
-        let(:params) { { default_audit_profiles: ['stig'] } }
+        let(:params) { base_params.merge(default_audit_profiles: ['stig']) }
 
         it { is_expected.to compile.with_all_deps }
         it { is_expected.not_to contain_class('auditd::config::audit_profiles::simp') }
@@ -117,7 +129,7 @@ describe 'auditd' do
       end
 
       context "setting default_audit_profiles to ['simp', 'stig']" do
-        let(:params) { { default_audit_profiles: ['simp', 'stig'] } }
+        let(:params) { base_params.merge(default_audit_profiles: ['simp', 'stig']) }
 
         it { is_expected.to compile.with_all_deps }
         it { is_expected.to contain_class('auditd::config::audit_profiles::simp') }
@@ -125,7 +137,7 @@ describe 'auditd' do
       end
 
       context 'setting default_audit_profiles to []' do
-        let(:params) { { default_audit_profiles: [] } }
+        let(:params) { base_params.merge(default_audit_profiles: []) }
 
         it { is_expected.to compile.with_all_deps }
         it { is_expected.not_to contain_class('auditd::config::audit_profiles::simp') }

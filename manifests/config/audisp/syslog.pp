@@ -69,11 +69,11 @@ class auditd::config::audisp::syslog (
   Boolean                         $drop_audit_logs = true, #deprecated see @param
   Auditd::LogPriority             $priority        = 'LOG_INFO',
   Auditd::LogFacility             $facility        = 'LOG_LOCAL5',
-  Optional[String]                $pkg_name        = undef,
-  String                          $syslog_path,    # data in module
-  String                          $type,           # data in module
-  Boolean                         $rsyslog         = simplib::lookup('simp_options::syslog', { 'default_value' => false }),   #deprecated see @param
-  String                          $package_ensure  = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' }),
+  Optional[String]                $pkg_name        = 'audispd-plugins',
+  String                          $syslog_path     = '/sbin/audisp-syslog',
+  String                          $type            = 'always',
+  Boolean                         $rsyslog         = false, #deprecated see @param
+  String                          $package_ensure  = 'installed',
 ) {
   # See auditd::config::logging for why a missing auditd_version means 3.0.
   if versioncmp(pick($facts['auditd_version'], '3.0'), '3.0') >= 0 and $enable and $pkg_name {
@@ -82,7 +82,11 @@ class auditd::config::audisp::syslog (
     }
   }
 
-  file { "${auditd::plugin_dir}/syslog.conf":
+  # auditd::plugin_dir is unset unless a site moves the directory; fall back to
+  # the path the package ships and auditd compiles in.
+  $_plugin_dir = pick($auditd::plugin_dir, '/etc/audit/plugins.d')
+
+  file { "${_plugin_dir}/syslog.conf":
     mode    => $auditd::config::config_file_mode,
     owner   => 'root',
     content => epp("${module_name}/plugins/syslog_conf", {

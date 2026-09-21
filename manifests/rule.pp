@@ -37,7 +37,10 @@ define auditd::rule (
 ) {
   include 'auditd'
 
-  if $auditd::enable {
+  # Rules are written unless the deprecated auditd::enable says not to. Writing
+  # a rule is an explicit act, so it is not gated on anything else: declaring
+  # auditd::rule is the request.
+  unless $auditd::enable == false {
     $_safe_name = regsubst($name, '(/|\s)', '__', 'G')
 
     if $order {
@@ -70,6 +73,6 @@ define auditd::rule (
     }
   }
   else {
-    debug("Auditd is disabled, not activating auditd::rule::${name}")
+    debug("auditd::enable is false, not activating auditd::rule::${name}")
   }
 }

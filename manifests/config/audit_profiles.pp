@@ -39,7 +39,10 @@ class auditd::config::audit_profiles {
   $_common_template_path = "${module_name}/rule_profiles/common"
 
   if $auditd::audit_auditd_config {
-    $_audit_log_dir = dirname($auditd::log_file)
+    # log_file is unset unless a site moves the audit log. auditd's own
+    # default is /var/log/audit/audit.log, so that is the directory to watch
+    # when nobody has said otherwise.
+    $_audit_log_dir = dirname(pick($auditd::log_file, '/var/log/audit/audit.log'))
 
     auditd::rule { 'audit_auditd_config':
       content => [

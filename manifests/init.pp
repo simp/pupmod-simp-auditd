@@ -62,6 +62,10 @@
 #
 # @param action_mail_acct
 # @param admin_space_left
+#   The free-space threshold, in megabytes or as a percentage, at which
+#   `$admin_space_left_action` is taken. Setting this requires setting
+#   `$space_left` to a larger value; see that parameter.
+#
 # @param admin_space_left_action
 #
 # @param at_boot
@@ -107,10 +111,14 @@
 #
 # @param config_group
 #   The group that owns `/etc/audit` and the audit configuration files.
-#   Setting this to a non-`root` group allows that group to read the audit
-#   configuration without having write access to the audit logs. Defaults
-#   to `$log_group` so existing deployments that set only `log_group`
-#   retain their prior `/etc/audit` ownership.
+#   Grants that group read access to the audit configuration; nothing here
+#   ever grants it write access.
+#
+#   Deliberately independent of `$log_group`. The two answer different
+#   questions -- who may read the audit *logs* versus who may read the audit
+#   *configuration* -- and a site that widens one has not asked to widen the
+#   other. Unset, the rule files fall back to group `root`, which is what CIS
+#   6.3.4.7 wants and what the package already ships.
 #
 # @param audit_rules_owner
 #   The owner to enforce on `/etc/audit/audit.rules` and
@@ -154,10 +162,10 @@
 # @param package_name
 #   The package or packages that provide auditd and its rule tools.
 #
-#   Defaults to what the newest supported release needs. On EL10, `auditctl`,
-#   `augenrules` and `/etc/audit/rules.d` are in a separate `audit-rules`
-#   package that `audit` does not require. The module data overrides this to
-#   `audit` alone for EL8 and EL9.
+#   Defaults to `['audit', 'audit-rules']` on EL10 and later, and `audit`
+#   alone before that. On EL10, `auditctl`, `augenrules` and
+#   `/etc/audit/rules.d` are in a separate `audit-rules` package that `audit`
+#   does not require.
 #
 # @param package_ensure
 #
@@ -200,17 +208,33 @@
 #   enforce auditing.
 #
 # @param space_left
-#   Must be larger than `$admin_space_left`.
+#   Must be larger than `$admin_space_left`. Required whenever
+#   `$admin_space_left` is set -- the catalog fails otherwise, because auditd
+#   will not start when this is not greater than `$admin_space_left` and the
+#   value the package ships may not be.
 #
-#   * If `$admin_space_left` is an `Integer`, will be set to `30 + $admin_space_left`
-#   * If `$admin_space_left` is a percentage (auditd >= 2.8.5), will be set to `1% + $admin_space_left`
+#   This is no longer derived for you. To reproduce the value previous
+#   releases computed, call the helper that still ships with this module from
+#   a profile:
+#
+#   ```puppet
+#   class { 'auditd':
+#     admin_space_left => 50,
+#     space_left       => auditd::calculate_space_left(50),
+#   }
+#   ```
+#
+#   It returns `30 + $admin_space_left` for an `Integer` and
+#   `1% + $admin_space_left` for a percentage (auditd >= 2.8.5).
 #
 # @param space_left_action
 #
 # @param syslog
 #   If true, manage the settings for the syslog plugin
-#   It was left defaulted to  simp_options::syslog value for backwards
-#   compatability.
+#
+#   This used to default to the `simp_options::syslog` site key; that lookup
+#   has been removed and it is an ordinary parameter now.
+#
 #   This does not  activate/deactivate the plugin.  That setting is
 #   in the auditd::config::audisp::syslog::enable setting.  If syslog
 #   is set to true, by default it will enable the syslog plugin in order
@@ -249,144 +273,161 @@
 #
 class auditd (
   # Control Parameters
-  Boolean                                 $enable                   = true,
-  Optional[Variant[Enum['simp'],Boolean]] $default_audit_profile    = undef,
-  Array[Auditd::AuditProfile]             $default_audit_profiles   = ['simp'],
-  Boolean                                 $audit_auditd_config      = true,
-  String                                  $lname                    = $facts['networking']['fqdn'],
+  Optional[Boolean]                                    $enable                          = undef,
+  Optional[Variant[Enum['simp'],Boolean]]              $default_audit_profile           = undef,
+  Array[Auditd::AuditProfile]                          $default_audit_profiles          = [],
+  Boolean                                              $audit_auditd_config             = false,
+  String                                               $lname                           = $facts['networking']['fqdn'],
 
   # Rule Tweaks
-  Boolean                                 $ignore_anonymous         = true,
-  Boolean                                 $ignore_crond             = true,
-  Boolean                                 $ignore_time_daemons      = true,
-  Boolean                                 $ignore_crypto_key_user   = true,
-  Boolean                                 $ignore_errors            = true,
-  Boolean                                 $ignore_failures          = true,
-  Boolean                                 $ignore_system_services   = true,
+  Boolean                                              $ignore_anonymous                = true,
+  Boolean                                              $ignore_crond                    = true,
+  Boolean                                              $ignore_time_daemons             = true,
+  Boolean                                              $ignore_crypto_key_user          = true,
+  Boolean                                              $ignore_errors                   = true,
+  Boolean                                              $ignore_failures                 = true,
+  Boolean                                              $ignore_system_services          = true,
 
   # Configuration Parameters
-  String[1]                               $action_mail_acct         = 'root',
-  Variant[Integer[0],Pattern['^\d+%$']]   $admin_space_left         = 50,
-  Auditd::SpaceLeftAction                 $admin_space_left_action  = 'rotate',
-  Boolean                                 $at_boot                  = true,
-  Integer[0]                              $buffer_size              = 16384,
-  Optional[Integer[1,600000]]             $backlog_wait_time        = undef,
-  Auditd::DiskErrorAction                 $disk_error_action        = 'syslog',
-  Auditd::DiskFullAction                  $disk_full_action         = 'rotate',
-  Enum['lossy','lossless']                $disp_qos                 = 'lossy',
-  Stdlib::Absolutepath                    $dispatcher               = '/sbin/audispd',
-  Integer[0]                              $failure_mode             = 1,
-  Auditd::Flush                           $flush                    = 'incremental',
-  Integer[0]                              $freq                     = 20,
-  Boolean                                 $immutable                = false,
-  Optional[Boolean]                       $local_events             = undef,
-  Stdlib::Absolutepath                    $log_file                 = '/var/log/audit/audit.log',
-  Auditd::LogFormat                       $log_format               = 'raw',
-  String                                  $log_group                = 'root',
-  String                                  $config_group             = $log_group,
-  Optional[String[1]]                     $audit_rules_owner        = undef,
-  Optional[String[1]]                     $audit_rules_group        = undef,
-  Optional[Stdlib::Filemode]              $audit_rules_mode         = undef,
-  Boolean                                 $loginuid_immutable       = true,
-  Integer[0]                              $max_log_file             = 24,
-  Auditd::MaxLogFileAction                $max_log_file_action      = 'rotate',
-  Optional[Integer[1]]                    $max_restarts             = undef, #data in module, #auditd version 3.0 and later
-  Auditd::NameFormat                      $name_format              = 'user',
-  Integer[0]                              $num_logs                 = 5,
-  Optional[Auditd::Overflowaction]        $overflow_action          = undef, # data in module
-  Variant[String[1],Array[String[1],1]]   $package_name             = ['audit', 'audit-rules'],
-  Simplib::PackageEnsure                  $package_ensure           = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' }),
-  Stdlib::Absolutepath                    $plugin_dir,              # data in module
-  Integer[0]                              $priority_boost           = 3,
-  Integer[0]                              $q_depth                  = 400,
-  Integer[0]                              $rate                     = 0,
-  Auditd::RootAuditLevel                  $root_audit_level         = 'basic',
-  String[1]                               $service_name             = 'auditd',
-  String[1]                               $auditctl_command         = pick(fact('auditd_auditctl_cmd'), '/usr/sbin/auditctl'),
-  Boolean                                 $warn_if_reboot_required  = false,
-  Variant[Integer[0],Pattern['^\d+%$']]   $space_left               = auditd::calculate_space_left($admin_space_left),
-  Auditd::SpaceLeftAction                 $space_left_action        = 'syslog',
-  Boolean                                 $syslog                   = simplib::lookup('simp_options::syslog', { 'default_value' => false }),   # CCE-26933-2
-  Optional[Array[Pattern['^.*_t$']]]      $target_selinux_types     = undef,
-  Integer[0]                              $uid_min                  = Integer(pick(fact('uid_min'), 1000)),
-  Optional[Boolean]                       $verify_email             = undef,
-  Boolean                                 $write_logs               = $log_format ? { /^(?i:nolog)$/ => false, default => true },
-  Boolean                                 $purge_auditd_rules       = true,
+  Optional[String[1]]                                  $action_mail_acct                = undef,
+  Optional[Variant[Integer[0],Pattern['^\d+%$']]]      $admin_space_left                = undef,
+  Optional[Auditd::SpaceLeftAction]                    $admin_space_left_action         = undef,
+  Optional[Boolean]                                    $at_boot                         = undef,
+  Integer[0]                                           $buffer_size                     = 16384,
+  Optional[Integer[1,600000]]                          $backlog_wait_time               = undef,
+  Optional[Auditd::DiskErrorAction]                    $disk_error_action               = undef,
+  Optional[Auditd::DiskFullAction]                     $disk_full_action                = undef,
+  Enum['lossy','lossless']                             $disp_qos                        = 'lossy',
+  Stdlib::Absolutepath                                 $dispatcher                      = '/sbin/audispd',
+  Integer[0]                                           $failure_mode                    = 1,
+  Optional[Auditd::Flush]                              $flush                           = undef,
+  Optional[Integer[0]]                                 $freq                            = undef,
+  Boolean                                              $immutable                       = false,
+  Optional[Boolean]                                    $local_events                    = undef,
+  Optional[Stdlib::Absolutepath]                       $log_file                        = undef,
+  Optional[Auditd::LogFormat]                          $log_format                      = undef,
+  Optional[String]                                     $log_group                       = undef,
+  Optional[String]                                     $config_group                    = undef,
+  Optional[String[1]]                                  $audit_rules_owner               = undef,
+  Optional[String[1]]                                  $audit_rules_group               = undef,
+  Optional[Stdlib::Filemode]                           $audit_rules_mode                = undef,
+  Boolean                                              $loginuid_immutable              = true,
+  Optional[Integer[0]]                                 $max_log_file                    = undef,
+  Optional[Auditd::MaxLogFileAction]                   $max_log_file_action             = undef,
+  Optional[Integer[1]]                                 $max_restarts                    = undef,
+  Optional[Auditd::NameFormat]                         $name_format                     = undef,
+  Optional[Integer[0]]                                 $num_logs                        = undef,
+  Optional[Auditd::Overflowaction]                     $overflow_action                 = undef,
+  Variant[String[1],Array[String[1],1]]                $package_name                    = (versioncmp($facts['os']['release']['major'], '10') >= 0) ? { true => ['audit', 'audit-rules'], default => 'audit' },
+  Simplib::PackageEnsure                               $package_ensure                  = 'installed',
+  Optional[Stdlib::Absolutepath]                       $plugin_dir                      = undef,
+  Optional[Integer[0]]                                 $priority_boost                  = undef,
+  Optional[Integer[0]]                                 $q_depth                         = undef,
+  Integer[0]                                           $rate                            = 0,
+  Auditd::RootAuditLevel                               $root_audit_level                = 'basic',
+  String[1]                                            $service_name                    = 'auditd',
+  Optional[Variant[Boolean,Enum['running','stopped']]] $service_ensure                  = undef,
+  Optional[Boolean]                                    $service_enable                  = undef,
+  String[1]                                            $auditctl_command                = pick(fact('auditd_auditctl_cmd'), '/usr/sbin/auditctl'),
+  Boolean                                              $warn_if_reboot_required         = false,
+  Optional[Variant[Integer[0],Pattern['^\d+%$']]]      $space_left                      = undef,
+  Optional[Auditd::SpaceLeftAction]                    $space_left_action               = undef,
+  Boolean                                              $syslog                          = false, # CCE-26933-2
+  Optional[Array[Pattern['^.*_t$']]]                   $target_selinux_types            = undef,
+  Integer[0]                                           $uid_min                         = Integer(pick(fact('uid_min'), 1000)),
+  Optional[Boolean]                                    $verify_email                    = undef,
+  Optional[Boolean]                                    $write_logs                      = $log_format ? { /^(?i:nolog)$/ => false, default => undef },
+  Boolean                                              $purge_auditd_rules              = false,
 ) {
-  include 'auditd::service'
+  simplib::assert_metadata($module_name)
 
-  if $enable {
-    simplib::assert_metadata($module_name)
+  auditd::validate_init_params()
 
-    auditd::validate_init_params()
+  # 'auditd::enable' meant three things at once: run the service, turn auditing
+  # on at boot, and write the rule files. Those are now separate parameters, so
+  # the old switch is deprecated. The shim below preserves its meaning for
+  # anyone who has not migrated, but never overrides a parameter that was set
+  # explicitly.
+  #
+  # use_strict_setting is false on purpose: every existing user of this module
+  # sets 'enable', and a site running 'strict => error' should not fail its
+  # catalog on upgrade over a parameter that still works.
+  if $enable =~ NotUndef {
+    deprecation('auditd::enable',
+    "'auditd::enable' is deprecated. Use 'auditd::service_ensure', 'auditd::service_enable' and 'auditd::at_boot' instead",
+    false)
+  }
 
-    if $facts['auditd_version'] and ( versioncmp($facts['auditd_version'], '2.6.0') < 0 ) {
-      if ( versioncmp($facts['auditd_version'], '2.5.2') < 0 ) {
-        unless $write_logs {
-          $_log_format = 'NOLOG'
-        }
-      }
-      else {
-        # Versions > 2.5.2 do not handle NOLOG
-        if $log_format == 'NOLOG' {
-          $_log_format = 'raw'
-        }
+  if $enable == false {
+    $_service_ensure = $service_ensure ? { undef => 'stopped', default => $service_ensure }
+    $_service_enable = $service_enable ? { undef => false, default => $service_enable }
+    $_at_boot        = $at_boot ? { undef => false, default => $at_boot }
+  }
+  else {
+    $_service_ensure = $service_ensure
+    $_service_enable = $service_enable
+    $_at_boot        = $at_boot
+  }
 
-        $_write_logs = $write_logs
-      }
-
-      unless defined('$_log_format') {
-        # ENRICHED was not added until 2.6.0
-        if $log_format == 'ENRICHED' {
-          $_log_format = 'raw'
-        }
-        else {
-          $_log_format = $log_format
-        }
+  if $facts['auditd_version'] and ( versioncmp($facts['auditd_version'], '2.6.0') < 0 ) {
+    if ( versioncmp($facts['auditd_version'], '2.5.2') < 0 ) {
+      # write_logs did not exist yet, so NOLOG was how logging got turned off.
+      # Only an explicit false means that; undef means "do not manage".
+      if $write_logs == false {
+        $_log_format = 'NOLOG'
       }
     }
     else {
-      # Versions >= 2.6.0 do not support NOLOG
+      # Versions > 2.5.2 do not handle NOLOG
       if $log_format == 'NOLOG' {
         $_log_format = 'raw'
-      }
-      else {
-        $_log_format = $log_format
       }
 
       $_write_logs = $write_logs
     }
 
-    # This is done here so that the kernel option can be properly removed if
-    # auditing is to be disabled on the system.
-    if $at_boot {
-      $_grub_enable = true
-    }
-    else {
-      $_grub_enable = false
-    }
-
-    include 'auditd::install'
-    include 'auditd::config'
-
-    Class['auditd::install']
-    -> Class['auditd::config']
-    ~> Class['auditd::service']
-    -> Class['auditd']
-
-    if fact('grub_version') {
-      Class['auditd::install'] -> Class['auditd::config::grub']
+    unless defined('$_log_format') {
+      # ENRICHED was not added until 2.6.0
+      if $log_format == 'ENRICHED' {
+        $_log_format = 'raw'
+      }
+      else {
+        $_log_format = $log_format
+      }
     }
   }
   else {
-    $_grub_enable = false
+    # Versions >= 2.6.0 do not support NOLOG
+    if $log_format == 'NOLOG' {
+      $_log_format = 'raw'
+    }
+    else {
+      $_log_format = $log_format
+    }
+
+    $_write_logs = $write_logs
   }
 
-  # This is done deliberately so that you cannot conflict a direct call to
-  # auditd::config::grub with an include somewhere else. auditd::config::grub
-  # would normally be a private class but may be used independently if
-  # necessary.
-  if fact('grub_version') {
-    class { 'auditd::config::grub': enable => $_grub_enable }
+  include 'auditd::install'
+  include 'auditd::config'
+  include 'auditd::service'
+
+  Class['auditd::install']
+  -> Class['auditd::config']
+  ~> Class['auditd::service']
+  -> Class['auditd']
+
+  # auditd::config::grub is declared here rather than included so that it cannot
+  # conflict with a direct class declaration elsewhere; it is a private class by
+  # convention but may be used on its own if necessary.
+  #
+  # It is only declared when at_boot says something. Including this class must
+  # not rewrite the kernel command line on its own.
+  if $_at_boot =~ NotUndef and fact('grub_version') {
+    class { 'auditd::config::grub':
+      enable => $_at_boot,
+    }
+
+    Class['auditd::install'] -> Class['auditd::config::grub']
   }
 }

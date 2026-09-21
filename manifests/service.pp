@@ -15,9 +15,9 @@
 # @author https://github.com/simp/pupmod-simp-auditd/graphs/contributors
 #
 class auditd::service (
-  Variant[String[1],Boolean] $ensure                  = $auditd::enable,
-  Boolean                    $enable                  = $auditd::enable,
-  Boolean                    $warn_if_reboot_required = $auditd::warn_if_reboot_required
+  Optional[Variant[String[1],Boolean]] $ensure                  = $auditd::_service_ensure,
+  Optional[Boolean]                    $enable                  = $auditd::_service_enable,
+  Boolean                              $warn_if_reboot_required = $auditd::warn_if_reboot_required
 ) {
   assert_private()
 
@@ -26,7 +26,13 @@ class auditd::service (
       reason => "The ${auditd::service_name} service cannot be started when the kernel is not enforcing auditing",
     }
   }
-  else {
+  elsif $ensure =~ NotUndef or $enable =~ NotUndef {
+    # The service is only declared when a site says something about it. The
+    # package enables and starts auditd itself, and taking ownership of the
+    # service means every catalog run can stop or restart auditing on a host
+    # that only wanted the package. Either attribute may be left undef, which
+    # leaves that half of the service unmanaged.
+    #
     # CCE-27058-7
     service { $auditd::service_name:
       ensure  => $ensure,

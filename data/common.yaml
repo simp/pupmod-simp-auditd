@@ -21,21 +21,6 @@ lookup_options:
       strategy: deep
       knockout_prefix: --
 
-auditd::q_depth: 160
-auditd::overflow_action: 'SYSLOG'
-auditd::priority_boost: 4
-auditd::max_restarts: 10
-auditd::name_format: 'USER'
-
-auditd::config::audisp::q_depth: "%{alias('auditd::q_depth')}"
-auditd::config::audisp::overflow_action: "%{alias('auditd::overflow_action')}"
-auditd::config::audisp::priority_boost: "%{alias('auditd::priority_boost')}"
-auditd::config::audisp::max_restarts: "%{alias('auditd::max_restarts')}"
-auditd::config::audisp::name_format: "%{alias('auditd::name_format')}"
-
-auditd::config::audisp::syslog::type: 'builtin'
-auditd::config::audisp::syslog::syslog_path: 'builtin_syslog'
-
 auditd::config::audit_profiles::simp::basic_root_audit_syscalls:
   - 'capset'
   - 'mknod'
@@ -118,3 +103,57 @@ auditd::config::audit_profiles::simp::audit_auditd_cmds_list:
   - '/usr/sbin/aureport'
   - '/usr/sbin/ausearch'
   - '/usr/sbin/auvirt'
+
+# The SUID/SGID commands the STIG profile audits by default. These were
+# identical across every supported OS, so they live here rather than in
+# fifteen byte-identical os/*.yaml files.
+auditd::config::audit_profiles::stig::default_suid_sgid_cmds:
+  - "/usr/bin/at"
+  - "/usr/bin/chage"
+  - "/usr/bin/chcon"
+  - "/usr/bin/chfn"
+  - "/usr/bin/chsh"
+  - "/usr/bin/crontab"
+  - "/usr/bin/fusermount"
+  - "/usr/bin/gpasswd"
+  - "/usr/bin/incrontab"
+  - "/usr/bin/ksu"
+  - "/usr/bin/locate"
+  - "/usr/bin/mount"
+  - "/usr/bin/newgidmap"
+  - "/usr/bin/newgrp"
+  - "/usr/bin/newuidmap"
+  - "/usr/bin/passwd"
+  - "/usr/bin/pkexec"
+  - "/usr/bin/screen"
+  - "/usr/bin/ssh-agent"
+  - "/usr/bin/su"
+  - "/usr/bin/sudo"
+  - "/usr/bin/sudoedit"
+  - "/usr/bin/umount"
+  - "/usr/bin/wall"
+  - "/usr/bin/write"
+  - "/usr/bin/Xorg"
+  - "/usr/lib64/dbus-1/dbus-daemon-launch-helper"
+  - "/usr/libexec/dbus-1/dbus-daemon-launch-helper"
+  - "/usr/libexec/openssh/ssh-keysign"
+  - "/usr/libexec/pt_chown"
+  - "/usr/libexec/sssd/krb5_child"
+  - "/usr/libexec/sssd/ldap_child"
+  - "/usr/libexec/sssd/proxy_child"
+  - "/usr/libexec/sssd/selinux_child"
+  - "/usr/libexec/utempter/utempter"
+  - "/usr/lib/polkit-1/polkit-agent-helper-1"
+  - "/usr/sbin/mount.nfs"
+  - "/usr/sbin/netreport"
+  - "/usr/sbin/pam_timestamp_check"
+  - "/usr/sbin/postdrop"
+  - "/usr/sbin/postqueue"
+  - "/usr/sbin/restorecon"
+  - "/usr/sbin/semanage"
+  - "/usr/sbin/setfiles"
+  - "/usr/sbin/setsebool"
+  - "/usr/sbin/seunshare"
+  - "/usr/sbin/unix_chkpwd"
+  - "/usr/sbin/userhelper"
+  - "/usr/sbin/usernetctl"

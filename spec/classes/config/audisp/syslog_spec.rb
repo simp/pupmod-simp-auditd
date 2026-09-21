@@ -34,33 +34,13 @@ describe 'auditd::config::audisp::syslog' do
 
               context 'without any parameters' do
                 let(:params) { {} }
-                let(:expected_content_v2) do # rubocop:disable RSpec/IndexedLet
-                  <<~EOM
-                  # This File is managed by Puppet
-                  #
-                  # This file controls the configuration of the syslog plugin.
-                  active = yes
-                  direction = out
-                  path = builtin_syslog
-                  type = builtin
-                  args = LOG_INFO LOG_LOCAL5
-                  format = string
-                EOM
-                end
-                let(:expected_content_v3) do # rubocop:disable RSpec/IndexedLet
-                  <<~EOM
-                  # This File is managed by Puppet
-                  #
-                  # This file controls the configuration of the syslog plugin.
-                  active = yes
-                  direction = out
-                  path = /sbin/audisp-syslog
-                  type = always
-                  args = LOG_INFO LOG_LOCAL5
-                  format = string
-                EOM
-                end
-                let(:expected_content_v4) do # rubocop:disable RSpec/IndexedLet
+
+                # The plugin directory and the builtin/always distinction used
+                # to come from data/auditd/version-2.yaml, so auditd 2 wrote a
+                # different file in a different place. That Hiera layer is gone:
+                # the paths are parameters now and do not vary by version. The
+                # context below shows how a v2 host asks for the old shape.
+                let(:expected_content) do
                   <<~EOM
                   # This File is managed by Puppet
                   #
@@ -75,19 +55,51 @@ describe 'auditd::config::audisp::syslog' do
                 end
 
                 it { is_expected.to compile.with_all_deps }
+                it { is_expected.to contain_file('/etc/audit/plugins.d/syslog.conf').with_content(expected_content) }
+
+                # audispd-plugins is still version-gated: the plugin only became
+                # a separate package at auditd 3.0.
                 it {
-                  if facts[:auditd_major_version] == '4'
-                    is_expected.to contain_file('/etc/audit/plugins.d/syslog.conf').with_content(expected_content_v4)
-                    is_expected.to contain_package('audispd-plugins')
-                  elsif facts[:auditd_major_version] == '3'
-                    is_expected.to contain_file('/etc/audit/plugins.d/syslog.conf').with_content(expected_content_v3)
-                    is_expected.to contain_package('audispd-plugins')
-                  else
-                    is_expected.to contain_file('/etc/audisp/plugins.d/syslog.conf').with_content(expected_content_v2)
+                  if facts[:auditd_major_version] == '2'
                     is_expected.not_to contain_package('audispd-plugins')
+                  else
+                    is_expected.to contain_package('audispd-plugins')
                   end
                 }
                 it { is_expected.not_to contain_rsyslog__rule__drop('audispd') }
+              end
+
+              # The auditd 2 layout, now reached by parameter rather than by
+              # version detection. This is the upgrade path for a site that was
+              # relying on the version-2 Hiera layer.
+              context 'with the auditd 2 plugin layout set explicitly' do
+                let(:pre_condition) do
+                  <<~PC
+                    class { 'auditd': plugin_dir => '/etc/audisp/plugins.d' }
+                  PC
+                end
+                let(:params) do
+                  {
+                    syslog_path: 'builtin_syslog',
+                    type: 'builtin',
+                  }
+                end
+                let(:expected_content) do
+                  <<~EOM
+                  # This File is managed by Puppet
+                  #
+                  # This file controls the configuration of the syslog plugin.
+                  active = yes
+                  direction = out
+                  path = builtin_syslog
+                  type = builtin
+                  args = LOG_INFO LOG_LOCAL5
+                  format = string
+                EOM
+                end
+
+                it { is_expected.to compile.with_all_deps }
+                it { is_expected.to contain_file('/etc/audisp/plugins.d/syslog.conf').with_content(expected_content) }
               end
 
               context 'when setting rsyslog, syslog priority and facility' do
@@ -99,33 +111,7 @@ describe 'auditd::config::audisp::syslog' do
                     priority: 'LOG_NOTICE',
                   }
                 end
-                let(:expected_content_v2) do # rubocop:disable RSpec/IndexedLet
-                  <<~EOM
-                  # This File is managed by Puppet
-                  #
-                  # This file controls the configuration of the syslog plugin.
-                  active = no
-                  direction = out
-                  path = builtin_syslog
-                  type = builtin
-                  args = LOG_NOTICE LOG_LOCAL6
-                  format = string
-                EOM
-                end
-                let(:expected_content_v3) do # rubocop:disable RSpec/IndexedLet
-                  <<~EOM
-                  # This File is managed by Puppet
-                  #
-                  # This file controls the configuration of the syslog plugin.
-                  active = no
-                  direction = out
-                  path = /sbin/audisp-syslog
-                  type = always
-                  args = LOG_NOTICE LOG_LOCAL6
-                  format = string
-                EOM
-                end
-                let(:expected_content_v4) do # rubocop:disable RSpec/IndexedLet
+                let(:expected_content) do
                   <<~EOM
                   # This File is managed by Puppet
                   #
@@ -140,16 +126,8 @@ describe 'auditd::config::audisp::syslog' do
                 end
 
                 it { is_expected.to compile.with_all_deps }
-                it {
-                  if facts[:auditd_major_version] == '4'
-                    is_expected.to contain_file('/etc/audit/plugins.d/syslog.conf').with_content(expected_content_v4)
-                  elsif facts[:auditd_major_version] == '3'
-                    is_expected.to contain_file('/etc/audit/plugins.d/syslog.conf').with_content(expected_content_v3)
-                  else
-                    is_expected.to contain_file('/etc/audisp/plugins.d/syslog.conf').with_content(expected_content_v2)
-                  end
-                  is_expected.not_to contain_package('audisp-syslog')
-                }
+                it { is_expected.to contain_file('/etc/audit/plugins.d/syslog.conf').with_content(expected_content) }
+                it { is_expected.not_to contain_package('audisp-syslog') }
                 it { is_expected.to contain_class('rsyslog') }
                 it { is_expected.to contain_rsyslog__rule__drop('audispd') }
               end

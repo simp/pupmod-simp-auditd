@@ -166,7 +166,9 @@ describe 'auditd' do
             default_audit_profiles: [
               'built_in',
               'simp',
-            ]
+            ],
+            # No longer on by default; this context asserts its rule below.
+            audit_auditd_config: true,
           }
         end
 
