@@ -113,6 +113,8 @@ The following parameters are available in the `auditd` class:
 * [`rate`](#-auditd--rate)
 * [`root_audit_level`](#-auditd--root_audit_level)
 * [`service_name`](#-auditd--service_name)
+* [`service_ensure`](#-auditd--service_ensure)
+* [`service_enable`](#-auditd--service_enable)
 * [`auditctl_command`](#-auditd--auditctl_command)
 * [`warn_if_reboot_required`](#-auditd--warn_if_reboot_required)
 * [`space_left`](#-auditd--space_left)
@@ -126,11 +128,11 @@ The following parameters are available in the `auditd` class:
 
 ##### <a name="-auditd--enable"></a>`enable`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 If true, enable auditing.
 
-Default value: `true`
+Default value: `undef`
 
 ##### <a name="-auditd--default_audit_profile"></a>`default_audit_profile`
 
@@ -154,7 +156,7 @@ of audit rules.
 - @see `auditd::config::audit_profiles` for more details about this
   configuration.
 
-Default value: `['simp']`
+Default value: `[]`
 
 ##### <a name="-auditd--audit_auditd_config"></a>`audit_auditd_config`
 
@@ -162,7 +164,7 @@ Data type: `Boolean`
 
 Set up an audit rule to audit the `auditd` configuration files.
 
-Default value: `true`
+Default value: `false`
 
 ##### <a name="-auditd--lname"></a>`lname`
 
@@ -240,35 +242,45 @@ Default value: `true`
 
 ##### <a name="-auditd--action_mail_acct"></a>`action_mail_acct`
 
-Data type: `String[1]`
+Data type: `Optional[String[1]]`
 
 
 
-Default value: `'root'`
+Default value: `undef`
 
 ##### <a name="-auditd--admin_space_left"></a>`admin_space_left`
 
-Data type: `Variant[Integer[0],Pattern['^\d+%$']]`
+Data type: `Optional[Variant[Integer[0],Pattern['^\d+%$']]]`
 
+The free-space threshold, in megabytes or as a percentage, at which
+`$admin_space_left_action` is taken. Setting this requires setting
+`$space_left` to a larger value; see that parameter.
 
-
-Default value: `50`
+Default value: `undef`
 
 ##### <a name="-auditd--admin_space_left_action"></a>`admin_space_left_action`
 
-Data type: `Auditd::SpaceLeftAction`
+Data type: `Optional[Auditd::SpaceLeftAction]`
 
 
 
-Default value: `'rotate'`
+Default value: `undef`
 
 ##### <a name="-auditd--at_boot"></a>`at_boot`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
-If true, modify the Grub settings to enable auditing at boot time.
+Whether `audit=1` is present on the kernel command line.
 
-Default value: `true`
+Unset by default, which means this module does not touch the boot loader.
+That is distinct from `false`, which actively removes the parameter.
+`true` adds it, and warns at every run until the system is rebooted.
+
+This is the widest-reaching thing the module does, which is why it is
+opt-in: it rewrites the Grub configuration for *all* kernels, and the
+effect only appears after a reboot.
+
+Default value: `undef`
 
 ##### <a name="-auditd--buffer_size"></a>`buffer_size`
 
@@ -288,19 +300,19 @@ Default value: `undef`
 
 ##### <a name="-auditd--disk_error_action"></a>`disk_error_action`
 
-Data type: `Auditd::DiskErrorAction`
+Data type: `Optional[Auditd::DiskErrorAction]`
 
 
 
-Default value: `'syslog'`
+Default value: `undef`
 
 ##### <a name="-auditd--disk_full_action"></a>`disk_full_action`
 
-Data type: `Auditd::DiskFullAction`
+Data type: `Optional[Auditd::DiskFullAction]`
 
 
 
-Default value: `'rotate'`
+Default value: `undef`
 
 ##### <a name="-auditd--disp_qos"></a>`disp_qos`
 
@@ -328,19 +340,19 @@ Default value: `1`
 
 ##### <a name="-auditd--flush"></a>`flush`
 
-Data type: `Auditd::Flush`
+Data type: `Optional[Auditd::Flush]`
 
 
 
-Default value: `'incremental'`
+Default value: `undef`
 
 ##### <a name="-auditd--freq"></a>`freq`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
 
 
-Default value: `20`
+Default value: `undef`
 
 ##### <a name="-auditd--immutable"></a>`immutable`
 
@@ -355,11 +367,11 @@ Default value: `false`
 
 ##### <a name="-auditd--log_file"></a>`log_file`
 
-Data type: `Stdlib::Absolutepath`
+Data type: `Optional[Stdlib::Absolutepath]`
 
 
 
-Default value: `'/var/log/audit/audit.log'`
+Default value: `undef`
 
 ##### <a name="-auditd--local_events"></a>`local_events`
 
@@ -371,34 +383,38 @@ Default value: `undef`
 
 ##### <a name="-auditd--log_format"></a>`log_format`
 
-Data type: `Auditd::LogFormat`
+Data type: `Optional[Auditd::LogFormat]`
 
 The output log format
 
 * 'NOLOG' is deprecated as of auditd 2.5.2
 * 'ENRICHED' is only available in auditd >= 2.6.0
 
-Default value: `'raw'`
+Default value: `undef`
 
 ##### <a name="-auditd--log_group"></a>`log_group`
 
-Data type: `String`
+Data type: `Optional[String]`
 
 The group that owns `/var/log/audit` and the audit log files.
 
-Default value: `'root'`
+Default value: `undef`
 
 ##### <a name="-auditd--config_group"></a>`config_group`
 
-Data type: `String`
+Data type: `Optional[String]`
 
 The group that owns `/etc/audit` and the audit configuration files.
-Setting this to a non-`root` group allows that group to read the audit
-configuration without having write access to the audit logs. Defaults
-to `$log_group` so existing deployments that set only `log_group`
-retain their prior `/etc/audit` ownership.
+Grants that group read access to the audit configuration; nothing here
+ever grants it write access.
 
-Default value: `$log_group`
+Deliberately independent of `$log_group`. The two answer different
+questions -- who may read the audit *logs* versus who may read the audit
+*configuration* -- and a site that widens one has not asked to widen the
+other. Unset, the rule files fall back to group `root`, which is what CIS
+6.3.4.7 wants and what the package already ships.
+
+Default value: `undef`
 
 ##### <a name="-auditd--audit_rules_owner"></a>`audit_rules_owner`
 
@@ -449,19 +465,19 @@ Default value: `true`
 
 ##### <a name="-auditd--max_log_file"></a>`max_log_file`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
 
 
-Default value: `24`
+Default value: `undef`
 
 ##### <a name="-auditd--max_log_file_action"></a>`max_log_file_action`
 
-Data type: `Auditd::MaxLogFileAction`
+Data type: `Optional[Auditd::MaxLogFileAction]`
 
 
 
-Default value: `'rotate'`
+Default value: `undef`
 
 ##### <a name="-auditd--max_restarts"></a>`max_restarts`
 
@@ -473,19 +489,19 @@ Default value: `undef`
 
 ##### <a name="-auditd--name_format"></a>`name_format`
 
-Data type: `Auditd::NameFormat`
+Data type: `Optional[Auditd::NameFormat]`
 
 
 
-Default value: `'user'`
+Default value: `undef`
 
 ##### <a name="-auditd--num_logs"></a>`num_logs`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
 
 
-Default value: `5`
+Default value: `undef`
 
 ##### <a name="-auditd--overflow_action"></a>`overflow_action`
 
@@ -514,29 +530,31 @@ Data type: `Simplib::PackageEnsure`
 
 
 
-Default value: `simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' })`
+Default value: `'installed'`
 
 ##### <a name="-auditd--plugin_dir"></a>`plugin_dir`
 
-Data type: `Stdlib::Absolutepath`
+Data type: `Optional[Stdlib::Absolutepath]`
 
 sets the directory for the plugin configuration files.
 
+Default value: `undef`
+
 ##### <a name="-auditd--priority_boost"></a>`priority_boost`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
 
 
-Default value: `3`
+Default value: `undef`
 
 ##### <a name="-auditd--q_depth"></a>`q_depth`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
 how big to make the internal queue of the audit event dispatcher
 
-Default value: `400`
+Default value: `undef`
 
 ##### <a name="-auditd--rate"></a>`rate`
 
@@ -572,6 +590,30 @@ The name of the auditd service.
 
 Default value: `'auditd'`
 
+##### <a name="-auditd--service_ensure"></a>`service_ensure`
+
+Data type: `Optional[Variant[Boolean,Enum['running','stopped']]]`
+
+The state to hold the `auditd` service in.
+
+Unset by default. This parameter and `$service_enable` are together the
+only thing that declares `Service['auditd']` at all -- while both are
+unset, this module does not touch the service and leaves it however the
+package and the system left it.
+
+Default value: `undef`
+
+##### <a name="-auditd--service_enable"></a>`service_enable`
+
+Data type: `Optional[Boolean]`
+
+Whether the `auditd` service starts at boot.
+
+Unset by default; see `$service_ensure`. Note that this is the systemd
+unit, not the `audit=1` kernel parameter -- that one is `$at_boot`.
+
+Default value: `undef`
+
 ##### <a name="-auditd--auditctl_command"></a>`auditctl_command`
 
 Data type: `String[1]`
@@ -595,30 +637,46 @@ Default value: `false`
 
 ##### <a name="-auditd--space_left"></a>`space_left`
 
-Data type: `Variant[Integer[0],Pattern['^\d+%$']]`
+Data type: `Optional[Variant[Integer[0],Pattern['^\d+%$']]]`
 
-Must be larger than `$admin_space_left`.
+Must be larger than `$admin_space_left`. Required whenever
+`$admin_space_left` is set -- the catalog fails otherwise, because auditd
+will not start when this is not greater than `$admin_space_left` and the
+value the package ships may not be.
 
-* If `$admin_space_left` is an `Integer`, will be set to `30 + $admin_space_left`
-* If `$admin_space_left` is a percentage (auditd >= 2.8.5), will be set to `1% + $admin_space_left`
+This is no longer derived for you. To reproduce the value previous
+releases computed, call the helper that still ships with this module from
+a profile:
 
-Default value: `auditd::calculate_space_left($admin_space_left)`
+```puppet
+class { 'auditd':
+  admin_space_left => 50,
+  space_left       => auditd::calculate_space_left(50),
+}
+```
+
+It returns `30 + $admin_space_left` for an `Integer` and
+`1% + $admin_space_left` for a percentage (auditd >= 2.8.5).
+
+Default value: `undef`
 
 ##### <a name="-auditd--space_left_action"></a>`space_left_action`
 
-Data type: `Auditd::SpaceLeftAction`
+Data type: `Optional[Auditd::SpaceLeftAction]`
 
 
 
-Default value: `'syslog'`
+Default value: `undef`
 
 ##### <a name="-auditd--syslog"></a>`syslog`
 
 Data type: `Boolean`
 
 If true, manage the settings for the syslog plugin
-It was left defaulted to  simp_options::syslog value for backwards
-compatability.
+
+This used to default to the `simp_options::syslog` site key; that lookup
+has been removed and it is an ordinary parameter now.
+
 This does not  activate/deactivate the plugin.  That setting is
 in the auditd::config::audisp::syslog::enable setting.  If syslog
 is set to true, by default it will enable the syslog plugin in order
@@ -626,7 +684,7 @@ to be backwards compatable.  If you want to ensure the plugin is disabled,
 set auditd::config::audisp::syslog::enable to false.
 If this is set to false the plugin settings are not managed by puppet.
 
-Default value: `simplib::lookup('simp_options::syslog', { 'default_value' => false })`
+Default value: `false`
 
 ##### <a name="-auditd--target_selinux_types"></a>`target_selinux_types`
 
@@ -663,7 +721,7 @@ Default value: `undef`
 
 ##### <a name="-auditd--write_logs"></a>`write_logs`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 Whether or not to write logs to disk.
 
@@ -671,7 +729,7 @@ Whether or not to write logs to disk.
   of `auditd` so this attempts to do "the right thing" when `log_format` is
   set to `NOLOG` for legacy support.
 
-Default value: `$log_format ? { /^(?i:nolog)$/ => false, default => true`
+Default value: `$log_format ? { /^(?i:nolog)$/ => false, default => undef`
 
 ##### <a name="-auditd--purge_auditd_rules"></a>`purge_auditd_rules`
 
@@ -679,7 +737,7 @@ Data type: `Boolean`
 
 Whether or not to purge existing auditd rules under /etc/audit/rules.d
 
-Default value: `true`
+Default value: `false`
 
 ### <a name="auditd--config"></a>`auditd::config`
 
@@ -719,7 +777,7 @@ Data type: `Integer`
 
 (deprecated)
 
-Default value: `'%{alias('auditd::q_depth')}'`
+Default value: `160`
 
 ##### <a name="-auditd--config--audisp--overflow_action"></a>`overflow_action`
 
@@ -727,7 +785,7 @@ Data type: `Auditd::OverflowAction`
 
 (deprecated)
 
-Default value: `'%{alias('auditd::overflow_action')}'`
+Default value: `'SYSLOG'`
 
 ##### <a name="-auditd--config--audisp--priority_boost"></a>`priority_boost`
 
@@ -735,7 +793,7 @@ Data type: `Integer`
 
 (deprecated)
 
-Default value: `'%{alias('auditd::priority_boost')}'`
+Default value: `4`
 
 ##### <a name="-auditd--config--audisp--max_restarts"></a>`max_restarts`
 
@@ -743,7 +801,7 @@ Data type: `Integer`
 
 (deprecated)
 
-Default value: `'%{alias('auditd::max_restarts')}'`
+Default value: `10`
 
 ##### <a name="-auditd--config--audisp--name_format"></a>`name_format`
 
@@ -751,7 +809,7 @@ Data type: `Auditd::NameFormat`
 
 (deprecated)
 
-Default value: `'%{alias('auditd::name_format')}'`
+Default value: `'USER'`
 
 ##### <a name="-auditd--config--audisp--specific_name"></a>`specific_name`
 
@@ -803,7 +861,7 @@ Data type: `Boolean`
 If set, enable the SIMP `rsyslog` module and set up the appropriate rules
 for the `auditd` services.
 
-Default value: `simplib::lookup('simp_options::syslog', { 'default_value' => false })`
+Default value: `false`
 
 ##### <a name="-auditd--config--audisp--syslog--drop_audit_logs"></a>`drop_audit_logs`
 
@@ -858,7 +916,7 @@ Data type: `String`
 
 The path to the syslog plugin executable.
 
-Default value: `'builtin_syslog'`
+Default value: `'/sbin/audisp-syslog'`
 
 ##### <a name="-auditd--config--audisp--syslog--type"></a>`type`
 
@@ -866,7 +924,7 @@ Data type: `String`
 
 The type of auditd plugin.
 
-Default value: `'builtin'`
+Default value: `'always'`
 
 ##### <a name="-auditd--config--audisp--syslog--pkg_name"></a>`pkg_name`
 
@@ -875,7 +933,7 @@ Data type: `Optional[String]`
 The name of the plugin package to install.  Only needed for
 auditd version 3 and later.
 
-Default value: `undef`
+Default value: `'audispd-plugins'`
 
 ##### <a name="-auditd--config--audisp--syslog--package_ensure"></a>`package_ensure`
 
@@ -883,7 +941,7 @@ Data type: `String`
 
 The default ensure parmeter for packages.
 
-Default value: `simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' })`
+Default value: `'installed'`
 
 ### <a name="auditd--config--audisp_service"></a>`auditd::config::audisp_service`
 
@@ -2182,6 +2240,8 @@ Data type: `Array[String[1]]`
 The default list of `setuid`/`setgid` commands to be audited.
 * Should not include commands audited by other rules.
 
+Default value: `['/usr/bin/at', '/usr/bin/chage', '/usr/bin/chcon', '/usr/bin/chfn', '/usr/bin/chsh', '/usr/bin/crontab', '/usr/bin/fusermount', '/usr/bin/gpasswd', '/usr/bin/incrontab', '/usr/bin/ksu', '/usr/bin/locate', '/usr/bin/mount', '/usr/bin/newgidmap', '/usr/bin/newgrp', '/usr/bin/newuidmap', '/usr/bin/passwd', '/usr/bin/pkexec', '/usr/bin/screen', '/usr/bin/ssh-agent', '/usr/bin/su', '/usr/bin/sudo', '/usr/bin/sudoedit', '/usr/bin/umount', '/usr/bin/wall', '/usr/bin/write', '/usr/bin/Xorg', '/usr/lib64/dbus-1/dbus-daemon-launch-helper', '/usr/libexec/dbus-1/dbus-daemon-launch-helper', '/usr/libexec/openssh/ssh-keysign', '/usr/libexec/pt_chown', '/usr/libexec/sssd/krb5_child', '/usr/libexec/sssd/ldap_child', '/usr/libexec/sssd/proxy_child', '/usr/libexec/sssd/selinux_child', '/usr/libexec/utempter/utempter', '/usr/lib/polkit-1/polkit-agent-helper-1', '/usr/sbin/mount.nfs', '/usr/sbin/netreport', '/usr/sbin/pam_timestamp_check', '/usr/sbin/postdrop', '/usr/sbin/postqueue', '/usr/sbin/restorecon', '/usr/sbin/semanage', '/usr/sbin/setfiles', '/usr/sbin/setsebool', '/usr/sbin/seunshare', '/usr/sbin/unix_chkpwd', '/usr/sbin/userhelper', '/usr/sbin/usernetctl']`
+
 ##### <a name="-auditd--config--audit_profiles--stig--suid_sgid_cmds"></a>`suid_sgid_cmds`
 
 Data type: `Array[String[1]]`
@@ -2429,6 +2489,10 @@ Data type: `Boolean`
 
 Enable auditing in the kernel at boot time.
 
+The `auditd` class passes `auditd::at_boot` here, and only declares this
+class when that parameter is set. This default applies to a standalone
+declaration, where asking for the class is asking for auditing at boot.
+
 Default value: `true`
 
 ##### <a name="-auditd--config--grub--augeasproviders_grub_version"></a>`augeasproviders_grub_version`
@@ -2463,19 +2527,19 @@ The following parameters are available in the `auditd::service` class:
 
 ##### <a name="-auditd--service--ensure"></a>`ensure`
 
-Data type: `Variant[String[1],Boolean]`
+Data type: `Optional[Variant[String[1],Boolean]]`
 
 ``ensure`` state from the service resource
 
-Default value: `$auditd::enable`
+Default value: `$auditd::_service_ensure`
 
 ##### <a name="-auditd--service--enable"></a>`enable`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 ``enable`` state from the service resource
 
-Default value: `$auditd::enable`
+Default value: `$auditd::_service_enable`
 
 ##### <a name="-auditd--service--warn_if_reboot_required"></a>`warn_if_reboot_required`
 

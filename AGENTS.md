@@ -62,7 +62,25 @@ auditd
 └── auditd::service          # auditd systemd service
 ```
 
-`auditd::config::grub` is always included (even when `$enable` is false) because kernel audit parameters are managed independently of the service.
+`auditd::config::grub` is included only when `$at_boot` is set, and `auditd::service`
+declares `Service['auditd']` only when `$service_ensure` or `$service_enable` is set.
+Both are unset by default.
+
+### Nothing is managed unless it is asked for
+
+As of 11.0.0 this is the rule the whole module is built around: a bare `include auditd`
+declares `Package[audit]` and nothing else. Every other resource -- the service, the
+GRUB entry, the rule files, the `rules.d` purge, `auditd.conf` keys, `/var/log/audit`,
+`/etc/audit/auditd.conf` -- appears only because a parameter asked for it, and every
+one of those parameters defaults to `undef`, `false` or `[]`.
+
+Before adding a resource, find the parameter that gates it. If there isn't one, that is
+the change to make first. `spec/classes/init_spec.rb` and `spec/classes/config_spec.rb`
+both compare the entire default catalogue against `Package[audit]`, so an ungated
+resource fails the suite rather than slipping through.
+
+The SIMP-shipped values that used to be module defaults now live in the `simp:defaults`
+compliance profile, which sites apply deliberately.
 
 ### Audit Profile System
 
@@ -81,8 +99,9 @@ Two custom facts in `lib/facter/auditd_version.rb` drive version-dependent behav
 
 - `auditd_version` — full version string, gates code paths via `versioncmp`
   (`init.pp`, `config/logging.pp`, `config/audisp.pp`, `config/audisp/syslog.pp`)
-- `auditd_major_version` — major number only, selects the
-  `data/auditd/version-%{facts.auditd_major_version}.yaml` Hiera layer (`hiera.yaml`)
+- `auditd_major_version` — major number only. It used to select a
+  `data/auditd/version-N.yaml` Hiera layer; that layer is gone, so the fact now only
+  matters to specs and to anything that reads it directly
 
 Both derive from the `simplib__auditd` structured fact, which does not resolve until
 auditing is enabled in the kernel, so either can be `undef`. `init.pp` and
@@ -101,10 +120,13 @@ does not manage keep their vendor values. To manage a new key, add it to one of 
 
 ### Hiera Data Structure
 
-Module defaults live in `data/`:
-- `common.yaml` — module-wide defaults and deep merge lookup options
-- `auditd/version-2.yaml` / `auditd/version-3.yaml` / `auditd/version-4.yaml` — auditd-version-specific defaults
-- `os/<distro>-<major>.yaml` — OS-specific overrides (mainly `plugin_dir` paths)
+`hiera.yaml` has a single layer, `data/common.yaml`, which holds `lookup_options` and
+little else. The per-auditd-version (`auditd/version-N.yaml`) and per-OS
+(`os/<distro>-<major>.yaml`) layers were removed in 11.0.0: every supported platform
+carried identical values, so they were defaults wearing a `confine` rather than
+platform knowledge. Do not reintroduce a layer to express a default -- put it in the
+parameter, or in the `simp:defaults` profile if it is a SIMP opinion rather than a
+module one.
 
 Many array parameters (e.g., syscall lists, ignore lists) use `lookup_options: merge: unique` to allow Hiera to combine values from multiple layers rather than replacing them.
 
@@ -112,7 +134,11 @@ Many array parameters (e.g., syscall lists, ignore lists) use `lookup_options: m
 
 | Parameter | Purpose |
 |---|---|
-| `$enable` | Master switch — when false, service is stopped and rules are cleared |
+| `$enable` | **Deprecated.** `undef` does nothing; `true` warns; `false` warns and implies a stopped, disabled service and `at_boot => false` where those are unset. It no longer stands the module down |
+| `$service_ensure` / `$service_enable` | Declare `Service['auditd']` at all; unset by default |
+| `$purge_auditd_rules` | Whether `/etc/audit/rules.d` is purged of unmanaged files |
+| `$log_group` | Group owning `/var/log/audit`; also written as the `log_group` key in `auditd.conf` |
+| `$config_group` | Group owning the audit *configuration*. Deliberately independent of `$log_group` |
 | `$default_audit_profiles` | Which rule profiles to apply |
 | `$at_boot` | Whether `audit=1` is set on the kernel command line (via Grub) |
 | `$immutable` | Lock audit config (requires reboot to change) |

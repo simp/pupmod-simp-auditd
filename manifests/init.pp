@@ -69,7 +69,15 @@
 # @param admin_space_left_action
 #
 # @param at_boot
-#   If true, modify the Grub settings to enable auditing at boot time.
+#   Whether `audit=1` is present on the kernel command line.
+#
+#   Unset by default, which means this module does not touch the boot loader.
+#   That is distinct from `false`, which actively removes the parameter.
+#   `true` adds it, and warns at every run until the system is rebooted.
+#
+#   This is the widest-reaching thing the module does, which is why it is
+#   opt-in: it rewrites the Grub configuration for *all* kernels, and the
+#   effect only appears after a reboot.
 #
 # @param buffer_size
 #   Value of the `auditctl` '-b' option
@@ -195,6 +203,20 @@
 #
 # @param service_name
 #   The name of the auditd service.
+#
+# @param service_ensure
+#   The state to hold the `auditd` service in.
+#
+#   Unset by default. This parameter and `$service_enable` are together the
+#   only thing that declares `Service['auditd']` at all -- while both are
+#   unset, this module does not touch the service and leaves it however the
+#   package and the system left it.
+#
+# @param service_enable
+#   Whether the `auditd` service starts at boot.
+#
+#   Unset by default; see `$service_ensure`. Note that this is the systemd
+#   unit, not the `audit=1` kernel parameter -- that one is `$at_boot`.
 #
 # @param auditctl_command
 #   The path to the `auditctl` command to use when stopping or restarting

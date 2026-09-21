@@ -9,6 +9,7 @@
 <!-- vim-markdown-toc GFM -->
 
 * [Overview](#overview)
+* [Breaking changes in 11.0.0](#breaking-changes-in-1100)
 * [This is a SIMP module](#this-is-a-simp-module)
 * [Module Description](#module-description)
 * [Setup](#setup)
@@ -40,6 +41,56 @@
 
 This module manages the Audit daemon, kernel parameters, and related subsystems.
 
+## Breaking changes in 11.0.0
+
+**Including this class no longer configures anything.** Before 11.0.0, `include 'auditd'`
+installed the package, replaced your kernel audit rules, purged `/etc/audit/rules.d`,
+rewrote `auditd.conf`, took ownership of `/etc/audit` and `/var/log/audit`, started and
+enabled the service, and added `audit=1` to the kernel command line. It now installs the
+package and stops there. Every other resource is declared only when a parameter asks for
+it, and those parameters default to `undef`, `false` or `[]`.
+
+If you are a SIMP user, apply the `simp:defaults` compliance profile and you get the old
+behavior back. If you are not, set what you want explicitly.
+
+### What changes even with `simp:defaults` applied
+
+* `/etc/audit/audit-stop.rules` and the `audisp-*.conf` files are no longer deleted. The
+  recursive purge of `/etc/audit` is gone, so `rpm -V audit` comes back clean.
+* `/etc/audit` keeps the mode the package ships (`0750`) rather than being tightened
+  to `0700`.
+* `auditd.conf` is edited key by key instead of being rendered from a template, so
+  package comments and the keys this module has no opinion about (`use_libwrap`,
+  `tcp_*`, `transport`, `krb5_principal`, `distribute_network`,
+  `end_of_event_timeout`) stay in the file at their packaged values. The effective
+  daemon configuration is unchanged, because those packaged values match the
+  compiled-in defaults the daemon used before.
+
+### What changes if you do not apply a profile
+
+* A bare `include 'auditd'` installs the package. Service state, rules, GRUB,
+  `auditd.conf` and the log directory are left exactly as the package left them.
+* `auditd::enable` is deprecated. `true` prints a notice and does nothing else;
+  `false` prints a notice and implies a stopped, disabled service with
+  `at_boot => false`, but no longer stands the rest of the module down.
+  `auditd::default_audit_profile` is likewise deprecated in favour of
+  `auditd::default_audit_profiles`.
+* `simp_options::package_ensure` and `simp_options::syslog` are no longer consulted.
+  Set `auditd::package_ensure` and `auditd::syslog` directly.
+* Setting one `auditd.conf` parameter now changes exactly that one key.
+* `auditd::admin_space_left` requires `auditd::space_left`. Setting the first without
+  the second fails the catalogue: auditd will not start unless `space_left` is the
+  greater of the two, and this module no longer derives one from the other. Call
+  `auditd::calculate_space_left($admin_space_left)` to get the value earlier releases
+  computed.
+* `auditd::config_group` no longer defaults to `auditd::log_group`. The two govern
+  different things -- who may read the audit *logs* versus who may read the audit
+  *configuration* -- and are set independently now. Unset, the configuration files
+  fall back to group `root`.
+* Changing `auditd::default_audit_profiles` from `['simp']` to `['stig']` without
+  `auditd::purge_auditd_rules: true` leaves the old `50_0_simp_base.rules` on disk.
+  The purge used to remove it for you.
+
 ## This is a SIMP module
 
 This module is a component of the [System Integrity Management Platform](https://simp-project.com),
@@ -58,10 +109,12 @@ This module is optimally designed for use within a larger SIMP ecosystem, but it
 
 You can use this module for the management of all components of auditd
 including configuration, service management, kernel parameters, and custom rule
-sets.
+sets. Each of those is opted into separately; see
+[Breaking changes in 11.0.0](#breaking-changes-in-1100).
 
-By default, a rule set is provided that should meet a reasonable set of
-operational goals for most environments.
+A rule set meeting a reasonable set of operational goals for most environments
+is available as the `simp` audit profile, and is what the `simp:defaults`
+compliance profile selects. It is not applied unless you ask for it.
 
 The `audit` kernel parameter may optionally be managed independently of the
 rest of the module using the `::auditd::config::grub` class.
@@ -75,34 +128,64 @@ If `auditd::syslog` is `true`, you will need to install
 
 ### What Auditd Affects
 
-* The `audit` kernel parameter
-  * NOTE: This will be applied to *all* kernels in your standard grub configuration
-* The auditd service
-* The audid configuration in /etc/auditd.conf
-* The auditd rules in /etc/audit/rules.d
-* The audispd configuration in /etc/audisp/audispd.conf
-* The audispd `syslog` configuration if manage_syslog_plugin is enabled.
-     audit version 2 : /etc/audisp/plugins.d/syslog.conf
-     audit version 3 : /etc/auditd/plugins.d/syslog.conf
+Only the `audit` package is installed unconditionally. Everything below happens only
+when the parameter named beside it is set:
+
+| What | Managed when |
+|---|---|
+| The `audit` package | always |
+| The `audit` kernel parameter (applied to *all* kernels in your grub configuration) | `auditd::at_boot` is set |
+| The `auditd` service | `auditd::service_ensure` or `auditd::service_enable` is set |
+| Individual keys in `/etc/audit/auditd.conf` | the matching parameter is set, one key each |
+| Ownership and mode of `/etc/audit/auditd.conf` | `auditd::config_group` is set |
+| Rule files in `/etc/audit/rules.d` | `auditd::default_audit_profiles` is non-empty, or `auditd::rule` is used |
+| Purging unmanaged files from `/etc/audit/rules.d` | `auditd::purge_auditd_rules` is `true` |
+| `/etc/audit/audit.rules` and `.prev` ownership | one of the `auditd::audit_rules_*` parameters is set |
+| `/var/log/audit` | `auditd::log_group` is set |
+| The audispd `syslog` plugin (`/etc/audit/plugins.d/syslog.conf`) | `auditd::syslog` is `true` |
+
+`/etc/audit` itself is no longer managed at all: the recursive purge that used to run
+over it is gone.
 
 ## Usage
 
 ### Basic Usage
 
 ```puppet
-# Set up auditd with the default settings and SIMP default ruleset
-# A message will be printed indicating that you need to reboot for this option
-# to take full effect at each Puppet run until you reboot your system.
-
+# Installs the audit package. Nothing else: no rules, no service state, no
+# auditd.conf edits, no kernel command line change.
 include 'auditd'
 ```
 
-### Disabling Auditd
-
-To disable auditd at boot, set the following in hieradata:
+To get the behavior releases before 11.0.0 gave you, apply the `simp:defaults`
+compliance profile, or set the pieces you want yourself:
 
 ```yaml
+auditd::default_audit_profiles:
+  - simp
+auditd::purge_auditd_rules: true
+auditd::service_ensure: running
+auditd::service_enable: true
+auditd::at_boot: true
+auditd::log_group: root
+```
+
+With `auditd::at_boot: true`, a message is printed at each Puppet run indicating that
+you need to reboot for the kernel parameter to take effect, until you do.
+
+### Disabling Auditd
+
+`auditd::at_boot` controls only the `audit=1` kernel parameter. Setting it to `false`
+actively removes that parameter from the kernel command line, which is different from
+leaving it unset -- unset means this module does not touch your boot loader at all.
+
+```yaml
+# Take audit=1 off the kernel command line
 auditd::at_boot: false
+
+# Stop and disable the service
+auditd::service_ensure: stopped
+auditd::service_enable: false
 ```
 
 ### Enable/Disable sending audit event to syslog:
@@ -116,10 +199,11 @@ to multiple remote syslog servers or persisted
 locally. Site-specific, rsyslog actions to implement filtering will
 likely be required to reduce this message traffic.
 
-The setting ``auditd::syslog``, defaults to ``false`` or
-``syslog_options::syslog`` if you include ``simp_options``.  If you set
-``auditd::syslog: false``, it will not necessarily disable auditd logging to
-syslog, puppet will just no longer manage the ``syslog.conf`` plugin file.
+``auditd::syslog`` defaults to ``false``. As of 11.0.0 it is an ordinary parameter:
+it no longer falls back to ``simp_options::syslog``, so a site that was relying on
+that site-wide key must set ``auditd::syslog`` directly. Setting
+``auditd::syslog: false`` does not necessarily disable auditd logging to syslog --
+Puppet simply stops managing the ``syslog.conf`` plugin file.
 
 The settings needed for enabling/disabling sending audit log messages to syslog
 are shown below.
