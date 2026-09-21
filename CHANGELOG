@@ -18,7 +18,8 @@
   `root`.
 - BREAKING: `simp_options::package_ensure` and `simp_options::syslog` are no
   longer consulted. Use `auditd::package_ensure` (default `installed`) and
-  `auditd::syslog` (default `false`).
+  `auditd::syslog` (default `false`). `simp_options::syslog` also fed
+  `auditd::config::audisp::syslog::rsyslog`, which now defaults to `false`.
 - BREAKING: every `auditd.conf` key parameter is `Optional` and defaults to
   `undef`. Each key is written only when its own parameter is set.
 - Add the `simp:defaults` compliance profile under `SIMP/compliance_profiles`,

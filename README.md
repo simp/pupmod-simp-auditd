@@ -76,7 +76,9 @@ behavior back. If you are not, set what you want explicitly.
   `auditd::default_audit_profile` is likewise deprecated in favour of
   `auditd::default_audit_profiles`.
 * `simp_options::package_ensure` and `simp_options::syslog` are no longer consulted.
-  Set `auditd::package_ensure` and `auditd::syslog` directly.
+  Set `auditd::package_ensure` and `auditd::syslog` directly. `simp_options::syslog`
+  fed two parameters: set `auditd::config::audisp::syslog::rsyslog` as well to keep
+  the SIMP rsyslog rules.
 * Setting one `auditd.conf` parameter now changes exactly that one key.
 * `auditd::admin_space_left` requires `auditd::space_left`. Setting the first without
   the second fails the catalogue: auditd will not start unless `space_left` is the
@@ -204,6 +206,11 @@ it no longer falls back to ``simp_options::syslog``, so a site that was relying 
 that site-wide key must set ``auditd::syslog`` directly. Setting
 ``auditd::syslog: false`` does not necessarily disable auditd logging to syslog --
 Puppet simply stops managing the ``syslog.conf`` plugin file.
+
+``simp_options::syslog`` also supplied the default for the deprecated
+``auditd::config::audisp::syslog::rsyslog``, which hooks the dispatcher into the
+SIMP rsyslog module. That parameter now defaults to ``false``, so a site that
+wants those rsyslog rules must set it explicitly alongside ``auditd::syslog``.
 
 The settings needed for enabling/disabling sending audit log messages to syslog
 are shown below.
