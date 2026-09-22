@@ -92,10 +92,25 @@ describe 'auditd' do
           it_behaves_like 'a package-only catalogue'
         end
 
-        # These used to arrive via simplib::lookup('simp_options::*'), which is
-        # gone; they are ordinary parameters now. The values are deliberately
-        # distinct from the class defaults ('installed' / false) so a pass
-        # proves the parameter carried them.
+        # With no parameters passed, $package_ensure and $syslog resolve through
+        # simplib::lookup('simp_options::package_ensure' / 'simp_options::syslog').
+        # The hieradata fixture sets both to values distinct from the class
+        # defaults ('installed' / false), so a pass proves the lookup path
+        # (not the default) supplied them.
+        # See spec/fixtures/hieradata/simp_options.yaml.
+        context 'with simp_options site keys set in hiera' do
+          let(:params) { {} }
+          let(:hieradata) { 'simp_options' }
+
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_package('audit').with(ensure: 'latest') }
+          it { is_expected.to contain_class('auditd').with_syslog(true) }
+          it { is_expected.to contain_class('auditd::config::logging') }
+        end
+
+        # An explicit parameter wins over the simp_options fallback. The values
+        # are deliberately distinct from the class defaults ('installed' /
+        # false) so a pass proves the parameter carried them.
         context 'with package_ensure and syslog set explicitly' do
           let(:params) do
             {
@@ -242,28 +257,22 @@ describe 'auditd' do
             it { is_expected.to compile.with_all_deps }
           end
 
-          # space_left is no longer derived from admin_space_left. auditd will
-          # not start unless space_left is the greater of the two, and the
-          # value the package ships is not guaranteed to be, so setting one
-          # without the other is refused rather than guessed at.
+          # auditd will not start unless space_left is the greater of the two,
+          # and the value the package ships is not guaranteed to be, so setting
+          # admin_space_left alone derives space_left rather than leaving the
+          # packaged value in place.
           context 'with admin_space_left as a percentage and no space_left' do
             let(:params) { { admin_space_left: '20%' } }
 
-            it {
-              is_expected.to compile.and_raise_error(
-                %r{\$auditd::admin_space_left is set but \$auditd::space_left is not},
-              )
-            }
+            it { is_expected.to compile.with_all_deps }
+            it { is_expected.to contain_ini_setting('auditd.conf space_left').with_value('21%') }
           end
 
           context 'with admin_space_left as an Integer and no space_left' do
             let(:params) { { admin_space_left: 50 } }
 
-            it {
-              is_expected.to compile.and_raise_error(
-                %r{\$auditd::admin_space_left is set but \$auditd::space_left is not},
-              )
-            }
+            it { is_expected.to compile.with_all_deps }
+            it { is_expected.to contain_ini_setting('auditd.conf space_left').with_value(80) }
           end
 
           # The other direction is fine: space_left alone is a complete

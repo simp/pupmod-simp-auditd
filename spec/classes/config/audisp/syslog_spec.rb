@@ -32,14 +32,17 @@ describe 'auditd::config::audisp::syslog' do
             context "with auditd version #{more_facts[:auditd_major_version]}" do
               let(:facts) { os_facts.merge(more_facts) }
 
+              # auditd 2 ran the syslog plugin inside audispd, configured from
+              # /etc/audisp; the defaults follow the detected version. That path
+              # is deprecated and goes away in 12.0.0.
+              auditd2 = more_facts[:auditd_major_version] == '2'
+              plugin_conf = auditd2 ? '/etc/audisp/plugins.d/syslog.conf' : '/etc/audit/plugins.d/syslog.conf'
+              plugin_path = auditd2 ? 'builtin_syslog' : '/sbin/audisp-syslog'
+              plugin_type = auditd2 ? 'builtin' : 'always'
+
               context 'without any parameters' do
                 let(:params) { {} }
 
-                # The plugin directory and the builtin/always distinction used
-                # to come from data/auditd/version-2.yaml, so auditd 2 wrote a
-                # different file in a different place. That Hiera layer is gone:
-                # the paths are parameters now and do not vary by version. The
-                # context below shows how a v2 host asks for the old shape.
                 let(:expected_content) do
                   <<~EOM
                   # This File is managed by Puppet
@@ -47,15 +50,15 @@ describe 'auditd::config::audisp::syslog' do
                   # This file controls the configuration of the syslog plugin.
                   active = yes
                   direction = out
-                  path = /sbin/audisp-syslog
-                  type = always
+                  path = #{plugin_path}
+                  type = #{plugin_type}
                   args = LOG_INFO LOG_LOCAL5
                   format = string
                 EOM
                 end
 
                 it { is_expected.to compile.with_all_deps }
-                it { is_expected.to contain_file('/etc/audit/plugins.d/syslog.conf').with_content(expected_content) }
+                it { is_expected.to contain_file(plugin_conf).with_content(expected_content) }
 
                 # audispd-plugins is still version-gated: the plugin only became
                 # a separate package at auditd 3.0.
@@ -69,9 +72,8 @@ describe 'auditd::config::audisp::syslog' do
                 it { is_expected.not_to contain_rsyslog__rule__drop('audispd') }
               end
 
-              # The auditd 2 layout, now reached by parameter rather than by
-              # version detection. This is the upgrade path for a site that was
-              # relying on the version-2 Hiera layer.
+              # Explicit parameters override the version-detected defaults on
+              # every version.
               context 'with the auditd 2 plugin layout set explicitly' do
                 let(:pre_condition) do
                   <<~PC
@@ -118,15 +120,15 @@ describe 'auditd::config::audisp::syslog' do
                   # This file controls the configuration of the syslog plugin.
                   active = no
                   direction = out
-                  path = /sbin/audisp-syslog
-                  type = always
+                  path = #{plugin_path}
+                  type = #{plugin_type}
                   args = LOG_NOTICE LOG_LOCAL6
                   format = string
                 EOM
                 end
 
                 it { is_expected.to compile.with_all_deps }
-                it { is_expected.to contain_file('/etc/audit/plugins.d/syslog.conf').with_content(expected_content) }
+                it { is_expected.to contain_file(plugin_conf).with_content(expected_content) }
                 it { is_expected.not_to contain_package('audisp-syslog') }
                 it { is_expected.to contain_class('rsyslog') }
                 it { is_expected.to contain_rsyslog__rule__drop('audispd') }
@@ -152,6 +154,17 @@ describe 'auditd::config::audisp::syslog' do
                 end
 
                 it { is_expected.not_to compile.with_all_deps }
+              end
+
+              # An undef argument or a Hiera ~ falls through to the code
+              # default, so the default has to be undef and the value has to
+              # come from module data for the opt-out to work.
+              context 'with pkg_name set to ~ in hiera' do
+                let(:hieradata) { 'syslog_pkg_unmanaged' }
+
+                it { is_expected.to compile.with_all_deps }
+                it { is_expected.not_to contain_package('audispd-plugins') }
+                it { is_expected.to contain_file(plugin_conf) }
               end
             end
           end

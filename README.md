@@ -64,7 +64,10 @@ behavior back. If you are not, set what you want explicitly.
   `tcp_*`, `transport`, `krb5_principal`, `distribute_network`,
   `end_of_event_timeout`) stay in the file at their packaged values. The effective
   daemon configuration is unchanged, because those packaged values match the
-  compiled-in defaults the daemon used before.
+  compiled-in defaults the daemon used before. Keys keep their packaged position;
+  a key missing from the file is appended. That matters for `verify_email`, which
+  auditd only honours if it precedes `action_mail_acct`. Every supported package
+  ships it in that position, so only a file it was removed from by hand is affected.
 
 ### What changes if you do not apply a profile
 
@@ -75,16 +78,11 @@ behavior back. If you are not, set what you want explicitly.
   `at_boot => false`, but no longer stands the rest of the module down.
   `auditd::default_audit_profile` is likewise deprecated in favour of
   `auditd::default_audit_profiles`.
-* `simp_options::package_ensure` and `simp_options::syslog` are no longer consulted.
-  Set `auditd::package_ensure` and `auditd::syslog` directly. `simp_options::syslog`
-  fed two parameters: set `auditd::config::audisp::syslog::rsyslog` as well to keep
-  the SIMP rsyslog rules.
 * Setting one `auditd.conf` parameter now changes exactly that one key.
-* `auditd::admin_space_left` requires `auditd::space_left`. Setting the first without
-  the second fails the catalogue: auditd will not start unless `space_left` is the
-  greater of the two, and this module no longer derives one from the other. Call
-  `auditd::calculate_space_left($admin_space_left)` to get the value earlier releases
-  computed.
+* `auditd::space_left` defaults to `undef` rather than
+  `auditd::calculate_space_left($admin_space_left)`. It is still derived from
+  `auditd::admin_space_left` when that is set, so the two keys are written together;
+  unset, neither is written.
 * `auditd::config_group` no longer defaults to `auditd::log_group`. The two govern
   different things -- who may read the audit *logs* versus who may read the audit
   *configuration* -- and are set independently now. Unset, the configuration files
@@ -140,7 +138,9 @@ when the parameter named beside it is set:
 | The `auditd` service | `auditd::service_ensure` or `auditd::service_enable` is set |
 | Individual keys in `/etc/audit/auditd.conf` | the matching parameter is set, one key each |
 | Ownership and mode of `/etc/audit/auditd.conf` | `auditd::config_group` is set |
+| The `auditd::plugin_dir` directory | `auditd::plugin_dir` is set |
 | Rule files in `/etc/audit/rules.d` | `auditd::default_audit_profiles` is non-empty, or `auditd::rule` is used |
+| The rule preamble (`00_head.rules`, `99_tail.rules`) and removal of the packaged `rules.d/audit.rules` | `auditd::default_audit_profiles` is non-empty, or `auditd::purge_auditd_rules` is `true` |
 | Purging unmanaged files from `/etc/audit/rules.d` | `auditd::purge_auditd_rules` is `true` |
 | `/etc/audit/audit.rules` and `.prev` ownership | one of the `auditd::audit_rules_*` parameters is set |
 | `/var/log/audit` | `auditd::log_group` is set |
@@ -201,16 +201,14 @@ to multiple remote syslog servers or persisted
 locally. Site-specific, rsyslog actions to implement filtering will
 likely be required to reduce this message traffic.
 
-``auditd::syslog`` defaults to ``false``. As of 11.0.0 it is an ordinary parameter:
-it no longer falls back to ``simp_options::syslog``, so a site that was relying on
-that site-wide key must set ``auditd::syslog`` directly. Setting
-``auditd::syslog: false`` does not necessarily disable auditd logging to syslog --
-Puppet simply stops managing the ``syslog.conf`` plugin file.
+``auditd::syslog`` defaults to the ``simp_options::syslog`` site key, and to
+``false`` when that is unset. Setting ``auditd::syslog: false`` does not
+necessarily disable auditd logging to syslog -- Puppet simply stops managing the
+``syslog.conf`` plugin file.
 
-``simp_options::syslog`` also supplied the default for the deprecated
+``simp_options::syslog`` also supplies the default for the deprecated
 ``auditd::config::audisp::syslog::rsyslog``, which hooks the dispatcher into the
-SIMP rsyslog module. That parameter now defaults to ``false``, so a site that
-wants those rsyslog rules must set it explicitly alongside ``auditd::syslog``.
+SIMP rsyslog module.
 
 The settings needed for enabling/disabling sending audit log messages to syslog
 are shown below.
@@ -397,6 +395,16 @@ recommended that users use the ``auditd::rule`` defined type for adding rules.
 
 Other options are available with ``auditd::rule`` but these are the most
 commonly used.
+
+On its own, ``auditd::rule`` writes only the rule file. The preamble that
+``augenrules`` loads ahead of the rules comes from the ``audit`` package's own
+``rules.d/audit.rules`` until this module is asked to manage the directory, with
+a profile or ``auditd::purge_auditd_rules: true``. Only then are
+``auditd::buffer_size``, ``auditd::failure_mode``, ``auditd::rate``,
+``auditd::ignore_errors``, ``auditd::ignore_failures``,
+``auditd::backlog_wait_time``, ``auditd::loginuid_immutable`` and
+``auditd::immutable`` written out, and the packaged preamble removed so it
+cannot override them.
 
 #### Adding Regular Filter Rules
 

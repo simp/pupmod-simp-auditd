@@ -27,22 +27,6 @@ function auditd::validate_init_params {
     }
   }
 
-  # auditd refuses to start when space_left is not greater than
-  # admin_space_left. space_left is no longer derived from admin_space_left, so
-  # a site that sets only the latter would write its value and leave whatever
-  # the package ships (75 at the time of writing) in place -- taking the
-  # service down on the next restart. Refuse the catalog rather than guess a
-  # threshold on the site's behalf.
-  if $_admin_space_left =~ NotUndef and $_space_left =~ Undef {
-    fail(@(MSG/L))
-      $auditd::admin_space_left is set but $auditd::space_left is not. auditd \
-      requires space_left to be greater than admin_space_left or it will not \
-      start, and the value shipped by the package is not guaranteed to be. Set \
-      $auditd::space_left explicitly; auditd::calculate_space_left() derives \
-      the value previous releases used.
-      | MSG
-  }
-
   if $_space_left =~ NotUndef and $_admin_space_left =~ NotUndef {
     if $_space_left.type('generalized') == $_admin_space_left.type('generalized') {
       if $_admin_space_left =~ String {

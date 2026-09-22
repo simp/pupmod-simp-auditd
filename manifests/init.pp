@@ -63,8 +63,9 @@
 # @param action_mail_acct
 # @param admin_space_left
 #   The free-space threshold, in megabytes or as a percentage, at which
-#   `$admin_space_left_action` is taken. Setting this requires setting
-#   `$space_left` to a larger value; see that parameter.
+#   `$admin_space_left_action` is taken. Setting this also writes
+#   `$space_left`, derived from this value unless set explicitly; see that
+#   parameter.
 #
 # @param admin_space_left_action
 #
@@ -230,33 +231,21 @@
 #   enforce auditing.
 #
 # @param space_left
-#   Must be larger than `$admin_space_left`. Required whenever
-#   `$admin_space_left` is set -- the catalog fails otherwise, because auditd
-#   will not start when this is not greater than `$admin_space_left` and the
-#   value the package ships may not be.
+#   Must be larger than `$admin_space_left`.
 #
-#   This is no longer derived for you. To reproduce the value previous
-#   releases computed, call the helper that still ships with this module from
-#   a profile:
-#
-#   ```puppet
-#   class { 'auditd':
-#     admin_space_left => 50,
-#     space_left       => auditd::calculate_space_left(50),
-#   }
-#   ```
-#
-#   It returns `30 + $admin_space_left` for an `Integer` and
-#   `1% + $admin_space_left` for a percentage (auditd >= 2.8.5).
+#   Unset, nothing is written unless `$admin_space_left` is set, in which case
+#   this is derived from it with `auditd::calculate_space_left()`: `30 +
+#   $admin_space_left` for an `Integer`, `1% + $admin_space_left` for a
+#   percentage (auditd >= 2.8.5). auditd will not start unless this is the
+#   greater of the two and the value the package ships is not guaranteed to
+#   be, so the two keys are written together.
 #
 # @param space_left_action
 #
 # @param syslog
 #   If true, manage the settings for the syslog plugin
-#
-#   This used to default to the `simp_options::syslog` site key; that lookup
-#   has been removed and it is an ordinary parameter now.
-#
+#   It was left defaulted to  simp_options::syslog value for backwards
+#   compatability.
 #   This does not  activate/deactivate the plugin.  That setting is
 #   in the auditd::config::audisp::syslog::enable setting.  If syslog
 #   is set to true, by default it will enable the syslog plugin in order
@@ -328,8 +317,8 @@ class auditd (
   Optional[Boolean]                                    $local_events                    = undef,
   Optional[Stdlib::Absolutepath]                       $log_file                        = undef,
   Optional[Auditd::LogFormat]                          $log_format                      = undef,
-  Optional[String]                                     $log_group                       = undef,
-  Optional[String]                                     $config_group                    = undef,
+  Optional[String[1]]                                  $log_group                       = undef,
+  Optional[String[1]]                                  $config_group                    = undef,
   Optional[String[1]]                                  $audit_rules_owner               = undef,
   Optional[String[1]]                                  $audit_rules_group               = undef,
   Optional[Stdlib::Filemode]                           $audit_rules_mode                = undef,
@@ -341,7 +330,7 @@ class auditd (
   Optional[Integer[0]]                                 $num_logs                        = undef,
   Optional[Auditd::Overflowaction]                     $overflow_action                 = undef,
   Variant[String[1],Array[String[1],1]]                $package_name                    = (versioncmp($facts['os']['release']['major'], '10') >= 0) ? { true => ['audit', 'audit-rules'], default => 'audit' },
-  Simplib::PackageEnsure                               $package_ensure                  = 'installed',
+  Simplib::PackageEnsure                               $package_ensure                  = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' }),
   Optional[Stdlib::Absolutepath]                       $plugin_dir                      = undef,
   Optional[Integer[0]]                                 $priority_boost                  = undef,
   Optional[Integer[0]]                                 $q_depth                         = undef,
@@ -352,9 +341,12 @@ class auditd (
   Optional[Boolean]                                    $service_enable                  = undef,
   String[1]                                            $auditctl_command                = pick(fact('auditd_auditctl_cmd'), '/usr/sbin/auditctl'),
   Boolean                                              $warn_if_reboot_required         = false,
-  Optional[Variant[Integer[0],Pattern['^\d+%$']]]      $space_left                      = undef,
+  Optional[Variant[Integer[0],Pattern['^\d+%$']]]      $space_left                      = $admin_space_left ? {
+    undef   => undef,
+    default => auditd::calculate_space_left($admin_space_left),
+  },
   Optional[Auditd::SpaceLeftAction]                    $space_left_action               = undef,
-  Boolean                                              $syslog                          = false, # CCE-26933-2
+  Boolean                                              $syslog                          = simplib::lookup('simp_options::syslog', { 'default_value' => false }), # CCE-26933-2
   Optional[Array[Pattern['^.*_t$']]]                   $target_selinux_types            = undef,
   Integer[0]                                           $uid_min                         = Integer(pick(fact('uid_min'), 1000)),
   Optional[Boolean]                                    $verify_email                    = undef,

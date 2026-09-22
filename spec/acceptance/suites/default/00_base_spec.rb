@@ -23,15 +23,10 @@ describe 'auditd class with simp audit profile' do
       # when these are set; the permission tests below depend on both.
       'auditd::log_group'                    => 'root',
       'auditd::config_group'                 => 'root',
-      # Replaces simp_options::syslog, which 11.0.0 no longer consults.
-      'auditd::syslog'                       => true,
+      'simp_options::syslog'                 => true,
       'pki::cacerts_sources'                 => ['file:///etc/pki/simp-testing/pki/cacerts'],
       'pki::private_key_source'              => 'file:///etc/pki/simp-testing/pki/private/%{facts.networking.fqdn}.pem',
       'pki::public_key_source'               => 'file:///etc/pki/simp-testing/pki/public/%{facts.networking.fqdn}.pub',
-      # Inert as of 11.0.0: nothing includes the rsyslog module now that
-      # simp_options::syslog no longer feeds
-      # auditd::config::audisp::syslog::rsyslog. Left in place until that
-      # deprecated path is removed.
       'rsyslog::config::main_msg_queue_size' => 4321,
     }
   end

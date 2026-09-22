@@ -189,6 +189,11 @@ class auditd::config {
   # is a plugin that silently never loads.
   $_auditd_conf_v3 = {
     'local_events'    => $auditd::local_events ? { undef => undef, false => 'no', default => 'yes' },
+    # auditd.conf(5): verify_email must precede action_mail_acct or the default
+    # of yes is used. Every supported audit package ships verify_email directly
+    # above action_mail_acct, and ini_setting edits an existing key in place, so
+    # the packaged order is kept. Only a file the key was removed from by hand
+    # would have it appended after action_mail_acct.
     'verify_email'    => $auditd::verify_email ? { undef => undef, false => 'no', default => 'yes' },
     'plugin_dir'      => $auditd::plugin_dir,
     'overflow_action' => $auditd::overflow_action,
@@ -226,12 +231,30 @@ class auditd::config {
     }
   }
 
+  # Only declared when a site moves the plugin directory. The package ships
+  # and owns the default one. auditd::config::audisp::syslog writes
+  # syslog.conf into whatever plugin_dir resolves to, so a relocated
+  # directory that nothing creates is a File with no parent.
+  if $auditd::plugin_dir {
+    file { $auditd::plugin_dir:
+      ensure  => 'directory',
+      owner   => 'root',
+      group   => $_config_group,
+      mode    => $config_file_mode,
+      require => Package[$auditd::package_name],
+    }
+  }
+
   if $auditd::syslog {
     include 'auditd::config::logging'
     Class['auditd::config::logging'] ~> Class['auditd::service']
   }
 
-  unless empty($profiles) {
+  # The same condition that claims /etc/audit/rules.d above. Once this module
+  # is managing that directory, the rule files in it need the preamble
+  # (00_head.rules, 99_tail.rules) this class writes, whether or not any
+  # profile supplies content.
+  if !empty($profiles) or $auditd::purge_auditd_rules {
     # use contain instead of include so that config file changes can
     # notify auditd::service class
     contain 'auditd::config::audit_profiles'

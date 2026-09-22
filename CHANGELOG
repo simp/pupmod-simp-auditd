@@ -5,21 +5,22 @@
   `simp:defaults` compliance profile.
 - BREAKING: resource gating. `Service['auditd']` requires
   `auditd::service_ensure` or `auditd::service_enable`; `auditd::config::grub`
-  requires `auditd::at_boot`; the rule files require a non-empty
-  `auditd::default_audit_profiles`; purging `/etc/audit/rules.d` requires
-  `auditd::purge_auditd_rules`; `/var/log/audit` requires `auditd::log_group`;
+  requires `auditd::at_boot`; the profile rule files require a non-empty
+  `auditd::default_audit_profiles`; the rule preamble (`00_head.rules`,
+  `99_tail.rules`) requires that or `auditd::purge_auditd_rules`; purging
+  `/etc/audit/rules.d` requires `auditd::purge_auditd_rules`; `/var/log/audit`
+  requires `auditd::log_group`;
   `/etc/audit/auditd.conf` ownership requires `auditd::config_group`.
 - BREAKING: `/etc/audit` is no longer managed or purged.
-- BREAKING: `auditd::space_left` defaults to `undef`. Setting
-  `auditd::admin_space_left` without it fails the catalogue.
-  `auditd::calculate_space_left()` remains available.
+- Remove the packaged `/etc/audit/rules.d/audit.rules` whenever `00_head.rules`
+  is written. It sorts after `00_head.rules` and overrode `-b` and `-f`.
+- BREAKING: `auditd::space_left` and `auditd::admin_space_left` default to
+  `undef`, so neither key is written. `auditd::space_left` is still derived
+  from `auditd::admin_space_left` when that is set.
 - BREAKING: `auditd::config_group` defaults to `undef` rather than
   `auditd::log_group`. Unset, the configuration files fall back to group
   `root`.
-- BREAKING: `simp_options::package_ensure` and `simp_options::syslog` are no
-  longer consulted. Use `auditd::package_ensure` (default `installed`) and
-  `auditd::syslog` (default `false`). `simp_options::syslog` also fed
-  `auditd::config::audisp::syslog::rsyslog`, which now defaults to `false`.
+- `auditd::log_group` and `auditd::config_group` reject the empty string.
 - BREAKING: every `auditd.conf` key parameter is `Optional` and defaults to
   `undef`. Each key is written only when its own parameter is set.
 - Add the `simp:defaults` compliance profile under `SIMP/compliance_profiles`,
@@ -28,10 +29,9 @@
   false` prints a notice and implies `service_ensure => stopped`,
   `service_enable => false` and `at_boot => false` where those are unset.
 - Remove the `data/os/*.yaml` and `data/auditd/version-*.yaml` Hiera layers;
-  `hiera.yaml` keeps `common.yaml` alone. The auditd 2 audisp layout is no
-  longer selected automatically; set `auditd::plugin_dir`,
-  `auditd::config::audisp::syslog::type` and
-  `auditd::config::audisp::syslog::syslog_path` directly.
+  `hiera.yaml` keeps `common.yaml` alone. The auditd 2 plugin layout is
+  selected from the `auditd_version` fact instead.
+- Deprecate the auditd < 3.0 compatibility path for removal in 12.0.0.
 - Fix an operator-precedence bug in `auditd::validate_init_params` where
   `$_pct = ($x =~ String) and ('%' in $x)` assigned only the `String` test.
 - Add a spec for `auditd::calculate_space_left`.

@@ -53,6 +53,10 @@ describe 'auditd' do
           it { is_expected.not_to contain_file('/var/log/audit') }
           it { is_expected.not_to contain_file('/etc/audit/plugins.d') }
 
+          # The package's own preamble stays. Nothing here has an opinion to
+          # put in its place.
+          it { is_expected.not_to contain_file('/etc/audit/rules.d/audit.rules') }
+
           it { is_expected.not_to contain_class('auditd::config::audit_profiles') }
           it { is_expected.not_to contain_class('auditd::config::audit_profiles::simp') }
           it { is_expected.not_to contain_class('auditd::config::logging') }
@@ -98,6 +102,9 @@ describe 'auditd' do
           it { is_expected.to contain_file('/etc/audit/audit.rules').with_mode('0600').without_owner.without_group }
         end
 
+        # Purging claims rules.d, so the rule files a site drops in (via
+        # auditd::rule) need the module's preamble: the package's was just
+        # purged. The default drop rules are profile content and stay out.
         context 'with purge_auditd_rules => true' do
           let(:params) { { purge_auditd_rules: true } }
 
@@ -113,6 +120,13 @@ describe 'auditd' do
               force: true,
             )
           }
+
+          it { is_expected.to contain_class('auditd::config::audit_profiles') }
+          it { is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r{^-b 16384$}) }
+          it { is_expected.to contain_file('/etc/audit/rules.d/99_tail.rules') }
+          it { is_expected.not_to contain_file('/etc/audit/rules.d/05_default_drop.rules') }
+          it { is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules') }
+          it { is_expected.to contain_file('/etc/audit/rules.d/audit.rules').with_ensure('absent') }
         end
 
         # A profile writes rule files, so rules.d gets declared to carry their
@@ -147,6 +161,12 @@ describe 'auditd' do
           # plumbing: selecting a profile no longer drags them in.
           it { is_expected.not_to contain_file(AUDITD_CONFIG_RULES) }
           it { is_expected.not_to contain_auditd__rule('audit_auditd_config') }
+
+          # The packaged rules.d/audit.rules sorts after 00_head.rules and
+          # augenrules lets the later file win on a duplicated -b/-f, so
+          # without a purge it has to be removed explicitly or the values
+          # written above never take effect.
+          it { is_expected.to contain_file('/etc/audit/rules.d/audit.rules').with_ensure('absent') }
         end
 
         context 'with a profile and audit_auditd_config => true' do
@@ -208,6 +228,50 @@ describe 'auditd' do
 
           it { is_expected.to compile.with_all_deps }
           it { is_expected.not_to contain_class('auditd::config::audit_profiles') }
+        end
+
+        # The package ships and owns the default plugin directory, so this is
+        # declared only when a site moves it. auditd::config::audisp::syslog
+        # writes syslog.conf into whatever plugin_dir resolves to, and a
+        # relocated directory nothing creates is a File with no parent.
+        context 'with plugin_dir unset' do
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.not_to contain_file('/etc/audit/plugins.d') }
+        end
+
+        context 'with plugin_dir set' do
+          let(:params) { { plugin_dir: '/opt/audit/plugins.d' } }
+
+          it { is_expected.to compile.with_all_deps }
+          it {
+            is_expected.to contain_file('/opt/audit/plugins.d').with(
+              ensure: 'directory',
+              owner: 'root',
+              group: 'root',
+              mode: 'u+rwX,g-rwx,o-rwx',
+            )
+          }
+        end
+
+        context 'with plugin_dir and config_group set' do
+          let(:params) { { plugin_dir: '/opt/audit/plugins.d', config_group: 'rspec' } }
+
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_file('/opt/audit/plugins.d').with_group('rspec') }
+        end
+
+        # An empty string is truthy in Puppet and would reach the File
+        # resources as group => ''. String[1] rejects it at the parameter.
+        context 'with an empty config_group' do
+          let(:params) { { config_group: '' } }
+
+          it { is_expected.to compile.and_raise_error(%r{'config_group' expects a value of type Undef or String\[1\]}) }
+        end
+
+        context 'with an empty log_group' do
+          let(:params) { { log_group: '' } }
+
+          it { is_expected.to compile.and_raise_error(%r{'log_group' expects a value of type Undef or String\[1\]}) }
         end
 
         context 'with different log_group' do

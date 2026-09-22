@@ -253,8 +253,9 @@ Default value: `undef`
 Data type: `Optional[Variant[Integer[0],Pattern['^\d+%$']]]`
 
 The free-space threshold, in megabytes or as a percentage, at which
-`$admin_space_left_action` is taken. Setting this requires setting
-`$space_left` to a larger value; see that parameter.
+`$admin_space_left_action` is taken. Setting this also writes
+`$space_left`, derived from this value unless set explicitly; see that
+parameter.
 
 Default value: `undef`
 
@@ -394,7 +395,7 @@ Default value: `undef`
 
 ##### <a name="-auditd--log_group"></a>`log_group`
 
-Data type: `Optional[String]`
+Data type: `Optional[String[1]]`
 
 The group that owns `/var/log/audit` and the audit log files.
 
@@ -402,7 +403,7 @@ Default value: `undef`
 
 ##### <a name="-auditd--config_group"></a>`config_group`
 
-Data type: `Optional[String]`
+Data type: `Optional[String[1]]`
 
 The group that owns `/etc/audit` and the audit configuration files.
 Grants that group read access to the audit configuration; nothing here
@@ -530,7 +531,7 @@ Data type: `Simplib::PackageEnsure`
 
 
 
-Default value: `'installed'`
+Default value: `simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' })`
 
 ##### <a name="-auditd--plugin_dir"></a>`plugin_dir`
 
@@ -639,26 +640,22 @@ Default value: `false`
 
 Data type: `Optional[Variant[Integer[0],Pattern['^\d+%$']]]`
 
-Must be larger than `$admin_space_left`. Required whenever
-`$admin_space_left` is set -- the catalog fails otherwise, because auditd
-will not start when this is not greater than `$admin_space_left` and the
-value the package ships may not be.
+Must be larger than `$admin_space_left`.
 
-This is no longer derived for you. To reproduce the value previous
-releases computed, call the helper that still ships with this module from
-a profile:
+Unset, nothing is written unless `$admin_space_left` is set, in which case
+this is derived from it with `auditd::calculate_space_left()`: `30 +
+$admin_space_left` for an `Integer`, `1% + $admin_space_left` for a
+percentage (auditd >= 2.8.5). auditd will not start unless this is the
+greater of the two and the value the package ships is not guaranteed to
+be, so the two keys are written together.
+
+Default value:
 
 ```puppet
-class { 'auditd':
-  admin_space_left => 50,
-  space_left       => auditd::calculate_space_left(50),
-}
+$admin_space_left ? {
+    undef   => undef,
+    default => auditd::calculate_space_left($admin_space_left)
 ```
-
-It returns `30 + $admin_space_left` for an `Integer` and
-`1% + $admin_space_left` for a percentage (auditd >= 2.8.5).
-
-Default value: `undef`
 
 ##### <a name="-auditd--space_left_action"></a>`space_left_action`
 
@@ -673,10 +670,8 @@ Default value: `undef`
 Data type: `Boolean`
 
 If true, manage the settings for the syslog plugin
-
-This used to default to the `simp_options::syslog` site key; that lookup
-has been removed and it is an ordinary parameter now.
-
+It was left defaulted to  simp_options::syslog value for backwards
+compatability.
 This does not  activate/deactivate the plugin.  That setting is
 in the auditd::config::audisp::syslog::enable setting.  If syslog
 is set to true, by default it will enable the syslog plugin in order
@@ -684,7 +679,7 @@ to be backwards compatable.  If you want to ensure the plugin is disabled,
 set auditd::config::audisp::syslog::enable to false.
 If this is set to false the plugin settings are not managed by puppet.
 
-Default value: `false`
+Default value: `simplib::lookup('simp_options::syslog', { 'default_value' => false })`
 
 ##### <a name="-auditd--target_selinux_types"></a>`target_selinux_types`
 
@@ -861,7 +856,7 @@ Data type: `Boolean`
 If set, enable the SIMP `rsyslog` module and set up the appropriate rules
 for the `auditd` services.
 
-Default value: `false`
+Default value: `simplib::lookup('simp_options::syslog', { 'default_value' => false })`
 
 ##### <a name="-auditd--config--audisp--syslog--drop_audit_logs"></a>`drop_audit_logs`
 
@@ -912,28 +907,36 @@ Default value: `'LOG_LOCAL5'`
 
 ##### <a name="-auditd--config--audisp--syslog--syslog_path"></a>`syslog_path`
 
-Data type: `String`
+Data type: `Optional[String[1]]`
 
 The path to the syslog plugin executable.
 
-Default value: `'/sbin/audisp-syslog'`
+Unset, `/sbin/audisp-syslog` on auditd >= 3.0 and the audispd builtin
+`builtin_syslog` below it.
+
+Default value: `undef`
 
 ##### <a name="-auditd--config--audisp--syslog--type"></a>`type`
 
-Data type: `String`
+Data type: `Optional[String[1]]`
 
 The type of auditd plugin.
 
-Default value: `'always'`
+Unset, `always` on auditd >= 3.0 and `builtin` below it.
+
+Default value: `undef`
 
 ##### <a name="-auditd--config--audisp--syslog--pkg_name"></a>`pkg_name`
 
-Data type: `String[1]`
+Data type: `Optional[String[1]]`
 
 The name of the plugin package to install.  Only needed for
 auditd version 3 and later.
 
-Default value: `'audispd-plugins'`
+`audispd-plugins` from the module data. Set to `~` in Hiera to leave the
+package unmanaged.
+
+Default value: `undef`
 
 ##### <a name="-auditd--config--audisp--syslog--package_ensure"></a>`package_ensure`
 
@@ -941,7 +944,7 @@ Data type: `String`
 
 The default ensure parmeter for packages.
 
-Default value: `'installed'`
+Default value: `simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' })`
 
 ### <a name="auditd--config--audisp_service"></a>`auditd::config::audisp_service`
 

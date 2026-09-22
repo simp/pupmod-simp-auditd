@@ -15,7 +15,9 @@
 #
 # No `confine:` keys: every per-OS and per-auditd-major data file was identical.
 #
-# Not restored: the /etc/audit purge and mode, `syslog`, `enable`.
+# Not restored: the /etc/audit purge and mode, `enable`. `syslog`,
+# `package_ensure` and `config::audisp::syslog::rsyslog` still default from
+# `simp_options::*` as before and need no check.
 ---
 version: 2.0.0
 checks:
