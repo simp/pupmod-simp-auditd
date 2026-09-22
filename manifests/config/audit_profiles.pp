@@ -72,17 +72,6 @@ class auditd::config::audit_profiles {
     require => Package[$auditd::package_name],
   }
 
-  # The audit package ships its own preamble as rules.d/audit.rules (-D, -b,
-  # --backlog_wait_time, -f). augenrules lets the later-sorting file win on a
-  # duplicated directive and audit.rules sorts after 00_head.rules, so leaving
-  # it in place silently overrides the values written above. With
-  # purge_auditd_rules this is already removed; this covers the case where it
-  # is not.
-  file { '/etc/audit/rules.d/audit.rules':
-    ensure  => 'absent',
-    require => Package[$auditd::package_name],
-  }
-
   # The tail is preamble and belongs with the head. The default drop rules are
   # profile content, so they are only written when a profile was asked for. If
   # the only profile is the 'built_in' profile, skip both to allow users more

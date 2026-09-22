@@ -65,8 +65,8 @@
 #     The name of the plugin package to install.  Only needed for
 #     auditd version 3 and later.
 #
-#     `audispd-plugins` from the module data. Set to `~` in Hiera to leave the
-#     package unmanaged.
+#     `audispd-plugins` from the module data. The package is always managed
+#     on auditd 3 and later when the plugin is enabled.
 #
 # @param package_ensure
 #     The default ensure parmeter for packages.
@@ -77,14 +77,14 @@ class auditd::config::audisp::syslog (
   Boolean                         $drop_audit_logs = true, #deprecated see @param
   Auditd::LogPriority             $priority        = 'LOG_INFO',
   Auditd::LogFacility             $facility        = 'LOG_LOCAL5',
-  Optional[String[1]]             $pkg_name        = undef, # data in module
+  String[1]                       $pkg_name,       # data in module
   Optional[String[1]]             $syslog_path     = undef,
   Optional[String[1]]             $type            = undef,
   Boolean                         $rsyslog         = simplib::lookup('simp_options::syslog', { 'default_value' => false }), #deprecated see @param
   String                          $package_ensure  = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' }),
 ) {
   # See auditd::config::logging for why a missing auditd_version means 3.0.
-  if versioncmp(pick($facts['auditd_version'], '3.0'), '3.0') >= 0 and $enable and $pkg_name {
+  if versioncmp(pick($facts['auditd_version'], '3.0'), '3.0') >= 0 and $enable {
     package { $pkg_name :
       ensure => $package_ensure,
     }

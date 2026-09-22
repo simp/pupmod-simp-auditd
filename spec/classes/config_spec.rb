@@ -126,7 +126,6 @@ describe 'auditd' do
           it { is_expected.to contain_file('/etc/audit/rules.d/99_tail.rules') }
           it { is_expected.not_to contain_file('/etc/audit/rules.d/05_default_drop.rules') }
           it { is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules') }
-          it { is_expected.to contain_file('/etc/audit/rules.d/audit.rules').with_ensure('absent') }
         end
 
         # A profile writes rule files, so rules.d gets declared to carry their
@@ -162,11 +161,11 @@ describe 'auditd' do
           it { is_expected.not_to contain_file(AUDITD_CONFIG_RULES) }
           it { is_expected.not_to contain_auditd__rule('audit_auditd_config') }
 
-          # The packaged rules.d/audit.rules sorts after 00_head.rules and
-          # augenrules lets the later file win on a duplicated -b/-f, so
-          # without a purge it has to be removed explicitly or the values
-          # written above never take effect.
-          it { is_expected.to contain_file('/etc/audit/rules.d/audit.rules').with_ensure('absent') }
+          # The packaged rules.d/audit.rules is left alone without a purge, even
+          # though it sorts after 00_head.rules and wins on a duplicated -b/-f.
+          # The README documents the override; the module does not delete
+          # package-created files unless purge_auditd_rules asks it to.
+          it { is_expected.not_to contain_file('/etc/audit/rules.d/audit.rules') }
         end
 
         context 'with a profile and audit_auditd_config => true' do

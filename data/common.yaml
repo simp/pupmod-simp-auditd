@@ -21,8 +21,6 @@ lookup_options:
       strategy: deep
       knockout_prefix: --
 
-# Lives here rather than as a code default so a site can set it to ~ and leave
-# the package unmanaged; an undef passed to a code default falls through to it.
 auditd::config::audisp::syslog::pkg_name: 'audispd-plugins'
 
 auditd::config::audit_profiles::simp::basic_root_audit_syscalls:

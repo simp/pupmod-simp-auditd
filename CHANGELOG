@@ -12,8 +12,6 @@
   requires `auditd::log_group`;
   `/etc/audit/auditd.conf` ownership requires `auditd::config_group`.
 - BREAKING: `/etc/audit` is no longer managed or purged.
-- Remove the packaged `/etc/audit/rules.d/audit.rules` whenever `00_head.rules`
-  is written. It sorts after `00_head.rules` and overrode `-b` and `-f`.
 - BREAKING: `auditd::space_left` and `auditd::admin_space_left` default to
   `undef`, so neither key is written. `auditd::space_left` is still derived
   from `auditd::admin_space_left` when that is set.
@@ -21,6 +19,8 @@
   `auditd::log_group`. Unset, the configuration files fall back to group
   `root`.
 - `auditd::log_group` and `auditd::config_group` reject the empty string.
+- BREAKING: `auditd::config::audisp::syslog::pkg_name` is a required `String[1]`
+  supplied by the module data; setting it to `~` no longer skips the package.
 - BREAKING: every `auditd.conf` key parameter is `Optional` and defaults to
   `undef`. Each key is written only when its own parameter is set.
 - Add the `simp:defaults` compliance profile under `SIMP/compliance_profiles`,

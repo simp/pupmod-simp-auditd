@@ -928,15 +928,15 @@ Default value: `undef`
 
 ##### <a name="-auditd--config--audisp--syslog--pkg_name"></a>`pkg_name`
 
-Data type: `Optional[String[1]]`
+Data type: `String[1]`
 
 The name of the plugin package to install.  Only needed for
 auditd version 3 and later.
 
-`audispd-plugins` from the module data. Set to `~` in Hiera to leave the
-package unmanaged.
+`audispd-plugins` from the module data. The package is always managed
+on auditd 3 and later when the plugin is enabled.
 
-Default value: `undef`
+Default value: `'audispd-plugins'`
 
 ##### <a name="-auditd--config--audisp--syslog--package_ensure"></a>`package_ensure`
 

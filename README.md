@@ -90,6 +90,13 @@ behavior back. If you are not, set what you want explicitly.
 * Changing `auditd::default_audit_profiles` from `['simp']` to `['stig']` without
   `auditd::purge_auditd_rules: true` leaves the old `50_0_simp_base.rules` on disk.
   The purge used to remove it for you.
+* **Without `auditd::purge_auditd_rules: true`, the packaged
+  `/etc/audit/rules.d/audit.rules` overrides `auditd::buffer_size` and
+  `auditd::failure_mode`.** The `audit` package drops that file (`-D`, `-b 8192`,
+  `-f 1`) into an empty `rules.d`. `augenrules` lets the later-sorting file win
+  on a duplicated `-b` or `-f`, and `audit.rules` sorts after every file this
+  module writes. The purge used to remove it for you; set
+  `auditd::purge_auditd_rules: true` or delete the file yourself.
 
 ## This is a SIMP module
 
@@ -140,7 +147,7 @@ when the parameter named beside it is set:
 | Ownership and mode of `/etc/audit/auditd.conf` | `auditd::config_group` is set |
 | The `auditd::plugin_dir` directory | `auditd::plugin_dir` is set |
 | Rule files in `/etc/audit/rules.d` | `auditd::default_audit_profiles` is non-empty, or `auditd::rule` is used |
-| The rule preamble (`00_head.rules`, `99_tail.rules`) and removal of the packaged `rules.d/audit.rules` | `auditd::default_audit_profiles` is non-empty, or `auditd::purge_auditd_rules` is `true` |
+| The rule preamble (`00_head.rules`, `99_tail.rules`) | `auditd::default_audit_profiles` is non-empty, or `auditd::purge_auditd_rules` is `true` |
 | Purging unmanaged files from `/etc/audit/rules.d` | `auditd::purge_auditd_rules` is `true` |
 | `/etc/audit/audit.rules` and `.prev` ownership | one of the `auditd::audit_rules_*` parameters is set |
 | `/var/log/audit` | `auditd::log_group` is set |
@@ -403,8 +410,9 @@ a profile or ``auditd::purge_auditd_rules: true``. Only then are
 ``auditd::buffer_size``, ``auditd::failure_mode``, ``auditd::rate``,
 ``auditd::ignore_errors``, ``auditd::ignore_failures``,
 ``auditd::backlog_wait_time``, ``auditd::loginuid_immutable`` and
-``auditd::immutable`` written out, and the packaged preamble removed so it
-cannot override them.
+``auditd::immutable`` written out. Unless the purge is on, the packaged
+``rules.d/audit.rules`` stays and its ``-b`` and ``-f`` win over
+``00_head.rules``; see the breaking changes above.
 
 #### Adding Regular Filter Rules
 

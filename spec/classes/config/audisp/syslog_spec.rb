@@ -156,15 +156,13 @@ describe 'auditd::config::audisp::syslog' do
                 it { is_expected.not_to compile.with_all_deps }
               end
 
-              # An undef argument or a Hiera ~ falls through to the code
-              # default, so the default has to be undef and the value has to
-              # come from module data for the opt-out to work.
+              # 10.x let a site set this to ~ to skip the package. The value
+              # comes from module data and the parameter is a required
+              # String[1], so ~ now fails at the parameter, by name.
               context 'with pkg_name set to ~ in hiera' do
                 let(:hieradata) { 'syslog_pkg_unmanaged' }
 
-                it { is_expected.to compile.with_all_deps }
-                it { is_expected.not_to contain_package('audispd-plugins') }
-                it { is_expected.to contain_file(plugin_conf) }
+                it { is_expected.to compile.and_raise_error(%r{'pkg_name' expects a String value, got Undef}) }
               end
             end
           end
