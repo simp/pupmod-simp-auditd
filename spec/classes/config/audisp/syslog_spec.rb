@@ -35,10 +35,10 @@ describe 'auditd::config::audisp::syslog' do
               # auditd 2 ran the syslog plugin inside audispd, configured from
               # /etc/audisp; the defaults follow the detected version. That path
               # is deprecated and goes away in 12.0.0.
-              auditd2 = more_facts[:auditd_major_version] == '2'
-              plugin_conf = auditd2 ? '/etc/audisp/plugins.d/syslog.conf' : '/etc/audit/plugins.d/syslog.conf'
-              plugin_path = auditd2 ? 'builtin_syslog' : '/sbin/audisp-syslog'
-              plugin_type = auditd2 ? 'builtin' : 'always'
+              let(:auditd2) { more_facts[:auditd_major_version] == '2' }
+              let(:plugin_conf) { auditd2 ? '/etc/audisp/plugins.d/syslog.conf' : '/etc/audit/plugins.d/syslog.conf' }
+              let(:plugin_path) { auditd2 ? 'builtin_syslog' : '/sbin/audisp-syslog' }
+              let(:plugin_type) { auditd2 ? 'builtin' : 'always' }
 
               context 'without any parameters' do
                 let(:params) { {} }
