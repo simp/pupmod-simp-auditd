@@ -97,6 +97,9 @@ behavior back. If you are not, set what you want explicitly.
   on a duplicated `-b` or `-f`, and `audit.rules` sorts after every file this
   module writes. The purge used to remove it for you; set
   `auditd::purge_auditd_rules: true` or delete the file yourself.
+* `auditd::config::audisp::syslog::pkg_name` is a required `String[1]` supplied by the
+  module data. Setting it to `~` used to skip the `audispd-plugins` package; it now fails
+  the catalogue.
 
 ## This is a SIMP module
 
