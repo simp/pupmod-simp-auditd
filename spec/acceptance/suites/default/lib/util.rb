@@ -7,6 +7,29 @@ module AuditdTestUtil
                     'find /etc/audit/rules.d -name "*.rules" | sort | xargs cat'.freeze
 
   AUDITCTL_CMD = '/usr/sbin/auditctl'.freeze
+
+  # Include in a describe block to get #with_simp_defaults_enforced.
+  module ComplianceEngine
+    # Runs the block with `compliance_engine::enforcement: [simp:defaults]` in
+    # force, then puts the environment's hiera.yaml back. The Compliance
+    # Engine layer goes last, so it has the lowest priority, as it does at a
+    # real site. The hieradata written here is replaced by the next
+    # set_hieradata_on call.
+    def with_simp_defaults_enforced(host)
+      original = get_hiera_config_on(host)
+      config = YAML.safe_load(original)
+      config['hierarchy'] << {
+        'name'       => 'Compliance Engine',
+        'lookup_key' => 'compliance_engine::enforcement',
+      }
+      set_hiera_config_on(host, config)
+      set_hieradata_on(host, { 'compliance_engine::enforcement' => ['simp:defaults'] })
+
+      yield
+    ensure
+      set_hiera_config_on(host, original) if original
+    end
+  end
 end
 
 # An object that holds the assessment of a given nodes ruleset

@@ -38,14 +38,25 @@ class auditd::config::audit_profiles::built_in (
             refreshonly => true,
           }
 
-          # If we got to here, we should be able to evaluate that the generated ruleset is different
-          # and drop into place only if we need to
-          file { "/etc/audit/rules.d/${_order}-${_ruleset}.rules":
-            ensure  => 'file',
-            *       => $auditd::config::rule_file_attributes,
-            source  => "file://${_sample_rules_basedir}/${_order}-${_ruleset}.rules.evaluated",
+          # The evaluated ruleset only exists once the execs above have run, so
+          # a File `source` on it fails in noop on a node that has never
+          # applied this profile. Copy it with an exec instead, which noop
+          # reports rather than runs, and let the File manage only attributes.
+          $_evaluated = "${_sample_rules_basedir}/${_order}-${_ruleset}.rules.evaluated"
+          $_rule_file = "/etc/audit/rules.d/${_order}-${_ruleset}.rules"
+
+          exec { 'install_privileged_ruleset':
+            command => "cp -f ${_evaluated} ${_rule_file}",
+            unless  => "cmp -s ${_evaluated} ${_rule_file}",
+            path    => ['/usr/bin', '/usr/sbin', '/bin', '/sbin'],
             notify  => Class['auditd::service'],
             require => [Exec['build_privileged_ruleset'], Package[$auditd::package_name]],
+          }
+
+          file { $_rule_file:
+            *       => $auditd::config::rule_file_attributes,
+            notify  => Class['auditd::service'],
+            require => Exec['install_privileged_ruleset'],
           }
         } else {
           file { "/etc/audit/rules.d/${_order}-${_ruleset}.rules":

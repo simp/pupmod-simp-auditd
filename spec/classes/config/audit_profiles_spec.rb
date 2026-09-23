@@ -34,7 +34,44 @@ describe 'auditd' do
 
       let(:params) { base_params }
 
+      # The preamble options and default drop rules are opt-in: unset, none of
+      # them are written. simp:defaults sets the values asserted further down.
       context 'with default parameters' do
+        it { is_expected.to compile.with_all_deps }
+
+        it 'writes no preamble options' do
+          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules')
+            .without_content(%r{^-[icbfr](\s|$)})
+            .without_content(%r{^--loginuid-immutable$})
+        end
+
+        it 'writes no default drop rules' do
+          is_expected.to contain_file('/etc/audit/rules.d/05_default_drop.rules')
+            .without_content(%r{^-a\s+never,exit\s+-F\s+auid=-1$})
+            .without_content(%r{^-a\s+never,user\s+-F\s+subj_type=crond_t$})
+            .without_content(%r{^-a\s+never,exit\s+-F\s+auid!=0\s+-F\s+auid<})
+        end
+
+        it { is_expected.to contain_class('auditd::config::audit_profiles::simp') }
+      end
+
+      context 'with the simp:defaults preamble and drop values' do
+        let(:params) do
+          base_params.merge(
+            buffer_size: 16_384,
+            failure_mode: 1,
+            rate: 0,
+            loginuid_immutable: true,
+            ignore_errors: true,
+            ignore_failures: true,
+            ignore_anonymous: true,
+            ignore_system_services: true,
+            ignore_crond: true,
+            ignore_time_daemons: true,
+            ignore_crypto_key_user: true,
+          )
+        end
+
         it { is_expected.to compile.with_all_deps }
         it { is_expected.to contain_auditd__rule('audit_auditd_config').with_content(%r{-w /var/log/audit -p wa -k audit-logs}) }
 

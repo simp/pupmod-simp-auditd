@@ -58,12 +58,19 @@ class auditd::config::audit_profiles {
     }
   }
 
-  if ( $auditd::root_audit_level == 'aggressive' ) and ( $auditd::buffer_size < 32788 ) {
-    $_buffer_size = 32788
-  } elsif ( $auditd::root_audit_level == 'insane' ) and ( $auditd::buffer_size < 65576 ) {
-    $_buffer_size = 65576
-  } else {
+  # The heavier root audit levels need a larger backlog than 'basic', so they
+  # raise -b to a floor whether or not buffer_size is set. Unset under
+  # 'basic', no -b is written.
+  $_buffer_floor = $auditd::root_audit_level ? {
+    'aggressive' => 32788,
+    'insane'     => 65576,
+    default      => undef,
+  }
+
+  if $_buffer_floor =~ Undef {
     $_buffer_size = $auditd::buffer_size
+  } else {
+    $_buffer_size = max(pick($auditd::buffer_size, 0), $_buffer_floor)
   }
 
   file { '/etc/audit/rules.d/00_head.rules':

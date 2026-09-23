@@ -85,8 +85,8 @@ checks:
       parameter: auditd::action_mail_acct
       value: root
 
-  # A pair: setting admin_space_left without space_left fails the catalogue.
-  # Do not drop either. 80 is auditd::calculate_space_left(50).
+  # space_left would be derived from admin_space_left (80 = calculate_space_left(50));
+  # it is set explicitly so the profile doesn't depend on that derivation.
   simp:defaults.auditd.admin_space_left:
     type: puppet-class-parameter
     settings:
@@ -186,4 +186,63 @@ checks:
     type: puppet-class-parameter
     settings:
       parameter: auditd::write_logs
+      value: true
+
+  # --- Rule preamble (00_head.rules) and default drops (05_default_drop.rules). ---
+  # Written only once a rule profile or purge_auditd_rules claims rules.d; each
+  # line is emitted only when its parameter is set.
+  simp:defaults.auditd.buffer_size:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::buffer_size
+      value: 16384
+  simp:defaults.auditd.failure_mode:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::failure_mode
+      value: 1
+  simp:defaults.auditd.rate:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::rate
+      value: 0
+  simp:defaults.auditd.loginuid_immutable:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::loginuid_immutable
+      value: true
+  simp:defaults.auditd.ignore_errors:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::ignore_errors
+      value: true
+  simp:defaults.auditd.ignore_failures:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::ignore_failures
+      value: true
+  simp:defaults.auditd.ignore_anonymous:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::ignore_anonymous
+      value: true
+  simp:defaults.auditd.ignore_system_services:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::ignore_system_services
+      value: true
+  simp:defaults.auditd.ignore_crond:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::ignore_crond
+      value: true
+  simp:defaults.auditd.ignore_time_daemons:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::ignore_time_daemons
+      value: true
+  simp:defaults.auditd.ignore_crypto_key_user:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::ignore_crypto_key_user
       value: true

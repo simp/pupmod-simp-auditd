@@ -178,59 +178,71 @@ Default value: `$facts['networking']['fqdn']`
 
 ##### <a name="-auditd--ignore_anonymous"></a>`ignore_anonymous`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 For built-in audit profiles, whether to drop anonymous and daemon
 events, i.e., events for which ``auid`` is '-1' (aka 'unset').
 Audit records from these events are prolific but not useful.
 
-Default value: `true`
+Unset, the drop rule is not written. `simp:defaults` sets `true`.
+
+Default value: `undef`
 
 ##### <a name="-auditd--ignore_crond"></a>`ignore_crond`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 For built-in audit profiles, whether to drop events related to cron
 jobs. `cron` creates a lot of audit events that are not usually useful.
 
-Default value: `true`
+Unset, the drop rule is not written. `simp:defaults` sets `true`.
+
+Default value: `undef`
 
 ##### <a name="-auditd--ignore_time_daemons"></a>`ignore_time_daemons`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 Ignore time modifications by time daemons that are running on the system
 since this is valid activity.
 
-Default value: `true`
+Unset, the drop rule is not written. `simp:defaults` sets `true`.
+
+Default value: `undef`
 
 ##### <a name="-auditd--ignore_crypto_key_user"></a>`ignore_crypto_key_user`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 Ignore CRYPTO_KEY_USER logs since these are generally noise.
 
-Default value: `true`
+Unset, the drop rule is not written. `simp:defaults` sets `true`.
+
+Default value: `undef`
 
 ##### <a name="-auditd--ignore_errors"></a>`ignore_errors`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 Whether to set the `auditctl` '-i' option
 
-Default value: `true`
+Unset, the option is not written. `simp:defaults` sets `true`.
+
+Default value: `undef`
 
 ##### <a name="-auditd--ignore_failures"></a>`ignore_failures`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 Whether to set the `auditctl` '-c' option
 
-Default value: `true`
+Unset, the option is not written. `simp:defaults` sets `true`.
+
+Default value: `undef`
 
 ##### <a name="-auditd--ignore_system_services"></a>`ignore_system_services`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 For built-in audit profiles, whether to ignore system service events,
 i.e., events for which the ``auid`` is set but is less than the
@@ -239,7 +251,9 @@ this filter is attached to every system call rule.  So, by implementing
 the filter in an upfront drop rule, this feature provides optimization
 of that filtering.
 
-Default value: `true`
+Unset, the drop rule is not written. `simp:defaults` sets `true`.
+
+Default value: `undef`
 
 ##### <a name="-auditd--action_mail_acct"></a>`action_mail_acct`
 
@@ -286,11 +300,16 @@ Default value: `undef`
 
 ##### <a name="-auditd--buffer_size"></a>`buffer_size`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
 Value of the `auditctl` '-b' option
 
-Default value: `16384`
+Unset, no `-b` is written unless `$root_audit_level` raises it, and the
+kernel keeps its own backlog limit. With `$purge_auditd_rules`, that
+includes removing the `-b 8192` the package's `audit.rules` sets, so set
+this explicitly. `simp:defaults` sets `16384`.
+
+Default value: `undef`
 
 ##### <a name="-auditd--backlog_wait_time"></a>`backlog_wait_time`
 
@@ -334,11 +353,13 @@ Default value: `'/sbin/audispd'`
 
 ##### <a name="-auditd--failure_mode"></a>`failure_mode`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
 Value of the `auditctl` '-f' option
 
-Default value: `1`
+Unset, the option is not written. `simp:defaults` sets `1`.
+
+Default value: `undef`
 
 ##### <a name="-auditd--flush"></a>`flush`
 
@@ -455,7 +476,7 @@ Default value: `undef`
 
 ##### <a name="-auditd--loginuid_immutable"></a>`loginuid_immutable`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 Sets the --loginuid-immutable option
 
@@ -463,7 +484,9 @@ Sets the --loginuid-immutable option
   containers but a concrete explanation of what types has not yet been
   found.
 
-Default value: `true`
+Unset, the option is not written. `simp:defaults` sets `true`.
+
+Default value: `undef`
 
 ##### <a name="-auditd--max_log_file"></a>`max_log_file`
 
@@ -560,11 +583,13 @@ Default value: `undef`
 
 ##### <a name="-auditd--rate"></a>`rate`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
 Value of the `auditctl` '-r' option
 
-Default value: `0`
+Unset, the option is not written. `simp:defaults` sets `0`.
+
+Default value: `undef`
 
 ##### <a name="-auditd--root_audit_level"></a>`root_audit_level`
 

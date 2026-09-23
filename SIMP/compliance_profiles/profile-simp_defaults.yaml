@@ -38,3 +38,15 @@ profiles:
       simp:defaults.auditd.overflow_action: true
       simp:defaults.auditd.max_restarts: true
       simp:defaults.auditd.write_logs: true
+      # Rule preamble and default drops
+      simp:defaults.auditd.buffer_size: true
+      simp:defaults.auditd.failure_mode: true
+      simp:defaults.auditd.rate: true
+      simp:defaults.auditd.loginuid_immutable: true
+      simp:defaults.auditd.ignore_errors: true
+      simp:defaults.auditd.ignore_failures: true
+      simp:defaults.auditd.ignore_anonymous: true
+      simp:defaults.auditd.ignore_system_services: true
+      simp:defaults.auditd.ignore_crond: true
+      simp:defaults.auditd.ignore_time_daemons: true
+      simp:defaults.auditd.ignore_crypto_key_user: true

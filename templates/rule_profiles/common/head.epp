@@ -22,10 +22,12 @@
 -c
 <% } -%>
 
+<% if $auditd::config::audit_profiles::_buffer_size =~ NotUndef { -%>
 ## Increase buffer size to handle the increased number of messages.
 ## Feel free to increase this if the machine panic's
 # Default: 8192
 -b <%= $auditd::config::audit_profiles::_buffer_size %>
+<% } -%>
 <% if $auditd::backlog_wait_time { -%>
 
 ## The time to wait when the backlog limit is reached before queueing more
@@ -35,15 +37,19 @@
 --backlog_wait_time <%= $auditd::backlog_wait_time %>
 
 <% } -%>
+<% if $auditd::failure_mode =~ NotUndef { -%>
 ## Set failure mode
 # Default: 2
 -f <%= $auditd::failure_mode %>
 
+<% } -%>
+<% if $auditd::rate =~ NotUndef { -%>
 ## Rate limit messages
 # Default: 0
 # If you set this to non-zero, you almost definitely want to set -f to 1 above.
 -r <%= $auditd::rate %>
 
+<% } -%>
 <% if $auditd::loginuid_immutable { -%>
 ## Set the loginuid to be immutable
 --loginuid-immutable

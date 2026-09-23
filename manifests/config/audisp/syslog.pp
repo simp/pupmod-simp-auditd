@@ -88,6 +88,13 @@ class auditd::config::audisp::syslog (
     package { $pkg_name :
       ensure => $package_ensure,
     }
+
+    # The edits below rely on the file the plugin package ships. Written
+    # first, the package would leave its own copy as syslog.conf.rpmnew.
+    $_syslog_conf_require = [Package[$auditd::package_name], Package[$pkg_name]]
+  }
+  else {
+    $_syslog_conf_require = [Package[$auditd::package_name]]
   }
 
   # auditd 2 (EL7, unsupported since 9.0.0) ran the syslog plugin inside
@@ -116,16 +123,54 @@ class auditd::config::audisp::syslog (
     default => 'always',
   })
 
-  file { "${_plugin_dir}/syslog.conf":
-    mode    => $auditd::config::config_file_mode,
+  $_syslog_conf = "${_plugin_dir}/syslog.conf"
+
+  # syslog.conf is the audispd-plugins package's own %config(noreplace) file.
+  # This resource only enforces ownership and mode; with no ensure it does not
+  # create the file. Its contents are left to the package and the ini_settings
+  # below.
+  file { $_syslog_conf:
     owner   => 'root',
-    content => epp("${module_name}/plugins/syslog_conf", {
-      enable => $enable,
-      path   => $_syslog_path,
-      type   => $_type,
-      args   => "${priority} ${facility}"
-    }),
-    require => Package[$auditd::package_name],
+    mode    => $auditd::config::config_file_mode,
+    require => $_syslog_conf_require,
+  }
+
+  # Only the keys this module has an opinion about are edited. The packaged
+  # file already carries direction = out, path = /sbin/audisp-syslog,
+  # type = always and format = string, so on auditd 3 and later those are left
+  # alone unless a site sets path or type.
+  #
+  # Two cases cannot rely on the packaged file, and get every key: auditd 2,
+  # whose audispd needs the builtin plugin, and a relocated plugin_dir, where
+  # the package never put a syslog.conf.
+  #
+  # Disabled, only active is written, so a plugin that was on is switched off
+  # without filling in a file for a plugin nothing will start.
+  $_full = $_auditd2 or $auditd::plugin_dir =~ NotUndef
+
+  if $enable {
+    $_syslog_conf_settings = {
+      'active'    => 'yes',
+      'direction' => $_full ? { true => 'out', default => undef },
+      'path'      => ($_full or $syslog_path =~ NotUndef) ? { true => $_syslog_path, default => undef },
+      'type'      => ($_full or $type =~ NotUndef) ? { true => $_type, default => undef },
+      'args'      => "${priority} ${facility}",
+      'format'    => $_full ? { true => 'string', default => undef },
+    }.filter |$setting, $value| { $value =~ NotUndef }
+  }
+  else {
+    $_syslog_conf_settings = { 'active' => 'no' }
+  }
+
+  $_syslog_conf_settings.each |$setting, $value| {
+    ini_setting { "syslog.conf ${setting}":
+      path              => $_syslog_conf,
+      section           => '',
+      key_val_separator => ' = ',
+      setting           => $setting,
+      value             => $value,
+      require           => File[$_syslog_conf],
+    }
   }
   #
   #  The below section is here for backwards compatability. It will be removed

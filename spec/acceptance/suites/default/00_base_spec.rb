@@ -4,6 +4,7 @@ test_name 'auditd class with simp audit profile'
 
 describe 'auditd class with simp audit profile' do
   require_relative('lib/util')
+  include AuditdTestUtil::ComplianceEngine
 
   # 11.0.0 makes every resource opt-in: a bare `include auditd` installs the
   # package and nothing else. Each auditd:: key below is a gate this suite
@@ -58,17 +59,21 @@ describe 'auditd class with simp audit profile' do
     context "on #{host}" do
       # Exercise noop from a clean state: on a fresh node the Sicura console
       # previews the module with `puppet apply --noop`, which must not error.
-      # This runs before the applies below configure auditd, so it is the
-      # genuine fresh-node preview. A post-convergence noop check is omitted
-      # (`--noop --detailed-exitcodes` always exits 0). No package removal (as
-      # with fips/ssh): a fresh node already has the base `audit` package, so
-      # the honest clean state is "installed but not yet SIMP-managed", which is
-      # exactly what a bare noop of the module's manifest previews. Unlike the
-      # real apply (`catch_failures: false`, since the auditd service cannot be
-      # manually restarted), noop triggers no restart, so failures are real.
+      # A bare include manages only Package[audit], so previewing that proves
+      # nothing; the preview enforces simp:defaults, which is what a SIMP site
+      # would apply. This runs before the applies below configure auditd, so it
+      # is the genuine fresh-node preview. A post-convergence noop check is
+      # omitted (`--noop --detailed-exitcodes` always exits 0). No package
+      # removal (as with fips/ssh): a fresh node already has the base `audit`
+      # package, so the honest clean state is "installed but not yet
+      # SIMP-managed". Unlike the real apply (`catch_failures: false`, since
+      # the auditd service cannot be manually restarted), noop triggers no
+      # restart, so failures are real.
       context 'in noop mode from a clean state' do
-        it 'applies without errors in noop mode' do
-          apply_manifest_on(host, manifest, catch_failures: true, noop: true)
+        it 'previews simp:defaults without errors' do
+          with_simp_defaults_enforced(host) do
+            apply_manifest_on(host, manifest, catch_failures: true, noop: true)
+          end
         end
       end
 

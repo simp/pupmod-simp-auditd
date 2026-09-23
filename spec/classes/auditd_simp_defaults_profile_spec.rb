@@ -121,6 +121,26 @@ describe 'auditd' do
           is_expected.to contain_file('/etc/audit/rules.d/75.audit_auditd_config.rules')
         end
 
+        # Opt-in since 11.0.0; the profile restores the old preamble options.
+        it 'writes the preamble options' do
+          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules')
+            .with_content(%r{^-i$})
+            .with_content(%r{^-c$})
+            .with_content(%r{^-b 16384$})
+            .with_content(%r{^-f 1$})
+            .with_content(%r{^-r 0$})
+            .with_content(%r{^--loginuid-immutable$})
+        end
+
+        it 'writes the default drop rules' do
+          is_expected.to contain_file('/etc/audit/rules.d/05_default_drop.rules')
+            .with_content(%r{^-a never,exit -F auid=-1$})
+            .with_content(%r{^-a never,exit -F auid!=0 -F auid<\d+$})
+            .with_content(%r{^-a never,user -F subj_type=crond_t$})
+            .with_content(%r{subj_type=chronyd_t$})
+            .with_content(%r{^-a always,exclude -F msgtype=CRYPTO_KEY_USER$})
+        end
+
         it 'takes ownership of the log directory and the config file' do
           is_expected.to contain_file('/var/log/audit').with(ensure: 'directory', owner: 'root', group: 'root')
           is_expected.to contain_file('/etc/audit/auditd.conf').with(owner: 'root', group: 'root')

@@ -40,71 +40,106 @@ describe 'auditd::config::audisp::syslog' do
               let(:plugin_path) { auditd2 ? 'builtin_syslog' : '/sbin/audisp-syslog' }
               let(:plugin_type) { auditd2 ? 'builtin' : 'always' }
 
+              # Checks the ini_setting edits to syslog.conf: `settings` must be
+              # exactly the keys written, and every other key is left to the package.
+              def expect_syslog_conf(path, settings)
+                settings.each do |key, value|
+                  is_expected.to contain_ini_setting("syslog.conf #{key}").with(
+                    path: path,
+                    section: '',
+                    key_val_separator: ' = ',
+                    setting: key,
+                    value: value,
+                  )
+                end
+                (['active', 'direction', 'path', 'type', 'args', 'format'] - settings.keys).each do |key|
+                  is_expected.not_to contain_ini_setting("syslog.conf #{key}")
+                end
+              end
+
               context 'without any parameters' do
                 let(:params) { {} }
 
-                let(:expected_content) do
-                  <<~EOM
-                  # This File is managed by Puppet
-                  #
-                  # This file controls the configuration of the syslog plugin.
-                  active = yes
-                  direction = out
-                  path = #{plugin_path}
-                  type = #{plugin_type}
-                  args = LOG_INFO LOG_LOCAL5
-                  format = string
-                EOM
-                end
-
                 it { is_expected.to compile.with_all_deps }
-                it { is_expected.to contain_file(plugin_conf).with_content(expected_content) }
+
+                # The package's own syslog.conf is edited in place, never
+                # replaced: the File carries attributes only.
+                it {
+                  is_expected.to contain_file(plugin_conf).with(owner: 'root', content: nil, source: nil, ensure: nil)
+                }
+
+                # On auditd 3+ the packaged file already has direction, path,
+                # type and format; auditd 2 needs the builtin plugin written.
+                it {
+                  if auditd2
+                    expect_syslog_conf(plugin_conf, 'active' => 'yes', 'direction' => 'out', 'path' => plugin_path,
+                                                    'type' => plugin_type, 'args' => 'LOG_INFO LOG_LOCAL5', 'format' => 'string')
+                  else
+                    expect_syslog_conf(plugin_conf, 'active' => 'yes', 'args' => 'LOG_INFO LOG_LOCAL5')
+                  end
+                }
 
                 # audispd-plugins is still version-gated: the plugin only became
-                # a separate package at auditd 3.0.
+                # a separate package at auditd 3.0. Where it is managed, the edits
+                # wait for it, or the package's copy would land as .rpmnew.
                 it {
-                  if facts[:auditd_major_version] == '2'
+                  if auditd2
                     is_expected.not_to contain_package('audispd-plugins')
                   else
                     is_expected.to contain_package('audispd-plugins')
+                    is_expected.to contain_file(plugin_conf).that_requires('Package[audispd-plugins]')
                   end
                 }
+                it { is_expected.to contain_ini_setting('syslog.conf active').that_requires("File[#{plugin_conf}]") }
                 it { is_expected.not_to contain_rsyslog__rule__drop('audispd') }
               end
 
               # Explicit parameters override the version-detected defaults on
-              # every version.
-              context 'with the auditd 2 plugin layout set explicitly' do
-                let(:pre_condition) do
-                  <<~PC
-                    class { 'auditd': plugin_dir => '/etc/audisp/plugins.d' }
-                  PC
-                end
+              # every version, and are written because a site asked for them.
+              context 'with syslog_path and type set explicitly' do
                 let(:params) do
                   {
-                    syslog_path: 'builtin_syslog',
+                    syslog_path: '/usr/local/sbin/audisp-syslog',
                     type: 'builtin',
                   }
                 end
-                let(:expected_content) do
-                  <<~EOM
-                  # This File is managed by Puppet
-                  #
-                  # This file controls the configuration of the syslog plugin.
-                  active = yes
-                  direction = out
-                  path = builtin_syslog
-                  type = builtin
-                  args = LOG_INFO LOG_LOCAL5
-                  format = string
-                EOM
+
+                it { is_expected.to compile.with_all_deps }
+                it { is_expected.to contain_ini_setting('syslog.conf path').with_value('/usr/local/sbin/audisp-syslog') }
+                it { is_expected.to contain_ini_setting('syslog.conf type').with_value('builtin') }
+              end
+
+              # A relocated plugin_dir has no packaged syslog.conf in it, so
+              # every key is written.
+              context 'with plugin_dir relocated' do
+                let(:pre_condition) do
+                  <<~PC
+                    class { 'auditd': plugin_dir => '/opt/audit/plugins.d' }
+                  PC
                 end
 
                 it { is_expected.to compile.with_all_deps }
-                it { is_expected.to contain_file('/etc/audisp/plugins.d/syslog.conf').with_content(expected_content) }
+                it {
+                  expect_syslog_conf('/opt/audit/plugins.d/syslog.conf', 'active' => 'yes', 'direction' => 'out', 'path' => plugin_path,
+                                                                        'type' => plugin_type, 'args' => 'LOG_INFO LOG_LOCAL5', 'format' => 'string')
+                }
               end
 
-              context 'when setting rsyslog, syslog priority and facility' do
+              context 'with custom syslog priority and facility' do
+                let(:params) do
+                  {
+                    facility: 'LOG_LOCAL6',
+                    priority: 'LOG_NOTICE',
+                  }
+                end
+
+                it { is_expected.to compile.with_all_deps }
+                it { is_expected.to contain_ini_setting('syslog.conf args').with_value('LOG_NOTICE LOG_LOCAL6') }
+              end
+
+              # Disabled, the plugin is switched off and nothing else is
+              # written, so a file is never filled in for a plugin nothing starts.
+              context 'when setting rsyslog with the plugin disabled' do
                 let(:params) do
                   {
                     enable: false,
@@ -113,23 +148,10 @@ describe 'auditd::config::audisp::syslog' do
                     priority: 'LOG_NOTICE',
                   }
                 end
-                let(:expected_content) do
-                  <<~EOM
-                  # This File is managed by Puppet
-                  #
-                  # This file controls the configuration of the syslog plugin.
-                  active = no
-                  direction = out
-                  path = #{plugin_path}
-                  type = #{plugin_type}
-                  args = LOG_NOTICE LOG_LOCAL6
-                  format = string
-                EOM
-                end
 
                 it { is_expected.to compile.with_all_deps }
-                it { is_expected.to contain_file(plugin_conf).with_content(expected_content) }
-                it { is_expected.not_to contain_package('audisp-syslog') }
+                it { expect_syslog_conf(plugin_conf, 'active' => 'no') }
+                it { is_expected.not_to contain_package('audispd-plugins') }
                 it { is_expected.to contain_class('rsyslog') }
                 it { is_expected.to contain_rsyslog__rule__drop('audispd') }
               end

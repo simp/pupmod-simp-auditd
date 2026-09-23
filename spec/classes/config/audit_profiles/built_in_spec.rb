@@ -57,8 +57,9 @@ describe 'auditd' do
 
         it {
           # We should not have the items included in audit_profiles since we are
-          # only defining `built_in`
-          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r{^-i$})
+          # only defining `built_in`. The preamble options are opt-in, so
+          # unset, 00_head carries none of them.
+          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').without_content(%r{^-i$})
           is_expected.not_to contain_file('/etc/audit/rules.d/05_default_drop.rules')
           is_expected.not_to contain_file('/etc/audit/rules.d/99_tail.rules')
 
@@ -106,8 +107,9 @@ describe 'auditd' do
 
         it {
           # We should not have the items included in audit_profiles since we are
-          # only defining `built_in`
-          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r{^-i$})
+          # only defining `built_in`. The preamble options are opt-in, so
+          # unset, 00_head carries none of them.
+          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').without_content(%r{^-i$})
           is_expected.not_to contain_file('/etc/audit/rules.d/05_default_drop.rules')
           is_expected.not_to contain_file('/etc/audit/rules.d/99_tail.rules')
 
@@ -131,8 +133,9 @@ describe 'auditd' do
               refreshonly: true,
             )
 
-            is_expected.to contain_file('/etc/audit/rules.d/31-privileged.rules').with(
-              rule_file_attrs.merge(source: 'file:///usr/share/audit/sample-rules/31-privileged.rules.evaluated'),
+            is_expected.to contain_exec('install_privileged_ruleset').with(
+              command: 'cp -f /usr/share/audit/sample-rules/31-privileged.rules.evaluated /etc/audit/rules.d/31-privileged.rules',
+              unless: 'cmp -s /usr/share/audit/sample-rules/31-privileged.rules.evaluated /etc/audit/rules.d/31-privileged.rules',
             ).that_notifies('Class[auditd::service]').that_requires('Exec[build_privileged_ruleset]')
           else
             is_expected.to contain_exec('generate_privileged_script').with(
@@ -153,10 +156,20 @@ describe 'auditd' do
               refreshonly: true,
             )
 
-            is_expected.to contain_file('/etc/audit/rules.d/31-privileged.rules').with(
-              rule_file_attrs.merge(source: 'file:///usr/share/doc/audit-2.8.5/rules/31-privileged.rules.evaluated'),
+            is_expected.to contain_exec('install_privileged_ruleset').with(
+              command: 'cp -f /usr/share/doc/audit-2.8.5/rules/31-privileged.rules.evaluated /etc/audit/rules.d/31-privileged.rules',
+              unless: 'cmp -s /usr/share/doc/audit-2.8.5/rules/31-privileged.rules.evaluated /etc/audit/rules.d/31-privileged.rules',
             ).that_notifies('Class[auditd::service]').that_requires('Exec[build_privileged_ruleset]')
           end
+
+          # Attributes only: a `source` on the evaluated file breaks noop
+          # before the execs above have ever run.
+          is_expected.to contain_file('/etc/audit/rules.d/31-privileged.rules')
+            .with(rule_file_attrs.except(:ensure))
+            .without_ensure
+            .without_source
+            .that_notifies('Class[auditd::service]')
+            .that_requires('Exec[install_privileged_ruleset]')
         }
       end
 
@@ -169,6 +182,15 @@ describe 'auditd' do
             ],
             # No longer on by default; this context asserts its rule below.
             audit_auditd_config: true,
+            # The simp:defaults preamble and drop values asserted below.
+            buffer_size: 16_384,
+            failure_mode: 1,
+            rate: 0,
+            ignore_errors: true,
+            ignore_failures: true,
+            ignore_anonymous: true,
+            ignore_system_services: true,
+            ignore_crond: true,
           }
         end
 

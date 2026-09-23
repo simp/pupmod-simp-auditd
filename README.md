@@ -69,6 +69,10 @@ behavior back. If you are not, set what you want explicitly.
   a key missing from the file is appended. That matters for `verify_email`, which
   auditd only honours if it precedes `action_mail_acct`. Every supported package
   ships it in that position, so only a file it was removed from by hand is affected.
+* On auditd 3 and later, `/etc/audit/plugins.d/syslog.conf` is edited key by key
+  instead of being rendered from a template. Only `active` and `args` are written,
+  plus `path` and `type` when set explicitly; the rest keeps the packaged values,
+  which match what the template wrote. auditd 2's `audispd.conf` is unchanged.
 
 ### What changes if you do not apply a profile
 
@@ -79,7 +83,9 @@ behavior back. If you are not, set what you want explicitly.
   `at_boot => false`, but no longer stands the rest of the module down.
   `auditd::default_audit_profile` is likewise deprecated in favour of
   `auditd::default_audit_profiles`.
-* Setting one `auditd.conf` parameter now changes exactly that one key.
+* Setting one `auditd.conf` parameter now changes exactly that one key. The
+  exception is `auditd::admin_space_left`, which also writes the `space_left` derived
+  from it unless `auditd::space_left` is set.
 * `auditd::space_left` defaults to `undef` rather than
   `auditd::calculate_space_left($admin_space_left)`. It is still derived from
   `auditd::admin_space_left` when that is set, so the two keys are written together;
@@ -98,6 +104,16 @@ behavior back. If you are not, set what you want explicitly.
   on a duplicated `-b` or `-f`, and `audit.rules` sorts after every file this
   module writes. The purge used to remove it for you; set
   `auditd::purge_auditd_rules: true` or delete the file yourself.
+* The `00_head.rules` options and `05_default_drop.rules` drops are unset by
+  default and written only when set: `auditd::buffer_size`, `auditd::failure_mode`,
+  `auditd::rate`, `auditd::loginuid_immutable`, `auditd::ignore_errors`,
+  `auditd::ignore_failures`, `auditd::ignore_anonymous`,
+  `auditd::ignore_system_services`, `auditd::ignore_crond`,
+  `auditd::ignore_time_daemons` and `auditd::ignore_crypto_key_user`.
+* **With `auditd::purge_auditd_rules: true` and no `auditd::buffer_size`, no `-b`
+  is written at all.** The purge removes the packaged `-b 8192`, so the kernel
+  default backlog applies. Set `auditd::buffer_size` explicitly; `simp:defaults`
+  sets `16384`.
 * `auditd::config::audisp::syslog::pkg_name` is a required `String[1]` supplied by the
   module data. Setting it to `~` used to skip the `audispd-plugins` package; it now fails
   the catalogue.

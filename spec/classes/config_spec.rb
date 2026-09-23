@@ -122,10 +122,18 @@ describe 'auditd' do
           }
 
           it { is_expected.to contain_class('auditd::config::audit_profiles') }
-          it { is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r{^-b 16384$}) }
+          # Unset, buffer_size writes no -b; the purge removed the package's
+          # -b 8192, so the kernel default applies (documented in the README).
+          it { is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').without_content(%r{^-b\s}) }
           it { is_expected.to contain_file('/etc/audit/rules.d/99_tail.rules') }
           it { is_expected.not_to contain_file('/etc/audit/rules.d/05_default_drop.rules') }
           it { is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules') }
+
+          context 'with buffer_size set' do
+            let(:params) { { purge_auditd_rules: true, buffer_size: 16_384 } }
+
+            it { is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r{^-b 16384$}) }
+          end
         end
 
         # A profile writes rule files, so rules.d gets declared to carry their

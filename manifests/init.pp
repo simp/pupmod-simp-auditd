@@ -35,22 +35,34 @@
 #   events, i.e., events for which ``auid`` is '-1' (aka 'unset').
 #   Audit records from these events are prolific but not useful.
 #
+#   Unset, the drop rule is not written. `simp:defaults` sets `true`.
+#
 # @param ignore_crond
 #   For built-in audit profiles, whether to drop events related to cron
 #   jobs. `cron` creates a lot of audit events that are not usually useful.
+#
+#   Unset, the drop rule is not written. `simp:defaults` sets `true`.
 #
 # @param ignore_time_daemons
 #   Ignore time modifications by time daemons that are running on the system
 #   since this is valid activity.
 #
+#   Unset, the drop rule is not written. `simp:defaults` sets `true`.
+#
 # @param ignore_crypto_key_user
 #   Ignore CRYPTO_KEY_USER logs since these are generally noise.
+#
+#   Unset, the drop rule is not written. `simp:defaults` sets `true`.
 #
 # @param ignore_errors
 #   Whether to set the `auditctl` '-i' option
 #
+#   Unset, the option is not written. `simp:defaults` sets `true`.
+#
 # @param ignore_failures
 #   Whether to set the `auditctl` '-c' option
+#
+#   Unset, the option is not written. `simp:defaults` sets `true`.
 #
 # @param ignore_system_services
 #   For built-in audit profiles, whether to ignore system service events,
@@ -59,6 +71,8 @@
 #   this filter is attached to every system call rule.  So, by implementing
 #   the filter in an upfront drop rule, this feature provides optimization
 #   of that filtering.
+#
+#   Unset, the drop rule is not written. `simp:defaults` sets `true`.
 #
 # @param action_mail_acct
 # @param admin_space_left
@@ -83,6 +97,11 @@
 # @param buffer_size
 #   Value of the `auditctl` '-b' option
 #
+#   Unset, no `-b` is written unless `$root_audit_level` raises it, and the
+#   kernel keeps its own backlog limit. With `$purge_auditd_rules`, that
+#   includes removing the `-b 8192` the package's `audit.rules` sets, so set
+#   this explicitly. `simp:defaults` sets `16384`.
+#
 # @param backlog_wait_time
 #
 # @param disk_error_action
@@ -94,6 +113,8 @@
 #
 # @param failure_mode
 #   Value of the `auditctl` '-f' option
+#
+#   Unset, the option is not written. `simp:defaults` sets `1`.
 #
 # @param flush
 # @param freq
@@ -156,6 +177,8 @@
 #     containers but a concrete explanation of what types has not yet been
 #     found.
 #
+#   Unset, the option is not written. `simp:defaults` sets `true`.
+#
 # @param max_log_file
 # @param max_log_file_action
 #
@@ -188,6 +211,8 @@
 #
 # @param rate
 #   Value of the `auditctl` '-r' option
+#
+#   Unset, the option is not written. `simp:defaults` sets `0`.
 #
 # @param root_audit_level
 #   What level of auditing should be used for su-root activity in built-in
@@ -316,26 +341,26 @@ class auditd (
   String                                               $lname                           = $facts['networking']['fqdn'],
 
   # Rule Tweaks
-  Boolean                                              $ignore_anonymous                = true,
-  Boolean                                              $ignore_crond                    = true,
-  Boolean                                              $ignore_time_daemons             = true,
-  Boolean                                              $ignore_crypto_key_user          = true,
-  Boolean                                              $ignore_errors                   = true,
-  Boolean                                              $ignore_failures                 = true,
-  Boolean                                              $ignore_system_services          = true,
+  Optional[Boolean]                                    $ignore_anonymous                = undef,
+  Optional[Boolean]                                    $ignore_crond                    = undef,
+  Optional[Boolean]                                    $ignore_time_daemons             = undef,
+  Optional[Boolean]                                    $ignore_crypto_key_user          = undef,
+  Optional[Boolean]                                    $ignore_errors                   = undef,
+  Optional[Boolean]                                    $ignore_failures                 = undef,
+  Optional[Boolean]                                    $ignore_system_services          = undef,
 
   # Configuration Parameters
   Optional[String[1]]                                  $action_mail_acct                = undef,
   Optional[Variant[Integer[0],Pattern['^\d+%$']]]      $admin_space_left                = undef,
   Optional[Auditd::SpaceLeftAction]                    $admin_space_left_action         = undef,
   Optional[Boolean]                                    $at_boot                         = undef,
-  Integer[0]                                           $buffer_size                     = 16384,
+  Optional[Integer[0]]                                 $buffer_size                     = undef,
   Optional[Integer[1,600000]]                          $backlog_wait_time               = undef,
   Optional[Auditd::DiskErrorAction]                    $disk_error_action               = undef,
   Optional[Auditd::DiskFullAction]                     $disk_full_action                = undef,
   Enum['lossy','lossless']                             $disp_qos                        = 'lossy',
   Stdlib::Absolutepath                                 $dispatcher                      = '/sbin/audispd',
-  Integer[0]                                           $failure_mode                    = 1,
+  Optional[Integer[0]]                                 $failure_mode                    = undef,
   Optional[Auditd::Flush]                              $flush                           = undef,
   Optional[Integer[0]]                                 $freq                            = undef,
   Boolean                                              $immutable                       = false,
@@ -347,7 +372,7 @@ class auditd (
   Optional[String[1]]                                  $audit_rules_owner               = undef,
   Optional[String[1]]                                  $audit_rules_group               = undef,
   Optional[Stdlib::Filemode]                           $audit_rules_mode                = undef,
-  Boolean                                              $loginuid_immutable              = true,
+  Optional[Boolean]                                    $loginuid_immutable              = undef,
   Optional[Integer[0]]                                 $max_log_file                    = undef,
   Optional[Auditd::MaxLogFileAction]                   $max_log_file_action             = undef,
   Optional[Integer[1]]                                 $max_restarts                    = undef,
@@ -359,7 +384,7 @@ class auditd (
   Optional[Stdlib::Absolutepath]                       $plugin_dir                      = undef,
   Optional[Integer[0]]                                 $priority_boost                  = undef,
   Optional[Integer[0]]                                 $q_depth                         = undef,
-  Integer[0]                                           $rate                            = 0,
+  Optional[Integer[0]]                                 $rate                            = undef,
   Auditd::RootAuditLevel                               $root_audit_level                = 'basic',
   String[1]                                            $service_name                    = 'auditd',
   Optional[Variant[Boolean,Enum['running','stopped']]] $service_ensure                  = undef,

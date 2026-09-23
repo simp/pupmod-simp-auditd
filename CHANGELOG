@@ -23,6 +23,13 @@
   supplied by the module data; setting it to `~` no longer skips the package.
 - BREAKING: every `auditd.conf` key parameter is `Optional` and defaults to
   `undef`. Each key is written only when its own parameter is set.
+- BREAKING: the rule preamble and default drop parameters (`buffer_size`,
+  `failure_mode`, `rate`, `loginuid_immutable` and the `ignore_*` Booleans) are
+  `Optional` and default to `undef`. Each line is written only when set.
+- Edit `/etc/audit/plugins.d/syslog.conf` key by key with `ini_setting` on
+  auditd 3 and later instead of rendering the whole file.
+- Copy the evaluated `privileged` built-in ruleset with an exec, so noop no
+  longer fails on a node that has never applied it.
 - Add `auditd::reload_on_change`. With the service unmanaged, a change to any
   managed file runs `auditctl --signal reload` and `augenrules --load` while
   auditd is running, and registers a `reboot_notify` instead of the rule load
@@ -43,8 +50,6 @@
   `hiera.yaml` keeps `common.yaml` alone. The auditd 2 plugin layout is
   selected from the `auditd_version` fact instead.
 - Deprecate the auditd < 3.0 compatibility path for removal in 12.0.0.
-- Fix an operator-precedence bug in `auditd::validate_init_params` where
-  `$_pct = ($x =~ String) and ('%' in $x)` assigned only the `String` test.
 - Add a spec for `auditd::calculate_space_left`.
 
 * Fri Sep 18 2026 Hazel Caballero <hazel@sicura.us> - 10.2.0

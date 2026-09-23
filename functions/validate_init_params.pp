@@ -14,10 +14,6 @@ function auditd::validate_init_params {
   # validate about a value nobody set, and 'in' against undef fails the
   # catalog. A Pattern match covers both: it is false for undef and for an
   # Integer without a separate type test.
-  #
-  # Do not be tempted back into `($x =~ String) and ('%' in $x)`: `and` binds
-  # looser than `=`, so that assigns only the String test and throws the
-  # rest away.
   $_space_left_pct       = $_space_left =~ Pattern[/%/]
   $_admin_space_left_pct = $_admin_space_left =~ Pattern[/%/]
 
