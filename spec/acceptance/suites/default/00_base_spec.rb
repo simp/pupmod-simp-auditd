@@ -20,6 +20,10 @@ describe 'auditd class with simp audit profile' do
       # audittools). Defaulted true before 11.0.0; the SIMP rules assertion
       # below greps for the /var/log/audit watch this emits.
       'auditd::audit_auditd_config'          => true,
+      # The simp profile watches paths that may not exist (e.g. /etc/snmp).
+      # Without -c the kernel stops loading at the first one, so every later
+      # rule, including the /var/log/audit watch, is silently dropped.
+      'auditd::ignore_failures'              => true,
       # File['/var/log/audit'] and File['/etc/audit/rules.d'] are declared only
       # when these are set; the permission tests below depend on both.
       'auditd::log_group'                    => 'root',
@@ -195,9 +199,9 @@ describe 'auditd class with simp audit profile' do
         end
 
         it 'has audit.rules has been generated with SIMP rules' do
-          # ignore_failures (-c) and ignore_anonymous (the auid=-1 drop) are
-          # opt-in and unset here, so neither line may be written.
-          on(host, "{ #{AuditdTestUtil::AUDIT_RULES_CMD}; } | grep -qe '^-c$'", acceptable_exit_codes: [1])
+          # ignore_failures (-c) is set above; ignore_anonymous (the auid=-1
+          # drop) is opt-in and unset, so its line may not be written.
+          on(host, "{ #{AuditdTestUtil::AUDIT_RULES_CMD}; } | grep -qe '^-c$'")
           on(host, "{ #{AuditdTestUtil::AUDIT_RULES_CMD}; } | grep -qe '\\-a never,exit \\-F auid=-1'", acceptable_exit_codes: [1])
           # spot check that audit.rules has been generated with SIMP rules
           on(host, "{ #{AuditdTestUtil::AUDIT_RULES_CMD}; } | grep -qe '\\-a always,exit \\-F perm=a \\-F exit=-EACCES \\-k access'")

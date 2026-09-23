@@ -114,6 +114,10 @@ behavior back. If you are not, set what you want explicitly.
   is written at all.** The purge removes the packaged `-b 8192`, so the kernel
   default backlog applies. Set `auditd::buffer_size` explicitly; `simp:defaults`
   sets `16384`.
+* **The `simp` profile needs `auditd::ignore_failures: true`.** It watches paths
+  that may not exist, such as `/etc/snmp/snmpd.conf`. Without `-c` the kernel
+  stops loading at the first rejected rule and silently drops every rule after
+  it. `simp:defaults` sets it.
 * `auditd::config::audisp::syslog::pkg_name` is a required `String[1]` supplied by the
   module data. Setting it to `~` used to skip the `audispd-plugins` package; it now fails
   the catalogue.
