@@ -230,6 +230,31 @@
 #   service, if the system requires a reboot before the kernel will
 #   enforce auditing.
 #
+# @param reload_on_change
+#   Load rule and `auditd.conf` changes into the running system when the
+#   `auditd` service is not managed by this module (neither `$service_ensure`
+#   nor `$service_enable` is set).
+#
+#   Without this, and without a managed service, changes are written to disk
+#   and take effect the next time auditd starts. Nothing Puppet does touches
+#   the running daemon or the kernel rule set.
+#
+#   When `true`, a change to any file this module manages runs
+#   `auditctl --signal reload`, which makes auditd re-read `auditd.conf`
+#   (a few keys, such as `tcp_listen_port`, still need a full restart; see
+#   auditd.conf(5)), and `augenrules --load`, which loads the rules. Both
+#   run only while the service is active, so a daemon an administrator
+#   stopped stays stopped.
+#
+#   If the `auditd_state` fact reports `immutable`, the kernel rule set is
+#   locked (`-e 2`) and cannot change until a reboot: the rule load is
+#   skipped and a `reboot_notify` is registered instead. The immutable state
+#   is read from the running kernel, not from `$immutable`, because the
+#   setting describes the rules on disk rather than what is loaded.
+#
+#   Has no effect when the service is managed, whose restart already
+#   reloads both, or when `$warn_if_reboot_required` is set.
+#
 # @param space_left
 #   Must be larger than `$admin_space_left`.
 #
@@ -341,6 +366,7 @@ class auditd (
   Optional[Boolean]                                    $service_enable                  = undef,
   String[1]                                            $auditctl_command                = pick(fact('auditd_auditctl_cmd'), '/usr/sbin/auditctl'),
   Boolean                                              $warn_if_reboot_required         = false,
+  Boolean                                              $reload_on_change                = false,
   Optional[Variant[Integer[0],Pattern['^\d+%$']]]      $space_left                      = $admin_space_left ? {
     undef   => undef,
     default => auditd::calculate_space_left($admin_space_left),

@@ -23,6 +23,17 @@
   supplied by the module data; setting it to `~` no longer skips the package.
 - BREAKING: every `auditd.conf` key parameter is `Optional` and defaults to
   `undef`. Each key is written only when its own parameter is set.
+- Add `auditd::reload_on_change`. With the service unmanaged, a change to any
+  managed file runs `auditctl --signal reload` and `augenrules --load` while
+  auditd is running, and registers a `reboot_notify` instead of the rule load
+  when the running rule set is immutable.
+- Rule changes from `auditd::rule`, including those declared by `simp/aide`,
+  `simp/pki`, `simp/sssd` and `simp/pupmod`, are loaded immediately only when
+  the service is managed or `auditd::reload_on_change` is set. Otherwise they
+  take effect the next time auditd starts.
+- Add the `auditd_state` fact: the full `auditctl -s` status, with the raw
+  `enabled` flag, plus `version`, `immutable`, `kernel_enforcing` and
+  `enforcing`. `auditd_version` now reads it instead of `simplib__auditd`.
 - Add the `simp:defaults` compliance profile under `SIMP/compliance_profiles`,
   which restores the pre-11.0.0 configuration when enforced.
 - Deprecate `auditd::enable` and `auditd::default_audit_profile`. `enable =>

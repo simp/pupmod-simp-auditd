@@ -15,6 +15,7 @@
 * [Setup](#setup)
   * [Setup Requirements](#setup-requirements)
   * [What Auditd Affects](#what-auditd-affects)
+  * [When changes take effect](#when-changes-take-effect)
 * [Usage](#usage)
   * [Basic Usage](#basic-usage)
   * [Disabling Auditd](#disabling-auditd)
@@ -146,6 +147,7 @@ when the parameter named beside it is set:
 | The `audit` package | always |
 | The `audit` kernel parameter (applied to *all* kernels in your grub configuration) | `auditd::at_boot` is set |
 | The `auditd` service | `auditd::service_ensure` or `auditd::service_enable` is set |
+| Loading changes into a running `auditd` the module does not manage | `auditd::reload_on_change` is `true` |
 | Individual keys in `/etc/audit/auditd.conf` | the matching parameter is set, one key each |
 | Ownership and mode of `/etc/audit/auditd.conf` | `auditd::config_group` is set |
 | The `auditd::plugin_dir` directory | `auditd::plugin_dir` is set |
@@ -158,6 +160,33 @@ when the parameter named beside it is set:
 
 `/etc/audit` itself is no longer managed at all: the recursive purge that used to run
 over it is gone.
+
+### When changes take effect
+
+Rule files and `auditd.conf` keys are written to disk as soon as Puppet runs. Whether
+they reach the running system depends on who owns the service:
+
+* **The service is managed** (`auditd::service_ensure` or `auditd::service_enable`):
+  a change restarts `auditd`, which reloads `auditd.conf` and loads the rules.
+* **`auditd::reload_on_change: true`**: without taking over the service, a change runs
+  `auditctl --signal reload` (auditd re-reads `auditd.conf`) and `augenrules --load`
+  (the kernel loads the rules). Both are skipped while `auditd` is stopped, so a daemon
+  an administrator stopped stays stopped. A few `auditd.conf` keys, such as
+  `tcp_listen_port`, still take effect only on a full restart; see auditd.conf(5).
+* **Neither**: nothing touches the running system. The change takes effect the next
+  time `auditd` starts. `systemctl restart auditd` is refused (the unit sets
+  `RefuseManualStop=yes`); use `service auditd restart`, or load just the rules with
+  `augenrules --load`.
+
+If the running rule set is immutable (`-e 2`, from `auditd::immutable`), no rule change
+can load until the host reboots. With `auditd::reload_on_change`, the module reads that
+state from the kernel through the `auditd_state` fact and registers a `reboot_notify`
+instead of a load that would change nothing.
+
+This matters for modules that call `auditd::rule`, such as `simp/aide`, `simp/pki`,
+`simp/sssd` and `simp/pupmod`. Their rules are loaded right away only when this module
+manages the service or `auditd::reload_on_change` is set. The `simp:defaults` profile
+manages the service.
 
 ## Usage
 

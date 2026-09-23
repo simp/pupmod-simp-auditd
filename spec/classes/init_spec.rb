@@ -84,7 +84,7 @@ describe 'auditd' do
         context 'with none of the auditd facts present' do
           let(:facts) do
             os_facts.reject do |k, _v|
-              [:auditd_version, :auditd_major_version, :simplib__auditd, :grub_version, :auditd_auditctl_cmd].include?(k)
+              [:auditd_version, :auditd_major_version, :auditd_state, :simplib__auditd, :grub_version, :auditd_auditctl_cmd].include?(k)
             end
           end
           let(:params) { {} }
@@ -209,6 +209,90 @@ describe 'auditd' do
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_reboot_notify('auditd service') }
           it { is_expected.not_to contain_service('auditd') }
+        end
+
+        # manifests/service.pp: with the service unmanaged, reload_on_change
+        # refreshes the running daemon and kernel rule set without declaring
+        # Service['auditd'].
+        context 'with reload_on_change => true' do
+          let(:params) { { reload_on_change: true } }
+
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.not_to contain_service('auditd') }
+          it {
+            is_expected.to contain_exec('auditd reload config').with(
+              command: '/usr/sbin/auditctl --signal reload',
+              onlyif: '/usr/bin/systemctl is-active --quiet auditd',
+              refreshonly: true,
+            )
+          }
+          it {
+            is_expected.to contain_exec('auditd load rules').with(
+              command: '/usr/sbin/augenrules --load',
+              onlyif: '/usr/bin/systemctl is-active --quiet auditd',
+              refreshonly: true,
+            )
+          }
+          it { is_expected.not_to contain_reboot_notify('auditd rules') }
+
+          # Rule files and auditd.conf settings notify Class['auditd::service'],
+          # and a class refresh reaches every resource in it.
+          context 'with a profile writing rule files' do
+            let(:params) { super().merge(default_audit_profiles: ['simp']) }
+
+            it { is_expected.to contain_file('/etc/audit/rules.d/00_head.rules') }
+            it { is_expected.to contain_class('auditd::service').that_subscribes_to('Class[auditd::config]') }
+          end
+
+          context 'when the kernel rule set is immutable' do
+            let(:facts) { super().merge(auditd_state: { 'enabled' => 2, 'immutable' => true }) }
+
+            it { is_expected.to compile.with_all_deps }
+            it { is_expected.to contain_exec('auditd reload config') }
+            it { is_expected.not_to contain_exec('auditd load rules') }
+            it { is_expected.to contain_reboot_notify('auditd rules') }
+          end
+
+          # The immutable state comes from the kernel, not the parameter: the
+          # parameter describes the rules on disk, which a load applies.
+          context 'with immutable => true on a kernel that is not yet immutable' do
+            let(:params) { super().merge(immutable: true) }
+            let(:facts) { super().merge(auditd_state: { 'enabled' => 1, 'immutable' => false }) }
+
+            it { is_expected.to contain_exec('auditd load rules') }
+            it { is_expected.not_to contain_reboot_notify('auditd rules') }
+          end
+
+          # Unknown kernel state (no auditctl, or facts gathered as non-root):
+          # augenrules makes no change on an immutable kernel, so the load is safe.
+          context 'without the auditd_state fact' do
+            let(:facts) { super().reject { |k, _v| k == :auditd_state } }
+
+            it { is_expected.to contain_exec('auditd load rules') }
+          end
+
+          context 'with the service managed' do
+            let(:params) { super().merge(service_ensure: 'running') }
+
+            it { is_expected.to contain_service('auditd') }
+            it { is_expected.not_to contain_exec('auditd reload config') }
+            it { is_expected.not_to contain_exec('auditd load rules') }
+          end
+
+          context 'with warn_if_reboot_required => true' do
+            let(:params) { super().merge(warn_if_reboot_required: true) }
+
+            it { is_expected.to contain_reboot_notify('auditd service') }
+            it { is_expected.not_to contain_exec('auditd reload config') }
+          end
+        end
+
+        context 'with reload_on_change unset and the service unmanaged' do
+          let(:params) { { default_audit_profiles: ['simp'] } }
+
+          it { is_expected.not_to contain_exec('auditd reload config') }
+          it { is_expected.not_to contain_exec('auditd load rules') }
+          it { is_expected.not_to contain_reboot_notify('auditd rules') }
         end
 
         context 'auditd with space_left < admin_space_left' do

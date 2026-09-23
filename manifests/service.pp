@@ -12,12 +12,17 @@
 #   Add a ``reboot_notify`` warning if the system requires a reboot before the
 #   service can be managed.
 #
+# @param reload_on_change
+#   Load changes into the running system when the service is not managed.
+#   @see `auditd::reload_on_change`
+#
 # @author https://github.com/simp/pupmod-simp-auditd/graphs/contributors
 #
 class auditd::service (
   Optional[Variant[String[1],Boolean]] $ensure                  = $auditd::_service_ensure,
   Optional[Boolean]                    $enable                  = $auditd::_service_enable,
-  Boolean                              $warn_if_reboot_required = $auditd::warn_if_reboot_required
+  Boolean                              $warn_if_reboot_required = $auditd::warn_if_reboot_required,
+  Boolean                              $reload_on_change        = $auditd::reload_on_change,
 ) {
   assert_private()
 
@@ -39,6 +44,37 @@ class auditd::service (
       enable  => $enable,
       stop    => "${auditd::auditctl_command} --signal stop",
       restart => "${auditd::auditctl_command} --signal stop; /usr/bin/systemctl start ${auditd::service_name}",
+    }
+  }
+  elsif $reload_on_change {
+    # Every file this module manages notifies this class, so a refresh here
+    # means something on disk changed. With the service unmanaged, apply the
+    # change to what is already running without taking ownership of the
+    # service's state: nothing is started, stopped or enabled, and both
+    # commands are skipped while auditd is not running.
+    $_if_running = "/usr/bin/systemctl is-active --quiet ${auditd::service_name}"
+
+    exec { 'auditd reload config':
+      command     => "${auditd::auditctl_command} --signal reload",
+      onlyif      => $_if_running,
+      refreshonly => true,
+    }
+
+    # augenrules itself exits 0 without loading anything when the kernel is
+    # immutable, so the load would report success while changing nothing. The
+    # fact reflects the running kernel at the start of the run, which is what
+    # decides whether a load can take effect.
+    if fact('auditd_state.immutable') == true {
+      reboot_notify { "${auditd::service_name} rules":
+        reason => 'The audit rules are immutable (-e 2); a reboot is required to load rule changes',
+      }
+    }
+    else {
+      exec { 'auditd load rules':
+        command     => '/usr/sbin/augenrules --load',
+        onlyif      => $_if_running,
+        refreshonly => true,
+      }
     }
   }
 }
