@@ -195,9 +195,11 @@ describe 'auditd class with simp audit profile' do
         end
 
         it 'has audit.rules has been generated with SIMP rules' do
+          # ignore_failures (-c) and ignore_anonymous (the auid=-1 drop) are
+          # opt-in and unset here, so neither line may be written.
+          on(host, "{ #{AuditdTestUtil::AUDIT_RULES_CMD}; } | grep -qe '^-c$'", acceptable_exit_codes: [1])
+          on(host, "{ #{AuditdTestUtil::AUDIT_RULES_CMD}; } | grep -qe '\\-a never,exit \\-F auid=-1'", acceptable_exit_codes: [1])
           # spot check that audit.rules has been generated with SIMP rules
-          on(host, "{ #{AuditdTestUtil::AUDIT_RULES_CMD}; } | grep -qe '^-c$'")
-          on(host, "{ #{AuditdTestUtil::AUDIT_RULES_CMD}; } | grep -qe '\\-a never,exit \\-F auid=-1'")
           on(host, "{ #{AuditdTestUtil::AUDIT_RULES_CMD}; } | grep -qe '\\-a always,exit \\-F perm=a \\-F exit=-EACCES \\-k access'")
           on(host, "{ #{AuditdTestUtil::AUDIT_RULES_CMD}; } | grep -qe '\\-w /var/log/audit -p wa \\-k audit-logs'")
           # spot check that loaded audit rules contain SIMP rules
@@ -206,7 +208,7 @@ describe 'auditd class with simp audit profile' do
           #   - '-a' arguments are reordered to have action,list instead of list,action.
           #   - '-k keyname' arguments are expanded to '-F key=keyname' for '-a' rules
           result = on(host, "#{AuditdTestUtil::AUDITCTL_CMD} -l")
-          expect(result.output).to include('-a never,exit -S all -F auid=-1')
+          expect(result.output).not_to include('-a never,exit -S all -F auid=-1')
           expect(result.output).to include('-a always,exit -S all -F perm=a -F exit=-EACCES -F key=access')
           # On El6 it adds / to the end of directories but not on later versions.
           expect(result.output).to match(%r{-w /var/log/audit[/]* \-p wa \-k audit\-logs})
