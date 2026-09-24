@@ -122,11 +122,12 @@ describe 'auditd' do
           }
 
           it { is_expected.to contain_class('auditd::config::audit_profiles') }
-          # The purge removes the package's -b 8192; buffer_size_floor puts it
-          # back when buffer_size is unset.
-          it { is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r{^-b 8192$}) }
+          # The purge removes the package's -b 8192; the one-time seed of
+          # 00_head.rules puts it back, and no -b line is managed after that.
+          it { is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with(replace: false, content: %r{^-b 8192$}) }
+          it { is_expected.not_to contain_file_line('00_head buffer_size') }
           # -c comes with the simp and stig profiles; the purge alone has none.
-          it { is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').without_content(%r{^-c$}) }
+          it { is_expected.not_to contain_file_line('00_head ignore_failures') }
           it { is_expected.to contain_file('/etc/audit/rules.d/99_tail.rules') }
           it { is_expected.not_to contain_file('/etc/audit/rules.d/05_default_drop.rules') }
           it { is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules') }
@@ -134,7 +135,7 @@ describe 'auditd' do
           context 'with buffer_size set' do
             let(:params) { { purge_auditd_rules: true, buffer_size: 16_384 } }
 
-            it { is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r{^-b 16384$}) }
+            it { is_expected.to contain_file_line('00_head buffer_size').with_line('-b 16384') }
           end
         end
 

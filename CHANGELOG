@@ -28,8 +28,13 @@
   `Optional` and default to `undef`. Each line is written only when set.
 - With `auditd::ignore_failures` unset, the `simp` and `stig` profiles write
   `-c`, so a watch on a missing path no longer stops the rest from loading.
-- Add `auditd::buffer_size_floor` (default `8192`). With `auditd::buffer_size`
-  unset, `00_head.rules` writes it unless the kernel backlog is already higher.
+- Edit `00_head.rules`, `05_default_drop.rules` and `99_tail.rules` line by
+  line with `file_line`: unset leaves a line alone, `false`/`'absent'` removes
+  it. A new `00_head.rules` is seeded once with `-D` and `-b 8192`.
+- BREAKING: `auditd::immutable` defaults to `undef`; `simp:defaults` sets
+  `false`.
+- BREAKING: `auditd::target_selinux_types` entries must match
+  `[a-z0-9_]+_t`; a Hash of type to `ensure` can also remove one.
 - Edit `/etc/audit/plugins.d/syslog.conf` key by key with `ini_setting` on
   auditd 3 and later instead of rendering the whole file.
 - Copy the evaluated `privileged` built-in ruleset with an exec, so noop no

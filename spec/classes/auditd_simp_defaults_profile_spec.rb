@@ -123,22 +123,29 @@ describe 'auditd' do
 
         # Opt-in since 11.0.0; the profile restores the old preamble options.
         it 'writes the preamble options' do
-          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules')
-            .with_content(%r{^-i$})
-            .with_content(%r{^-c$})
-            .with_content(%r{^-b 16384$})
-            .with_content(%r{^-f 1$})
-            .with_content(%r{^-r 0$})
-            .with_content(%r{^--loginuid-immutable$})
+          {
+            'ignore_errors'      => '-i',
+            'ignore_failures'    => '-c',
+            'buffer_size'        => '-b 16384',
+            'failure_mode'       => '-f 1',
+            'rate'               => '-r 0',
+            'loginuid_immutable' => '--loginuid-immutable',
+          }.each do |name, line|
+            is_expected.to contain_file_line("00_head #{name}").with(path: '/etc/audit/rules.d/00_head.rules', line: line)
+          end
         end
 
         it 'writes the default drop rules' do
-          is_expected.to contain_file('/etc/audit/rules.d/05_default_drop.rules')
-            .with_content(%r{^-a never,exit -F auid=-1$})
-            .with_content(%r{^-a never,exit -F auid!=0 -F auid<\d+$})
-            .with_content(%r{^-a never,user -F subj_type=crond_t$})
-            .with_content(%r{subj_type=chronyd_t$})
-            .with_content(%r{^-a always,exclude -F msgtype=CRYPTO_KEY_USER$})
+          is_expected.to contain_file_line('05_default_drop anonymous').with_line('-a never,exit -F auid=-1')
+          is_expected.to contain_file_line('05_default_drop system_services').with_line(%r{^-a never,exit -F auid!=0 -F auid<\d+$})
+          is_expected.to contain_file_line('05_default_drop crond').with_line('-a never,user -F subj_type=crond_t')
+          is_expected.to contain_file_line('05_default_drop chrony b32').with_line(%r{subj_type=chronyd_t$})
+          is_expected.to contain_file_line('05_default_drop crypto_key_user').with_line('-a always,exclude -F msgtype=CRYPTO_KEY_USER')
+        end
+
+        # 10.x wrote a tail without -e 2; simp:defaults reproduces that.
+        it 'removes -e 2' do
+          is_expected.to contain_file_line('99_tail immutable').with(ensure: 'absent', path: '/etc/audit/rules.d/99_tail.rules')
         end
 
         it 'takes ownership of the log directory and the config file' do

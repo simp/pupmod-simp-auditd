@@ -50,3 +50,4 @@ profiles:
       simp:defaults.auditd.ignore_crond: true
       simp:defaults.auditd.ignore_time_daemons: true
       simp:defaults.auditd.ignore_crypto_key_user: true
+      simp:defaults.auditd.immutable: true

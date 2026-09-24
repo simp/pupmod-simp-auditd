@@ -104,16 +104,22 @@ behavior back. If you are not, set what you want explicitly.
   on a duplicated `-b` or `-f`, and `audit.rules` sorts after every file this
   module writes. The purge used to remove it for you; set
   `auditd::purge_auditd_rules: true` or delete the file yourself.
-* The `00_head.rules` options and `05_default_drop.rules` drops are unset by
-  default and written only when set: `auditd::buffer_size`, `auditd::failure_mode`,
-  `auditd::rate`, `auditd::loginuid_immutable`, `auditd::ignore_errors`,
-  `auditd::ignore_failures`, `auditd::ignore_anonymous`,
-  `auditd::ignore_system_services`, `auditd::ignore_crond`,
-  `auditd::ignore_time_daemons` and `auditd::ignore_crypto_key_user`.
-* With no `auditd::buffer_size`, `00_head.rules` writes `-b` at
-  `auditd::buffer_size_floor` (default `8192`, the packaged value the purge
-  removes). It is skipped when the running kernel's `backlog_limit` is already
-  above the floor. `simp:defaults` sets `16384`.
+* `00_head.rules`, `05_default_drop.rules` and `99_tail.rules` are edited line
+  by line instead of rendered whole. Each line follows its parameter: unset
+  leaves whatever is in the file, `false` (or `'absent'` for a number) removes
+  it, and a value writes it. A partial compliance profile therefore never
+  reverts what an earlier one applied. This covers `auditd::buffer_size`,
+  `auditd::backlog_wait_time`, `auditd::failure_mode`, `auditd::rate`,
+  `auditd::loginuid_immutable`, `auditd::ignore_errors`,
+  `auditd::ignore_failures`, `auditd::immutable`, `auditd::target_selinux_types`
+  and the `auditd::ignore_*` drops.
+* `auditd::immutable` defaults to `undef` rather than `false`. `simp:defaults`
+  sets `false`.
+* `auditd::target_selinux_types` entries must be SELinux type names
+  (`[a-z0-9_]+_t`). A Hash of type to `ensure` can also remove one.
+* A new `00_head.rules` is seeded once with `-D` and the packaged `-b 8192`,
+  which the purge removes. After that it is only edited in place.
+  `simp:defaults` sets `-b 16384`.
 * With `auditd::ignore_failures` unset, the `simp` and `stig` profiles write
   `-c`. They watch paths that may not exist, such as `/etc/snmp/snmpd.conf`, and
   without `-c` the kernel stops loading at the first rejected rule and silently
@@ -462,7 +468,7 @@ a profile or ``auditd::purge_auditd_rules: true``. Only then are
 ``auditd::buffer_size``, ``auditd::failure_mode``, ``auditd::rate``,
 ``auditd::ignore_errors``, ``auditd::ignore_failures``,
 ``auditd::backlog_wait_time``, ``auditd::loginuid_immutable`` and
-``auditd::immutable`` written out. Unless the purge is on, the packaged
+``auditd::immutable`` managed. Unless the purge is on, the packaged
 ``rules.d/audit.rules`` stays and its ``-b`` and ``-f`` win over
 ``00_head.rules``; see the breaking changes above.
 

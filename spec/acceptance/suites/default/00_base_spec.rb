@@ -269,6 +269,31 @@ describe 'auditd class with simp audit profile' do
           its(:content) { is_expected.to match %r{acct="notathing".*exe="/usr/sbin/useradd"} }
         end
       end
+
+      # The settings files are edited in place, so a compliance profile that
+      # stops setting a parameter must not revert what an earlier one applied.
+      context 'un-enforcing a drop rule' do
+        let(:drop_file) { '/etc/audit/rules.d/05_default_drop.rules' }
+        let(:crond_rule) { '^-a never,user -F subj_type=crond_t$' }
+
+        it 'writes the line when set' do
+          set_hieradata_on(host, hieradata.merge('auditd::ignore_crond' => true))
+          apply_manifest_on(host, manifest, catch_failures: true)
+          on(host, "grep -qe '#{crond_rule}' #{drop_file}")
+        end
+
+        it 'leaves the line alone when unset' do
+          set_hieradata_on(host, hieradata)
+          apply_manifest_on(host, manifest, catch_changes: true)
+          on(host, "grep -qe '#{crond_rule}' #{drop_file}")
+        end
+
+        it 'removes the line when false' do
+          set_hieradata_on(host, hieradata.merge('auditd::ignore_crond' => false))
+          apply_manifest_on(host, manifest, catch_failures: true)
+          on(host, "grep -qe '#{crond_rule}' #{drop_file}", acceptable_exit_codes: [1])
+        end
+      end
     end
   end
 end

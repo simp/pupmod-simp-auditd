@@ -188,9 +188,11 @@ checks:
       parameter: auditd::write_logs
       value: true
 
-  # --- Rule preamble (00_head.rules) and default drops (05_default_drop.rules). ---
-  # Written only once a rule profile or purge_auditd_rules claims rules.d; each
-  # line is emitted only when its parameter is set.
+  # --- Rule preamble (00_head.rules, 99_tail.rules) and default drops
+  # (05_default_drop.rules). ---
+  # Written only once a rule profile or purge_auditd_rules claims rules.d. The
+  # files are edited line by line; each line is managed only when its parameter
+  # is set.
   simp:defaults.auditd.buffer_size:
     type: puppet-class-parameter
     settings:
@@ -246,3 +248,8 @@ checks:
     settings:
       parameter: auditd::ignore_crypto_key_user
       value: true
+  simp:defaults.auditd.immutable:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::immutable
+      value: false

@@ -35,37 +35,43 @@
 #   events, i.e., events for which ``auid`` is '-1' (aka 'unset').
 #   Audit records from these events are prolific but not useful.
 #
-#   Unset, the drop rule is not written. `simp:defaults` sets `true`.
+#   Unset, any existing drop rule is left alone. `false` removes it.
+#   `simp:defaults` sets `true`.
 #
 # @param ignore_crond
 #   For built-in audit profiles, whether to drop events related to cron
 #   jobs. `cron` creates a lot of audit events that are not usually useful.
 #
-#   Unset, the drop rule is not written. `simp:defaults` sets `true`.
+#   Unset, any existing drop rule is left alone. `false` removes it.
+#   `simp:defaults` sets `true`.
 #
 # @param ignore_time_daemons
 #   Ignore time modifications by time daemons that are running on the system
 #   since this is valid activity.
 #
-#   Unset, the drop rule is not written. `simp:defaults` sets `true`.
+#   Unset, any existing drop rule is left alone. `false` removes it.
+#   `simp:defaults` sets `true`.
 #
 # @param ignore_crypto_key_user
 #   Ignore CRYPTO_KEY_USER logs since these are generally noise.
 #
-#   Unset, the drop rule is not written. `simp:defaults` sets `true`.
+#   Unset, any existing drop rule is left alone. `false` removes it.
+#   `simp:defaults` sets `true`.
 #
 # @param ignore_errors
 #   Whether to set the `auditctl` '-i' option
 #
-#   Unset, the option is not written. `simp:defaults` sets `true`.
+#   Unset, any existing line is left alone. `false` removes it.
+#   `simp:defaults` sets `true`.
 #
 # @param ignore_failures
 #   Whether to set the `auditctl` '-c' option
 #
 #   Unset, the option is written when the `simp` or `stig` profile is in
-#   `$default_audit_profiles`, and not otherwise. Both profiles watch paths
-#   that may not exist, and without `-c` the kernel stops loading at the
-#   first rejected rule. `false` turns it off. `simp:defaults` sets `true`.
+#   `$default_audit_profiles`, and any existing line is left alone otherwise.
+#   Both profiles watch paths that may not exist, and without `-c` the kernel
+#   stops loading at the first rejected rule. `false` removes it.
+#   `simp:defaults` sets `true`.
 #
 # @param ignore_system_services
 #   For built-in audit profiles, whether to ignore system service events,
@@ -75,7 +81,8 @@
 #   the filter in an upfront drop rule, this feature provides optimization
 #   of that filtering.
 #
-#   Unset, the drop rule is not written. `simp:defaults` sets `true`.
+#   Unset, any existing drop rule is left alone. `false` removes it.
+#   `simp:defaults` sets `true`.
 #
 # @param action_mail_acct
 # @param admin_space_left
@@ -100,19 +107,13 @@
 # @param buffer_size
 #   Value of the `auditctl` '-b' option
 #
-#   Written as given when set, even below `$buffer_size_floor`. Unset,
-#   `$buffer_size_floor` applies. `simp:defaults` sets `16384`.
-#
-# @param buffer_size_floor
-#   The `-b` written when `$buffer_size` is unset
-#
-#   Defaults to the `-b 8192` the `audit` package ships, which
-#   `$purge_auditd_rules` removes. Skipped when the `auditd_state` fact
-#   reports a `backlog_limit` above the floor, since something else already
-#   raised it. Equal to the floor is not above it, so the floor stays
-#   written once loaded. `0` disables the floor.
+#   Unset, any existing `-b` line is left alone. `'absent'` removes it.
+#   `simp:defaults` sets `16384`.
 #
 # @param backlog_wait_time
+#   Value of the `auditctl` '--backlog_wait_time' option
+#
+#   Unset, any existing line is left alone. `'absent'` removes it.
 #
 # @param disk_error_action
 # @param disk_full_action
@@ -124,7 +125,8 @@
 # @param failure_mode
 #   Value of the `auditctl` '-f' option
 #
-#   Unset, the option is not written. `simp:defaults` sets `1`.
+#   Unset, any existing line is left alone. `'absent'` removes it.
+#   `simp:defaults` sets `1`.
 #
 # @param flush
 # @param freq
@@ -134,6 +136,9 @@
 #   audit profiles.  Be aware that, should you choose to make the
 #   configuration immutable, you will not be able to change your audit
 #   rules without a reboot.
+#
+#   Unset, any existing `-e 2` line is left alone. `false` removes it.
+#   `simp:defaults` sets `false`.
 #
 # @param log_file
 #
@@ -187,7 +192,8 @@
 #     containers but a concrete explanation of what types has not yet been
 #     found.
 #
-#   Unset, the option is not written. `simp:defaults` sets `true`.
+#   Unset, any existing line is left alone. `false` removes it.
+#   `simp:defaults` sets `true`.
 #
 # @param max_log_file
 # @param max_log_file_action
@@ -222,7 +228,8 @@
 # @param rate
 #   Value of the `auditctl` '-r' option
 #
-#   Unset, the option is not written. `simp:defaults` sets `0`.
+#   Unset, any existing line is left alone. `'absent'` removes it.
+#   `simp:defaults` sets `0`.
 #
 # @param root_audit_level
 #   What level of auditing should be used for su-root activity in built-in
@@ -320,6 +327,10 @@
 #   namespace, you may find that only auditing unconfined types will be
 #   sufficient since all other invalid system actions are already audited.
 #
+#   An Array writes a drop rule for each entry. A Hash of type to
+#   `{ 'ensure' => 'present' | 'absent' }` can also remove one. Entries that
+#   are not listed are left alone.
+#
 # @param uid_min
 #   The minimum UID for human users on the system. For built-in audit profiles
 #   when `$ignore_system_services` is true, any audit events generated
@@ -364,17 +375,16 @@ class auditd (
   Optional[Variant[Integer[0],Pattern['^\d+%$']]]      $admin_space_left                = undef,
   Optional[Auditd::SpaceLeftAction]                    $admin_space_left_action         = undef,
   Optional[Boolean]                                    $at_boot                         = undef,
-  Optional[Integer[0]]                                 $buffer_size                     = undef,
-  Integer[0]                                           $buffer_size_floor               = 8192,
-  Optional[Integer[1,600000]]                          $backlog_wait_time               = undef,
+  Optional[Variant[Integer[0], Enum['absent']]]        $buffer_size                     = undef,
+  Optional[Variant[Integer[1,600000], Enum['absent']]] $backlog_wait_time               = undef,
   Optional[Auditd::DiskErrorAction]                    $disk_error_action               = undef,
   Optional[Auditd::DiskFullAction]                     $disk_full_action                = undef,
   Enum['lossy','lossless']                             $disp_qos                        = 'lossy',
   Stdlib::Absolutepath                                 $dispatcher                      = '/sbin/audispd',
-  Optional[Integer[0]]                                 $failure_mode                    = undef,
+  Optional[Variant[Integer[0], Enum['absent']]]        $failure_mode                    = undef,
   Optional[Auditd::Flush]                              $flush                           = undef,
   Optional[Integer[0]]                                 $freq                            = undef,
-  Boolean                                              $immutable                       = false,
+  Optional[Boolean]                                    $immutable                       = undef,
   Optional[Boolean]                                    $local_events                    = undef,
   Optional[Stdlib::Absolutepath]                       $log_file                        = undef,
   Optional[Auditd::LogFormat]                          $log_format                      = undef,
@@ -395,7 +405,7 @@ class auditd (
   Optional[Stdlib::Absolutepath]                       $plugin_dir                      = undef,
   Optional[Integer[0]]                                 $priority_boost                  = undef,
   Optional[Integer[0]]                                 $q_depth                         = undef,
-  Optional[Integer[0]]                                 $rate                            = undef,
+  Optional[Variant[Integer[0], Enum['absent']]]        $rate                            = undef,
   Auditd::RootAuditLevel                               $root_audit_level                = 'basic',
   String[1]                                            $service_name                    = 'auditd',
   Optional[Variant[Boolean,Enum['running','stopped']]] $service_ensure                  = undef,
@@ -409,7 +419,7 @@ class auditd (
   },
   Optional[Auditd::SpaceLeftAction]                    $space_left_action               = undef,
   Boolean                                              $syslog                          = simplib::lookup('simp_options::syslog', { 'default_value' => false }), # CCE-26933-2
-  Optional[Array[Pattern['^.*_t$']]]                   $target_selinux_types            = undef,
+  Optional[Variant[Array[Auditd::SelinuxType], Hash[Auditd::SelinuxType, Struct[{ Optional['ensure'] => Enum['present', 'absent'] }]]]] $target_selinux_types = undef,
   Integer[0]                                           $uid_min                         = Integer(pick(fact('uid_min'), 1000)),
   Optional[Boolean]                                    $verify_email                    = undef,
   Optional[Boolean]                                    $write_logs                      = $log_format ? { /^(?i:nolog)$/ => false, default => undef },

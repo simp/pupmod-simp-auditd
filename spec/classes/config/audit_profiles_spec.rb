@@ -34,31 +34,54 @@ describe 'auditd' do
 
       let(:params) { base_params }
 
-      # The preamble options and default drop rules are opt-in: unset, none of
-      # them are written, except -b at buffer_size_floor and -c for the simp
-      # profile. simp:defaults sets the values asserted further down.
+      let(:head) { '/etc/audit/rules.d/00_head.rules' }
+      let(:drop) { '/etc/audit/rules.d/05_default_drop.rules' }
+      let(:tail) { '/etc/audit/rules.d/99_tail.rules' }
+
+      # The three settings files are edited in place, one file_line per
+      # directive. Unset leaves a line alone (no file_line at all), false or
+      # 'absent' removes it, and a value writes it.
+      def written(title, line)
+        contain_file_line(title).with(ensure: nil, line: line, multiple: true)
+      end
+
+      def removed(title)
+        contain_file_line(title).with(ensure: 'absent', match_for_absence: true, multiple: true)
+      end
+
       context 'with default parameters' do
         it { is_expected.to compile.with_all_deps }
 
-        it 'writes no preamble options' do
-          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules')
-            .without_content(%r{^-[ifr](\s|$)})
-            .without_content(%r{^--loginuid-immutable$})
+        it 'seeds 00_head.rules once with -D and the packaged -b' do
+          is_expected.to contain_file(head).with(
+            ensure: 'file',
+            replace: false,
+            content: %r{^-D\n-b 8192\n\z},
+          )
+        end
+
+        it 'always manages -D' do
+          is_expected.to contain_file_line('00_head -D').with(path: head, line: '-D', match: '^-D\s*$')
         end
 
         it 'writes -c for the simp profile' do
-          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r{^-c$})
+          is_expected.to written('00_head ignore_failures', '-c')
         end
 
-        it 'writes -b at the floor' do
-          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r{^-b 8192$})
+        ['ignore_errors', 'buffer_size', 'backlog_wait_time', 'failure_mode', 'rate', 'loginuid_immutable'].each do |name|
+          it { is_expected.not_to contain_file_line("00_head #{name}") }
         end
 
-        it 'writes no default drop rules' do
-          is_expected.to contain_file('/etc/audit/rules.d/05_default_drop.rules')
-            .without_content(%r{^-a\s+never,exit\s+-F\s+auid=-1$})
-            .without_content(%r{^-a\s+never,user\s+-F\s+subj_type=crond_t$})
-            .without_content(%r{^-a\s+never,exit\s+-F\s+auid!=0\s+-F\s+auid<})
+        it 'declares the drop and tail files without content' do
+          is_expected.to contain_file(drop).with(ensure: 'file', content: nil)
+          is_expected.to contain_file(tail).with(ensure: 'file', content: nil)
+        end
+
+        it 'manages no drop rules or -e 2' do
+          ['anonymous', 'system_services', 'crond', 'chrony b32', 'chrony b64', 'crypto_key_user'].each do |name|
+            is_expected.not_to contain_file_line("05_default_drop #{name}")
+          end
+          is_expected.not_to contain_file_line('99_tail immutable')
         end
 
         it { is_expected.to contain_class('auditd::config::audit_profiles::simp') }
@@ -78,124 +101,127 @@ describe 'auditd' do
             ignore_crond: true,
             ignore_time_daemons: true,
             ignore_crypto_key_user: true,
+            immutable: false,
           )
         end
 
         it { is_expected.to compile.with_all_deps }
         it { is_expected.to contain_auditd__rule('audit_auditd_config').with_content(%r{-w /var/log/audit -p wa -k audit-logs}) }
 
-        it 'configures auditd to ignore rule failures' do
-          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r{^-i$})
-          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r{^-c$})
+        it 'writes the preamble options' do
+          is_expected.to written('00_head ignore_errors', '-i')
+          is_expected.to written('00_head ignore_failures', '-c')
+          is_expected.to written('00_head buffer_size', '-b 16384')
+          is_expected.to written('00_head failure_mode', '-f 1')
+          is_expected.to written('00_head rate', '-r 0')
+          is_expected.to written('00_head loginuid_immutable', '--loginuid-immutable')
         end
 
-        it 'configures buffer size' do
-          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(
-            %r{^-b\s+16384$},
-          )
+        it 'writes the default drop rules' do
+          chrony = '-S adjtimex -F auid=-1 -F uid=chrony -F subj_type=chronyd_t'
+
+          is_expected.to written('05_default_drop anonymous', '-a never,exit -F auid=-1')
+          is_expected.to written('05_default_drop system_services', "-a never,exit -F auid!=0 -F auid<#{facts[:uid_min]}")
+            .with_match('^-a never,exit -F auid!=0 -F auid<\d+$')
+          is_expected.to written('05_default_drop crond', '-a never,user -F subj_type=crond_t')
+          is_expected.to written('05_default_drop chrony b32', "-a never,exit -F arch=b32 #{chrony}")
+          is_expected.to written('05_default_drop crypto_key_user', '-a always,exclude -F msgtype=CRYPTO_KEY_USER')
+
+          if facts[:os][:hardware] == 'x86_64'
+            is_expected.to written('05_default_drop chrony b64', "-a never,exit -F arch=b64 #{chrony}")
+          else
+            is_expected.not_to contain_file_line('05_default_drop chrony b64')
+          end
         end
 
-        it 'configures failure mode' do
-          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(
-            %r{^-f\s+1$},
-          )
-        end
-
-        it 'configures rate limiting' do
-          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(
-            %r{^-r\s+0$},
-          )
-        end
-
-        it 'adds a drop rule to ignore anonymous and daemon events' do
-          is_expected.to contain_file('/etc/audit/rules.d/05_default_drop.rules').with_content(
-            %r{^-a\s+never,exit\s+-F\s+auid=-1$},
-          )
-        end
-
-        it 'adds a rule to drop crond events' do
-          is_expected.to contain_file('/etc/audit/rules.d/05_default_drop.rules').with_content(
-            %r{^-a\s+never,user\s+-F\s+subj_type=crond_t$},
-          )
-        end
-
-        it 'adds a rule to drop events from system services' do
-          is_expected.to contain_file('/etc/audit/rules.d/05_default_drop.rules').with_content(
-            %r{^-a\s+never,exit\s+-F\s+auid!=0\s+-F\s+auid<#{facts[:uid_min]}$},
-          )
+        it 'removes -e 2' do
+          is_expected.to removed('99_tail immutable').with_match('^-e\s+2\s*$')
         end
 
         it { is_expected.to contain_class('auditd::config::audit_profiles::simp') }
       end
 
-      # buffer_size_floor is checked against the running kernel's backlog_limit
-      # from the auditd_state fact. Equal to the floor must still write it, or
-      # -b would drop out on the run after it loads.
-      context 'with buffer_size unset' do
-        {
-          64     => 8192,
-          8192   => 8192,
-          20_000 => nil,
-        }.each do |current, expected|
-          context "and a running backlog_limit of #{current}" do
-            let(:facts) { super().merge(auditd_state: { 'backlog_limit' => current }) }
+      # Every directive takes the same three states; unset is covered above.
+      {
+        'buffer_size'        => [8192, '-b 8192', 'absent'],
+        'backlog_wait_time'  => [60_000, '--backlog_wait_time 60000', 'absent'],
+        'failure_mode'       => [2, '-f 2', 'absent'],
+        'rate'               => [100, '-r 100', 'absent'],
+        'ignore_errors'      => [true, '-i', false],
+        'ignore_failures'    => [true, '-c', false],
+        'loginuid_immutable' => [true, '--loginuid-immutable', false],
+      }.each do |name, (value, line, off)|
+        context "with #{name} => #{value.inspect}" do
+          let(:params) { base_params.merge(name.to_sym => value) }
 
-            if expected
-              it { is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r{^-b #{expected}$}) }
-            else
-              it { is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').without_content(%r{^-b\s}) }
-            end
-          end
+          it { is_expected.to written("00_head #{name}", line).with_path(head) }
         end
 
-        context 'and buffer_size_floor set to 0' do
-          let(:params) { base_params.merge(buffer_size_floor: 0) }
+        context "with #{name} => #{off.inspect}" do
+          let(:params) { base_params.merge(name.to_sym => off) }
 
-          it { is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').without_content(%r{^-b\s}) }
-        end
-
-        context 'and a custom buffer_size_floor' do
-          let(:params) { base_params.merge(buffer_size_floor: 12_000) }
-          let(:facts) { super().merge(auditd_state: { 'backlog_limit' => 8192 }) }
-
-          it { is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r{^-b 12000$}) }
+          it { is_expected.to removed("00_head #{name}").with_path(head) }
         end
       end
 
-      context 'with buffer_size below the floor and a higher running backlog_limit' do
-        let(:params) { base_params.merge(buffer_size: 4096) }
-        let(:facts) { super().merge(auditd_state: { 'backlog_limit' => 20_000 }) }
+      {
+        'ignore_anonymous'       => 'anonymous',
+        'ignore_system_services' => 'system_services',
+        'ignore_crond'           => 'crond',
+        'ignore_time_daemons'    => 'chrony b32',
+        'ignore_crypto_key_user' => 'crypto_key_user',
+      }.each do |param, name|
+        context "with #{param} => false" do
+          let(:params) { base_params.merge(param.to_sym => false) }
 
-        it 'writes buffer_size as given' do
-          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r{^-b 4096$})
+          it { is_expected.to removed("05_default_drop #{name}").with_path(drop) }
         end
       end
 
-      context 'with ignore_failures set to false' do
-        let(:params) { base_params.merge(ignore_failures: false) }
+      context 'with ignore_failures unset and only the built_in profile' do
+        let(:params) { base_params.merge(default_audit_profiles: ['built_in']) }
 
-        it { is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').without_content(%r{^-c$}) }
+        it { is_expected.not_to contain_file_line('00_head ignore_failures') }
       end
 
       context 'with only the stig profile' do
         let(:params) { base_params.merge(default_audit_profiles: ['stig']) }
 
-        it { is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r{^-c$}) }
+        it { is_expected.to written('00_head ignore_failures', '-c') }
+      end
+
+      context 'with immutable => true' do
+        let(:params) { base_params.merge(immutable: true) }
+
+        it { is_expected.to written('99_tail immutable', '-e 2').with_path(tail) }
       end
 
       context 'targeting specific SELinux types' do
-        let(:params) do
-          base_params.merge(target_selinux_types: ['unconfined_t', 'bob_t'])
+        context 'as an Array' do
+          let(:params) { base_params.merge(target_selinux_types: ['unconfined_t', 'bob_t']) }
+
+          it 'adds a rule to drop types not in the match list' do
+            is_expected.to written('05_default_drop selinux unconfined_t', '-a never,user -F subj_type!=unconfined_t')
+              .with_match('^-a never,user -F subj_type!=unconfined_t$')
+            is_expected.to written('05_default_drop selinux bob_t', '-a never,user -F subj_type!=bob_t')
+          end
         end
 
-        it 'adds a rule to drop types not in the match list' do
-          is_expected.to contain_file('/etc/audit/rules.d/05_default_drop.rules').with_content(
-            %r{^-a\s+never,user\s+-F\s+subj_type!=unconfined_t$},
-          )
+        context 'as a Hash' do
+          let(:params) do
+            base_params.merge(target_selinux_types: { 'unconfined_t' => {}, 'bob_t' => { 'ensure' => 'absent' } })
+          end
 
-          is_expected.to contain_file('/etc/audit/rules.d/05_default_drop.rules').with_content(
-            %r{^-a\s+never,user\s+-F\s+subj_type!=bob_t$},
-          )
+          it 'writes present entries and removes absent ones' do
+            is_expected.to written('05_default_drop selinux unconfined_t', '-a never,user -F subj_type!=unconfined_t')
+            is_expected.to removed('05_default_drop selinux bob_t').with_match('^-a never,user -F subj_type!=bob_t$')
+          end
+        end
+
+        context 'with a name that is not an SELinux type' do
+          let(:params) { base_params.merge(target_selinux_types: ['foo.*_t']) }
+
+          it { is_expected.not_to compile }
         end
       end
 
@@ -204,18 +230,19 @@ describe 'auditd' do
 
         it { is_expected.to compile.with_all_deps }
         it 'increases the buffer size (above basic setting)' do
-          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(
-            %r{^-b\s+32788$},
-          )
+          is_expected.to written('00_head buffer_size', '-b 32788')
         end
-      end
 
-      context 'setting the root audit level to aggressive with a higher running backlog_limit' do
-        let(:params) { base_params.merge(root_audit_level: 'aggressive') }
-        let(:facts) { super().merge(auditd_state: { 'backlog_limit' => 20_000 }) }
+        context 'with a larger buffer_size' do
+          let(:params) { super().merge(buffer_size: 50_000) }
 
-        it 'still writes the aggressive floor' do
-          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r{^-b\s+32788$})
+          it { is_expected.to written('00_head buffer_size', '-b 50000') }
+        end
+
+        context "with buffer_size => 'absent'" do
+          let(:params) { super().merge(buffer_size: 'absent') }
+
+          it { is_expected.to removed('00_head buffer_size') }
         end
       end
 
@@ -224,9 +251,7 @@ describe 'auditd' do
 
         it { is_expected.to compile.with_all_deps }
         it 'increases the buffer size (above aggressive setting)' do
-          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(
-            %r{^-b\s+65576$},
-          )
+          is_expected.to written('00_head buffer_size', '-b 65576')
         end
       end
 

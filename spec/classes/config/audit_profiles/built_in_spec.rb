@@ -58,8 +58,10 @@ describe 'auditd' do
         it {
           # We should not have the items included in audit_profiles since we are
           # only defining `built_in`. The preamble options are opt-in, so
-          # unset, 00_head carries none of them.
-          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').without_content(%r{^-i$}).without_content(%r{^-c$})
+          # unset, 00_head manages none of them.
+          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules')
+          is_expected.not_to contain_file_line('00_head ignore_errors')
+          is_expected.not_to contain_file_line('00_head ignore_failures')
           is_expected.not_to contain_file('/etc/audit/rules.d/05_default_drop.rules')
           is_expected.not_to contain_file('/etc/audit/rules.d/99_tail.rules')
 
@@ -108,8 +110,9 @@ describe 'auditd' do
         it {
           # We should not have the items included in audit_profiles since we are
           # only defining `built_in`. The preamble options are opt-in, so
-          # unset, 00_head carries none of them.
-          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').without_content(%r{^-i$})
+          # unset, 00_head manages none of them.
+          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules')
+          is_expected.not_to contain_file_line('00_head ignore_errors')
           is_expected.not_to contain_file('/etc/audit/rules.d/05_default_drop.rules')
           is_expected.not_to contain_file('/etc/audit/rules.d/99_tail.rules')
 
@@ -201,44 +204,32 @@ describe 'auditd' do
         it { is_expected.to contain_auditd__rule('audit_auditd_config').with_content(%r{-w /var/log/audit -p wa -k audit-logs}) }
 
         it 'configures auditd to ignore rule failures' do
-          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r{^-i$})
-          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r{^-c$})
+          is_expected.to contain_file_line('00_head ignore_errors').with_line('-i')
+          is_expected.to contain_file_line('00_head ignore_failures').with_line('-c')
         end
 
         it 'configures buffer size' do
-          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(
-            %r{^-b\s+16384$},
-          )
+          is_expected.to contain_file_line('00_head buffer_size').with_line('-b 16384')
         end
 
         it 'configures failure mode' do
-          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(
-            %r{^-f\s+1$},
-          )
+          is_expected.to contain_file_line('00_head failure_mode').with_line('-f 1')
         end
 
         it 'configures rate limiting' do
-          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(
-            %r{^-r\s+0$},
-          )
+          is_expected.to contain_file_line('00_head rate').with_line('-r 0')
         end
 
         it 'adds a drop rule to ignore anonymous and daemon events' do
-          is_expected.to contain_file('/etc/audit/rules.d/05_default_drop.rules').with_content(
-            %r{^-a\s+never,exit\s+-F\s+auid=-1$},
-          )
+          is_expected.to contain_file_line('05_default_drop anonymous').with_line('-a never,exit -F auid=-1')
         end
 
         it 'adds a rule to drop crond events' do
-          is_expected.to contain_file('/etc/audit/rules.d/05_default_drop.rules').with_content(
-            %r{^-a\s+never,user\s+-F\s+subj_type=crond_t$},
-          )
+          is_expected.to contain_file_line('05_default_drop crond').with_line('-a never,user -F subj_type=crond_t')
         end
 
         it 'adds a rule to drop events from system services' do
-          is_expected.to contain_file('/etc/audit/rules.d/05_default_drop.rules').with_content(
-            %r{^-a\s+never,exit\s+-F\s+auid!=0\s+-F\s+auid<#{facts[:uid_min]}$},
-          )
+          is_expected.to contain_file_line('05_default_drop system_services').with_line("-a never,exit -F auid!=0 -F auid<#{facts[:uid_min]}")
         end
 
         it { is_expected.to contain_class('auditd::config::audit_profiles::simp') }
