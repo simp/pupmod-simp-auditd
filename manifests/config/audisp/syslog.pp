@@ -125,11 +125,19 @@ class auditd::config::audisp::syslog (
 
   $_syslog_conf = "${_plugin_dir}/syslog.conf"
 
-  # syslog.conf is the audispd-plugins package's own %config(noreplace) file.
-  # This resource only enforces ownership and mode; with no ensure it does not
-  # create the file. Its contents are left to the package and the ini_settings
-  # below.
+  # Two cases cannot rely on the packaged file, and get every key: auditd 2,
+  # whose audispd needs the builtin plugin, and a relocated plugin_dir, where
+  # the package never put a syslog.conf.
+  $_full = $_auditd2 or $auditd::plugin_dir =~ NotUndef
+  $_syslog_conf_ensure = $_full ? { true => 'file', default => undef }
+
+  # syslog.conf is otherwise the audispd-plugins package's own
+  # %config(noreplace) file. This resource only enforces ownership and mode
+  # there; with no ensure it does not create the file. Where there is no
+  # packaged file ($_full), it creates it, so the ini_settings below never
+  # create it with the umask mode.
   file { $_syslog_conf:
+    ensure  => $_syslog_conf_ensure,
     owner   => 'root',
     mode    => $auditd::config::config_file_mode,
     require => $_syslog_conf_require,
@@ -140,14 +148,8 @@ class auditd::config::audisp::syslog (
   # type = always and format = string, so on auditd 3 and later those are left
   # alone unless a site sets path or type.
   #
-  # Two cases cannot rely on the packaged file, and get every key: auditd 2,
-  # whose audispd needs the builtin plugin, and a relocated plugin_dir, where
-  # the package never put a syslog.conf.
-  #
   # Disabled, only active is written, so a plugin that was on is switched off
   # without filling in a file for a plugin nothing will start.
-  $_full = $_auditd2 or $auditd::plugin_dir =~ NotUndef
-
   if $enable {
     $_syslog_conf_settings = {
       'active'    => 'yes',

@@ -63,9 +63,10 @@ describe 'auditd::config::audisp::syslog' do
                 it { is_expected.to compile.with_all_deps }
 
                 # The package's own syslog.conf is edited in place, never
-                # replaced: the File carries attributes only.
+                # replaced: the File carries attributes only. auditd 2 has no
+                # packaged file, so the File creates it before the ini_settings.
                 it {
-                  is_expected.to contain_file(plugin_conf).with(owner: 'root', content: nil, source: nil, ensure: nil)
+                  is_expected.to contain_file(plugin_conf).with(owner: 'root', content: nil, source: nil, ensure: auditd2 ? 'file' : nil)
                 }
 
                 # On auditd 3+ the packaged file already has direction, path,
@@ -119,6 +120,7 @@ describe 'auditd::config::audisp::syslog' do
                 end
 
                 it { is_expected.to compile.with_all_deps }
+                it { is_expected.to contain_file('/opt/audit/plugins.d/syslog.conf').with_ensure('file') }
                 it {
                   expect_syslog_conf('/opt/audit/plugins.d/syslog.conf', 'active' => 'yes', 'direction' => 'out', 'path' => plugin_path,
                                                                         'type' => plugin_type, 'args' => 'LOG_INFO LOG_LOCAL5', 'format' => 'string')
