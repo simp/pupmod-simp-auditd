@@ -101,7 +101,7 @@ class auditd::config::audisp::syslog (
   # audispd, from /etc/audisp. The defaults follow the detected version so a
   # host still on it keeps working; this path goes away in 12.0.0. The third
   # argument keeps deprecation() a warning under 'strict => error'.
-  $_auditd2 = versioncmp($facts['auditd_version'], '3.0') < 0
+  $_auditd2 = versioncmp(pick($facts['auditd_version'], '3.0'), '3.0') < 0
   if $_auditd2 {
     deprecation('auditd::auditd2',
     'auditd < 3.0 is not a supported platform; its plugin layout will no longer be selected in 12.0.0',

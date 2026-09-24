@@ -104,11 +104,12 @@ Two custom facts in `lib/facter/auditd_version.rb` drive version-dependent behav
   matters to specs and to anything that reads it directly
 
 Both derive from the `simplib__auditd` structured fact, which does not resolve until
-auditing is enabled in the kernel, so either can be `undef`. `init.pp` and
-`config/logging.pp` test the fact before using it and fall back to the newest supported
-behavior. `config/audisp.pp` and `config/audisp/syslog.pp` call `versioncmp` unguarded;
-that is safe only because `config/logging.pp` is the sole thing that declares them and
-it already checks. Keep that guard in mind before declaring either class elsewhere.
+auditing is enabled in the kernel, and on EL10 until `audit-rules` provides `auditctl`,
+so either can be `undef`. `init.pp` tests the fact before using it. `config/logging.pp`
+and `config/audisp/syslog.pp` treat a missing fact as 3.0 with `pick()`, so the syslog
+plugin is configured on the first run. `config/audisp.pp` calls `versioncmp` unguarded;
+that is safe only because `config/logging.pp` declares it only when the fact is present
+and below 3.0. Keep that guard in mind before declaring it elsewhere.
 
 ### auditd.conf
 
