@@ -97,29 +97,28 @@ behavior back. If you are not, set what you want explicitly.
 * Changing `auditd::default_audit_profiles` from `['simp']` to `['stig']` without
   `auditd::purge_auditd_rules: true` leaves the old `50_0_simp_base.rules` on disk.
   The purge used to remove it for you.
-* **Without `auditd::purge_auditd_rules: true`, the packaged
-  `/etc/audit/rules.d/audit.rules` overrides `auditd::buffer_size` and
-  `auditd::failure_mode`.** The `audit` package drops that file (`-D`, `-b 8192`,
-  `-f 1`) into an empty `rules.d`. `augenrules` lets the later-sorting file win
-  on a duplicated `-b` or `-f`, and `audit.rules` sorts after every file this
-  module writes. The purge used to remove it for you; set
-  `auditd::purge_auditd_rules: true` or delete the file yourself.
-* `00_head.rules`, `05_default_drop.rules` and `99_tail.rules` are edited line
-  by line instead of rendered whole. Each line follows its parameter: unset
-  leaves whatever is in the file, `false` (or `'absent'` for a number) removes
-  it, and a value writes it. A partial compliance profile therefore never
-  reverts what an earlier one applied. This covers `auditd::buffer_size`,
-  `auditd::backlog_wait_time`, `auditd::failure_mode`, `auditd::rate`,
-  `auditd::loginuid_immutable`, `auditd::ignore_errors`,
+* `auditd::buffer_size`, `auditd::failure_mode`, `auditd::rate`,
+  `auditd::backlog_wait_time` and `auditd::loginuid_immutable` are written to
+  `/etc/audit/rules.d/puppet_auditd.rules` instead of `00_head.rules`. For these,
+  `augenrules` lets the last file read win, and that name sorts after the
+  package's `audit.rules`, so a set value takes effect without the purge. A file
+  of your own that sorts after `puppet_auditd.rules` still wins over it. The file
+  is written only when one of these is set or the purge is on.
+* `00_head.rules`, `05_default_drop.rules`, `99_tail.rules` and
+  `puppet_auditd.rules` are edited line by line instead of rendered whole. Each
+  line follows its parameter: unset leaves whatever is in the file, `false` (or
+  `'absent'` for a number) removes it, and a value writes it. A partial
+  compliance profile therefore never reverts what an earlier one applied. This
+  covers the settings above, `auditd::ignore_errors`,
   `auditd::ignore_failures`, `auditd::immutable`, `auditd::target_selinux_types`
   and the `auditd::ignore_*` drops.
 * `auditd::immutable` defaults to `undef` rather than `false`. `simp:defaults`
   sets `false`.
 * `auditd::target_selinux_types` entries must be SELinux type names
   (`[a-z0-9_]+_t`). A Hash of type to `ensure` can also remove one.
-* A new `00_head.rules` is seeded once with `-D` and the packaged `-b 8192`,
-  which the purge removes. After that it is only edited in place.
-  `simp:defaults` sets `-b 16384`.
+* With `auditd::purge_auditd_rules: true` and `auditd::buffer_size` unset,
+  `puppet_auditd.rules` gets the packaged `-b 8192`, which the purge removes
+  along with `audit.rules`. `simp:defaults` sets `-b 16384`.
 * With `auditd::ignore_failures` unset, the `simp` and `stig` profiles write
   `-c`. They watch paths that may not exist, such as `/etc/snmp/snmpd.conf`, and
   without `-c` the kernel stops loading at the first rejected rule and silently
@@ -179,6 +178,7 @@ when the parameter named beside it is set:
 | The `auditd::plugin_dir` directory | `auditd::plugin_dir` is set |
 | Rule files in `/etc/audit/rules.d` | `auditd::default_audit_profiles` is non-empty, or `auditd::rule` is used |
 | The rule preamble (`00_head.rules`, `99_tail.rules`) | `auditd::default_audit_profiles` is non-empty, or `auditd::purge_auditd_rules` is `true` |
+| `/etc/audit/rules.d/puppet_auditd.rules` | one of `auditd::buffer_size`, `auditd::failure_mode`, `auditd::rate`, `auditd::backlog_wait_time` or `auditd::loginuid_immutable` is set, or `auditd::purge_auditd_rules` is `true` |
 | Purging unmanaged files from `/etc/audit/rules.d` | `auditd::purge_auditd_rules` is `true` |
 | `/etc/audit/audit.rules` and `.prev` ownership | one of the `auditd::audit_rules_*` parameters is set |
 | `/var/log/audit` | `auditd::log_group` is set |
@@ -463,14 +463,13 @@ commonly used.
 
 On its own, ``auditd::rule`` writes only the rule file. The preamble that
 ``augenrules`` loads ahead of the rules comes from the ``audit`` package's own
-``rules.d/audit.rules`` until this module is asked to manage the directory, with
-a profile or ``auditd::purge_auditd_rules: true``. Only then are
-``auditd::buffer_size``, ``auditd::failure_mode``, ``auditd::rate``,
-``auditd::ignore_errors``, ``auditd::ignore_failures``,
-``auditd::backlog_wait_time``, ``auditd::loginuid_immutable`` and
-``auditd::immutable`` managed. Unless the purge is on, the packaged
-``rules.d/audit.rules`` stays and its ``-b`` and ``-f`` win over
-``00_head.rules``; see the breaking changes above.
+``rules.d/audit.rules``. ``auditd::buffer_size``, ``auditd::failure_mode``,
+``auditd::rate``, ``auditd::backlog_wait_time`` and
+``auditd::loginuid_immutable`` take effect on their own, from
+``puppet_auditd.rules``. ``auditd::ignore_errors``, ``auditd::ignore_failures``
+and ``auditd::immutable`` are managed only once this module is asked to manage
+the directory, with a profile or ``auditd::purge_auditd_rules: true``; see the
+breaking changes above.
 
 #### Adding Regular Filter Rules
 

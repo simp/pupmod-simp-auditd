@@ -209,15 +209,15 @@ describe 'auditd' do
         end
 
         it 'configures buffer size' do
-          is_expected.to contain_file_line('00_head buffer_size').with_line('-b 16384')
+          is_expected.to contain_file_line('rule settings buffer_size').with_line('-b 16384')
         end
 
         it 'configures failure mode' do
-          is_expected.to contain_file_line('00_head failure_mode').with_line('-f 1')
+          is_expected.to contain_file_line('rule settings failure_mode').with_line('-f 1')
         end
 
         it 'configures rate limiting' do
-          is_expected.to contain_file_line('00_head rate').with_line('-r 0')
+          is_expected.to contain_file_line('rule settings rate').with_line('-r 0')
         end
 
         it 'adds a drop rule to ignore anonymous and daemon events' do

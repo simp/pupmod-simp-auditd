@@ -37,8 +37,9 @@ describe 'auditd' do
       let(:head) { '/etc/audit/rules.d/00_head.rules' }
       let(:drop) { '/etc/audit/rules.d/05_default_drop.rules' }
       let(:tail) { '/etc/audit/rules.d/99_tail.rules' }
+      let(:settings) { '/etc/audit/rules.d/puppet_auditd.rules' }
 
-      # The three settings files are edited in place, one file_line per
+      # The rules files are edited in place, one file_line per
       # directive. Unset leaves a line alone (no file_line at all), false or
       # 'absent' removes it, and a value writes it.
       def written(title, line)
@@ -52,12 +53,8 @@ describe 'auditd' do
       context 'with default parameters' do
         it { is_expected.to compile.with_all_deps }
 
-        it 'seeds 00_head.rules once with -D and the packaged -b' do
-          is_expected.to contain_file(head).with(
-            ensure: 'file',
-            replace: false,
-            content: %r{^-D\n-b 8192\n\z},
-          )
+        it 'declares 00_head.rules without content' do
+          is_expected.to contain_file(head).with(ensure: 'file', content: nil, replace: nil)
         end
 
         it 'always manages -D' do
@@ -68,8 +65,14 @@ describe 'auditd' do
           is_expected.to written('00_head ignore_failures', '-c')
         end
 
-        ['ignore_errors', 'buffer_size', 'backlog_wait_time', 'failure_mode', 'rate', 'loginuid_immutable'].each do |name|
-          it { is_expected.not_to contain_file_line("00_head #{name}") }
+        it { is_expected.not_to contain_file_line('00_head ignore_errors') }
+
+        # The simp profile alone sets none of the late settings, and the floor
+        # only applies above 'basic'.
+        it { is_expected.not_to contain_file(settings) }
+
+        ['buffer_size', 'backlog_wait_time', 'failure_mode', 'rate', 'loginuid_immutable'].each do |name|
+          it { is_expected.not_to contain_file_line("rule settings #{name}") }
         end
 
         it 'declares the drop and tail files without content' do
@@ -111,10 +114,10 @@ describe 'auditd' do
         it 'writes the preamble options' do
           is_expected.to written('00_head ignore_errors', '-i')
           is_expected.to written('00_head ignore_failures', '-c')
-          is_expected.to written('00_head buffer_size', '-b 16384')
-          is_expected.to written('00_head failure_mode', '-f 1')
-          is_expected.to written('00_head rate', '-r 0')
-          is_expected.to written('00_head loginuid_immutable', '--loginuid-immutable')
+          is_expected.to written('rule settings buffer_size', '-b 16384').with_path(settings)
+          is_expected.to written('rule settings failure_mode', '-f 1').with_path(settings)
+          is_expected.to written('rule settings rate', '-r 0').with_path(settings)
+          is_expected.to written('rule settings loginuid_immutable', '--loginuid-immutable').with_path(settings)
         end
 
         it 'writes the default drop rules' do
@@ -142,14 +145,11 @@ describe 'auditd' do
       end
 
       # Every directive takes the same three states; unset is covered above.
+      # -i and -c must precede every rule and stay in 00_head.rules; the
+      # last-one-wins settings go to the file that sorts after audit.rules.
       {
-        'buffer_size'        => [8192, '-b 8192', 'absent'],
-        'backlog_wait_time'  => [60_000, '--backlog_wait_time 60000', 'absent'],
-        'failure_mode'       => [2, '-f 2', 'absent'],
-        'rate'               => [100, '-r 100', 'absent'],
-        'ignore_errors'      => [true, '-i', false],
-        'ignore_failures'    => [true, '-c', false],
-        'loginuid_immutable' => [true, '--loginuid-immutable', false],
+        'ignore_errors'   => [true, '-i', false],
+        'ignore_failures' => [true, '-c', false],
       }.each do |name, (value, line, off)|
         context "with #{name} => #{value.inspect}" do
           let(:params) { base_params.merge(name.to_sym => value) }
@@ -161,6 +161,27 @@ describe 'auditd' do
           let(:params) { base_params.merge(name.to_sym => off) }
 
           it { is_expected.to removed("00_head #{name}").with_path(head) }
+        end
+      end
+
+      {
+        'buffer_size'        => [8192, '-b 8192', 'absent'],
+        'backlog_wait_time'  => [60_000, '--backlog_wait_time 60000', 'absent'],
+        'failure_mode'       => [2, '-f 2', 'absent'],
+        'rate'               => [100, '-r 100', 'absent'],
+        'loginuid_immutable' => [true, '--loginuid-immutable', false],
+      }.each do |name, (value, line, off)|
+        context "with #{name} => #{value.inspect}" do
+          let(:params) { base_params.merge(name.to_sym => value) }
+
+          it { is_expected.to written("rule settings #{name}", line).with_path(settings) }
+          it { is_expected.not_to contain_file_line("00_head #{name}") }
+        end
+
+        context "with #{name} => #{off.inspect}" do
+          let(:params) { base_params.merge(name.to_sym => off) }
+
+          it { is_expected.to removed("rule settings #{name}").with_path(settings) }
         end
       end
 
@@ -230,19 +251,19 @@ describe 'auditd' do
 
         it { is_expected.to compile.with_all_deps }
         it 'increases the buffer size (above basic setting)' do
-          is_expected.to written('00_head buffer_size', '-b 32788')
+          is_expected.to written('rule settings buffer_size', '-b 32788').with_path(settings)
         end
 
         context 'with a larger buffer_size' do
           let(:params) { super().merge(buffer_size: 50_000) }
 
-          it { is_expected.to written('00_head buffer_size', '-b 50000') }
+          it { is_expected.to written('rule settings buffer_size', '-b 50000') }
         end
 
         context "with buffer_size => 'absent'" do
           let(:params) { super().merge(buffer_size: 'absent') }
 
-          it { is_expected.to removed('00_head buffer_size') }
+          it { is_expected.to removed('rule settings buffer_size') }
         end
       end
 
@@ -251,7 +272,7 @@ describe 'auditd' do
 
         it { is_expected.to compile.with_all_deps }
         it 'increases the buffer size (above aggressive setting)' do
-          is_expected.to written('00_head buffer_size', '-b 65576')
+          is_expected.to written('rule settings buffer_size', '-b 65576')
         end
       end
 

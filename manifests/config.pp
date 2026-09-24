@@ -250,6 +250,10 @@ class auditd::config {
     Class['auditd::config::logging'] ~> Class['auditd::service']
   }
 
+  # Declares nothing unless one of its parameters is set or the purge is on,
+  # and doesn't depend on a profile: one enforced setting takes effect alone.
+  contain 'auditd::config::rule_settings'
+
   # The same condition that claims /etc/audit/rules.d above. Once this module
   # is managing that directory, the rule files in it need the preamble
   # (00_head.rules, 99_tail.rules) this class writes, whether or not any

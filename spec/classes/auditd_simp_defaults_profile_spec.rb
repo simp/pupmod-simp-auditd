@@ -124,14 +124,18 @@ describe 'auditd' do
         # Opt-in since 11.0.0; the profile restores the old preamble options.
         it 'writes the preamble options' do
           {
-            'ignore_errors'      => '-i',
-            'ignore_failures'    => '-c',
+            'ignore_errors'   => '-i',
+            'ignore_failures' => '-c',
+          }.each do |name, line|
+            is_expected.to contain_file_line("00_head #{name}").with(path: '/etc/audit/rules.d/00_head.rules', line: line)
+          end
+          {
             'buffer_size'        => '-b 16384',
             'failure_mode'       => '-f 1',
             'rate'               => '-r 0',
             'loginuid_immutable' => '--loginuid-immutable',
           }.each do |name, line|
-            is_expected.to contain_file_line("00_head #{name}").with(path: '/etc/audit/rules.d/00_head.rules', line: line)
+            is_expected.to contain_file_line("rule settings #{name}").with(path: '/etc/audit/rules.d/puppet_auditd.rules', line: line)
           end
         end
 

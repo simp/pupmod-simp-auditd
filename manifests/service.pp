@@ -73,6 +73,9 @@ class auditd::service (
       exec { 'auditd load rules':
         command     => '/usr/sbin/augenrules --load',
         onlyif      => $_if_running,
+        # augenrules exits 1 if any rule was rejected, even when -c let the
+        # rest load. -c is exactly the request to carry on past those.
+        returns     => [0, 1],
         refreshonly => true,
       }
     }

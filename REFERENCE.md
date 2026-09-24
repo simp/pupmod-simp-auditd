@@ -6,6 +6,8 @@
 
 ### Classes
 
+#### Public Classes
+
 * [`auditd`](#auditd): Configure the audit daemon for use with a specified audit profile.
 * [`auditd::config`](#auditd--config): This class is called from auditd for service config.
 * [`auditd::config::audisp`](#auditd--config--audisp): Configures the audit dispatcher primarily for sending audit logs directly to syslog without intervention.
@@ -23,6 +25,11 @@ audit package to be used to configure a system.
 can be sent to syslog in addition the audit partition.
 * [`auditd::install`](#auditd--install): Install the auditd packages
 * [`auditd::service`](#auditd--service): Ensure that the auditd service is running
+
+#### Private Classes
+
+* `auditd::config::rule_settings`: Last-one-wins audit settings, in a file that sorts after the
+audit package's own rules
 
 ### Defined types
 
@@ -1044,9 +1051,10 @@ The configuration generated is contained in a set of files in
 natural sort order, to create a single `/etc/audit/auditd.rules`
 file. The generated files are as follows:
 - `00_head.rules`:  Contains `auditctl` general configuration to
-  remove existing rules when the rules are reloaded, ignore rule
-  load errors/failures, and set the buffer size, failure mode,
-  and rate limiting
+  remove existing rules when the rules are reloaded and ignore rule
+  load errors/failures. The buffer size, failure mode, rate limit and
+  the other last-one-wins settings are in `puppet_auditd.rules`,
+  written by `auditd::config::rule_settings`
 - `05_default_drop.rules`: Contains filtering rules for efficiency
   - Rules to drop prolific events of low-utility
   - Rules to restrict events based on `auid` constraints that would

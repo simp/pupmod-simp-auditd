@@ -7,9 +7,10 @@
 # natural sort order, to create a single `/etc/audit/auditd.rules`
 # file. The generated files are as follows:
 # - `00_head.rules`:  Contains `auditctl` general configuration to
-#   remove existing rules when the rules are reloaded, ignore rule
-#   load errors/failures, and set the buffer size, failure mode,
-#   and rate limiting
+#   remove existing rules when the rules are reloaded and ignore rule
+#   load errors/failures. The buffer size, failure mode, rate limit and
+#   the other last-one-wins settings are in `puppet_auditd.rules`,
+#   written by `auditd::config::rule_settings`
 # - `05_default_drop.rules`: Contains filtering rules for efficiency
 #   - Rules to drop prolific events of low-utility
 #   - Rules to restrict events based on `auid` constraints that would
@@ -75,22 +76,8 @@ class auditd::config::audit_profiles {
     default => $auditd::ignore_failures,
   }
 
-  # The heavier root audit levels need a larger backlog than 'basic'. They
-  # raise an unset or smaller buffer_size to a floor; 'absent' still wins.
-  $_buffer_floor = { 'aggressive' => 32788, 'insane' => 65576 }[$auditd::root_audit_level]
-
-  $_buffer_size = ($_buffer_floor =~ Integer and $auditd::buffer_size !~ Enum['absent']) ? {
-    true    => max(pick($auditd::buffer_size, 0), $_buffer_floor),
-    default => $auditd::buffer_size,
-  }
-
-  # Created once. The seed carries the -b 8192 from the audit package's own
-  # rules.d/audit.rules, which purge_auditd_rules deletes; after that the file
-  # is only ever edited in place.
   file { $_head:
     ensure  => 'file',
-    replace => false,
-    content => "# Partially managed by Puppet (module 'auditd'). Lines for unset\n# parameters are left alone.\n-D\n-b 8192\n",
     require => Package[$auditd::package_name],
     *       => $auditd::config::rule_file_attributes,
   }
@@ -104,14 +91,13 @@ class auditd::config::audit_profiles {
     require => File[$_head],
   }
 
+  # Only what must precede every rule lives here. The last-one-wins settings
+  # (-b, -f, -r, --backlog_wait_time, --loginuid-immutable) are written by
+  # auditd::config::rule_settings to a file that sorts after the package's
+  # audit.rules, which would otherwise override them.
   $_head_directives = {
-    'ignore_errors'      => { 'value' => $auditd::ignore_errors,      'line' => '-i',                                                 'match' => '^-i\s*$' },
-    'ignore_failures'    => { 'value' => $_ignore_failures,           'line' => '-c',                                                 'match' => '^-c\s*$' },
-    'buffer_size'        => { 'value' => $_buffer_size,               'line' => "-b ${_buffer_size}",                                 'match' => '^-b\s' },
-    'backlog_wait_time'  => { 'value' => $auditd::backlog_wait_time,  'line' => "--backlog_wait_time ${auditd::backlog_wait_time}", 'match' => '^--backlog_wait_time\s' },
-    'failure_mode'       => { 'value' => $auditd::failure_mode,       'line' => "-f ${auditd::failure_mode}",                         'match' => '^-f\s' },
-    'rate'               => { 'value' => $auditd::rate,               'line' => "-r ${auditd::rate}",                                 'match' => '^-r\s' },
-    'loginuid_immutable' => { 'value' => $auditd::loginuid_immutable, 'line' => '--loginuid-immutable',                               'match' => '^--loginuid-immutable\s*$' },
+    'ignore_errors'   => { 'value' => $auditd::ignore_errors, 'line' => '-i', 'match' => '^-i\s*$' },
+    'ignore_failures' => { 'value' => $_ignore_failures,      'line' => '-c', 'match' => '^-c\s*$' },
   }
 
   $_head_directives.each |$name, $d| {

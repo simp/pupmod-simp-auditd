@@ -30,7 +30,13 @@
   `-c`, so a watch on a missing path no longer stops the rest from loading.
 - Edit `00_head.rules`, `05_default_drop.rules` and `99_tail.rules` line by
   line with `file_line`: unset leaves a line alone, `false`/`'absent'` removes
-  it. A new `00_head.rules` is seeded once with `-D` and `-b 8192`.
+  it.
+- Write `buffer_size`, `failure_mode`, `rate`, `backlog_wait_time` and
+  `loginuid_immutable` to `rules.d/puppet_auditd.rules`, which sorts after the
+  package's `audit.rules`, so each takes effect without the purge. With the
+  purge on and `buffer_size` unset, it gets the packaged `-b 8192`.
+- Accept exit code 1 from `augenrules --load`, which `-c` still returns when
+  a rule was rejected.
 - BREAKING: `auditd::immutable` defaults to `undef`; `simp:defaults` sets
   `false`.
 - BREAKING: `auditd::target_selinux_types` entries must match
