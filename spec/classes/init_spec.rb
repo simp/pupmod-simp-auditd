@@ -72,6 +72,18 @@ describe 'auditd' do
         # defaults ('installed' / false), so a pass proves the lookup path
         # (not the default) supplied them.
         # See spec/fixtures/hieradata/simp_options.yaml.
+        # First run on a host where auditctl isn't installed yet (EL10 before
+        # audit-rules): the syslog plugin is configured in the same run
+        # instead of one run later.
+        context 'with syslog enabled and no auditd facts yet' do
+          let(:facts) { base_facts.reject { |k, _v| [:auditd_version, :auditd_major_version, :simplib__auditd].include?(k) } }
+          let(:params) { { syslog: true } }
+
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_class('auditd::config::audisp::syslog') }
+          it { is_expected.not_to contain_class('auditd::config::audisp') }
+        end
+
         context 'with simp_options site keys set in hiera' do
           let(:params) { {} }
           let(:hieradata) { 'simp_options' }

@@ -442,13 +442,9 @@ describe 'auditd' do
                   is_expected.to contain_class('auditd::config::audisp')
                 end
               }
-              it {
-                if facts[:auditd_version].nil?
-                  is_expected.not_to contain_class('auditd::config::audisp::syslog')
-                else
-                  is_expected.to contain_class('auditd::config::audisp::syslog')
-                end
-              }
+              # Configured even before auditd_version is known: a missing
+              # fact is treated as audit 3 (see auditd::config::logging).
+              it { is_expected.to contain_class('auditd::config::audisp::syslog') }
             end
           end # End auditd version context
         end # End auditd version loop

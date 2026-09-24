@@ -17,6 +17,16 @@ describe 'auditd::config::audisp::syslog' do
           it { is_expected.to compile.with_all_deps }
         end
 
+        # On a first run, auditd_version is missing until auditctl exists. On
+        # EL10 that's the audit-rules package the module installs in the same
+        # run, so the plugin must not wait for the fact.
+        context 'if auditd_version is missing too' do
+          let(:facts) { os_facts.reject { |k, _v| [:auditd_version, :auditd_major_version, :simplib__auditd].include?(k) } }
+
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_package('audispd-plugins') }
+        end
+
         context 'for all versions of auditd' do
           [{ auditd_version: '4.0', auditd_major_version: '4' }, { auditd_version: '3.0', auditd_major_version: '3' }, { auditd_version: '2.8.4', auditd_major_version: '2' }].each do |more_facts|
             context "with auditd version #{more_facts[:auditd_major_version]}" do
