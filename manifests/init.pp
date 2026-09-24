@@ -152,12 +152,7 @@
 #  sets the overflow action.
 #
 # @param package_name
-#   The package or packages that provide auditd and its rule tools.
-#
-#   Defaults to what the newest supported release needs. On EL10, `auditctl`,
-#   `augenrules` and `/etc/audit/rules.d` are in a separate `audit-rules`
-#   package that `audit` does not require. The module data overrides this to
-#   `audit` alone for EL8 and EL9.
+#   The name of the auditd package.
 #
 # @param package_ensure
 #
@@ -294,7 +289,7 @@ class auditd (
   Auditd::NameFormat                      $name_format              = 'user',
   Integer[0]                              $num_logs                 = 5,
   Optional[Auditd::Overflowaction]        $overflow_action          = undef, # data in module
-  Variant[String[1],Array[String[1],1]]   $package_name             = ['audit', 'audit-rules'],
+  String[1]                               $package_name             = 'audit',
   Simplib::PackageEnsure                  $package_ensure           = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' }),
   Stdlib::Absolutepath                    $plugin_dir,              # data in module
   Integer[0]                              $priority_boost           = 3,

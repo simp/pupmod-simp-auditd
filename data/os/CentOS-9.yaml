@@ -1,8 +1,4 @@
 ---
-# auditctl, augenrules and rules.d are part of the audit package here; EL10
-# moved them to audit-rules (see auditd::package_name).
-auditd::package_name: 'audit'
-
 #  Default to auditd version 3 settings
 auditd::plugin_dir: '/etc/audit/plugins.d'
 auditd::config::audisp::syslog::type: 'always'
