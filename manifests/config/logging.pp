@@ -10,11 +10,12 @@ class auditd::config::logging {
 #
   assert_private()
 
-  # auditd_version fact is not available until auditing is enabled in the kernel
-  if $facts['auditd_version'] {
-    if  versioncmp($facts['auditd_version'], '3.0') < 0 {
-      contain 'auditd::config::audisp'
-    }
-    contain 'auditd::config::audisp::syslog'
+  # The auditd_version fact needs auditctl, which on EL10 comes from the
+  # audit-rules package this module installs in the same run. Every supported
+  # release ships audit 3 or later, so assume that until the fact says
+  # otherwise rather than skipping the syslog plugin until the next run.
+  if versioncmp(pick($facts['auditd_version'], '3.0'), '3.0') < 0 {
+    contain 'auditd::config::audisp'
   }
+  contain 'auditd::config::audisp::syslog'
 }

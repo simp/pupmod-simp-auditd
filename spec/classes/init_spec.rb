@@ -46,6 +46,16 @@ describe 'auditd' do
           it { is_expected.to contain_class('auditd::config::grub').with_enable(true) }
           it { is_expected.not_to contain_class('auditd::config::logging') }
 
+          # EL10 moved auditctl, augenrules and rules.d into audit-rules, which
+          # audit does not require. The default covers the newest release; the
+          # module data narrows it to audit alone on EL8 and EL9.
+          it { is_expected.to contain_package('audit') }
+          if os.split('-')[1].to_i >= 10
+            it { is_expected.to contain_package('audit-rules') }
+          else
+            it { is_expected.not_to contain_package('audit-rules') }
+          end
+
           context 'on a host without grub' do
             let(:facts) { super().merge(grub_version: nil) }
 
@@ -62,6 +72,18 @@ describe 'auditd' do
         # defaults ('installed' / false), so a pass proves the lookup path
         # (not the default) supplied them.
         # See spec/fixtures/hieradata/simp_options.yaml.
+        # First run on a host where auditctl isn't installed yet (EL10 before
+        # audit-rules): the syslog plugin is configured in the same run
+        # instead of one run later.
+        context 'with syslog enabled and no auditd facts yet' do
+          let(:facts) { base_facts.reject { |k, _v| [:auditd_version, :auditd_major_version, :simplib__auditd].include?(k) } }
+          let(:params) { { syslog: true } }
+
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_class('auditd::config::audisp::syslog') }
+          it { is_expected.not_to contain_class('auditd::config::audisp') }
+        end
+
         context 'with simp_options site keys set in hiera' do
           let(:params) { {} }
           let(:hieradata) { 'simp_options' }

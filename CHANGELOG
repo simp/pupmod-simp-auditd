@@ -1,3 +1,15 @@
+* Thu Sep 24 2026 Steven Pritchard <steve@sicura.us> - 10.1.5
+- Install the `audit-rules` package on EL10. EL10 moved `auditctl`,
+  `augenrules` and `/etc/audit/rules.d` out of `audit` into `audit-rules`,
+  which `audit` does not require, so the service's stop and restart commands
+  and the module's rule files depended on a package nothing installed.
+  `auditd::package_name` now accepts an Array and defaults to
+  `['audit', 'audit-rules']`, with `audit` alone on EL8 and EL9.
+- With `auditd::syslog` enabled, configure the syslog plugin on the first run
+  even when the `auditd_version` fact isn't available yet, treating it as
+  audit 3. On EL10 the fact only appears once `audit-rules` is installed, so
+  the plugin was otherwise configured a run later.
+
 * Wed Sep 09 2026 Hazel Caballero <hazel@sicura.us> - 10.1.4
 - Remove dead OS-version conditionals from the `rule_profiles` templates.
   Amazon Linux 2 was dropped from `operatingsystem_support` in 10.0.0 and
