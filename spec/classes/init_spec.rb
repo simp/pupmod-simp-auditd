@@ -46,6 +46,16 @@ describe 'auditd' do
           it { is_expected.to contain_class('auditd::config::grub').with_enable(true) }
           it { is_expected.not_to contain_class('auditd::config::logging') }
 
+          # EL10 moved auditctl, augenrules and rules.d into audit-rules, which
+          # audit does not require. The default covers the newest release; the
+          # module data narrows it to audit alone on EL8 and EL9.
+          it { is_expected.to contain_package('audit') }
+          if os.split('-')[1].to_i >= 10
+            it { is_expected.to contain_package('audit-rules') }
+          else
+            it { is_expected.not_to contain_package('audit-rules') }
+          end
+
           context 'on a host without grub' do
             let(:facts) { super().merge(grub_version: nil) }
 
