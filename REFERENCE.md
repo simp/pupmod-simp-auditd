@@ -497,11 +497,16 @@ Default value: `undef`
 
 ##### <a name="-auditd--package_name"></a>`package_name`
 
-Data type: `String[1]`
+Data type: `Variant[String[1],Array[String[1],1]]`
 
-The name of the auditd package.
+The package or packages that provide auditd and its rule tools.
 
-Default value: `'audit'`
+Defaults to what the newest supported release needs. On EL10, `auditctl`,
+`augenrules` and `/etc/audit/rules.d` are in a separate `audit-rules`
+package that `audit` does not require. The module data overrides this to
+`audit` alone for EL8 and EL9.
+
+Default value: `['audit', 'audit-rules']`
 
 ##### <a name="-auditd--package_ensure"></a>`package_ensure`
 
