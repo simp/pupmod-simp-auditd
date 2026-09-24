@@ -1,4 +1,4 @@
-* Mon Sep 21 2026 Hazel Caballero <hazel@sicura.us> - 11.0.0
+* Thu Sep 24 2026 Hazel Caballero <hazel@sicura.us> - 11.0.0
 - BREAKING: a bare `include auditd` declares `Package[audit]` and nothing else.
   Every other resource is declared only when a parameter asks for it. The
   values previously applied by default are available through the new
@@ -61,7 +61,7 @@
 - Deprecate the auditd < 3.0 compatibility path for removal in 12.0.0.
 - Add a spec for `auditd::calculate_space_left`.
 
-* Fri Sep 18 2026 Hazel Caballero <hazel@sicura.us> - 10.2.0
+* Thu Sep 24 2026 Hazel Caballero <hazel@sicura.us> - 10.2.0
 - Manage `/etc/audit/auditd.conf` key by key with `ini_setting` instead of
   rendering the whole file from a template. Only the managed keys are edited;
   the rest of the vendor file is left intact. Adds a dependency on

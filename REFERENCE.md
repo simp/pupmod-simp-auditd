@@ -564,12 +564,12 @@ Data type: `Variant[String[1],Array[String[1],1]]`
 
 The package or packages that provide auditd and its rule tools.
 
-Defaults to what the newest supported release needs. On EL10, `auditctl`,
-`augenrules` and `/etc/audit/rules.d` are in a separate `audit-rules`
-package that `audit` does not require. The module data overrides this to
-`audit` alone for EL8 and EL9.
+Defaults to `['audit', 'audit-rules']` on EL10 and later, and `audit`
+alone before that. On EL10, `auditctl`, `augenrules` and
+`/etc/audit/rules.d` are in a separate `audit-rules` package that `audit`
+does not require.
 
-Default value: `['audit', 'audit-rules']`
+Default value: `(versioncmp($facts['os']['release']['major'], '10') >= 0) ? { true => ['audit', 'audit-rules'], default => 'audit'`
 
 ##### <a name="-auditd--package_ensure"></a>`package_ensure`
 
@@ -1019,6 +1019,8 @@ auditd version 3 and later.
 `audispd-plugins` from the module data. The package is always managed
 on auditd 3 and later when the plugin is enabled.
 
+Default value: `'audispd-plugins'`
+
 ##### <a name="-auditd--config--audisp--syslog--package_ensure"></a>`package_ensure`
 
 Data type: `String`
@@ -1336,11 +1338,15 @@ Data type: `Array[String[1]]`
 
 Commands to be audited if enabled by `audit_auditd_cmds`
 
+Default value: `['/usr/sbin/aulast', '/usr/sbin/aulastlogin', '/usr/sbin/aureport', '/usr/sbin/ausearch', '/usr/sbin/auvirt']`
+
 ##### <a name="-auditd--config--audit_profiles--simp--basic_root_audit_syscalls"></a>`basic_root_audit_syscalls`
 
 Data type: `Array[String[1]]`
 
 Basic syscalls to audit for su-root activity
+
+Default value: `['capset', 'mknod', 'mknodat', 'pivot_root', 'quotactl', 'setsid', 'adjtimex', 'settimeofday', 'setuid', 'swapoff', 'swapon']`
 
 ##### <a name="-auditd--config--audit_profiles--simp--aggressive_root_audit_syscalls"></a>`aggressive_root_audit_syscalls`
 
@@ -1348,11 +1354,15 @@ Data type: `Array[String[1]]`
 
 Aggressive syscalls to audit for su-root activity
 
+Default value: `['capset', 'mknod', 'mknodat', 'pivot_root', 'quotactl', 'setsid', 'adjtimex', 'settimeofday', 'setuid', 'swapoff', 'swapon', 'execve', 'rename', 'renameat', 'rmdir', 'unlink', 'unlinkat']`
+
 ##### <a name="-auditd--config--audit_profiles--simp--insane_root_audit_syscalls"></a>`insane_root_audit_syscalls`
 
 Data type: `Array[String[1]]`
 
 Insane syscalls to audit for su-root activity
+
+Default value: `['capset', 'mknod', 'mknodat', 'pivot_root', 'quotactl', 'setsid', 'adjtimex', 'settimeofday', 'setuid', 'swapoff', 'swapon', 'execve', 'rename', 'renameat', 'rmdir', 'unlink', 'unlinkat', 'write', 'chown', 'fchown', 'fchownat', 'lchown', 'creat', 'fork', 'vfork', 'link', 'linkat', 'symlink', 'symlinkat', 'mkdir', 'mkdirat']`
 
 ##### <a name="-auditd--config--audit_profiles--simp--audit_unsuccessful_file_operations"></a>`audit_unsuccessful_file_operations`
 
@@ -2083,6 +2093,8 @@ Data type: `Array[Stdlib::Absolutepath]`
 
 List of applications to be audited when `audit_suspicious_apps` is enabled
 
+Default value: `['/usr/bin/nc', '/usr/bin/ncat', '/usr/bin/nmap', '/usr/bin/rawshark', '/usr/bin/socat', '/usr/bin/wireshark', '/usr/sbin/tcpdump', '/usr/sbin/traceroute', '/usr/sbin/traceroute6']`
+
 ##### <a name="-auditd--config--audit_profiles--simp--audit_systemd"></a>`audit_systemd`
 
 Data type: `Boolean`
@@ -2313,6 +2325,8 @@ Data type: `Array[String[1]]`
 
 The default list of `setuid`/`setgid` commands to be audited.
 * Should not include commands audited by other rules.
+
+Default value: `['/usr/bin/at', '/usr/bin/chage', '/usr/bin/chcon', '/usr/bin/chfn', '/usr/bin/chsh', '/usr/bin/crontab', '/usr/bin/fusermount', '/usr/bin/gpasswd', '/usr/bin/incrontab', '/usr/bin/ksu', '/usr/bin/locate', '/usr/bin/mount', '/usr/bin/newgidmap', '/usr/bin/newgrp', '/usr/bin/newuidmap', '/usr/bin/passwd', '/usr/bin/pkexec', '/usr/bin/screen', '/usr/bin/ssh-agent', '/usr/bin/su', '/usr/bin/sudo', '/usr/bin/sudoedit', '/usr/bin/umount', '/usr/bin/wall', '/usr/bin/write', '/usr/bin/Xorg', '/usr/lib64/dbus-1/dbus-daemon-launch-helper', '/usr/libexec/dbus-1/dbus-daemon-launch-helper', '/usr/libexec/openssh/ssh-keysign', '/usr/libexec/pt_chown', '/usr/libexec/sssd/krb5_child', '/usr/libexec/sssd/ldap_child', '/usr/libexec/sssd/proxy_child', '/usr/libexec/sssd/selinux_child', '/usr/libexec/utempter/utempter', '/usr/lib/polkit-1/polkit-agent-helper-1', '/usr/sbin/mount.nfs', '/usr/sbin/netreport', '/usr/sbin/pam_timestamp_check', '/usr/sbin/postdrop', '/usr/sbin/postqueue', '/usr/sbin/restorecon', '/usr/sbin/semanage', '/usr/sbin/setfiles', '/usr/sbin/setsebool', '/usr/sbin/seunshare', '/usr/sbin/unix_chkpwd', '/usr/sbin/userhelper', '/usr/sbin/usernetctl']`
 
 ##### <a name="-auditd--config--audit_profiles--stig--suid_sgid_cmds"></a>`suid_sgid_cmds`
 

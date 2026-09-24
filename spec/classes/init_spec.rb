@@ -43,7 +43,10 @@ describe 'auditd' do
                          .reject { |r| ['Class', 'Stage', 'Node'].include?(r.type) }
                          .map(&:to_s)
                          .sort
-      expect(managed).to eq(['Package[audit]'])
+      # EL10 splits the rule tools into audit-rules; see auditd::package_name.
+      os_major = (facts.dig(:os, :release, :major) || facts.dig(:os, 'release', 'major')).to_i
+      packages = (os_major >= 10) ? ['Package[audit-rules]', 'Package[audit]'] : ['Package[audit]']
+      expect(managed).to eq(packages)
     end
   end
 
@@ -161,8 +164,8 @@ describe 'auditd' do
           it { is_expected.to contain_class('auditd::config::grub').with_enable(true) }
 
           # EL10 moved auditctl, augenrules and rules.d into audit-rules, which
-          # audit does not require. The default covers the newest release; the
-          # module data narrows it to audit alone on EL8 and EL9.
+          # audit does not require, so the default adds it from EL10 on and leaves
+          # audit alone on EL8 and EL9.
           it { is_expected.to contain_package('audit') }
           if os.split('-')[1].to_i >= 10
             it { is_expected.to contain_package('audit-rules') }
