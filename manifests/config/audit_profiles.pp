@@ -58,9 +58,33 @@ class auditd::config::audit_profiles {
     }
   }
 
+  # The simp and stig profiles watch paths that may not exist on every host
+  # (e.g. /etc/snmp). Without -c the kernel stops at the first rejected rule
+  # and silently drops every rule after it, so enabling either profile turns
+  # -c on unless ignore_failures is set explicitly.
+  $_ignore_failures = $auditd::ignore_failures ? {
+    undef   => ('simp' in $auditd::config::profiles or 'stig' in $auditd::config::profiles),
+    default => $auditd::ignore_failures,
+  }
+
+  # An explicit buffer_size is written as given. Unset, the floor applies
+  # unless the running kernel is already above it. The comparison is strict:
+  # once the floor is loaded the fact reports it, and >= would drop -b on the
+  # next run and add it back after a reboot.
+  $_current_backlog = fact('auditd_state.backlog_limit')
+
+  if $auditd::buffer_size =~ NotUndef {
+    $_requested_buffer = $auditd::buffer_size
+  } elsif $_current_backlog =~ Integer and $_current_backlog > $auditd::buffer_size_floor {
+    $_requested_buffer = undef
+  } elsif $auditd::buffer_size_floor > 0 {
+    $_requested_buffer = $auditd::buffer_size_floor
+  } else {
+    $_requested_buffer = undef
+  }
+
   # The heavier root audit levels need a larger backlog than 'basic', so they
-  # raise -b to a floor whether or not buffer_size is set. Unset under
-  # 'basic', no -b is written.
+  # raise -b to a floor of their own whatever was requested above.
   $_buffer_floor = $auditd::root_audit_level ? {
     'aggressive' => 32788,
     'insane'     => 65576,
@@ -68,9 +92,9 @@ class auditd::config::audit_profiles {
   }
 
   if $_buffer_floor =~ Undef {
-    $_buffer_size = $auditd::buffer_size
+    $_buffer_size = $_requested_buffer
   } else {
-    $_buffer_size = max(pick($auditd::buffer_size, 0), $_buffer_floor)
+    $_buffer_size = max(pick($_requested_buffer, 0), $_buffer_floor)
   }
 
   file { '/etc/audit/rules.d/00_head.rules':

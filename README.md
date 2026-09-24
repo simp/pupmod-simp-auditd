@@ -110,14 +110,14 @@ behavior back. If you are not, set what you want explicitly.
   `auditd::ignore_failures`, `auditd::ignore_anonymous`,
   `auditd::ignore_system_services`, `auditd::ignore_crond`,
   `auditd::ignore_time_daemons` and `auditd::ignore_crypto_key_user`.
-* **With `auditd::purge_auditd_rules: true` and no `auditd::buffer_size`, no `-b`
-  is written at all.** The purge removes the packaged `-b 8192`, so the kernel
-  default backlog applies. Set `auditd::buffer_size` explicitly; `simp:defaults`
-  sets `16384`.
-* **The `simp` profile needs `auditd::ignore_failures: true`.** It watches paths
-  that may not exist, such as `/etc/snmp/snmpd.conf`. Without `-c` the kernel
-  stops loading at the first rejected rule and silently drops every rule after
-  it. `simp:defaults` sets it.
+* With no `auditd::buffer_size`, `00_head.rules` writes `-b` at
+  `auditd::buffer_size_floor` (default `8192`, the packaged value the purge
+  removes). It is skipped when the running kernel's `backlog_limit` is already
+  above the floor. `simp:defaults` sets `16384`.
+* With `auditd::ignore_failures` unset, the `simp` and `stig` profiles write
+  `-c`. They watch paths that may not exist, such as `/etc/snmp/snmpd.conf`, and
+  without `-c` the kernel stops loading at the first rejected rule and silently
+  drops every rule after it. Set `auditd::ignore_failures: false` to opt out.
 * `auditd::config::audisp::syslog::pkg_name` is a required `String[1]` supplied by the
   module data. Setting it to `~` used to skip the `audispd-plugins` package; it now fails
   the catalogue.

@@ -122,9 +122,11 @@ describe 'auditd' do
           }
 
           it { is_expected.to contain_class('auditd::config::audit_profiles') }
-          # Unset, buffer_size writes no -b; the purge removed the package's
-          # -b 8192, so the kernel default applies (documented in the README).
-          it { is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').without_content(%r{^-b\s}) }
+          # The purge removes the package's -b 8192; buffer_size_floor puts it
+          # back when buffer_size is unset.
+          it { is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r{^-b 8192$}) }
+          # -c comes with the simp and stig profiles; the purge alone has none.
+          it { is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').without_content(%r{^-c$}) }
           it { is_expected.to contain_file('/etc/audit/rules.d/99_tail.rules') }
           it { is_expected.not_to contain_file('/etc/audit/rules.d/05_default_drop.rules') }
           it { is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules') }

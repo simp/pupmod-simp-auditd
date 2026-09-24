@@ -81,6 +81,7 @@ The following parameters are available in the `auditd` class:
 * [`admin_space_left_action`](#-auditd--admin_space_left_action)
 * [`at_boot`](#-auditd--at_boot)
 * [`buffer_size`](#-auditd--buffer_size)
+* [`buffer_size_floor`](#-auditd--buffer_size_floor)
 * [`backlog_wait_time`](#-auditd--backlog_wait_time)
 * [`disk_error_action`](#-auditd--disk_error_action)
 * [`disk_full_action`](#-auditd--disk_full_action)
@@ -236,7 +237,10 @@ Data type: `Optional[Boolean]`
 
 Whether to set the `auditctl` '-c' option
 
-Unset, the option is not written. `simp:defaults` sets `true`.
+Unset, the option is written when the `simp` or `stig` profile is in
+`$default_audit_profiles`, and not otherwise. Both profiles watch paths
+that may not exist, and without `-c` the kernel stops loading at the
+first rejected rule. `false` turns it off. `simp:defaults` sets `true`.
 
 Default value: `undef`
 
@@ -304,12 +308,24 @@ Data type: `Optional[Integer[0]]`
 
 Value of the `auditctl` '-b' option
 
-Unset, no `-b` is written unless `$root_audit_level` raises it, and the
-kernel keeps its own backlog limit. With `$purge_auditd_rules`, that
-includes removing the `-b 8192` the package's `audit.rules` sets, so set
-this explicitly. `simp:defaults` sets `16384`.
+Written as given when set, even below `$buffer_size_floor`. Unset,
+`$buffer_size_floor` applies. `simp:defaults` sets `16384`.
 
 Default value: `undef`
+
+##### <a name="-auditd--buffer_size_floor"></a>`buffer_size_floor`
+
+Data type: `Integer[0]`
+
+The `-b` written when `$buffer_size` is unset
+
+Defaults to the `-b 8192` the `audit` package ships, which
+`$purge_auditd_rules` removes. Skipped when the `auditd_state` fact
+reports a `backlog_limit` above the floor, since something else already
+raised it. Equal to the floor is not above it, so the floor stays
+written once loaded. `0` disables the floor.
+
+Default value: `8192`
 
 ##### <a name="-auditd--backlog_wait_time"></a>`backlog_wait_time`
 

@@ -59,7 +59,7 @@ describe 'auditd' do
           # We should not have the items included in audit_profiles since we are
           # only defining `built_in`. The preamble options are opt-in, so
           # unset, 00_head carries none of them.
-          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').without_content(%r{^-i$})
+          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').without_content(%r{^-i$}).without_content(%r{^-c$})
           is_expected.not_to contain_file('/etc/audit/rules.d/05_default_drop.rules')
           is_expected.not_to contain_file('/etc/audit/rules.d/99_tail.rules')
 

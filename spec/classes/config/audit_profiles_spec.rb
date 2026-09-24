@@ -35,14 +35,23 @@ describe 'auditd' do
       let(:params) { base_params }
 
       # The preamble options and default drop rules are opt-in: unset, none of
-      # them are written. simp:defaults sets the values asserted further down.
+      # them are written, except -b at buffer_size_floor and -c for the simp
+      # profile. simp:defaults sets the values asserted further down.
       context 'with default parameters' do
         it { is_expected.to compile.with_all_deps }
 
         it 'writes no preamble options' do
           is_expected.to contain_file('/etc/audit/rules.d/00_head.rules')
-            .without_content(%r{^-[icbfr](\s|$)})
+            .without_content(%r{^-[ifr](\s|$)})
             .without_content(%r{^--loginuid-immutable$})
+        end
+
+        it 'writes -c for the simp profile' do
+          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r{^-c$})
+        end
+
+        it 'writes -b at the floor' do
+          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r{^-b 8192$})
         end
 
         it 'writes no default drop rules' do
@@ -119,6 +128,61 @@ describe 'auditd' do
         it { is_expected.to contain_class('auditd::config::audit_profiles::simp') }
       end
 
+      # buffer_size_floor is checked against the running kernel's backlog_limit
+      # from the auditd_state fact. Equal to the floor must still write it, or
+      # -b would drop out on the run after it loads.
+      context 'with buffer_size unset' do
+        {
+          64     => 8192,
+          8192   => 8192,
+          20_000 => nil,
+        }.each do |current, expected|
+          context "and a running backlog_limit of #{current}" do
+            let(:facts) { super().merge(auditd_state: { 'backlog_limit' => current }) }
+
+            if expected
+              it { is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r{^-b #{expected}$}) }
+            else
+              it { is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').without_content(%r{^-b\s}) }
+            end
+          end
+        end
+
+        context 'and buffer_size_floor set to 0' do
+          let(:params) { base_params.merge(buffer_size_floor: 0) }
+
+          it { is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').without_content(%r{^-b\s}) }
+        end
+
+        context 'and a custom buffer_size_floor' do
+          let(:params) { base_params.merge(buffer_size_floor: 12_000) }
+          let(:facts) { super().merge(auditd_state: { 'backlog_limit' => 8192 }) }
+
+          it { is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r{^-b 12000$}) }
+        end
+      end
+
+      context 'with buffer_size below the floor and a higher running backlog_limit' do
+        let(:params) { base_params.merge(buffer_size: 4096) }
+        let(:facts) { super().merge(auditd_state: { 'backlog_limit' => 20_000 }) }
+
+        it 'writes buffer_size as given' do
+          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r{^-b 4096$})
+        end
+      end
+
+      context 'with ignore_failures set to false' do
+        let(:params) { base_params.merge(ignore_failures: false) }
+
+        it { is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').without_content(%r{^-c$}) }
+      end
+
+      context 'with only the stig profile' do
+        let(:params) { base_params.merge(default_audit_profiles: ['stig']) }
+
+        it { is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r{^-c$}) }
+      end
+
       context 'targeting specific SELinux types' do
         let(:params) do
           base_params.merge(target_selinux_types: ['unconfined_t', 'bob_t'])
@@ -143,6 +207,15 @@ describe 'auditd' do
           is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(
             %r{^-b\s+32788$},
           )
+        end
+      end
+
+      context 'setting the root audit level to aggressive with a higher running backlog_limit' do
+        let(:params) { base_params.merge(root_audit_level: 'aggressive') }
+        let(:facts) { super().merge(auditd_state: { 'backlog_limit' => 20_000 }) }
+
+        it 'still writes the aggressive floor' do
+          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r{^-b\s+32788$})
         end
       end
 

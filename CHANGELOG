@@ -26,6 +26,10 @@
 - BREAKING: the rule preamble and default drop parameters (`buffer_size`,
   `failure_mode`, `rate`, `loginuid_immutable` and the `ignore_*` Booleans) are
   `Optional` and default to `undef`. Each line is written only when set.
+- With `auditd::ignore_failures` unset, the `simp` and `stig` profiles write
+  `-c`, so a watch on a missing path no longer stops the rest from loading.
+- Add `auditd::buffer_size_floor` (default `8192`). With `auditd::buffer_size`
+  unset, `00_head.rules` writes it unless the kernel backlog is already higher.
 - Edit `/etc/audit/plugins.d/syslog.conf` key by key with `ini_setting` on
   auditd 3 and later instead of rendering the whole file.
 - Copy the evaluated `privileged` built-in ruleset with an exec, so noop no

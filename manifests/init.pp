@@ -62,7 +62,10 @@
 # @param ignore_failures
 #   Whether to set the `auditctl` '-c' option
 #
-#   Unset, the option is not written. `simp:defaults` sets `true`.
+#   Unset, the option is written when the `simp` or `stig` profile is in
+#   `$default_audit_profiles`, and not otherwise. Both profiles watch paths
+#   that may not exist, and without `-c` the kernel stops loading at the
+#   first rejected rule. `false` turns it off. `simp:defaults` sets `true`.
 #
 # @param ignore_system_services
 #   For built-in audit profiles, whether to ignore system service events,
@@ -97,10 +100,17 @@
 # @param buffer_size
 #   Value of the `auditctl` '-b' option
 #
-#   Unset, no `-b` is written unless `$root_audit_level` raises it, and the
-#   kernel keeps its own backlog limit. With `$purge_auditd_rules`, that
-#   includes removing the `-b 8192` the package's `audit.rules` sets, so set
-#   this explicitly. `simp:defaults` sets `16384`.
+#   Written as given when set, even below `$buffer_size_floor`. Unset,
+#   `$buffer_size_floor` applies. `simp:defaults` sets `16384`.
+#
+# @param buffer_size_floor
+#   The `-b` written when `$buffer_size` is unset
+#
+#   Defaults to the `-b 8192` the `audit` package ships, which
+#   `$purge_auditd_rules` removes. Skipped when the `auditd_state` fact
+#   reports a `backlog_limit` above the floor, since something else already
+#   raised it. Equal to the floor is not above it, so the floor stays
+#   written once loaded. `0` disables the floor.
 #
 # @param backlog_wait_time
 #
@@ -355,6 +365,7 @@ class auditd (
   Optional[Auditd::SpaceLeftAction]                    $admin_space_left_action         = undef,
   Optional[Boolean]                                    $at_boot                         = undef,
   Optional[Integer[0]]                                 $buffer_size                     = undef,
+  Integer[0]                                           $buffer_size_floor               = 8192,
   Optional[Integer[1,600000]]                          $backlog_wait_time               = undef,
   Optional[Auditd::DiskErrorAction]                    $disk_error_action               = undef,
   Optional[Auditd::DiskFullAction]                     $disk_full_action                = undef,

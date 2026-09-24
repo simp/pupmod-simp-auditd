@@ -14,7 +14,7 @@
 ## Remove any existing rules
 -D
 
-<% if $auditd::ignore_failures { -%>
+<% if $auditd::config::audit_profiles::_ignore_failures { -%>
 ## Continue loading rules on failure.
 # Particularly with the automatically generated nature of these rules in
 # Puppet, it is possible that one or more may fail to load. We want to continue
