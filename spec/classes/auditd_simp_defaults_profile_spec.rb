@@ -69,11 +69,22 @@ describe 'auditd' do
 
     # A check naming a parameter that does not exist binds nothing and fails
     # silently, which is the failure mode this file exists to prevent.
-    it 'names only parameters the auditd class actually declares' do
-      src = File.read(File.expand_path('../../manifests/init.pp', __dir__))
-      named = checks.values.map { |c| c['settings']['parameter'].delete_prefix('auditd::') }
-      missing = named.reject { |p| src.match?(%r{^\s+\S.*\$#{Regexp.escape(p)}\s+=}) }
+    it 'names only parameters the auditd classes actually declare' do
+      missing = checks.values.map { |c| c['settings']['parameter'] }.reject do |param|
+        klass, _, name = param.rpartition('::')
+        manifest = (klass == 'auditd') ? 'init' : klass.delete_prefix('auditd::').tr(':', '/').squeeze('/')
+        src = File.read(File.expand_path("../../manifests/#{manifest}.pp", __dir__))
+        src.match?(%r{^\s+\S.*\$#{Regexp.escape(name)}\s+=})
+      end
       expect(missing).to be_empty
+    end
+
+    # The rule profile toggles are parameters of private classes, and
+    # auditd::config::audisp::syslog is public. Anything else under
+    # auditd::config is a mistake.
+    it 'reaches into no private class but the rule profiles' do
+      params = checks.values.map { |c| c['settings']['parameter'] }
+      expect(params.grep(%r{\Aauditd::.+::}).grep_v(%r{\Aauditd::config::(audit_profiles::(simp|stig)|audisp::syslog)::\w+\z})).to eq([])
     end
   end
 
@@ -172,6 +183,13 @@ describe 'auditd' do
           it "leaves #{setting} to the package" do
             is_expected.not_to contain_ini_setting("auditd.conf #{setting}")
           end
+        end
+
+        # Formerly defaulted from simp_options::syslog.
+        it 'manages the syslog plugin and the rsyslog drop rule' do
+          is_expected.to contain_class('auditd').with_syslog(true)
+          is_expected.to contain_class('auditd::config::audisp::syslog').with_rsyslog(true)
+          is_expected.to contain_class('rsyslog')
         end
 
         # Removed in 11.0.0 and not restored by the profile (see checks.yaml).

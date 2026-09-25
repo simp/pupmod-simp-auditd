@@ -266,55 +266,9 @@ describe 'auditd' do
           is_expected.to contain_notify('bad_sample_set not found')
         }
 
-        # auditd::config::audit_profiles::simp validation
-        it {
-          expected = File.read('spec/classes/config/audit_profiles/expected/simp_basic_rules.txt')
-          is_expected.to contain_file('/etc/audit/rules.d/50_01_simp_base.rules').with_content(expected)
-        }
-
-        it 'specifies a key specified for each rule' do
-          base_rules = catalogue.resource('File[/etc/audit/rules.d/50_01_simp_base.rules]')[:content].split("\n")
-
-          rules_with_tags = base_rules.select { |x| x.include?(' -k ') }
-          rules_with_tags.delete_if { |x| x =~ %r{ -k \S+} }
-
-          expect(rules_with_tags).to be_empty
-        end
-
-        it 'disables chmod auditing by default' do
-          # chmod is disabled by default (SIMP-2250)
-          is_expected.not_to contain_file('/etc/audit/rules.d/50_01_simp_base.rules').with_content(
-            %r{^-a always,exit -F arch=b\d\d -S chmod,fchmod,fchmodat -k chmod$},
-          )
-        end
-
-        it 'disables rename/remove auditing by default' do
-          is_expected.not_to contain_file('/etc/audit/rules.d/50_01_simp_base.rules').with_content(
-            %r{^-a always,exit -F arch=b\d\d -S rename,renameat,rmdir,unlink,unlinkat -F perm=x -k delete},
-          )
-        end
-
-        it 'disables umask auditing by default' do
-          is_expected.not_to contain_file('/etc/audit/rules.d/50_01_simp_base.rules').with_content(
-            %r{^-a always,exit -F arch=b\d\d -S umask -k umask},
-          )
-        end
-
-        it 'disables package command auditing is disabled by default' do
-          is_expected.not_to contain_file('/etc/audit/rules.d/50_01_simp_base.rules').with_content(
-            %r{^-w /(usr/)?bin/(rpm|yum) -p x},
-          )
-        end
-
-        it 'disables selinux commands auditing by default' do
-          is_expected.not_to contain_file('/etc/audit/rules.d/50_01_simp_base.rules').with_content(
-            %r{^-a always,exit -F path=/usr/bin/(chcon|semanage|setsebool) -F perm=x -k privileged-priv_change},
-          )
-
-          is_expected.not_to contain_file('/etc/audit/rules.d/50_01_simp_base.rules').with_content(
-            %r{^-a always,exit -F path=/(usr/)?sbin/setfiles -F perm=x -k privileged-priv_change},
-          )
-        end
+        # auditd::config::audit_profiles::simp validation. Its toggles are all
+        # unset here, so it writes no base rules file.
+        it { is_expected.not_to contain_file('/etc/audit/rules.d/50_01_simp_base.rules') }
       end
     end
   end

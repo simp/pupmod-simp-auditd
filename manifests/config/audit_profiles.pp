@@ -114,17 +114,12 @@ class auditd::config::audit_profiles {
   }
 
   # The tail is preamble and belongs with the head. The default drop rules are
-  # profile content, so they are only written when a profile was asked for. If
+  # profile content, so they are only written when a profile was asked for.
+  # Each file is declared only when one of its directives is set. If
   # the only profile is the 'built_in' profile, skip both to allow users more
   # control/flexibility over what they want to use.
   unless ( length($auditd::config::profiles)  == 1 ) and ( 'built_in' in $auditd::config::profiles ) {
     unless empty($auditd::config::profiles) {
-      file { $_drop:
-        ensure  => 'file',
-        require => Package[$auditd::package_name],
-        *       => $auditd::config::rule_file_attributes,
-      }
-
       $_chrony = '-S adjtimex -F auid=-1 -F uid=chrony -F subj_type=chronyd_t'
 
       $_drop_rules = {
@@ -154,26 +149,40 @@ class auditd::config::audit_profiles {
         }
       }
 
-      ($_drop_rules + $_selinux_rules).each |$name, $d| {
-        unless $d['value'] =~ Undef {
-          $_line = $d['value'] ? { false => undef, default => $d['line'] }
+      # The file is declared only when at least one of its directives is set,
+      # or when the purge is on: undeclared, the purge would delete the lines
+      # an unset directive is meant to leave alone.
+      $_drop_set = ($_drop_rules + $_selinux_rules).filter |$_name, $d| { $d['value'] =~ NotUndef }
 
-          auditd::config::rule_line { "05_default_drop ${name}":
-            path    => $_drop,
-            # None of these lines contain regex metacharacters, so the line
-            # anchored is its own match unless one is given.
-            match   => pick($d['match'], "^${d['line']}$"),
-            line    => $_line,
-            require => File[$_drop],
-          }
+      if $auditd::purge_auditd_rules or !empty($_drop_set) {
+        file { $_drop:
+          ensure  => 'file',
+          require => Package[$auditd::package_name],
+          *       => $auditd::config::rule_file_attributes,
+        }
+      }
+
+      $_drop_set.each |$name, $d| {
+        $_line = $d['value'] ? { false => undef, default => $d['line'] }
+
+        auditd::config::rule_line { "05_default_drop ${name}":
+          path    => $_drop,
+          # None of these lines contain regex metacharacters, so the line
+          # anchored is its own match unless one is given.
+          match   => pick($d['match'], "^${d['line']}$"),
+          line    => $_line,
+          require => File[$_drop],
         }
       }
     }
 
-    file { $_tail:
-      ensure  => 'file',
-      require => Package[$auditd::package_name],
-      *       => $auditd::config::rule_file_attributes,
+    # Declared under the same condition as the drop file.
+    if $auditd::purge_auditd_rules or $auditd::immutable =~ NotUndef {
+      file { $_tail:
+        ensure  => 'file',
+        require => Package[$auditd::package_name],
+        *       => $auditd::config::rule_file_attributes,
+      }
     }
 
     unless $auditd::immutable =~ Undef {

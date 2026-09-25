@@ -15,9 +15,10 @@
 #
 # No `confine:` keys: every per-OS and per-auditd-major data file was identical.
 #
-# Not restored: the /etc/audit purge and mode, `enable`. `syslog`,
-# `package_ensure` and `config::audisp::syslog::rsyslog` still default from
-# `simp_options::*` as before and need no check.
+# Not restored: the /etc/audit purge and mode, `enable`, `package_ensure`.
+# `syslog` and `config::audisp::syslog::rsyslog` used to default from
+# `simp_options::syslog`; they no longer read it, so they are restored here as
+# `true`, the value SIMP sets. `package_ensure` keeps its `installed` default.
 ---
 version: 2.0.0
 checks:
@@ -253,3 +254,335 @@ checks:
     settings:
       parameter: auditd::immutable
       value: false
+
+  # --- Formerly read from simp_options::*; the parameters no longer are. ---
+  simp:defaults.auditd.syslog:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::syslog
+      value: true
+  simp:defaults.auditd.config.audisp.syslog.rsyslog:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audisp::syslog::rsyslog
+      value: true
+
+  # --- Rule profile toggles, in each profile's base rules file. ---
+  # Each one was a Boolean with a value; unset now leaves its rules alone.
+  # audit_32bit_operations defaulted to true on x86_64 and false elsewhere;
+  # the profile only writes it on x86_64, so true reproduces both.
+  simp:defaults.auditd.simp.audit_32bit_operations:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_32bit_operations
+      value: true
+  simp:defaults.auditd.simp.audit_auditd_cmds:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_auditd_cmds
+      value: true
+  simp:defaults.auditd.simp.audit_unsuccessful_file_operations:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_unsuccessful_file_operations
+      value: true
+  simp:defaults.auditd.simp.audit_chown:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_chown
+      value: true
+  simp:defaults.auditd.simp.audit_chmod:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_chmod
+      value: false
+  simp:defaults.auditd.simp.audit_attr:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_attr
+      value: true
+  simp:defaults.auditd.simp.audit_rename_remove:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_rename_remove
+      value: false
+  simp:defaults.auditd.simp.audit_su_root_activity:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_su_root_activity
+      value: true
+  simp:defaults.auditd.simp.audit_suid_sgid:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_suid_sgid
+      value: true
+  simp:defaults.auditd.simp.audit_kernel_modules:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_kernel_modules
+      value: true
+  simp:defaults.auditd.simp.audit_time:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_time
+      value: true
+  simp:defaults.auditd.simp.audit_locale:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_locale
+      value: true
+  simp:defaults.auditd.simp.audit_network_ipv4_accept:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_network_ipv4_accept
+      value: true
+  simp:defaults.auditd.simp.audit_network_ipv6_accept:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_network_ipv6_accept
+      value: true
+  simp:defaults.auditd.simp.audit_network_ipv4_connect:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_network_ipv4_connect
+      value: false
+  simp:defaults.auditd.simp.audit_network_ipv6_connect:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_network_ipv6_connect
+      value: false
+  simp:defaults.auditd.simp.audit_mount:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_mount
+      value: true
+  simp:defaults.auditd.simp.audit_umask:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_umask
+      value: false
+  simp:defaults.auditd.simp.audit_local_account:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_local_account
+      value: true
+  simp:defaults.auditd.simp.audit_selinux_policy:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_selinux_policy
+      value: true
+  simp:defaults.auditd.simp.audit_selinux_cmds:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_selinux_cmds
+      value: false
+  simp:defaults.auditd.simp.audit_login_files:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_login_files
+      value: true
+  simp:defaults.auditd.simp.audit_session_files:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_session_files
+      value: true
+  simp:defaults.auditd.simp.audit_cfg_sudoers:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_cfg_sudoers
+      value: true
+  simp:defaults.auditd.simp.audit_cfg_grub:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_cfg_grub
+      value: true
+  simp:defaults.auditd.simp.audit_cfg_sys:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_cfg_sys
+      value: true
+  simp:defaults.auditd.simp.audit_cfg_cron:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_cfg_cron
+      value: true
+  simp:defaults.auditd.simp.audit_cfg_shell:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_cfg_shell
+      value: true
+  simp:defaults.auditd.simp.audit_cfg_pam:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_cfg_pam
+      value: true
+  simp:defaults.auditd.simp.audit_cfg_security:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_cfg_security
+      value: true
+  simp:defaults.auditd.simp.audit_cfg_services:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_cfg_services
+      value: true
+  simp:defaults.auditd.simp.audit_cfg_xinetd:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_cfg_xinetd
+      value: true
+  simp:defaults.auditd.simp.audit_cfg_yum:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_cfg_yum
+      value: true
+  simp:defaults.auditd.simp.audit_yum_cmd:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_yum_cmd
+      value: false
+  simp:defaults.auditd.simp.audit_rpm_cmd:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_rpm_cmd
+      value: false
+  simp:defaults.auditd.simp.audit_ptrace:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_ptrace
+      value: true
+  simp:defaults.auditd.simp.audit_personality:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_personality
+      value: true
+  simp:defaults.auditd.simp.audit_passwd_cmds:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_passwd_cmds
+      value: true
+  simp:defaults.auditd.simp.audit_priv_cmds:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_priv_cmds
+      value: true
+  simp:defaults.auditd.simp.audit_postfix_cmds:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_postfix_cmds
+      value: true
+  simp:defaults.auditd.simp.audit_ssh_keysign_cmd:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_ssh_keysign_cmd
+      value: true
+  simp:defaults.auditd.simp.audit_suspicious_apps:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_suspicious_apps
+      value: true
+  simp:defaults.auditd.simp.audit_systemd:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_systemd
+      value: true
+  simp:defaults.auditd.simp.audit_crontab_cmd:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_crontab_cmd
+      value: true
+  simp:defaults.auditd.simp.audit_pam_timestamp_check_cmd:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::simp::audit_pam_timestamp_check_cmd
+      value: true
+  simp:defaults.auditd.stig.audit_unsuccessful_file_operations:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::stig::audit_unsuccessful_file_operations
+      value: true
+  simp:defaults.auditd.stig.audit_chown:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::stig::audit_chown
+      value: true
+  simp:defaults.auditd.stig.audit_chmod:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::stig::audit_chmod
+      value: true
+  simp:defaults.auditd.stig.audit_attr:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::stig::audit_attr
+      value: true
+  simp:defaults.auditd.stig.audit_rename_remove:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::stig::audit_rename_remove
+      value: true
+  simp:defaults.auditd.stig.audit_suid_sgid:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::stig::audit_suid_sgid
+      value: true
+  simp:defaults.auditd.stig.audit_kernel_modules:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::stig::audit_kernel_modules
+      value: true
+  simp:defaults.auditd.stig.audit_mount:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::stig::audit_mount
+      value: true
+  simp:defaults.auditd.stig.audit_local_account:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::stig::audit_local_account
+      value: true
+  simp:defaults.auditd.stig.audit_selinux_cmds:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::stig::audit_selinux_cmds
+      value: true
+  simp:defaults.auditd.stig.audit_login_files:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::stig::audit_login_files
+      value: true
+  simp:defaults.auditd.stig.audit_cfg_sudoers:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::stig::audit_cfg_sudoers
+      value: true
+  simp:defaults.auditd.stig.audit_passwd_cmds:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::stig::audit_passwd_cmds
+      value: true
+  simp:defaults.auditd.stig.audit_priv_cmds:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::stig::audit_priv_cmds
+      value: true
+  simp:defaults.auditd.stig.audit_postfix_cmds:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::stig::audit_postfix_cmds
+      value: true
+  simp:defaults.auditd.stig.audit_ssh_keysign_cmd:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::stig::audit_ssh_keysign_cmd
+      value: true
+  simp:defaults.auditd.stig.audit_crontab_cmd:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::stig::audit_crontab_cmd
+      value: true
+  simp:defaults.auditd.stig.audit_pam_timestamp_check_cmd:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::config::audit_profiles::stig::audit_pam_timestamp_check_cmd
+      value: true

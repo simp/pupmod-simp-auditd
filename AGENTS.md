@@ -93,6 +93,15 @@ The `$default_audit_profiles` parameter (Array of `AuditProfile`) controls which
 
 Custom rules are injected using the `auditd::rule` defined type (`manifests/rule.pp`), which creates files in `/etc/audit/rules.d/`.
 
+The `simp` and `stig` base rules files are not rendered from a template. Each profile
+lists its toggles in `$_all_toggles`, and `auditd::config::profile_rules` writes each
+rule with `file_line`, matched by `auditd::rule_match` on the body before its key. A
+body two toggles share is matched with its key as well, or the two would rewrite each
+other's line on every run. The toggles default to `undef` (leave the rule alone);
+`simp:defaults` sets them. `spec/support/file_lines.rb` replays a catalogue's
+`File_line`s against a file, which is how the specs check fresh output, upgrades from
+the old rendered files, and convergence.
+
 ### Auditd Version Handling
 
 Two custom facts in `lib/facter/auditd_version.rb` drive version-dependent behavior:

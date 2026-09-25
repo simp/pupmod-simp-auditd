@@ -27,14 +27,14 @@ describe 'auditd class with alternative audit profiles' do
   end
 
   let(:simp_profile_aggressive) do
-    {
+    AuditdTestUtil.profile_toggles('simp').merge(
       'auditd::default_audit_profiles' => ['simp'],
       'auditd::root_audit_level'       => 'aggressive',
-    }.merge(hieradata)
+    ).merge(hieradata)
   end
 
   let(:simp_profile_insane_enable_optional) do
-    {
+    AuditdTestUtil.profile_toggles('simp').merge(
       'auditd::default_audit_profiles'                            => ['simp'],
       'auditd::root_audit_level'                                  => 'insane',
       'auditd::config::audit_profiles::simp::audit_chmod'         => true,
@@ -43,19 +43,19 @@ describe 'auditd class with alternative audit profiles' do
       'auditd::config::audit_profiles::simp::audit_selinux_cmds'  => true,
       'auditd::config::audit_profiles::simp::audit_yum_cmd'       => true,
       'auditd::config::audit_profiles::simp::audit_rpm_cmd'       => true,
-    }.merge(hieradata)
+    ).merge(hieradata)
   end
 
   let(:stig_profile) do
-    {
+    AuditdTestUtil.profile_toggles('stig').merge(
       'auditd::default_audit_profiles' => [ 'stig' ],
-    }.merge(hieradata)
+    ).merge(hieradata)
   end
 
   let(:simp_plus_stig_profiles) do
-    {
+    AuditdTestUtil.profile_toggles('simp').merge(AuditdTestUtil.profile_toggles('stig')).merge(
       'auditd::default_audit_profiles' => [ 'simp', 'stig' ],
-    }.merge(hieradata)
+    ).merge(hieradata)
   end
 
   let(:manifest) do

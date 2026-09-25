@@ -6,8 +6,9 @@
 - BREAKING: resource gating. `Service['auditd']` requires
   `auditd::service_ensure` or `auditd::service_enable`; `auditd::config::grub`
   requires `auditd::at_boot`; the profile rule files require a non-empty
-  `auditd::default_audit_profiles`; the rule preamble (`00_head.rules`,
-  `99_tail.rules`) requires that or `auditd::purge_auditd_rules`; purging
+  `auditd::default_audit_profiles`; `00_head.rules` requires that or
+  `auditd::purge_auditd_rules`; `05_default_drop.rules` and `99_tail.rules`
+  also require one of their directives or the purge; purging
   `/etc/audit/rules.d` requires `auditd::purge_auditd_rules`; `/var/log/audit`
   requires `auditd::log_group`;
   `/etc/audit/auditd.conf` ownership requires `auditd::config_group`.
@@ -19,6 +20,11 @@
   `auditd::log_group`. Unset, the configuration files fall back to group
   `root`.
 - `auditd::log_group` and `auditd::config_group` reject the empty string.
+- BREAKING: `auditd::syslog`, `auditd::package_ensure` and
+  `auditd::config::audisp::syslog::{rsyslog,package_ensure}` no longer read
+  `simp_options::*`; they default to `false` and `installed`. `simp:defaults`
+  sets `auditd::syslog` and `rsyslog` to `true`, so a site with
+  `simp_options::syslog: false` must override both.
 - BREAKING: `auditd::config::audisp::syslog::pkg_name` is a required `String[1]`
   supplied by the module data; setting it to `~` no longer skips the package.
 - BREAKING: every `auditd.conf` key parameter is `Optional` and defaults to
@@ -26,6 +32,9 @@
 - BREAKING: the rule preamble and default drop parameters (`buffer_size`,
   `failure_mode`, `rate`, `loginuid_immutable` and the `ignore_*` Booleans) are
   `Optional` and default to `undef`. Each line is written only when set.
+- With a rule profile on, `auditd::root_audit_level` `aggressive` or `insane`
+  raises an unset or smaller `auditd::buffer_size` to `32788` or `65576`, so
+  `-b` is written; `'absent'` prevents it.
 - With `auditd::ignore_failures` unset, the `simp` and `stig` profiles write
   `-c`, so a watch on a missing path no longer stops the rest from loading.
 - Edit `00_head.rules`, `05_default_drop.rules` and `99_tail.rules` line by
@@ -35,6 +44,14 @@
   `loginuid_immutable` to `rules.d/puppet_auditd.rules`, which sorts after the
   package's `audit.rules`, so each takes effect without the purge. With the
   purge on and `buffer_size` unset, it gets the packaged `-b 8192`.
+- BREAKING: the Boolean rule toggles of the `simp` and `stig` profiles default
+  to `undef`; `simp:defaults` sets the old values. With none set, the
+  profile's base rules file is not written.
+- Edit the `simp` and `stig` base rules files rule by rule with `file_line`,
+  matched on the rule body. A rule enabled later is appended.
+- Off x86_64, the `stig` profile's `audit_chmod` now writes the `arch=b32`
+  rules and skips `arch=b64`, like its other syscall rules; 10.x did the
+  reverse. The `simp` profile's `audit_32bit_operations` is ignored off x86_64.
 - Accept exit code 1 from `augenrules --load`, which `-c` still returns when
   a rule was rejected.
 - BREAKING: `auditd::immutable` defaults to `undef`; `simp:defaults` sets
@@ -47,12 +64,11 @@
   longer fails on a node that has never applied it.
 - Add `auditd::reload_on_change`. With the service unmanaged, a change to any
   managed file runs `auditctl --signal reload` and `augenrules --load` while
-  auditd is running, and registers a `reboot_notify` instead of the rule load
-  when the running rule set is immutable.
-- Rule changes from `auditd::rule`, including those declared by `simp/aide`,
-  `simp/pki`, `simp/sssd` and `simp/pupmod`, are loaded immediately only when
-  the service is managed or `auditd::reload_on_change` is set. Otherwise they
-  take effect the next time auditd starts.
+  auditd is running.
+- The list parameters of the `simp` and `stig` profiles
+  (`stig::suid_sgid_cmds`, `simp::audit_auditd_cmds_list`, the root syscall
+  lists, ...) also take a Hash; `ensure => absent` removes one entry's rule.
+- Add `ensure` to `auditd::rule`; `absent` removes its rules file.
 - Add the `auditd_state` fact: the full `auditctl -s` status, with the raw
   `enabled` flag, plus `version`, `immutable`, `kernel_enforcing` and
   `enforcing`. `auditd_version` now reads it instead of `simplib__auditd`.

@@ -8,6 +8,18 @@ module AuditdTestUtil
 
   AUDITCTL_CMD = '/usr/sbin/auditctl'.freeze
 
+  # The rule profile toggles `simp:defaults` sets for one profile, as
+  # hieradata. The toggles are all unset by default, so a profile writes no
+  # rules until something turns them on. Enforcing the whole profile would
+  # also set `immutable`, which would lock the rules between contexts.
+  def self.profile_toggles(profile)
+    checks = YAML.safe_load_file(File.expand_path('../../../../../SIMP/compliance_profiles/checks.yaml', __dir__))['checks']
+
+    settings = checks.values.map { |c| c['settings'] }
+    settings.select { |s| s['parameter'].start_with?("auditd::config::audit_profiles::#{profile}::") }
+            .to_h { |s| [s['parameter'], s['value']] }
+  end
+
   # Include in a describe block to get #with_simp_defaults_enforced.
   module ComplianceEngine
     # Runs the block with `compliance_engine::enforcement: [simp:defaults]` in

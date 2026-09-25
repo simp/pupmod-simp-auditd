@@ -1,0 +1,8 @@
+---
+# suid_sgid_cmds entries override the same entries in default_suid_sgid_cmds.
+# /usr/bin/passwd is also written by audit_passwd_cmds, under its own key.
+auditd::config::audit_profiles::stig::suid_sgid_cmds:
+  /usr/bin/at:
+    ensure: absent
+  /usr/bin/passwd:
+    ensure: absent

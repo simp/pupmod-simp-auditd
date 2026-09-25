@@ -11,6 +11,9 @@
 #
 #   * Arrays will be joined with a newline
 #
+# @param ensure
+#   `absent` removes the rules file this resource would write.
+#
 # @param order
 #   An alphanumeric (file system ordering) order string
 #
@@ -30,6 +33,7 @@
 #
 define auditd::rule (
   Variant[Array[String[1]],String[1]] $content,
+  Enum['present', 'absent']           $ensure   = 'present',
   Optional[String[1]]                 $order    = undef,
   Boolean                             $first    = false,
   Boolean                             $absolute = false,
@@ -65,11 +69,19 @@ define auditd::rule (
 
     $_rule_id = "${_order}.${_safe_name}.rules"
 
-    file { "/etc/audit/rules.d/${_rule_id}":
-      *       => $auditd::config::rule_file_attributes,
-      content => epp("${module_name}/rule.epp", { content => $content }),
-      notify  => Class['auditd::service'],
-      require => Package[$auditd::package_name],
+    if $ensure == 'absent' {
+      file { "/etc/audit/rules.d/${_rule_id}":
+        ensure => 'absent',
+        notify => Class['auditd::service'],
+      }
+    }
+    else {
+      file { "/etc/audit/rules.d/${_rule_id}":
+        *       => $auditd::config::rule_file_attributes,
+        content => epp("${module_name}/rule.epp", { content => $content }),
+        notify  => Class['auditd::service'],
+        require => Package[$auditd::package_name],
+      }
     }
   }
   else {

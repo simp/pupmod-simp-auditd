@@ -1,0 +1,9 @@
+---
+# A Hash replaces the module's default list, so every entry to keep is listed.
+auditd::config::audit_profiles::simp::audit_auditd_cmds_list:
+  /usr/sbin/aulast: {}
+  /usr/sbin/aulastlogin: {}
+  /usr/sbin/aureport: {}
+  /usr/sbin/ausearch: {}
+  /usr/sbin/auvirt:
+    ensure: absent

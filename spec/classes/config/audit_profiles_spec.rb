@@ -75,9 +75,9 @@ describe 'auditd' do
           it { is_expected.not_to contain_file_line("rule settings #{name}") }
         end
 
-        it 'declares the drop and tail files without content' do
-          is_expected.to contain_file(drop).with(ensure: 'file', content: nil)
-          is_expected.to contain_file(tail).with(ensure: 'file', content: nil)
+        it 'declares neither the drop nor the tail file' do
+          is_expected.not_to contain_file(drop)
+          is_expected.not_to contain_file(tail)
         end
 
         it 'manages no drop rules or -e 2' do

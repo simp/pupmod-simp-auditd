@@ -7,14 +7,19 @@ require 'spec_helper'
 
 describe 'auditd' do
   # Every file this module declares in /etc/audit/rules.d with the simp
-  # profile; see $auditd::config::rule_file_attributes for why these
-  # must carry owner/group/mode themselves.
+  # profile, one of its toggles and a drop and tail directive set
+  # (RULES_D_PARAMS); see $auditd::config::rule_file_attributes
+  # for why these must carry owner/group/mode themselves.
   RULES_D_FILES = [
     '/etc/audit/rules.d/00_head.rules',
     '/etc/audit/rules.d/05_default_drop.rules',
     '/etc/audit/rules.d/99_tail.rules',
     '/etc/audit/rules.d/50_00_simp_base.rules',
   ].freeze
+
+  # 05_default_drop and 99_tail are declared only while one of their
+  # directives is set.
+  RULES_D_PARAMS = { ignore_crond: true, immutable: false }.freeze
 
   # Written only when audit_auditd_config asks for it. It used to default to
   # true; the simp:defaults profile is what turns it back on now (plan D3).
@@ -136,7 +141,10 @@ describe 'auditd' do
           it { is_expected.not_to contain_file_line('rule settings buffer_size') }
           # -c comes with the simp and stig profiles; the purge alone has none.
           it { is_expected.not_to contain_file_line('00_head ignore_failures') }
-          it { is_expected.to contain_file('/etc/audit/rules.d/99_tail.rules') }
+          # 99_tail has no directive set, but is declared so the purge leaves
+          # its existing lines alone. The drop rules need a profile.
+          it { is_expected.to contain_file('/etc/audit/rules.d/99_tail.rules').with_content(nil) }
+          it { is_expected.not_to contain_file_line('99_tail immutable') }
           it { is_expected.not_to contain_file('/etc/audit/rules.d/05_default_drop.rules') }
           it { is_expected.not_to contain_file('/etc/audit/rules.d/50_00_simp_base.rules') }
 
@@ -158,7 +166,9 @@ describe 'auditd' do
         # A profile writes rule files, so rules.d gets declared to carry their
         # group and mode -- but purging stays off unless it was asked for.
         context 'with a profile but no purge' do
-          let(:params) { { default_audit_profiles: ['simp'] } }
+          let(:params) { RULES_D_PARAMS.merge(default_audit_profiles: ['simp']) }
+          # The base rules file is written only when a toggle is set.
+          let(:hieradata) { 'simp_audit_profile/only__audit_chown' }
 
           it { is_expected.to compile.with_all_deps }
           it {
@@ -301,7 +311,9 @@ describe 'auditd' do
         end
 
         context 'with different log_group' do
-          let(:params) { { log_group: 'rspec', default_audit_profiles: ['simp'] } }
+          let(:params) { RULES_D_PARAMS.merge(log_group: 'rspec', default_audit_profiles: ['simp']) }
+          # The base rules file is written only when a toggle is set.
+          let(:hieradata) { 'simp_audit_profile/only__audit_chown' }
 
           it { is_expected.to compile.with_all_deps }
 
@@ -355,7 +367,9 @@ describe 'auditd' do
         end
 
         context 'with different config_group' do
-          let(:params) { { config_group: 'rspec', default_audit_profiles: ['simp'] } }
+          let(:params) { RULES_D_PARAMS.merge(config_group: 'rspec', default_audit_profiles: ['simp']) }
+          # The base rules file is written only when a toggle is set.
+          let(:hieradata) { 'simp_audit_profile/only__audit_chown' }
 
           it { is_expected.to compile.with_all_deps }
           it {
