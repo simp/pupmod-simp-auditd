@@ -7,6 +7,41 @@ module AuditdTestUtil
                     'find /etc/audit/rules.d -name "*.rules" | sort | xargs cat'.freeze
 
   AUDITCTL_CMD = '/usr/sbin/auditctl'.freeze
+
+  # The rule profile toggles `simp:defaults` sets for one profile, as
+  # hieradata. The toggles are all unset by default, so a profile writes no
+  # rules until something turns them on. Enforcing the whole profile would
+  # also set `immutable`, which would lock the rules between contexts.
+  def self.profile_toggles(profile)
+    checks = YAML.safe_load_file(File.expand_path('../../../../../SIMP/compliance_profiles/checks.yaml', __dir__))['checks']
+
+    settings = checks.values.map { |c| c['settings'] }
+    settings.select { |s| s['parameter'].start_with?("auditd::config::audit_profiles::#{profile}::") }
+            .to_h { |s| [s['parameter'], s['value']] }
+  end
+
+  # Include in a describe block to get #with_simp_defaults_enforced.
+  module ComplianceEngine
+    # Runs the block with `compliance_engine::enforcement: [simp:defaults]` in
+    # force, then puts the environment's hiera.yaml back. The Compliance
+    # Engine layer goes last, so it has the lowest priority, as it does at a
+    # real site. The hieradata written here is replaced by the next
+    # set_hieradata_on call.
+    def with_simp_defaults_enforced(host)
+      original = get_hiera_config_on(host)
+      config = YAML.safe_load(original)
+      config['hierarchy'] << {
+        'name'       => 'Compliance Engine',
+        'lookup_key' => 'compliance_engine::enforcement',
+      }
+      set_hiera_config_on(host, config)
+      set_hieradata_on(host, { 'compliance_engine::enforcement' => ['simp:defaults'] })
+
+      yield
+    ensure
+      set_hiera_config_on(host, original) if original
+    end
+  end
 end
 
 # An object that holds the assessment of a given nodes ruleset

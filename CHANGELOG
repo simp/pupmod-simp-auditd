@@ -1,3 +1,83 @@
+* Thu Sep 24 2026 Hazel Caballero <hazel@sicura.us> - 11.0.0
+- BREAKING: a bare `include auditd` declares `Package[audit]` and nothing else.
+  Every other resource is declared only when a parameter asks for it. The
+  values previously applied by default are available through the new
+  `simp:defaults` compliance profile.
+- BREAKING: resource gating. `Service['auditd']` requires
+  `auditd::service_ensure` or `auditd::service_enable`; `auditd::config::grub`
+  requires `auditd::at_boot`; the profile rule files require a non-empty
+  `auditd::default_audit_profiles`; `00_head.rules` requires that or
+  `auditd::purge_auditd_rules`; `05_default_drop.rules` and `99_tail.rules`
+  also require one of their directives or the purge; purging
+  `/etc/audit/rules.d` requires `auditd::purge_auditd_rules`; `/var/log/audit`
+  requires `auditd::log_group`;
+  `/etc/audit/auditd.conf` ownership requires `auditd::config_group`.
+- BREAKING: `/etc/audit` is no longer managed or purged.
+- BREAKING: `auditd::space_left` and `auditd::admin_space_left` default to
+  `undef`, so neither key is written. `auditd::space_left` is still derived
+  from `auditd::admin_space_left` when that is set.
+- BREAKING: `auditd::config_group` defaults to `undef` rather than
+  `auditd::log_group`. Unset, the configuration files fall back to group
+  `root`.
+- `auditd::log_group` and `auditd::config_group` reject the empty string.
+- BREAKING: `auditd::config::audisp::syslog::pkg_name` is a required `String[1]`
+  supplied by the module data; setting it to `~` no longer skips the package.
+- BREAKING: every `auditd.conf` key parameter is `Optional` and defaults to
+  `undef`. Each key is written only when its own parameter is set.
+- BREAKING: the rule preamble and default drop parameters (`buffer_size`,
+  `failure_mode`, `rate`, `loginuid_immutable` and the `ignore_*` Booleans) are
+  `Optional` and default to `undef`. Each line is written only when set.
+- With a rule profile on, `auditd::root_audit_level` `aggressive` or `insane`
+  raises an unset or smaller `auditd::buffer_size` to `32788` or `65576`, so
+  `-b` is written; `'absent'` prevents it.
+- With `auditd::ignore_failures` unset, the `simp` and `stig` profiles write
+  `-c`, so a watch on a missing path no longer stops the rest from loading.
+- Edit `00_head.rules`, `05_default_drop.rules` and `99_tail.rules` line by
+  line with `file_line`: unset leaves a line alone, `false`/`'absent'` removes
+  it.
+- Write `buffer_size`, `failure_mode`, `rate`, `backlog_wait_time` and
+  `loginuid_immutable` to `rules.d/puppet_auditd.rules`, which sorts after the
+  package's `audit.rules`, so each takes effect without the purge. With the
+  purge on and `buffer_size` unset, it gets the packaged `-b 8192`.
+- BREAKING: the Boolean rule toggles of the `simp` and `stig` profiles default
+  to `undef`; `simp:defaults` sets the old values. With none set, the
+  profile's base rules file is not written, unless the purge is on.
+- Edit the `simp` and `stig` base rules files rule by rule with `file_line`,
+  matched on the rule body. A rule enabled later is appended.
+- Off x86_64, the `stig` profile's `audit_chmod` now writes the `arch=b32`
+  rules and skips `arch=b64`, like its other syscall rules; 10.x did the
+  reverse. The `simp` profile's `audit_32bit_operations` is ignored off x86_64.
+- BREAKING: `auditd::immutable` defaults to `undef`; `simp:defaults` sets
+  `false`.
+- BREAKING: `auditd::target_selinux_types` entries must match
+  `[a-z0-9_]+_t`; a Hash of type to `ensure` can also remove one.
+- Edit `/etc/audit/auditd.conf` key by key with `ini_setting` instead of
+  rendering the whole file. Keys the module doesn't manage keep their vendor
+  values. Adds a dependency on `puppetlabs-inifile`.
+- Edit `/etc/audit/plugins.d/syslog.conf` key by key with `ini_setting` on
+  auditd 3 and later instead of rendering the whole file.
+- Copy the evaluated `privileged` built-in ruleset with an exec, so noop no
+  longer fails on a node that has never applied it.
+- Add `auditd::reload_on_change`. With the service unmanaged, a change to any
+  managed file runs `auditctl --signal reload` and `augenrules --load` while
+  auditd is running.
+- The list parameters of the `simp` and `stig` profiles
+  (`stig::suid_sgid_cmds`, `simp::audit_auditd_cmds_list`, the root syscall
+  lists, ...) also take a Hash; `ensure => absent` removes one entry's rule.
+- Add `ensure` to `auditd::rule`; `absent` removes its rules file.
+- Add the `auditd_state` fact: the full `auditctl -s` status, with the raw
+  `enabled` flag, plus `version`, `immutable`, `kernel_enforcing` and
+  `enforcing`. `auditd_version` now reads it instead of `simplib__auditd`.
+- Add the `simp:defaults` compliance profile under `SIMP/compliance_profiles`,
+  which restores the pre-11.0.0 configuration when enforced.
+- Deprecate `auditd::enable` and `auditd::default_audit_profile`. `enable =>
+  false` prints a notice and implies `service_ensure => stopped`,
+  `service_enable => false` and `at_boot => false` where those are unset.
+- Remove the `data/os/*.yaml` and `data/auditd/version-*.yaml` Hiera layers;
+  `hiera.yaml` keeps `common.yaml` alone. The auditd 2 plugin layout is
+  selected from the `auditd_version` fact instead.
+- Deprecate the auditd < 3.0 compatibility path for removal in 12.0.0.
+
 * Thu Sep 24 2026 Steven Pritchard <steve@sicura.us> - 10.1.5
 - Install the `audit-rules` package on EL10. EL10 moved `auditctl`,
   `augenrules` and `/etc/audit/rules.d` out of `audit` into `audit-rules`,

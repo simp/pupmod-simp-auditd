@@ -3,6 +3,10 @@
 # @param enable
 #   Enable auditing in the kernel at boot time.
 #
+#   The `auditd` class passes `auditd::at_boot` here, and only declares this
+#   class when that parameter is set. This default applies to a standalone
+#   declaration, where asking for the class is asking for auditing at boot.
+#
 # @param augeasproviders_grub_version
 #   The version of the puppet/augeasproviders_grub module in use. Versions
 #   >= 6.0.0 use the kernel parameter name 'audit:all'; older versions use

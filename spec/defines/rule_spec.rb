@@ -119,6 +119,15 @@ describe 'auditd::rule' do
           }
         end
 
+        context 'with ensure => absent' do
+          let(:params) { { content: 'rspec_audit_message', ensure: 'absent' } }
+
+          it {
+            is_expected.to compile.with_all_deps
+            is_expected.to contain_file("/etc/audit/rules.d/75.#{title}.rules").with(ensure: 'absent', content: nil)
+          }
+        end
+
         context 'when set to :prepend' do
           let(:params) do
             {

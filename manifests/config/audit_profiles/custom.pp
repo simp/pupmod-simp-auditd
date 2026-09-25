@@ -67,6 +67,7 @@ class auditd::config::audit_profiles::custom (
 
   file { "/etc/audit/rules.d/50_${_idx}_${_short_name}_base.rules":
     *       => $auditd::config::rule_file_attributes,
-    content => "${_custom_rules}\n"
+    content => "${_custom_rules}\n",
+    require => Package[$auditd::package_name],
   }
 }

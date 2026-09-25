@@ -1,0 +1,6 @@
+---
+compliance_engine::enforcement:
+  - simp:defaults
+# Explicit site value. It sits above the compliance engine layer, so it must
+# win over the profile's max_log_file of 24.
+auditd::max_log_file: 8

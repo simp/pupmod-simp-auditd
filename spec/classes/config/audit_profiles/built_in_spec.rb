@@ -57,8 +57,11 @@ describe 'auditd' do
 
         it {
           # We should not have the items included in audit_profiles since we are
-          # only defining `built_in`
-          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r{^-i$})
+          # only defining `built_in`. The preamble options are opt-in, so
+          # unset, 00_head manages none of them.
+          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules')
+          is_expected.not_to contain_file_line('00_head ignore_errors')
+          is_expected.not_to contain_file_line('00_head ignore_failures')
           is_expected.not_to contain_file('/etc/audit/rules.d/05_default_drop.rules')
           is_expected.not_to contain_file('/etc/audit/rules.d/99_tail.rules')
 
@@ -106,8 +109,10 @@ describe 'auditd' do
 
         it {
           # We should not have the items included in audit_profiles since we are
-          # only defining `built_in`
-          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r{^-i$})
+          # only defining `built_in`. The preamble options are opt-in, so
+          # unset, 00_head manages none of them.
+          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules')
+          is_expected.not_to contain_file_line('00_head ignore_errors')
           is_expected.not_to contain_file('/etc/audit/rules.d/05_default_drop.rules')
           is_expected.not_to contain_file('/etc/audit/rules.d/99_tail.rules')
 
@@ -131,8 +136,9 @@ describe 'auditd' do
               refreshonly: true,
             )
 
-            is_expected.to contain_file('/etc/audit/rules.d/31-privileged.rules').with(
-              rule_file_attrs.merge(source: 'file:///usr/share/audit/sample-rules/31-privileged.rules.evaluated'),
+            is_expected.to contain_exec('install_privileged_ruleset').with(
+              command: 'cp -f /usr/share/audit/sample-rules/31-privileged.rules.evaluated /etc/audit/rules.d/31-privileged.rules',
+              unless: 'cmp -s /usr/share/audit/sample-rules/31-privileged.rules.evaluated /etc/audit/rules.d/31-privileged.rules',
             ).that_notifies('Class[auditd::service]').that_requires('Exec[build_privileged_ruleset]')
           else
             is_expected.to contain_exec('generate_privileged_script').with(
@@ -153,10 +159,20 @@ describe 'auditd' do
               refreshonly: true,
             )
 
-            is_expected.to contain_file('/etc/audit/rules.d/31-privileged.rules').with(
-              rule_file_attrs.merge(source: 'file:///usr/share/doc/audit-2.8.5/rules/31-privileged.rules.evaluated'),
+            is_expected.to contain_exec('install_privileged_ruleset').with(
+              command: 'cp -f /usr/share/doc/audit-2.8.5/rules/31-privileged.rules.evaluated /etc/audit/rules.d/31-privileged.rules',
+              unless: 'cmp -s /usr/share/doc/audit-2.8.5/rules/31-privileged.rules.evaluated /etc/audit/rules.d/31-privileged.rules',
             ).that_notifies('Class[auditd::service]').that_requires('Exec[build_privileged_ruleset]')
           end
+
+          # Attributes only: a `source` on the evaluated file breaks noop
+          # before the execs above have ever run.
+          is_expected.to contain_file('/etc/audit/rules.d/31-privileged.rules')
+            .with(rule_file_attrs.except(:ensure))
+            .without_ensure
+            .without_source
+            .that_notifies('Class[auditd::service]')
+            .that_requires('Exec[install_privileged_ruleset]')
         }
       end
 
@@ -166,7 +182,18 @@ describe 'auditd' do
             default_audit_profiles: [
               'built_in',
               'simp',
-            ]
+            ],
+            # No longer on by default; this context asserts its rule below.
+            audit_auditd_config: true,
+            # The simp:defaults preamble and drop values asserted below.
+            buffer_size: 16_384,
+            failure_mode: 1,
+            rate: 0,
+            ignore_errors: true,
+            ignore_failures: true,
+            ignore_anonymous: true,
+            ignore_system_services: true,
+            ignore_crond: true,
           }
         end
 
@@ -177,44 +204,32 @@ describe 'auditd' do
         it { is_expected.to contain_auditd__rule('audit_auditd_config').with_content(%r{-w /var/log/audit -p wa -k audit-logs}) }
 
         it 'configures auditd to ignore rule failures' do
-          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r{^-i$})
-          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(%r{^-c$})
+          is_expected.to contain_file_line('00_head ignore_errors').with_line('-i')
+          is_expected.to contain_file_line('00_head ignore_failures').with_line('-c')
         end
 
         it 'configures buffer size' do
-          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(
-            %r{^-b\s+16384$},
-          )
+          is_expected.to contain_file_line('rule settings buffer_size').with_line('-b 16384')
         end
 
         it 'configures failure mode' do
-          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(
-            %r{^-f\s+1$},
-          )
+          is_expected.to contain_file_line('rule settings failure_mode').with_line('-f 1')
         end
 
         it 'configures rate limiting' do
-          is_expected.to contain_file('/etc/audit/rules.d/00_head.rules').with_content(
-            %r{^-r\s+0$},
-          )
+          is_expected.to contain_file_line('rule settings rate').with_line('-r 0')
         end
 
         it 'adds a drop rule to ignore anonymous and daemon events' do
-          is_expected.to contain_file('/etc/audit/rules.d/05_default_drop.rules').with_content(
-            %r{^-a\s+never,exit\s+-F\s+auid=-1$},
-          )
+          is_expected.to contain_file_line('05_default_drop anonymous').with_line('-a never,exit -F auid=-1')
         end
 
         it 'adds a rule to drop crond events' do
-          is_expected.to contain_file('/etc/audit/rules.d/05_default_drop.rules').with_content(
-            %r{^-a\s+never,user\s+-F\s+subj_type=crond_t$},
-          )
+          is_expected.to contain_file_line('05_default_drop crond').with_line('-a never,user -F subj_type=crond_t')
         end
 
         it 'adds a rule to drop events from system services' do
-          is_expected.to contain_file('/etc/audit/rules.d/05_default_drop.rules').with_content(
-            %r{^-a\s+never,exit\s+-F\s+auid!=0\s+-F\s+auid<#{facts[:uid_min]}$},
-          )
+          is_expected.to contain_file_line('05_default_drop system_services').with_line("-a never,exit -F auid!=0 -F auid<#{facts[:uid_min]}")
         end
 
         it { is_expected.to contain_class('auditd::config::audit_profiles::simp') }
@@ -251,55 +266,9 @@ describe 'auditd' do
           is_expected.to contain_notify('bad_sample_set not found')
         }
 
-        # auditd::config::audit_profiles::simp validation
-        it {
-          expected = File.read('spec/classes/config/audit_profiles/expected/simp_basic_rules.txt')
-          is_expected.to contain_file('/etc/audit/rules.d/50_01_simp_base.rules').with_content(expected)
-        }
-
-        it 'specifies a key specified for each rule' do
-          base_rules = catalogue.resource('File[/etc/audit/rules.d/50_01_simp_base.rules]')[:content].split("\n")
-
-          rules_with_tags = base_rules.select { |x| x.include?(' -k ') }
-          rules_with_tags.delete_if { |x| x =~ %r{ -k \S+} }
-
-          expect(rules_with_tags).to be_empty
-        end
-
-        it 'disables chmod auditing by default' do
-          # chmod is disabled by default (SIMP-2250)
-          is_expected.not_to contain_file('/etc/audit/rules.d/50_01_simp_base.rules').with_content(
-            %r{^-a always,exit -F arch=b\d\d -S chmod,fchmod,fchmodat -k chmod$},
-          )
-        end
-
-        it 'disables rename/remove auditing by default' do
-          is_expected.not_to contain_file('/etc/audit/rules.d/50_01_simp_base.rules').with_content(
-            %r{^-a always,exit -F arch=b\d\d -S rename,renameat,rmdir,unlink,unlinkat -F perm=x -k delete},
-          )
-        end
-
-        it 'disables umask auditing by default' do
-          is_expected.not_to contain_file('/etc/audit/rules.d/50_01_simp_base.rules').with_content(
-            %r{^-a always,exit -F arch=b\d\d -S umask -k umask},
-          )
-        end
-
-        it 'disables package command auditing is disabled by default' do
-          is_expected.not_to contain_file('/etc/audit/rules.d/50_01_simp_base.rules').with_content(
-            %r{^-w /(usr/)?bin/(rpm|yum) -p x},
-          )
-        end
-
-        it 'disables selinux commands auditing by default' do
-          is_expected.not_to contain_file('/etc/audit/rules.d/50_01_simp_base.rules').with_content(
-            %r{^-a always,exit -F path=/usr/bin/(chcon|semanage|setsebool) -F perm=x -k privileged-priv_change},
-          )
-
-          is_expected.not_to contain_file('/etc/audit/rules.d/50_01_simp_base.rules').with_content(
-            %r{^-a always,exit -F path=/(usr/)?sbin/setfiles -F perm=x -k privileged-priv_change},
-          )
-        end
+        # auditd::config::audit_profiles::simp validation. Its toggles are all
+        # unset here, so it writes no base rules file.
+        it { is_expected.not_to contain_file('/etc/audit/rules.d/50_01_simp_base.rules') }
       end
     end
   end

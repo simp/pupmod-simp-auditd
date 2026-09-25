@@ -32,6 +32,9 @@ group :test do
   # renovate: datasource=rubygems versioning=ruby
   gem 'simp-rspec-puppet-facts', ENV.fetch('SIMP_RSPEC_PUPPET_FACTS_VERSION', '~> 4.0.0')
   gem 'syslog', require: false
+  # compliance_engine requires it; `observer` left the stdlib as a default gem
+  # in Ruby 3.4, so the bundle has to declare it.
+  gem 'observer', require: false
 end
 
 group :development do

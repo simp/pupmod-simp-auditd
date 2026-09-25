@@ -9,11 +9,13 @@
 <!-- vim-markdown-toc GFM -->
 
 * [Overview](#overview)
+* [Breaking changes in 11.0.0](#breaking-changes-in-1100)
 * [This is a SIMP module](#this-is-a-simp-module)
 * [Module Description](#module-description)
 * [Setup](#setup)
   * [Setup Requirements](#setup-requirements)
   * [What Auditd Affects](#what-auditd-affects)
+  * [When changes take effect](#when-changes-take-effect)
 * [Usage](#usage)
   * [Basic Usage](#basic-usage)
   * [Disabling Auditd](#disabling-auditd)
@@ -40,6 +42,109 @@
 
 This module manages the Audit daemon, kernel parameters, and related subsystems.
 
+## Breaking changes in 11.0.0
+
+**Including this class no longer configures anything.** Before 11.0.0, `include 'auditd'`
+installed the package, replaced your kernel audit rules, purged `/etc/audit/rules.d`,
+rewrote `auditd.conf`, took ownership of `/etc/audit` and `/var/log/audit`, started and
+enabled the service, and added `audit=1` to the kernel command line. It now installs the
+package and stops there. Every other resource is declared only when a parameter asks for
+it, and those parameters default to `undef`, `false` or `[]`.
+
+If you are a SIMP user, apply the `simp:defaults` compliance profile and you get the old
+behavior back. If you are not, set what you want explicitly.
+
+### What changes even with `simp:defaults` applied
+
+* `/etc/audit/audit-stop.rules` and the `audisp-*.conf` files are no longer deleted. The
+  recursive purge of `/etc/audit` is gone, so `rpm -V audit` comes back clean.
+* `/etc/audit` keeps the mode the package ships (`0750`) rather than being tightened
+  to `0700`.
+* `auditd.conf` is edited key by key instead of being rendered from a template, so
+  package comments and the keys this module has no opinion about (`use_libwrap`,
+  `tcp_*`, `transport`, `krb5_principal`, `distribute_network`,
+  `end_of_event_timeout`) stay in the file at their packaged values. The effective
+  daemon configuration is unchanged, because those packaged values match the
+  compiled-in defaults the daemon used before. Keys keep their packaged position;
+  a key missing from the file is appended. That matters for `verify_email`, which
+  auditd only honours if it precedes `action_mail_acct`. Every supported package
+  ships it in that position, so only a file it was removed from by hand is affected.
+* The `simp` and `stig` base rules files (`50_NN_<profile>_base.rules`) are
+  edited rule by rule instead of rendered whole. See
+  [How the base rules files are managed](#how-the-base-rules-files-are-managed).
+  On x86_64 the rules are unchanged. Elsewhere, the STIG `audit_chmod` rules
+  follow the same `arch` gate as its other syscall rules, and
+  `audit_32bit_operations: true` is ignored. A fresh file has no comments; an
+  existing file keeps the ones it has.
+* On auditd 3 and later, `/etc/audit/plugins.d/syslog.conf` is edited key by key
+  instead of being rendered from a template. Only `active` and `args` are written,
+  plus `path` and `type` when set explicitly; the rest keeps the packaged values,
+  which match what the template wrote. auditd 2's `audispd.conf` is unchanged.
+
+### What changes if you do not apply a profile
+
+* A bare `include 'auditd'` installs the package. Service state, rules, GRUB,
+  `auditd.conf` and the log directory are left exactly as the package left them.
+* `auditd::enable` is deprecated. `true` prints a notice and does nothing else;
+  `false` prints a notice and implies a stopped, disabled service with
+  `at_boot => false`, but no longer stands the rest of the module down.
+  `auditd::default_audit_profile` is likewise deprecated in favour of
+  `auditd::default_audit_profiles`.
+* Setting one `auditd.conf` parameter now changes exactly that one key. The
+  exception is `auditd::admin_space_left`, which also writes the `space_left` derived
+  from it unless `auditd::space_left` is set.
+* `auditd::space_left` defaults to `undef` rather than
+  `auditd::calculate_space_left($admin_space_left)`. It is still derived from
+  `auditd::admin_space_left` when that is set, so the two keys are written together;
+  unset, neither is written.
+* `auditd::config_group` no longer defaults to `auditd::log_group`. The two govern
+  different things -- who may read the audit *logs* versus who may read the audit
+  *configuration* -- and are set independently now. Unset, the configuration files
+  fall back to group `root`.
+* The Boolean rule toggles of the `simp` and `stig` profiles (`audit_chown`,
+  `audit_suid_sgid`, ...) default to `undef` rather than `true` or `false`.
+  `undef` writes nothing and leaves any existing rule alone, `false` removes the
+  rule, and `true` writes it. `simp:defaults` sets the old values. With none of a
+  profile's toggles set, its base rules file is not written at all, unless
+  `auditd::purge_auditd_rules` is `true`; then the file is kept as it is.
+* Changing `auditd::default_audit_profiles` from `['simp']` to `['stig']` without
+  `auditd::purge_auditd_rules: true` leaves the old `50_00_simp_base.rules` on disk.
+  The purge used to remove it for you.
+* `auditd::buffer_size`, `auditd::failure_mode`, `auditd::rate`,
+  `auditd::backlog_wait_time` and `auditd::loginuid_immutable` are written to
+  `/etc/audit/rules.d/puppet_auditd.rules` instead of `00_head.rules`. For these,
+  `augenrules` lets the last file read win, and that name sorts after the
+  package's `audit.rules`, so a set value takes effect without the purge. A file
+  of your own that sorts after `puppet_auditd.rules` still wins over it. The file
+  is written only when one of these is set or the purge is on.
+* `00_head.rules`, `05_default_drop.rules`, `99_tail.rules` and
+  `puppet_auditd.rules` are edited line by line instead of rendered whole. Each
+  line follows its parameter: unset leaves whatever is in the file, `false` (or
+  `'absent'` for a number) removes it, and a value writes it. A partial
+  compliance profile therefore never reverts what an earlier one applied. This
+  covers the settings above, `auditd::ignore_errors`,
+  `auditd::ignore_failures`, `auditd::immutable`, `auditd::target_selinux_types`
+  and the `auditd::ignore_*` drops.
+* `auditd::immutable` defaults to `undef` rather than `false`. `simp:defaults`
+  sets `false`.
+* `auditd::target_selinux_types` entries must be SELinux type names
+  (`[a-z0-9_]+_t`). A Hash of type to `ensure` can also remove one.
+* `auditd::root_audit_level: aggressive` or `insane` with a rule profile in
+  `auditd::default_audit_profiles` writes `-b` even with `auditd::buffer_size`
+  unset: an unset or smaller value is raised to `32788` or `65576`. This is the
+  one rule-settings line written without its own parameter. Set
+  `auditd::buffer_size: 'absent'` to prevent it.
+* With `auditd::purge_auditd_rules: true` and `auditd::buffer_size` unset,
+  `puppet_auditd.rules` gets the packaged `-b 8192`, which the purge removes
+  along with `audit.rules`. `simp:defaults` sets `-b 16384`.
+* With `auditd::ignore_failures` unset, the `simp` and `stig` profiles write
+  `-c`. They watch paths that may not exist, such as `/etc/snmp/snmpd.conf`, and
+  without `-c` the kernel stops loading at the first rejected rule and silently
+  drops every rule after it. Set `auditd::ignore_failures: false` to opt out.
+* `auditd::config::audisp::syslog::pkg_name` is a required `String[1]` supplied by the
+  module data. Setting it to `~` used to skip the `audispd-plugins` package; it now fails
+  the catalogue.
+
 ## This is a SIMP module
 
 This module is a component of the [System Integrity Management Platform](https://simp-project.com),
@@ -58,10 +163,12 @@ This module is optimally designed for use within a larger SIMP ecosystem, but it
 
 You can use this module for the management of all components of auditd
 including configuration, service management, kernel parameters, and custom rule
-sets.
+sets. Each of those is opted into separately; see
+[Breaking changes in 11.0.0](#breaking-changes-in-1100).
 
-By default, a rule set is provided that should meet a reasonable set of
-operational goals for most environments.
+A rule set meeting a reasonable set of operational goals for most environments
+is available as the `simp` audit profile, and is what the `simp:defaults`
+compliance profile selects. It is not applied unless you ask for it.
 
 The `audit` kernel parameter may optionally be managed independently of the
 rest of the module using the `::auditd::config::grub` class.
@@ -75,34 +182,97 @@ If `auditd::syslog` is `true`, you will need to install
 
 ### What Auditd Affects
 
-* The `audit` kernel parameter
-  * NOTE: This will be applied to *all* kernels in your standard grub configuration
-* The auditd service
-* The audid configuration in /etc/auditd.conf
-* The auditd rules in /etc/audit/rules.d
-* The audispd configuration in /etc/audisp/audispd.conf
-* The audispd `syslog` configuration if manage_syslog_plugin is enabled.
-     audit version 2 : /etc/audisp/plugins.d/syslog.conf
-     audit version 3 : /etc/auditd/plugins.d/syslog.conf
+Only the `audit` package is installed unconditionally. Everything below happens only
+when the parameter named beside it is set:
+
+| What | Managed when |
+|---|---|
+| The `audit` package | always |
+| The `audit` kernel parameter (applied to *all* kernels in your grub configuration) | `auditd::at_boot` is set |
+| The `auditd` service | `auditd::service_ensure` or `auditd::service_enable` is set |
+| Loading changes into a running `auditd` the module does not manage | `auditd::reload_on_change` is `true` |
+| Individual keys in `/etc/audit/auditd.conf` | the matching parameter is set, one key each |
+| Ownership and mode of `/etc/audit/auditd.conf` | `auditd::config_group` is set |
+| The `auditd::plugin_dir` directory | `auditd::plugin_dir` is set |
+| Rule files in `/etc/audit/rules.d` | `auditd::default_audit_profiles` is non-empty, or `auditd::rule` is used |
+| `00_head.rules` | `auditd::default_audit_profiles` is non-empty, or `auditd::purge_auditd_rules` is `true` |
+| `05_default_drop.rules` | a `simp` or `stig` profile is on, and one of the `auditd::ignore_*` drops or `auditd::target_selinux_types` is set or `auditd::purge_auditd_rules` is `true` |
+| `99_tail.rules` | `auditd::purge_auditd_rules` is `true`, or `auditd::immutable` is set with a profile on |
+| `/etc/audit/rules.d/puppet_auditd.rules` | one of `auditd::buffer_size`, `auditd::failure_mode`, `auditd::rate`, `auditd::backlog_wait_time` or `auditd::loginuid_immutable` is set, or `auditd::purge_auditd_rules` is `true` |
+| Purging unmanaged files from `/etc/audit/rules.d` | `auditd::purge_auditd_rules` is `true` |
+| `/etc/audit/audit.rules` and `.prev` ownership | one of the `auditd::audit_rules_*` parameters is set |
+| `/var/log/audit` | `auditd::log_group` is set |
+| The audispd `syslog` plugin (`/etc/audit/plugins.d/syslog.conf`) | `auditd::syslog` is `true` |
+
+`/etc/audit` itself is no longer managed at all: the recursive purge that used to run
+over it is gone.
+
+### When changes take effect
+
+Rule files and `auditd.conf` keys are written to disk as soon as Puppet runs. Whether
+they reach the running system depends on who owns the service:
+
+* **The service is managed** (`auditd::service_ensure` or `auditd::service_enable`):
+  a change restarts `auditd`, which reloads `auditd.conf` and loads the rules.
+* **`auditd::reload_on_change: true`**: without taking over the service, a change runs
+  `auditctl --signal reload` (auditd re-reads `auditd.conf`) and `augenrules --load`
+  (the kernel loads the rules). Both are skipped while `auditd` is stopped, so a daemon
+  an administrator stopped stays stopped. A few `auditd.conf` keys, such as
+  `tcp_listen_port`, still take effect only on a full restart; see auditd.conf(5).
+* **Neither**: nothing touches the running system. The change takes effect the next
+  time `auditd` starts. `systemctl restart auditd` is refused (the unit sets
+  `RefuseManualStop=yes`); use `service auditd restart`, or load just the rules with
+  `augenrules --load`.
+
+If the running rule set is immutable (`-e 2`, from `auditd::immutable`), no rule change
+can load until the host reboots. With `auditd::reload_on_change`, the module reads that
+state from the kernel through the `auditd_state` fact and registers a `reboot_notify`
+instead of a load that would change nothing.
+
+This matters for modules that call `auditd::rule`, such as `simp/aide`, `simp/pki`,
+`simp/sssd` and `simp/pupmod`. Their rules are loaded right away only when this module
+manages the service or `auditd::reload_on_change` is set. The `simp:defaults` profile
+manages the service.
 
 ## Usage
 
 ### Basic Usage
 
 ```puppet
-# Set up auditd with the default settings and SIMP default ruleset
-# A message will be printed indicating that you need to reboot for this option
-# to take full effect at each Puppet run until you reboot your system.
-
+# Installs the audit package. Nothing else: no rules, no service state, no
+# auditd.conf edits, no kernel command line change.
 include 'auditd'
 ```
 
-### Disabling Auditd
-
-To disable auditd at boot, set the following in hieradata:
+To get the behavior releases before 11.0.0 gave you, apply the `simp:defaults`
+compliance profile, or set the pieces you want yourself:
 
 ```yaml
+auditd::default_audit_profiles:
+  - simp
+auditd::purge_auditd_rules: true
+auditd::service_ensure: running
+auditd::service_enable: true
+auditd::at_boot: true
+auditd::log_group: root
+```
+
+With `auditd::at_boot: true`, a message is printed at each Puppet run indicating that
+you need to reboot for the kernel parameter to take effect, until you do.
+
+### Disabling Auditd
+
+`auditd::at_boot` controls only the `audit=1` kernel parameter. Setting it to `false`
+actively removes that parameter from the kernel command line, which is different from
+leaving it unset -- unset means this module does not touch your boot loader at all.
+
+```yaml
+# Take audit=1 off the kernel command line
 auditd::at_boot: false
+
+# Stop and disable the service
+auditd::service_ensure: stopped
+auditd::service_enable: false
 ```
 
 ### Enable/Disable sending audit event to syslog:
@@ -116,10 +286,13 @@ to multiple remote syslog servers or persisted
 locally. Site-specific, rsyslog actions to implement filtering will
 likely be required to reduce this message traffic.
 
-The setting ``auditd::syslog``, defaults to ``false`` or
-``syslog_options::syslog`` if you include ``simp_options``.  If you set
-``auditd::syslog: false``, it will not necessarily disable auditd logging to
-syslog, puppet will just no longer manage the ``syslog.conf`` plugin file.
+``auditd::syslog`` defaults to ``false``; ``simp:defaults`` sets ``true``.
+Setting ``auditd::syslog: false`` does not necessarily disable auditd logging
+to syslog -- Puppet simply stops managing the ``syslog.conf`` plugin file.
+
+The deprecated ``auditd::config::audisp::syslog::rsyslog``, which hooks the
+dispatcher into the SIMP rsyslog module, also defaults to ``false``;
+``simp:defaults`` sets ``true``.
 
 The settings needed for enabling/disabling sending audit log messages to syslog
 are shown below.
@@ -189,6 +362,28 @@ There are three other profiles available in the system by default:
 There are a large number of parameters exposed for each profile that are meant
 to be set via Hiera and you should take a look at the REFERENCE.md file to
 understand the full capabilities of each profile.
+
+#### How the base rules files are managed
+
+The `simp` and `stig` profiles write their rules to
+`/etc/audit/rules.d/50_NN_<profile>_base.rules` one line at a time. Each rule is
+found by its body, the part before `-k`/`-F key=`, so:
+
+* A changed key, `auditd::uid_min`, or root syscall list replaces the rule in
+  place.
+* A rule turned on later is appended to the end of the file. Order within the
+  file does not change whether an event is logged, because neither profile
+  writes a `never` or `exclude` rule. It can change the key an event is logged
+  under, because the kernel records the key of the first rule that matches.
+* A list parameter (such as `stig::suid_sgid_cmds` or
+  `simp::audit_suspicious_apps_list`) also takes a Hash. An entry set to
+  `ensure => absent` removes its rule. An entry deleted from the list is left
+  in the file. Set the toggle to `false` to remove every rule it owns.
+* A rule body two toggles both write (the STIG lists overlap) is found by body
+  and key. Changing one of those keys adds a new line and leaves the old one.
+
+To get a clean file in the original order, delete the base file and run Puppet
+again. It rebuilds every enabled rule in the profile's own order.
 
 #### Stacking Profiles
 
@@ -306,6 +501,16 @@ recommended that users use the ``auditd::rule`` defined type for adding rules.
 
 Other options are available with ``auditd::rule`` but these are the most
 commonly used.
+
+On its own, ``auditd::rule`` writes only the rule file. The preamble that
+``augenrules`` loads ahead of the rules comes from the ``audit`` package's own
+``rules.d/audit.rules``. ``auditd::buffer_size``, ``auditd::failure_mode``,
+``auditd::rate``, ``auditd::backlog_wait_time`` and
+``auditd::loginuid_immutable`` take effect on their own, from
+``puppet_auditd.rules``. ``auditd::ignore_errors``, ``auditd::ignore_failures``
+and ``auditd::immutable`` are managed only once this module is asked to manage
+the directory, with a profile or ``auditd::purge_auditd_rules: true``; see the
+breaking changes above.
 
 #### Adding Regular Filter Rules
 

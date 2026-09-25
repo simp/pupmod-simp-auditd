@@ -6,11 +6,20 @@ require 'spec_helper_acceptance'
 test_name 'disabling kernel auditing via auditd class'
 
 describe 'auditd class with simp auditd profile' do
+  # 11.0.0 makes every resource opt-in: a bare `include auditd` installs the
+  # package and nothing else, so the service has to be asked for in both
+  # hashes below. Only at_boot differs between them.
   let(:enable_hieradata) do
     {
       'pki::cacerts_sources'    => ['file:///etc/pki/simp-testing/pki/cacerts'],
       'pki::private_key_source' => 'file:///etc/pki/simp-testing/pki/private/%{facts.networking.fqdn}.pem',
       'pki::public_key_source'  => 'file:///etc/pki/simp-testing/pki/public/%{facts.networking.fqdn}.pub',
+      'auditd::service_ensure'  => 'running',
+      'auditd::service_enable'  => true,
+      'auditd::default_audit_profiles' => ['simp'],
+      'auditd::purge_auditd_rules' => true,
+      'auditd::log_group'       => 'root',
+      'auditd::config_group'    => 'root',
       'auditd::at_boot'         => true,
     }
   end
@@ -20,6 +29,12 @@ describe 'auditd class with simp auditd profile' do
       'pki::cacerts_sources'    => ['file:///etc/pki/simp-testing/pki/cacerts'],
       'pki::private_key_source' => 'file:///etc/pki/simp-testing/pki/private/%{facts.networking.fqdn}.pem',
       'pki::public_key_source'  => 'file:///etc/pki/simp-testing/pki/public/%{facts.networking.fqdn}.pub',
+      'auditd::service_ensure'  => 'running',
+      'auditd::service_enable'  => true,
+      'auditd::default_audit_profiles' => ['simp'],
+      'auditd::purge_auditd_rules' => true,
+      'auditd::log_group'       => 'root',
+      'auditd::config_group'    => 'root',
       'auditd::at_boot'         => false,
     }
   end

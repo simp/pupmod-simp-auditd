@@ -21,7 +21,7 @@
 # @param rsyslog
 #     (deprecated)
 #     If set, enable the SIMP `rsyslog` module and set up the appropriate rules
-#     for the `auditd` services.
+#     for the `auditd` services. Defaults to `simp_options::syslog`, or `false`.
 #
 # @param drop_audit_logs
 #     (deprecated)
@@ -53,15 +53,24 @@
 # @param syslog_path
 #     The path to the syslog plugin executable.
 #
+#     Unset, `/sbin/audisp-syslog` on auditd >= 3.0 and the audispd builtin
+#     `builtin_syslog` below it.
+#
 # @param type
 #    The type of auditd plugin.
+#
+#    Unset, `always` on auditd >= 3.0 and `builtin` below it.
 #
 # @param pkg_name
 #     The name of the plugin package to install.  Only needed for
 #     auditd version 3 and later.
 #
+#     `audispd-plugins` from the module data. The package is always managed
+#     on auditd 3 and later when the plugin is enabled.
+#
 # @param package_ensure
-#     The default ensure parmeter for packages.
+#     The `ensure` for the plugin package. Defaults to
+#     `simp_options::package_ensure`, or `installed`.
 # @author https://github.com/simp/pupmod-simp-auditd/graphs/contributors
 #
 class auditd::config::audisp::syslog (
@@ -69,28 +78,102 @@ class auditd::config::audisp::syslog (
   Boolean                         $drop_audit_logs = true, #deprecated see @param
   Auditd::LogPriority             $priority        = 'LOG_INFO',
   Auditd::LogFacility             $facility        = 'LOG_LOCAL5',
-  Optional[String]                $pkg_name        = undef,
-  String                          $syslog_path,    # data in module
-  String                          $type,           # data in module
-  Boolean                         $rsyslog         = simplib::lookup('simp_options::syslog', { 'default_value' => false }),   #deprecated see @param
+  String[1]                       $pkg_name,       # data in module
+  Optional[String[1]]             $syslog_path     = undef,
+  Optional[String[1]]             $type            = undef,
+  Boolean                         $rsyslog         = simplib::lookup('simp_options::syslog', { 'default_value' => false }), #deprecated see @param
   String                          $package_ensure  = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' }),
 ) {
   # See auditd::config::logging for why a missing auditd_version means 3.0.
-  if versioncmp(pick($facts['auditd_version'], '3.0'), '3.0') >= 0 and $enable and $pkg_name {
+  if versioncmp(pick($facts['auditd_version'], '3.0'), '3.0') >= 0 and $enable {
     package { $pkg_name :
       ensure => $package_ensure,
     }
+
+    # The edits below rely on the file the plugin package ships. Written
+    # first, the package would leave its own copy as syslog.conf.rpmnew.
+    $_syslog_conf_require = [Package[$auditd::package_name], Package[$pkg_name]]
+  }
+  else {
+    $_syslog_conf_require = [Package[$auditd::package_name]]
   }
 
-  file { "${auditd::plugin_dir}/syslog.conf":
-    mode    => $auditd::config::config_file_mode,
+  # auditd 2 (EL7, unsupported since 9.0.0) ran the syslog plugin inside
+  # audispd, from /etc/audisp. The defaults follow the detected version so a
+  # host still on it keeps working; this path goes away in 12.0.0. The third
+  # argument keeps deprecation() a warning under 'strict => error'.
+  $_auditd2 = versioncmp(pick($facts['auditd_version'], '3.0'), '3.0') < 0
+  if $_auditd2 {
+    deprecation('auditd::auditd2',
+    'auditd < 3.0 is not a supported platform; its plugin layout will no longer be selected in 12.0.0',
+    false)
+  }
+
+  # auditd::plugin_dir is unset unless a site moves the directory; fall back to
+  # the path the package ships and auditd compiles in.
+  $_plugin_dir = pick($auditd::plugin_dir, $_auditd2 ? {
+    true    => '/etc/audisp/plugins.d',
+    default => '/etc/audit/plugins.d',
+  })
+  $_syslog_path = pick($syslog_path, $_auditd2 ? {
+    true    => 'builtin_syslog',
+    default => '/sbin/audisp-syslog',
+  })
+  $_type = pick($type, $_auditd2 ? {
+    true    => 'builtin',
+    default => 'always',
+  })
+
+  $_syslog_conf = "${_plugin_dir}/syslog.conf"
+
+  # Two cases cannot rely on the packaged file, and get every key: auditd 2,
+  # whose audispd needs the builtin plugin, and a relocated plugin_dir, where
+  # the package never put a syslog.conf.
+  $_full = $_auditd2 or $auditd::plugin_dir =~ NotUndef
+  $_syslog_conf_ensure = $_full ? { true => 'file', default => undef }
+
+  # syslog.conf is otherwise the audispd-plugins package's own
+  # %config(noreplace) file. This resource only enforces ownership and mode
+  # there; with no ensure it does not create the file. Where there is no
+  # packaged file ($_full), it creates it, so the ini_settings below never
+  # create it with the umask mode.
+  file { $_syslog_conf:
+    ensure  => $_syslog_conf_ensure,
     owner   => 'root',
-    content => epp("${module_name}/plugins/syslog_conf", {
-      enable => $enable,
-      path   => $syslog_path,
-      type   => $type,
-      args   => "${priority} ${facility}"
-    }),
+    mode    => $auditd::config::config_file_mode,
+    require => $_syslog_conf_require,
+  }
+
+  # Only the keys this module has an opinion about are edited. The packaged
+  # file already carries direction = out, path = /sbin/audisp-syslog,
+  # type = always and format = string, so on auditd 3 and later those are left
+  # alone unless a site sets path or type.
+  #
+  # Disabled, only active is written, so a plugin that was on is switched off
+  # without filling in a file for a plugin nothing will start.
+  if $enable {
+    $_syslog_conf_settings = {
+      'active'    => 'yes',
+      'direction' => $_full ? { true => 'out', default => undef },
+      'path'      => ($_full or $syslog_path =~ NotUndef) ? { true => $_syslog_path, default => undef },
+      'type'      => ($_full or $type =~ NotUndef) ? { true => $_type, default => undef },
+      'args'      => "${priority} ${facility}",
+      'format'    => $_full ? { true => 'string', default => undef },
+    }.filter |$setting, $value| { $value =~ NotUndef }
+  }
+  else {
+    $_syslog_conf_settings = { 'active' => 'no' }
+  }
+
+  $_syslog_conf_settings.each |$setting, $value| {
+    ini_setting { "syslog.conf ${setting}":
+      path              => $_syslog_conf,
+      section           => '',
+      key_val_separator => ' = ',
+      setting           => $setting,
+      value             => $value,
+      require           => File[$_syslog_conf],
+    }
   }
   #
   #  The below section is here for backwards compatability. It will be removed

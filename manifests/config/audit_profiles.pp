@@ -7,9 +7,10 @@
 # natural sort order, to create a single `/etc/audit/auditd.rules`
 # file. The generated files are as follows:
 # - `00_head.rules`:  Contains `auditctl` general configuration to
-#   remove existing rules when the rules are reloaded, ignore rule
-#   load errors/failures, and set the buffer size, failure mode,
-#   and rate limiting
+#   remove existing rules when the rules are reloaded and ignore rule
+#   load errors/failures. The buffer size, failure mode, rate limit and
+#   the other last-one-wins settings are in `puppet_auditd.rules`,
+#   written by `auditd::config::rule_settings`
 # - `05_default_drop.rules`: Contains filtering rules for efficiency
 #   - Rules to drop prolific events of low-utility
 #   - Rules to restrict events based on `auid` constraints that would
@@ -36,10 +37,11 @@
 class auditd::config::audit_profiles {
   assert_private()
 
-  $_common_template_path = "${module_name}/rule_profiles/common"
-
   if $auditd::audit_auditd_config {
-    $_audit_log_dir = dirname($auditd::log_file)
+    # log_file is unset unless a site moves the audit log. auditd's own
+    # default is /var/log/audit/audit.log, so that is the directory to watch
+    # when nobody has said otherwise.
+    $_audit_log_dir = dirname(pick($auditd::log_file, '/var/log/audit/audit.log'))
 
     auditd::rule { 'audit_auditd_config':
       content => [
@@ -55,30 +57,143 @@ class auditd::config::audit_profiles {
     }
   }
 
-  if ( $auditd::root_audit_level == 'aggressive' ) and ( $auditd::buffer_size < 32788 ) {
-    $_buffer_size = 32788
-  } elsif ( $auditd::root_audit_level == 'insane' ) and ( $auditd::buffer_size < 65576 ) {
-    $_buffer_size = 65576
-  } else {
-    $_buffer_size = $auditd::buffer_size
+  $_head = '/etc/audit/rules.d/00_head.rules'
+  $_drop = '/etc/audit/rules.d/05_default_drop.rules'
+  $_tail = '/etc/audit/rules.d/99_tail.rules'
+
+  # These three files are edited line by line, never rendered whole. Each
+  # directive follows its parameter: undef leaves whatever is in the file,
+  # false or 'absent' removes the line, anything else writes it. A partial
+  # compliance profile therefore changes only what it sets, and never reverts
+  # what an earlier profile or another tool applied.
+
+  # The simp and stig profiles watch paths that may not exist on every host
+  # (e.g. /etc/snmp). Without -c the kernel stops at the first rejected rule
+  # and silently drops every rule after it, so either profile writes -c unless
+  # ignore_failures says otherwise.
+  $_ignore_failures = $auditd::ignore_failures ? {
+    undef   => ('simp' in $auditd::config::profiles or 'stig' in $auditd::config::profiles) ? { true => true, default => undef },
+    default => $auditd::ignore_failures,
   }
 
-  file { '/etc/audit/rules.d/00_head.rules':
+  file { $_head:
+    ensure  => 'file',
+    require => Package[$auditd::package_name],
     *       => $auditd::config::rule_file_attributes,
-    content => epp("${_common_template_path}/head.epp")
   }
 
-  # If the only profile is the 'built_in' profile, we should skip these to allow
-  # users more control/flexibility over what they want to use.
+  # -D is not a setting: without it a reload stacks the module's rules on top
+  # of the loaded set.
+  auditd::config::rule_line { '00_head -D':
+    path    => $_head,
+    match   => '^-D\s*$',
+    line    => '-D',
+    require => File[$_head],
+  }
+
+  # Only what must precede every rule lives here. The last-one-wins settings
+  # (-b, -f, -r, --backlog_wait_time, --loginuid-immutable) are written by
+  # auditd::config::rule_settings to a file that sorts after the package's
+  # audit.rules, which would otherwise override them.
+  $_head_directives = {
+    'ignore_errors'   => { 'value' => $auditd::ignore_errors, 'line' => '-i', 'match' => '^-i\s*$' },
+    'ignore_failures' => { 'value' => $_ignore_failures,      'line' => '-c', 'match' => '^-c\s*$' },
+  }
+
+  $_head_directives.each |$name, $d| {
+    unless $d['value'] =~ Undef {
+      $_line = $d['value'] ? { false => undef, 'absent' => undef, default => $d['line'] }
+
+      auditd::config::rule_line { "00_head ${name}":
+        path    => $_head,
+        match   => $d['match'],
+        line    => $_line,
+        require => File[$_head],
+      }
+    }
+  }
+
+  # The tail is preamble and belongs with the head. The default drop rules are
+  # profile content, so they are only written when a profile was asked for.
+  # Each file is declared only when one of its directives is set. If
+  # the only profile is the 'built_in' profile, skip both to allow users more
+  # control/flexibility over what they want to use.
   unless ( length($auditd::config::profiles)  == 1 ) and ( 'built_in' in $auditd::config::profiles ) {
-    file { '/etc/audit/rules.d/05_default_drop.rules':
-      *       => $auditd::config::rule_file_attributes,
-      content => epp("${_common_template_path}/default_drop.epp")
+    unless empty($auditd::config::profiles) {
+      $_chrony = '-S adjtimex -F auid=-1 -F uid=chrony -F subj_type=chronyd_t'
+
+      $_drop_rules = {
+        'anonymous'       => { 'value' => $auditd::ignore_anonymous,       'line' => '-a never,exit -F auid=-1' },
+        'system_services' => { 'value' => $auditd::ignore_system_services, 'line' => "-a never,exit -F auid!=0 -F auid<${auditd::uid_min}", 'match' => '^-a never,exit -F auid!=0 -F auid<\d+$' },
+        'crond'           => { 'value' => $auditd::ignore_crond,           'line' => '-a never,user -F subj_type=crond_t' },
+        'chrony b32'      => { 'value' => $auditd::ignore_time_daemons,    'line' => "-a never,exit -F arch=b32 ${_chrony}" },
+        'crypto_key_user' => { 'value' => $auditd::ignore_crypto_key_user, 'line' => '-a always,exclude -F msgtype=CRYPTO_KEY_USER' },
+      } + ($facts['os']['hardware'] == 'x86_64' ? {
+        true    => { 'chrony b64' => { 'value' => $auditd::ignore_time_daemons, 'line' => "-a never,exit -F arch=b64 ${_chrony}" } },
+        default => {},
+      })
+
+      # target_selinux_types: an Array means "present" for each entry; a Hash
+      # also takes ensure => absent, which is the only way to remove one.
+      $_selinux_types = $auditd::target_selinux_types ? {
+        Array   => $auditd::target_selinux_types.reduce({}) |$memo, $type| { $memo + { $type => {} } },
+        default => pick($auditd::target_selinux_types, {}),
+      }
+
+      $_selinux_rules = $_selinux_types.reduce({}) |$memo, $entry| {
+        $memo + {
+          "selinux ${entry[0]}" => {
+            'value' => $entry[1]['ensure'] != 'absent',
+            'line'  => "-a never,user -F subj_type!=${entry[0]}",
+          },
+        }
+      }
+
+      # The file is declared only when at least one of its directives is set,
+      # or when the purge is on: undeclared, the purge would delete the lines
+      # an unset directive is meant to leave alone.
+      $_drop_set = ($_drop_rules + $_selinux_rules).filter |$_name, $d| { $d['value'] =~ NotUndef }
+
+      if $auditd::purge_auditd_rules or !empty($_drop_set) {
+        file { $_drop:
+          ensure  => 'file',
+          require => Package[$auditd::package_name],
+          *       => $auditd::config::rule_file_attributes,
+        }
+      }
+
+      $_drop_set.each |$name, $d| {
+        $_line = $d['value'] ? { false => undef, default => $d['line'] }
+
+        auditd::config::rule_line { "05_default_drop ${name}":
+          path    => $_drop,
+          # None of these lines contain regex metacharacters, so the line
+          # anchored is its own match unless one is given.
+          match   => pick($d['match'], "^${d['line']}$"),
+          line    => $_line,
+          require => File[$_drop],
+        }
+      }
     }
 
-    file { '/etc/audit/rules.d/99_tail.rules':
-      *       => $auditd::config::rule_file_attributes,
-      content => epp("${_common_template_path}/tail.epp")
+    # Declared under the same condition as the drop file.
+    if $auditd::purge_auditd_rules or $auditd::immutable =~ NotUndef {
+      file { $_tail:
+        ensure  => 'file',
+        require => Package[$auditd::package_name],
+        *       => $auditd::config::rule_file_attributes,
+      }
+    }
+
+    unless $auditd::immutable =~ Undef {
+      $_immutable_line = $auditd::immutable ? { true => '-e 2', default => undef }
+
+      auditd::config::rule_line { '99_tail immutable':
+        path    => $_tail,
+        match   => '^-e\s+2\s*$',
+        line    => $_immutable_line,
+        require => File[$_tail],
+      }
     }
   }
 

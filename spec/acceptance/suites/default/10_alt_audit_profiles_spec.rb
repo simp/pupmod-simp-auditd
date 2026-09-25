@@ -11,6 +11,15 @@ describe 'auditd class with alternative audit profiles' do
 
   let(:hieradata) do
     {
+      # 11.0.0 makes every resource opt-in: a bare `include auditd` installs
+      # the package and nothing else. These are the gates this suite needs;
+      # they are knobs the `simp:defaults` profile sets.
+      'auditd::service_ensure'  => 'running',
+      'auditd::service_enable'  => true,
+      'auditd::at_boot'         => true,
+      'auditd::purge_auditd_rules' => true,
+      'auditd::log_group'       => 'root',
+      'auditd::config_group'    => 'root',
       'pki::cacerts_sources'    => ['file:///etc/pki/simp-testing/pki/cacerts'],
       'pki::private_key_source' => 'file:///etc/pki/simp-testing/pki/private/%{facts.networking.fqdn}.pem',
       'pki::public_key_source'  => 'file:///etc/pki/simp-testing/pki/public/%{facts.networking.fqdn}.pub',
@@ -18,13 +27,15 @@ describe 'auditd class with alternative audit profiles' do
   end
 
   let(:simp_profile_aggressive) do
-    {
-      'auditd::root_audit_level' => 'aggressive',
-    }.merge(hieradata)
+    AuditdTestUtil.profile_toggles('simp').merge(
+      'auditd::default_audit_profiles' => ['simp'],
+      'auditd::root_audit_level'       => 'aggressive',
+    ).merge(hieradata)
   end
 
   let(:simp_profile_insane_enable_optional) do
-    {
+    AuditdTestUtil.profile_toggles('simp').merge(
+      'auditd::default_audit_profiles'                            => ['simp'],
       'auditd::root_audit_level'                                  => 'insane',
       'auditd::config::audit_profiles::simp::audit_chmod'         => true,
       'auditd::config::audit_profiles::simp::audit_rename_remove' => true,
@@ -32,19 +43,19 @@ describe 'auditd class with alternative audit profiles' do
       'auditd::config::audit_profiles::simp::audit_selinux_cmds'  => true,
       'auditd::config::audit_profiles::simp::audit_yum_cmd'       => true,
       'auditd::config::audit_profiles::simp::audit_rpm_cmd'       => true,
-    }.merge(hieradata)
+    ).merge(hieradata)
   end
 
   let(:stig_profile) do
-    {
+    AuditdTestUtil.profile_toggles('stig').merge(
       'auditd::default_audit_profiles' => [ 'stig' ],
-    }.merge(hieradata)
+    ).merge(hieradata)
   end
 
   let(:simp_plus_stig_profiles) do
-    {
+    AuditdTestUtil.profile_toggles('simp').merge(AuditdTestUtil.profile_toggles('stig')).merge(
       'auditd::default_audit_profiles' => [ 'simp', 'stig' ],
-    }.merge(hieradata)
+    ).merge(hieradata)
   end
 
   let(:manifest) do
