@@ -221,8 +221,8 @@
 #   does not require.
 #
 # @param package_ensure
-#   The `ensure` for the auditd packages. No longer read from
-#   `simp_options::package_ensure`.
+#   The `ensure` for the auditd packages. Defaults to
+#   `simp_options::package_ensure`, or `installed`.
 #
 # @param plugin_dir
 #  sets the directory for the plugin configuration files.
@@ -322,7 +322,7 @@
 #
 # @param syslog
 #   If true, manage the settings for the syslog plugin.
-#   No longer read from `simp_options::syslog`; `simp:defaults` sets `true`.
+#   Defaults to `simp_options::syslog`, or `false`.
 #   This does not  activate/deactivate the plugin.  That setting is
 #   in the auditd::config::audisp::syslog::enable setting.  If syslog
 #   is set to true, by default it will enable the syslog plugin in order
@@ -411,7 +411,7 @@ class auditd (
   Optional[Integer[0]]                                 $num_logs                        = undef,
   Optional[Auditd::Overflowaction]                     $overflow_action                 = undef,
   Variant[String[1],Array[String[1],1]]                $package_name                    = (versioncmp($facts['os']['release']['major'], '10') >= 0) ? { true => ['audit', 'audit-rules'], default => 'audit' },
-  Simplib::PackageEnsure                               $package_ensure                  = 'installed',
+  Simplib::PackageEnsure                               $package_ensure                  = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' }),
   Optional[Stdlib::Absolutepath]                       $plugin_dir                      = undef,
   Optional[Integer[0]]                                 $priority_boost                  = undef,
   Optional[Integer[0]]                                 $q_depth                         = undef,
@@ -428,7 +428,7 @@ class auditd (
     default => auditd::calculate_space_left($admin_space_left),
   },
   Optional[Auditd::SpaceLeftAction]                    $space_left_action               = undef,
-  Boolean                                              $syslog                          = false, # CCE-26933-2
+  Boolean                                              $syslog                          = simplib::lookup('simp_options::syslog', { 'default_value' => false }), # CCE-26933-2
   Optional[Variant[Array[Auditd::SelinuxType], Hash[Auditd::SelinuxType, Struct[{ Optional['ensure'] => Enum['present', 'absent'] }]]]] $target_selinux_types = undef,
   Integer[0]                                           $uid_min                         = Integer(pick(fact('uid_min'), 1000)),
   Optional[Boolean]                                    $verify_email                    = undef,

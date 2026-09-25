@@ -95,21 +95,24 @@ describe 'auditd' do
           it_behaves_like 'a package-only catalogue'
         end
 
-        # 11.0.0 no longer reads simp_options::package_ensure or
-        # simp_options::syslog. The hieradata fixture sets both to values
-        # distinct from the class defaults ('installed' / false), so a pass
-        # proves they are ignored. See spec/fixtures/hieradata/simp_options.yaml.
+        # With no parameters passed, $package_ensure and $syslog resolve through
+        # simplib::lookup('simp_options::package_ensure' / 'simp_options::syslog').
+        # The hieradata fixture sets both to values distinct from the class
+        # defaults ('installed' / false), so a pass proves the lookup path
+        # (not the default) supplied them.
+        # See spec/fixtures/hieradata/simp_options.yaml.
         context 'with simp_options site keys set in hiera' do
           let(:params) { {} }
           let(:hieradata) { 'simp_options' }
 
           it { is_expected.to compile.with_all_deps }
-          it { is_expected.to contain_package('audit').with(ensure: 'installed') }
-          it { is_expected.to contain_class('auditd').with_syslog(false) }
-          it { is_expected.not_to contain_class('auditd::config::logging') }
+          it { is_expected.to contain_package('audit').with(ensure: 'latest') }
+          it { is_expected.to contain_class('auditd').with_syslog(true) }
+          it { is_expected.to contain_class('auditd::config::logging') }
         end
 
-        # The values are deliberately distinct from the class defaults ('installed' /
+        # An explicit parameter wins over the simp_options fallback. The values
+        # are deliberately distinct from the class defaults ('installed' /
         # false) so a pass proves the parameter carried them.
         context 'with package_ensure and syslog set explicitly' do
           let(:params) do

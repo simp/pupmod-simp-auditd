@@ -26,7 +26,7 @@ describe 'auditd class with simp audit profile' do
       # when these are set; the permission tests below depend on both.
       'auditd::log_group'                    => 'root',
       'auditd::config_group'                 => 'root',
-      'auditd::syslog'                       => true,
+      'simp_options::syslog'                 => true,
       'pki::cacerts_sources'                 => ['file:///etc/pki/simp-testing/pki/cacerts'],
       'pki::private_key_source'              => 'file:///etc/pki/simp-testing/pki/private/%{facts.networking.fqdn}.pem',
       'pki::public_key_source'               => 'file:///etc/pki/simp-testing/pki/public/%{facts.networking.fqdn}.pub',

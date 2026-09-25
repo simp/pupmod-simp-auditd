@@ -51,9 +51,6 @@ profiles:
       simp:defaults.auditd.ignore_time_daemons: true
       simp:defaults.auditd.ignore_crypto_key_user: true
       simp:defaults.auditd.immutable: true
-      # Formerly read from simp_options::syslog
-      simp:defaults.auditd.syslog: true
-      simp:defaults.auditd.config.audisp.syslog.rsyslog: true
       # Rule profile toggles
       simp:defaults.auditd.simp.audit_32bit_operations: true
       simp:defaults.auditd.simp.audit_auditd_cmds: true

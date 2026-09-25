@@ -21,8 +21,7 @@
 # @param rsyslog
 #     (deprecated)
 #     If set, enable the SIMP `rsyslog` module and set up the appropriate rules
-#     for the `auditd` services. No longer read from `simp_options::syslog`;
-#     `simp:defaults` sets `true`.
+#     for the `auditd` services. Defaults to `simp_options::syslog`, or `false`.
 #
 # @param drop_audit_logs
 #     (deprecated)
@@ -70,8 +69,8 @@
 #     on auditd 3 and later when the plugin is enabled.
 #
 # @param package_ensure
-#     The `ensure` for the plugin package. No longer read from
-#     `simp_options::package_ensure`.
+#     The `ensure` for the plugin package. Defaults to
+#     `simp_options::package_ensure`, or `installed`.
 # @author https://github.com/simp/pupmod-simp-auditd/graphs/contributors
 #
 class auditd::config::audisp::syslog (
@@ -82,8 +81,8 @@ class auditd::config::audisp::syslog (
   String[1]                       $pkg_name,       # data in module
   Optional[String[1]]             $syslog_path     = undef,
   Optional[String[1]]             $type            = undef,
-  Boolean                         $rsyslog         = false, #deprecated see @param
-  String                          $package_ensure  = 'installed',
+  Boolean                         $rsyslog         = simplib::lookup('simp_options::syslog', { 'default_value' => false }), #deprecated see @param
+  String                          $package_ensure  = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' }),
 ) {
   # See auditd::config::logging for why a missing auditd_version means 3.0.
   if versioncmp(pick($facts['auditd_version'], '3.0'), '3.0') >= 0 and $enable {

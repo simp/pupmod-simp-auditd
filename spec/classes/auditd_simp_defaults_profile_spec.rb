@@ -79,12 +79,11 @@ describe 'auditd' do
       expect(missing).to be_empty
     end
 
-    # The rule profile toggles are parameters of private classes, and
-    # auditd::config::audisp::syslog is public. Anything else under
-    # auditd::config is a mistake.
+    # The rule profile toggles are parameters of private classes. Anything
+    # else under auditd::config is a mistake.
     it 'reaches into no private class but the rule profiles' do
       params = checks.values.map { |c| c['settings']['parameter'] }
-      expect(params.grep(%r{\Aauditd::.+::}).grep_v(%r{\Aauditd::config::(audit_profiles::(simp|stig)|audisp::syslog)::\w+\z})).to eq([])
+      expect(params.grep(%r{\Aauditd::.+::}).grep_v(%r{\Aauditd::config::audit_profiles::(simp|stig)::\w+\z})).to eq([])
     end
   end
 
@@ -185,11 +184,10 @@ describe 'auditd' do
           end
         end
 
-        # Formerly defaulted from simp_options::syslog.
-        it 'manages the syslog plugin and the rsyslog drop rule' do
-          is_expected.to contain_class('auditd').with_syslog(true)
-          is_expected.to contain_class('auditd::config::audisp::syslog').with_rsyslog(true)
-          is_expected.to contain_class('rsyslog')
+        # syslog still follows simp_options::syslog, which is unset here.
+        it 'leaves syslog forwarding to simp_options' do
+          is_expected.to contain_class('auditd').with_syslog(false)
+          is_expected.not_to contain_class('rsyslog')
         end
 
         # Removed in 11.0.0 and not restored by the profile (see checks.yaml).

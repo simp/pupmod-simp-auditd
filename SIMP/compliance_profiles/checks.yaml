@@ -15,10 +15,9 @@
 #
 # No `confine:` keys: every per-OS and per-auditd-major data file was identical.
 #
-# Not restored: the /etc/audit purge and mode, `enable`, `package_ensure`.
-# `syslog` and `config::audisp::syslog::rsyslog` used to default from
-# `simp_options::syslog`; they no longer read it, so they are restored here as
-# `true`, the value SIMP sets. `package_ensure` keeps its `installed` default.
+# Not restored: the /etc/audit purge and mode, `enable`. `syslog`,
+# `package_ensure` and `config::audisp::syslog::rsyslog` still default from
+# `simp_options::*` as before and need no check.
 ---
 version: 2.0.0
 checks:
@@ -254,18 +253,6 @@ checks:
     settings:
       parameter: auditd::immutable
       value: false
-
-  # --- Formerly read from simp_options::*; the parameters no longer are. ---
-  simp:defaults.auditd.syslog:
-    type: puppet-class-parameter
-    settings:
-      parameter: auditd::syslog
-      value: true
-  simp:defaults.auditd.config.audisp.syslog.rsyslog:
-    type: puppet-class-parameter
-    settings:
-      parameter: auditd::config::audisp::syslog::rsyslog
-      value: true
 
   # --- Rule profile toggles, in each profile's base rules file. ---
   # Each one was a Boolean with a value; unset now leaves its rules alone.

@@ -592,10 +592,10 @@ Default value: `(versioncmp($facts['os']['release']['major'], '10') >= 0) ? { tr
 
 Data type: `Simplib::PackageEnsure`
 
-The `ensure` for the auditd packages. No longer read from
-`simp_options::package_ensure`.
+The `ensure` for the auditd packages. Defaults to
+`simp_options::package_ensure`, or `installed`.
 
-Default value: `'installed'`
+Default value: `simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' })`
 
 ##### <a name="-auditd--plugin_dir"></a>`plugin_dir`
 
@@ -771,7 +771,7 @@ Default value: `undef`
 Data type: `Boolean`
 
 If true, manage the settings for the syslog plugin.
-No longer read from `simp_options::syslog`; `simp:defaults` sets `true`.
+Defaults to `simp_options::syslog`, or `false`.
 This does not  activate/deactivate the plugin.  That setting is
 in the auditd::config::audisp::syslog::enable setting.  If syslog
 is set to true, by default it will enable the syslog plugin in order
@@ -779,7 +779,7 @@ to be backwards compatable.  If you want to ensure the plugin is disabled,
 set auditd::config::audisp::syslog::enable to false.
 If this is set to false the plugin settings are not managed by puppet.
 
-Default value: `false`
+Default value: `simplib::lookup('simp_options::syslog', { 'default_value' => false })`
 
 ##### <a name="-auditd--target_selinux_types"></a>`target_selinux_types`
 
@@ -958,10 +958,9 @@ Data type: `Boolean`
 
 (deprecated)
 If set, enable the SIMP `rsyslog` module and set up the appropriate rules
-for the `auditd` services. No longer read from `simp_options::syslog`;
-`simp:defaults` sets `true`.
+for the `auditd` services. Defaults to `simp_options::syslog`, or `false`.
 
-Default value: `false`
+Default value: `simplib::lookup('simp_options::syslog', { 'default_value' => false })`
 
 ##### <a name="-auditd--config--audisp--syslog--drop_audit_logs"></a>`drop_audit_logs`
 
@@ -1047,10 +1046,10 @@ Default value: `'audispd-plugins'`
 
 Data type: `String`
 
-The `ensure` for the plugin package. No longer read from
-`simp_options::package_ensure`.
+The `ensure` for the plugin package. Defaults to
+`simp_options::package_ensure`, or `installed`.
 
-Default value: `'installed'`
+Default value: `simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' })`
 
 ### <a name="auditd--config--audisp_service"></a>`auditd::config::audisp_service`
 

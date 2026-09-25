@@ -141,14 +141,6 @@ behavior back. If you are not, set what you want explicitly.
   `-c`. They watch paths that may not exist, such as `/etc/snmp/snmpd.conf`, and
   without `-c` the kernel stops loading at the first rejected rule and silently
   drops every rule after it. Set `auditd::ignore_failures: false` to opt out.
-* `auditd::package_ensure`, `auditd::syslog`,
-  `auditd::config::audisp::syslog::package_ensure` and
-  `auditd::config::audisp::syslog::rsyslog` no longer read `simp_options::*`.
-  They default to `installed`, `false`, `installed` and `false`.
-  `simp:defaults` sets `auditd::syslog` and `rsyslog` to `true`. A site that set
-  `simp_options::syslog: false` and applies `simp:defaults` must set both to
-  `false` itself; one that set `simp_options::package_ensure` must set the two
-  `package_ensure` parameters.
 * `auditd::config::audisp::syslog::pkg_name` is a required `String[1]` supplied by the
   module data. Setting it to `~` used to skip the `audispd-plugins` package; it now fails
   the catalogue.
