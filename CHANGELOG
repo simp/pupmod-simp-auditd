@@ -46,7 +46,7 @@
   purge on and `buffer_size` unset, it gets the packaged `-b 8192`.
 - BREAKING: the Boolean rule toggles of the `simp` and `stig` profiles default
   to `undef`; `simp:defaults` sets the old values. With none set, the
-  profile's base rules file is not written.
+  profile's base rules file is not written, unless the purge is on.
 - Edit the `simp` and `stig` base rules files rule by rule with `file_line`,
   matched on the rule body. A rule enabled later is appended.
 - Off x86_64, the `stig` profile's `audit_chmod` now writes the `arch=b32`

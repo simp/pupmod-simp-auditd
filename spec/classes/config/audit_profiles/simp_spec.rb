@@ -53,6 +53,17 @@ describe 'auditd' do
         it 'edits no rule' do
           expect(catalogue.resources.select { |r| r.type == 'File_line' && r[:path] == path }).to be_empty
         end
+
+        # Undeclared, the purge would delete the file.
+        context 'with the purge on' do
+          let(:params) { base_params.merge(purge_auditd_rules: true) }
+
+          it { is_expected.to contain_file(path).with(ensure: 'file', content: nil) }
+
+          it 'edits no rule' do
+            expect(catalogue.resources.select { |r| r.type == 'File_line' && r[:path] == path }).to be_empty
+          end
+        end
       end
 
       context 'with only audit_chown set' do

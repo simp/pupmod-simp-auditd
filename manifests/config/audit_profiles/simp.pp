@@ -876,7 +876,9 @@ class auditd::config::audit_profiles::simp (
 
   $_toggles = $_all_toggles.filter |$t| { $t[1] =~ Boolean }
 
-  unless empty($_toggles) {
+  # Declared while the purge is on even with no toggle set: undeclared, the
+  # purge would delete the rules an unset toggle is meant to leave alone.
+  if $auditd::purge_auditd_rules or !empty($_toggles) {
     file { $_path:
       ensure  => 'file',
       require => Package[$auditd::package_name],

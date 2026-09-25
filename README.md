@@ -105,7 +105,8 @@ behavior back. If you are not, set what you want explicitly.
   `audit_suid_sgid`, ...) default to `undef` rather than `true` or `false`.
   `undef` writes nothing and leaves any existing rule alone, `false` removes the
   rule, and `true` writes it. `simp:defaults` sets the old values. With none of a
-  profile's toggles set, its base rules file is not written at all.
+  profile's toggles set, its base rules file is not written at all, unless
+  `auditd::purge_auditd_rules` is `true`; then the file is kept as it is.
 * Changing `auditd::default_audit_profiles` from `['simp']` to `['stig']` without
   `auditd::purge_auditd_rules: true` leaves the old `50_00_simp_base.rules` on disk.
   The purge used to remove it for you.

@@ -324,6 +324,28 @@ describe 'auditd class with simp audit profile' do
           expect(on(host, "#{AuditdTestUtil::AUDITCTL_CMD} -l").output).not_to match(%r{key=chown$})
         end
       end
+
+      # The purge deletes every rules.d file this module does not declare, so
+      # the base rules file must stay declared once its last toggle is unset.
+      context 'un-enforcing the last base rules toggle with the purge on' do
+        let(:base_file) { '/etc/audit/rules.d/50_00_simp_base.rules' }
+        let(:toggle) { 'auditd::config::audit_profiles::simp::audit_chown' }
+        let(:chown_rule) { '^-a always,exit -F arch=b64 -S chown,fchown,fchownat,lchown -k chown$' }
+        let(:no_toggles) { hieradata.reject { |k, _| k.start_with?('auditd::config::audit_profiles::simp::') } }
+
+        it 'writes the rule when it is the only toggle set' do
+          set_hieradata_on(host, no_toggles.merge(toggle => true))
+          apply_manifest_on(host, manifest, catch_failures: true)
+          on(host, "grep -qe '#{chown_rule}' #{base_file}")
+        end
+
+        it 'leaves the file and the rule alone when unset' do
+          set_hieradata_on(host, no_toggles)
+          apply_manifest_on(host, manifest, catch_changes: true)
+          on(host, "grep -qe '#{chown_rule}' #{base_file}")
+          expect(on(host, "#{AuditdTestUtil::AUDITCTL_CMD} -l").output).to match(%r{^-a always,exit -F arch=b64 -S \S*chown\S* -F key=chown$})
+        end
+      end
     end
   end
 end

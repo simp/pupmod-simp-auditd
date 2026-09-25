@@ -36,6 +36,17 @@ describe 'auditd' do
 
         it { is_expected.to compile.with_all_deps }
         it { is_expected.not_to contain_file(path) }
+
+        # Undeclared, the purge would delete the file.
+        context 'with the purge on' do
+          let(:params) { { default_audit_profiles: ['stig'], purge_auditd_rules: true } }
+
+          it { is_expected.to contain_file(path).with(ensure: 'file', content: nil) }
+
+          it 'edits no rule' do
+            expect(catalogue.resources.select { |r| r.type == 'File_line' && r[:path] == path }).to be_empty
+          end
+        end
       end
 
       context 'with the simp:defaults toggles' do
