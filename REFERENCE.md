@@ -45,7 +45,7 @@ audit package's own rules
 ### Functions
 
 * [`auditd::calculate_space_left`](#auditd--calculate_space_left): Calculates the correct default value for 'space_left' based on the value of 'admin_space_left'.
-* [`auditd::entries`](#auditd--entries): Combine a list's `*_ensure` Hash with its deprecated Array parameter
+* [`auditd::entries`](#auditd--entries): Combine a list's `*_entries` Hash with its deprecated Array parameter
 * [`auditd::get_array_index`](#auditd--get_array_index): Returns a string that represents the first index of the specified element within the Array.
 * [`auditd::rule_match`](#auditd--rule_match): Returns the `file_line` match for one rule in a profile's base rules file
 * [`auditd::validate_init_params`](#auditd--validate_init_params): Validates selected params from the main auditd class.
@@ -55,6 +55,7 @@ audit package's own rules
 * [`Auditd::AuditProfile`](#Auditd--AuditProfile): Matches the types of auditd profiles allowed
 * [`Auditd::DiskErrorAction`](#Auditd--DiskErrorAction): Matches disk error actions in auditd.conf
 * [`Auditd::DiskFullAction`](#Auditd--DiskFullAction): Matches actions to take when disk is full (see auditd.conf)
+* [`Auditd::EntryOptions`](#Auditd--EntryOptions): Options for one entry of a list parameter
 * [`Auditd::Flush`](#Auditd--Flush): Matches actions flush in auditd.conf
 * [`Auditd::LogFacility`](#Auditd--LogFacility): Matches log facility that can be used in syslog.conf plugin
 * [`Auditd::LogFormat`](#Auditd--LogFormat): Matches log formats that can be used in auditd.conf
@@ -138,7 +139,7 @@ The following parameters are available in the `auditd` class:
 * [`space_left`](#-auditd--space_left)
 * [`space_left_action`](#-auditd--space_left_action)
 * [`syslog`](#-auditd--syslog)
-* [`target_selinux_types_ensure`](#-auditd--target_selinux_types_ensure)
+* [`target_selinux_types_entries`](#-auditd--target_selinux_types_entries)
 * [`target_selinux_types`](#-auditd--target_selinux_types)
 * [`uid_min`](#-auditd--uid_min)
 * [`verify_email`](#-auditd--verify_email)
@@ -780,19 +781,23 @@ If this is set to false the plugin settings are not managed by puppet.
 
 Default value: `simplib::lookup('simp_options::syslog', { 'default_value' => false })`
 
-##### <a name="-auditd--target_selinux_types_ensure"></a>`target_selinux_types_ensure`
+##### <a name="-auditd--target_selinux_types_entries"></a>`target_selinux_types_entries`
 
-Data type: `Hash[Auditd::SelinuxType, Enum['present', 'absent']]`
+Data type: `Hash[Auditd::SelinuxType, Auditd::EntryOptions]`
 
-SELinux types to target, each mapped to `present` or `absent`; all other
-types will be dropped
+SELinux types to target, each mapped to its options; all other types will
+be dropped
 
 For systems that require all users and processes to be in a confined
 namespace, you may find that only auditing unconfined types will be
 sufficient since all other invalid system actions are already audited.
 
-`present` writes the type's drop rule and `absent` removes it. Merged
-`deep` in Hiera. Types that are not listed are left alone.
+Merged `deep` in Hiera. Types that are not listed are left alone.
+
+Options:
+
+* **:ensure** `Enum['present', 'absent']`: `present` writes the type's drop rule and `absent` removes it. Defaults to
+`present`.
 
 Default value: `{}`
 
@@ -800,8 +805,8 @@ Default value: `{}`
 
 Data type: `Optional[Array[Auditd::SelinuxType]]`
 
-Deprecated: use `target_selinux_types_ensure`. Each entry is added as
-`present`, after `target_selinux_types_ensure`. It will be removed in
+Deprecated: use `target_selinux_types_entries`. Each entry is added as
+`present`, after `target_selinux_types_entries`. It will be removed in
 12.0.0.
 
 Default value: `undef`
@@ -1191,13 +1196,13 @@ The following parameters are available in the `auditd::config::audit_profiles::s
 * [`audit_32bit_operations_tag`](#-auditd--config--audit_profiles--simp--audit_32bit_operations_tag)
 * [`audit_auditd_cmds`](#-auditd--config--audit_profiles--simp--audit_auditd_cmds)
 * [`audit_auditd_cmds_tag`](#-auditd--config--audit_profiles--simp--audit_auditd_cmds_tag)
-* [`audit_auditd_cmds_ensure`](#-auditd--config--audit_profiles--simp--audit_auditd_cmds_ensure)
+* [`audit_auditd_cmds_entries`](#-auditd--config--audit_profiles--simp--audit_auditd_cmds_entries)
 * [`audit_auditd_cmds_list`](#-auditd--config--audit_profiles--simp--audit_auditd_cmds_list)
-* [`basic_root_audit_syscalls_ensure`](#-auditd--config--audit_profiles--simp--basic_root_audit_syscalls_ensure)
+* [`basic_root_audit_syscalls_entries`](#-auditd--config--audit_profiles--simp--basic_root_audit_syscalls_entries)
 * [`basic_root_audit_syscalls`](#-auditd--config--audit_profiles--simp--basic_root_audit_syscalls)
-* [`aggressive_root_audit_syscalls_ensure`](#-auditd--config--audit_profiles--simp--aggressive_root_audit_syscalls_ensure)
+* [`aggressive_root_audit_syscalls_entries`](#-auditd--config--audit_profiles--simp--aggressive_root_audit_syscalls_entries)
 * [`aggressive_root_audit_syscalls`](#-auditd--config--audit_profiles--simp--aggressive_root_audit_syscalls)
-* [`insane_root_audit_syscalls_ensure`](#-auditd--config--audit_profiles--simp--insane_root_audit_syscalls_ensure)
+* [`insane_root_audit_syscalls_entries`](#-auditd--config--audit_profiles--simp--insane_root_audit_syscalls_entries)
 * [`insane_root_audit_syscalls`](#-auditd--config--audit_profiles--simp--insane_root_audit_syscalls)
 * [`audit_unsuccessful_file_operations`](#-auditd--config--audit_profiles--simp--audit_unsuccessful_file_operations)
 * [`audit_unsuccessful_file_operations_tag`](#-auditd--config--audit_profiles--simp--audit_unsuccessful_file_operations_tag)
@@ -1285,7 +1290,7 @@ The following parameters are available in the `auditd::config::audit_profiles::s
 * [`audit_ssh_keysign_cmd_tag`](#-auditd--config--audit_profiles--simp--audit_ssh_keysign_cmd_tag)
 * [`audit_suspicious_apps`](#-auditd--config--audit_profiles--simp--audit_suspicious_apps)
 * [`audit_suspicious_apps_tag`](#-auditd--config--audit_profiles--simp--audit_suspicious_apps_tag)
-* [`audit_suspicious_apps_ensure`](#-auditd--config--audit_profiles--simp--audit_suspicious_apps_ensure)
+* [`audit_suspicious_apps_entries`](#-auditd--config--audit_profiles--simp--audit_suspicious_apps_entries)
 * [`audit_suspicious_apps_list`](#-auditd--config--audit_profiles--simp--audit_suspicious_apps_list)
 * [`audit_systemd`](#-auditd--config--audit_profiles--simp--audit_systemd)
 * [`audit_systemd_tag`](#-auditd--config--audit_profiles--simp--audit_systemd_tag)
@@ -1320,88 +1325,108 @@ Tag to be added to entries triggered by `audit_auditd_cmds`
 
 Default value: `'access-audit-trail'`
 
-##### <a name="-auditd--config--audit_profiles--simp--audit_auditd_cmds_ensure"></a>`audit_auditd_cmds_ensure`
+##### <a name="-auditd--config--audit_profiles--simp--audit_auditd_cmds_entries"></a>`audit_auditd_cmds_entries`
 
-Data type: `Hash[String[1], Enum['present', 'absent']]`
+Data type: `Hash[String[1], Auditd::EntryOptions]`
 
 Commands to be audited if enabled by `audit_auditd_cmds`, each mapped to
-`present` or `absent`
+its options
 
-Merged `deep` in Hiera, so a layer can add or remove one command. An
-entry set to `absent` removes its rule while the toggle is `true`.
+Merged `deep` in Hiera, so a layer can add or remove one command.
 Deleting an entry leaves its rule alone.
 
-Default value: `{ '/usr/sbin/aulast' => 'present', '/usr/sbin/aulastlogin' => 'present', '/usr/sbin/aureport' => 'present', '/usr/sbin/ausearch' => 'present', '/usr/sbin/auvirt' => 'present' }`
+Options:
+
+* **:ensure** `Enum['present', 'absent']`: `absent` removes the command's rule while `audit_auditd_cmds` is `true`.
+Defaults to `present`.
+
+Default value: `{ '/usr/sbin/aulast' => {}, '/usr/sbin/aulastlogin' => {}, '/usr/sbin/aureport' => {}, '/usr/sbin/ausearch' => {}, '/usr/sbin/auvirt' => {} }`
 
 ##### <a name="-auditd--config--audit_profiles--simp--audit_auditd_cmds_list"></a>`audit_auditd_cmds_list`
 
 Data type: `Array[String[1]]`
 
-Deprecated: use `audit_auditd_cmds_ensure`. Entries are added as `present`, after `audit_auditd_cmds_ensure`;
-an entry written as `--entry` becomes `absent`. It will be removed in 12.0.0.
+Deprecated: use `audit_auditd_cmds_entries`. Entries are added as
+`present`, after `audit_auditd_cmds_entries`; an entry written as
+`--entry` becomes `absent`. It will be removed in 12.0.0.
 
 Default value: `[]`
 
-##### <a name="-auditd--config--audit_profiles--simp--basic_root_audit_syscalls_ensure"></a>`basic_root_audit_syscalls_ensure`
+##### <a name="-auditd--config--audit_profiles--simp--basic_root_audit_syscalls_entries"></a>`basic_root_audit_syscalls_entries`
 
-Data type: `Hash[String[1], Enum['present', 'absent']]`
+Data type: `Hash[String[1], Auditd::EntryOptions]`
 
-Basic syscalls to audit for su-root activity, each mapped to `present` or
-`absent`
+Basic syscalls to audit for su-root activity, each mapped to its
+options
 
-Merged `deep` in Hiera. An entry set to `absent` is left out of the rule's
-`-S` list.
+Merged `deep` in Hiera.
 
-Default value: `{ 'capset' => 'present', 'mknod' => 'present', 'mknodat' => 'present', 'pivot_root' => 'present', 'quotactl' => 'present', 'setsid' => 'present', 'adjtimex' => 'present', 'settimeofday' => 'present', 'setuid' => 'present', 'swapoff' => 'present', 'swapon' => 'present' }`
+Options:
+
+* **:ensure** `Enum['present', 'absent']`: `absent` leaves the syscall out of the rule's `-S` list. Defaults to
+`present`.
+
+Default value: `{ 'capset' => {}, 'mknod' => {}, 'mknodat' => {}, 'pivot_root' => {}, 'quotactl' => {}, 'setsid' => {}, 'adjtimex' => {}, 'settimeofday' => {}, 'setuid' => {}, 'swapoff' => {}, 'swapon' => {} }`
 
 ##### <a name="-auditd--config--audit_profiles--simp--basic_root_audit_syscalls"></a>`basic_root_audit_syscalls`
 
 Data type: `Array[String[1]]`
 
-Deprecated: use `basic_root_audit_syscalls_ensure`. Entries are added as `present`, after `basic_root_audit_syscalls_ensure`;
-an entry written as `--entry` becomes `absent`. It will be removed in 12.0.0.
+Deprecated: use `basic_root_audit_syscalls_entries`. Entries are added as
+`present`, after `basic_root_audit_syscalls_entries`; an entry written as
+`--entry` becomes `absent`. It will be removed in 12.0.0.
 
 Default value: `[]`
 
-##### <a name="-auditd--config--audit_profiles--simp--aggressive_root_audit_syscalls_ensure"></a>`aggressive_root_audit_syscalls_ensure`
+##### <a name="-auditd--config--audit_profiles--simp--aggressive_root_audit_syscalls_entries"></a>`aggressive_root_audit_syscalls_entries`
 
-Data type: `Hash[String[1], Enum['present', 'absent']]`
+Data type: `Hash[String[1], Auditd::EntryOptions]`
 
-Aggressive syscalls to audit for su-root activity, each mapped to
-`present` or `absent`
+Aggressive syscalls to audit for su-root activity, each mapped to its
+options
 
-Merged `deep` in Hiera. An entry set to `absent` is left out of the rule's
-`-S` list.
+Merged `deep` in Hiera.
 
-Default value: `{ 'capset' => 'present', 'mknod' => 'present', 'mknodat' => 'present', 'pivot_root' => 'present', 'quotactl' => 'present', 'setsid' => 'present', 'adjtimex' => 'present', 'settimeofday' => 'present', 'setuid' => 'present', 'swapoff' => 'present', 'swapon' => 'present', 'execve' => 'present', 'rename' => 'present', 'renameat' => 'present', 'rmdir' => 'present', 'unlink' => 'present', 'unlinkat' => 'present' }`
+Options:
+
+* **:ensure** `Enum['present', 'absent']`: `absent` leaves the syscall out of the rule's `-S` list. Defaults to
+`present`.
+
+Default value: `{ 'capset' => {}, 'mknod' => {}, 'mknodat' => {}, 'pivot_root' => {}, 'quotactl' => {}, 'setsid' => {}, 'adjtimex' => {}, 'settimeofday' => {}, 'setuid' => {}, 'swapoff' => {}, 'swapon' => {}, 'execve' => {}, 'rename' => {}, 'renameat' => {}, 'rmdir' => {}, 'unlink' => {}, 'unlinkat' => {} }`
 
 ##### <a name="-auditd--config--audit_profiles--simp--aggressive_root_audit_syscalls"></a>`aggressive_root_audit_syscalls`
 
 Data type: `Array[String[1]]`
 
-Deprecated: use `aggressive_root_audit_syscalls_ensure`. Entries are added as `present`, after `aggressive_root_audit_syscalls_ensure`;
-an entry written as `--entry` becomes `absent`. It will be removed in 12.0.0.
+Deprecated: use `aggressive_root_audit_syscalls_entries`. Entries are added as
+`present`, after `aggressive_root_audit_syscalls_entries`; an entry written as
+`--entry` becomes `absent`. It will be removed in 12.0.0.
 
 Default value: `[]`
 
-##### <a name="-auditd--config--audit_profiles--simp--insane_root_audit_syscalls_ensure"></a>`insane_root_audit_syscalls_ensure`
+##### <a name="-auditd--config--audit_profiles--simp--insane_root_audit_syscalls_entries"></a>`insane_root_audit_syscalls_entries`
 
-Data type: `Hash[String[1], Enum['present', 'absent']]`
+Data type: `Hash[String[1], Auditd::EntryOptions]`
 
-Insane syscalls to audit for su-root activity, each mapped to `present` or
-`absent`
+Insane syscalls to audit for su-root activity, each mapped to its
+options
 
-Merged `deep` in Hiera. An entry set to `absent` is left out of the rule's
-`-S` list.
+Merged `deep` in Hiera.
 
-Default value: `{ 'capset' => 'present', 'mknod' => 'present', 'mknodat' => 'present', 'pivot_root' => 'present', 'quotactl' => 'present', 'setsid' => 'present', 'adjtimex' => 'present', 'settimeofday' => 'present', 'setuid' => 'present', 'swapoff' => 'present', 'swapon' => 'present', 'execve' => 'present', 'rename' => 'present', 'renameat' => 'present', 'rmdir' => 'present', 'unlink' => 'present', 'unlinkat' => 'present', 'write' => 'present', 'chown' => 'present', 'fchown' => 'present', 'fchownat' => 'present', 'lchown' => 'present', 'creat' => 'present', 'fork' => 'present', 'vfork' => 'present', 'link' => 'present', 'linkat' => 'present', 'symlink' => 'present', 'symlinkat' => 'present', 'mkdir' => 'present', 'mkdirat' => 'present' }`
+Options:
+
+* **:ensure** `Enum['present', 'absent']`: `absent` leaves the syscall out of the rule's `-S` list. Defaults to
+`present`.
+
+Default value: `{ 'capset' => {}, 'mknod' => {}, 'mknodat' => {}, 'pivot_root' => {}, 'quotactl' => {}, 'setsid' => {}, 'adjtimex' => {}, 'settimeofday' => {}, 'setuid' => {}, 'swapoff' => {}, 'swapon' => {}, 'execve' => {}, 'rename' => {}, 'renameat' => {}, 'rmdir' => {}, 'unlink' => {}, 'unlinkat' => {}, 'write' => {}, 'chown' => {}, 'fchown' => {}, 'fchownat' => {}, 'lchown' => {}, 'creat' => {}, 'fork' => {}, 'vfork' => {}, 'link' => {}, 'linkat' => {}, 'symlink' => {}, 'symlinkat' => {}, 'mkdir' => {}, 'mkdirat' => {} }`
 
 ##### <a name="-auditd--config--audit_profiles--simp--insane_root_audit_syscalls"></a>`insane_root_audit_syscalls`
 
 Data type: `Array[String[1]]`
 
-Deprecated: use `insane_root_audit_syscalls_ensure`. Entries are added as `present`, after `insane_root_audit_syscalls_ensure`;
-an entry written as `--entry` becomes `absent`. It will be removed in 12.0.0.
+Deprecated: use `insane_root_audit_syscalls_entries`. Entries are added as
+`present`, after `insane_root_audit_syscalls_entries`; an entry written as
+`--entry` becomes `absent`. It will be removed in 12.0.0.
 
 Default value: `[]`
 
@@ -2128,25 +2153,30 @@ Tag to be added to entries triggered by `audit_suspicious_apps`
 
 Default value: `'suspicious_apps'`
 
-##### <a name="-auditd--config--audit_profiles--simp--audit_suspicious_apps_ensure"></a>`audit_suspicious_apps_ensure`
+##### <a name="-auditd--config--audit_profiles--simp--audit_suspicious_apps_entries"></a>`audit_suspicious_apps_entries`
 
-Data type: `Hash[Stdlib::Absolutepath, Enum['present', 'absent']]`
+Data type: `Hash[Stdlib::Absolutepath, Auditd::EntryOptions]`
 
 Applications to be audited when `audit_suspicious_apps` is enabled, each
-mapped to `present` or `absent`
+mapped to its options
 
-Merged `deep` in Hiera, so a layer can add or remove one application. An
-entry set to `absent` removes its rule while the toggle is `true`.
+Merged `deep` in Hiera, so a layer can add or remove one application.
 Deleting an entry leaves its rule alone.
 
-Default value: `{ '/usr/bin/nc' => 'present', '/usr/bin/ncat' => 'present', '/usr/bin/nmap' => 'present', '/usr/bin/rawshark' => 'present', '/usr/bin/socat' => 'present', '/usr/bin/wireshark' => 'present', '/usr/sbin/tcpdump' => 'present', '/usr/sbin/traceroute' => 'present', '/usr/sbin/traceroute6' => 'present' }`
+Options:
+
+* **:ensure** `Enum['present', 'absent']`: `absent` removes the application's rule while `audit_suspicious_apps` is
+`true`. Defaults to `present`.
+
+Default value: `{ '/usr/bin/nc' => {}, '/usr/bin/ncat' => {}, '/usr/bin/nmap' => {}, '/usr/bin/rawshark' => {}, '/usr/bin/socat' => {}, '/usr/bin/wireshark' => {}, '/usr/sbin/tcpdump' => {}, '/usr/sbin/traceroute' => {}, '/usr/sbin/traceroute6' => {} }`
 
 ##### <a name="-auditd--config--audit_profiles--simp--audit_suspicious_apps_list"></a>`audit_suspicious_apps_list`
 
 Data type: `Array[Stdlib::Absolutepath]`
 
-Deprecated: use `audit_suspicious_apps_ensure`. Entries are added as `present`, after `audit_suspicious_apps_ensure`;
-an entry written as `--entry` becomes `absent`. It will be removed in 12.0.0.
+Deprecated: use `audit_suspicious_apps_entries`. Entries are added as
+`present`, after `audit_suspicious_apps_entries`; an entry written as
+`--entry` becomes `absent`. It will be removed in 12.0.0.
 
 Default value: `[]`
 
@@ -2251,7 +2281,7 @@ The following parameters are available in the `auditd::config::audit_profiles::s
 * [`audit_rename_remove`](#-auditd--config--audit_profiles--stig--audit_rename_remove)
 * [`audit_rename_remove_tag`](#-auditd--config--audit_profiles--stig--audit_rename_remove_tag)
 * [`audit_suid_sgid`](#-auditd--config--audit_profiles--stig--audit_suid_sgid)
-* [`suid_sgid_cmds_ensure`](#-auditd--config--audit_profiles--stig--suid_sgid_cmds_ensure)
+* [`suid_sgid_cmds_entries`](#-auditd--config--audit_profiles--stig--suid_sgid_cmds_entries)
 * [`default_suid_sgid_cmds`](#-auditd--config--audit_profiles--stig--default_suid_sgid_cmds)
 * [`suid_sgid_cmds`](#-auditd--config--audit_profiles--stig--suid_sgid_cmds)
 * [`audit_suid_tag`](#-auditd--config--audit_profiles--stig--audit_suid_tag)
@@ -2391,25 +2421,28 @@ Whether to audit `setuid`/`setgid` commands
 
 Default value: `undef`
 
-##### <a name="-auditd--config--audit_profiles--stig--suid_sgid_cmds_ensure"></a>`suid_sgid_cmds_ensure`
+##### <a name="-auditd--config--audit_profiles--stig--suid_sgid_cmds_entries"></a>`suid_sgid_cmds_entries`
 
-Data type: `Hash[String[1], Enum['present', 'absent']]`
+Data type: `Hash[String[1], Auditd::EntryOptions]`
 
-The `setuid`/`setgid` commands to be audited, each mapped to `present` or
-`absent`
+The `setuid`/`setgid` commands to be audited, each mapped to its options
 
-Merged `deep` in Hiera, so a layer can add or remove one command. An
-entry set to `absent` removes that command's rule while `audit_suid_sgid`
-is `true`. Deleting an entry leaves its rule alone.
+Merged `deep` in Hiera, so a layer can add or remove one command.
+Deleting an entry leaves its rule alone.
 
-Default value: `{ '/usr/bin/at' => 'present', '/usr/bin/chage' => 'present', '/usr/bin/chcon' => 'present', '/usr/bin/chfn' => 'present', '/usr/bin/chsh' => 'present', '/usr/bin/crontab' => 'present', '/usr/bin/fusermount' => 'present', '/usr/bin/gpasswd' => 'present', '/usr/bin/incrontab' => 'present', '/usr/bin/ksu' => 'present', '/usr/bin/locate' => 'present', '/usr/bin/mount' => 'present', '/usr/bin/newgidmap' => 'present', '/usr/bin/newgrp' => 'present', '/usr/bin/newuidmap' => 'present', '/usr/bin/passwd' => 'present', '/usr/bin/pkexec' => 'present', '/usr/bin/screen' => 'present', '/usr/bin/ssh-agent' => 'present', '/usr/bin/su' => 'present', '/usr/bin/sudo' => 'present', '/usr/bin/sudoedit' => 'present', '/usr/bin/umount' => 'present', '/usr/bin/wall' => 'present', '/usr/bin/write' => 'present', '/usr/bin/Xorg' => 'present', '/usr/lib64/dbus-1/dbus-daemon-launch-helper' => 'present', '/usr/libexec/dbus-1/dbus-daemon-launch-helper' => 'present', '/usr/libexec/openssh/ssh-keysign' => 'present', '/usr/libexec/pt_chown' => 'present', '/usr/libexec/sssd/krb5_child' => 'present', '/usr/libexec/sssd/ldap_child' => 'present', '/usr/libexec/sssd/proxy_child' => 'present', '/usr/libexec/sssd/selinux_child' => 'present', '/usr/libexec/utempter/utempter' => 'present', '/usr/lib/polkit-1/polkit-agent-helper-1' => 'present', '/usr/sbin/mount.nfs' => 'present', '/usr/sbin/netreport' => 'present', '/usr/sbin/pam_timestamp_check' => 'present', '/usr/sbin/postdrop' => 'present', '/usr/sbin/postqueue' => 'present', '/usr/sbin/restorecon' => 'present', '/usr/sbin/semanage' => 'present', '/usr/sbin/setfiles' => 'present', '/usr/sbin/setsebool' => 'present', '/usr/sbin/seunshare' => 'present', '/usr/sbin/unix_chkpwd' => 'present', '/usr/sbin/userhelper' => 'present', '/usr/sbin/usernetctl' => 'present' }`
+Options:
+
+* **:ensure** `Enum['present', 'absent']`: `absent` removes the command's rule while `audit_suid_sgid` is `true`.
+Defaults to `present`.
+
+Default value: `{ '/usr/bin/at' => {}, '/usr/bin/chage' => {}, '/usr/bin/chcon' => {}, '/usr/bin/chfn' => {}, '/usr/bin/chsh' => {}, '/usr/bin/crontab' => {}, '/usr/bin/fusermount' => {}, '/usr/bin/gpasswd' => {}, '/usr/bin/incrontab' => {}, '/usr/bin/ksu' => {}, '/usr/bin/locate' => {}, '/usr/bin/mount' => {}, '/usr/bin/newgidmap' => {}, '/usr/bin/newgrp' => {}, '/usr/bin/newuidmap' => {}, '/usr/bin/passwd' => {}, '/usr/bin/pkexec' => {}, '/usr/bin/screen' => {}, '/usr/bin/ssh-agent' => {}, '/usr/bin/su' => {}, '/usr/bin/sudo' => {}, '/usr/bin/sudoedit' => {}, '/usr/bin/umount' => {}, '/usr/bin/wall' => {}, '/usr/bin/write' => {}, '/usr/bin/Xorg' => {}, '/usr/lib64/dbus-1/dbus-daemon-launch-helper' => {}, '/usr/libexec/dbus-1/dbus-daemon-launch-helper' => {}, '/usr/libexec/openssh/ssh-keysign' => {}, '/usr/libexec/pt_chown' => {}, '/usr/libexec/sssd/krb5_child' => {}, '/usr/libexec/sssd/ldap_child' => {}, '/usr/libexec/sssd/proxy_child' => {}, '/usr/libexec/sssd/selinux_child' => {}, '/usr/libexec/utempter/utempter' => {}, '/usr/lib/polkit-1/polkit-agent-helper-1' => {}, '/usr/sbin/mount.nfs' => {}, '/usr/sbin/netreport' => {}, '/usr/sbin/pam_timestamp_check' => {}, '/usr/sbin/postdrop' => {}, '/usr/sbin/postqueue' => {}, '/usr/sbin/restorecon' => {}, '/usr/sbin/semanage' => {}, '/usr/sbin/setfiles' => {}, '/usr/sbin/setsebool' => {}, '/usr/sbin/seunshare' => {}, '/usr/sbin/unix_chkpwd' => {}, '/usr/sbin/userhelper' => {}, '/usr/sbin/usernetctl' => {} }`
 
 ##### <a name="-auditd--config--audit_profiles--stig--default_suid_sgid_cmds"></a>`default_suid_sgid_cmds`
 
 Data type: `Array[String[1]]`
 
-Deprecated: use `suid_sgid_cmds_ensure`, which holds the defaults. Entries
-are added as `present`, after `suid_sgid_cmds_ensure`. It will be removed
+Deprecated: use `suid_sgid_cmds_entries`, which holds the defaults. Entries
+are added as `present`, after `suid_sgid_cmds_entries`. It will be removed
 in 12.0.0.
 
 Default value: `[]`
@@ -2418,8 +2451,8 @@ Default value: `[]`
 
 Data type: `Array[String[1]]`
 
-Deprecated: use `suid_sgid_cmds_ensure`. Entries are added as `present`,
-after `suid_sgid_cmds_ensure`; an entry written as `--entry` becomes
+Deprecated: use `suid_sgid_cmds_entries`. Entries are added as `present`,
+after `suid_sgid_cmds_entries`; an entry written as `--entry` becomes
 `absent`. It will be removed in 12.0.0.
 
 Default value: `[]`
@@ -2830,23 +2863,23 @@ Data type: `Variant[Integer[0],Pattern['^\d+%$']]`
 
 Type: Puppet Language
 
-Array entries are applied last, as `present`, so a site's old data still
-wins. An entry written as `--entry` (a Hiera knockout that reached the
-class) becomes `absent`.
+Returns each entry mapped to its `ensure`. Array entries are applied last,
+as `present`, so a site's old data still wins. An entry written as
+`--entry` (a Hiera knockout that reached the class) becomes `absent`.
 
-#### `auditd::entries(Hash[String[1], Enum['present', 'absent']] $entries, Array[String[1]] $legacy = [])`
+#### `auditd::entries(Hash[String[1], Auditd::EntryOptions] $entries, Array[String[1]] $legacy = [])`
 
-Array entries are applied last, as `present`, so a site's old data still
-wins. An entry written as `--entry` (a Hiera knockout that reached the
-class) becomes `absent`.
+Returns each entry mapped to its `ensure`. Array entries are applied last,
+as `present`, so a site's old data still wins. An entry written as
+`--entry` (a Hiera knockout that reached the class) becomes `absent`.
 
 Returns: `Hash[String[1], Enum['present', 'absent']]`
 
 ##### `entries`
 
-Data type: `Hash[String[1], Enum['present', 'absent']]`
+Data type: `Hash[String[1], Auditd::EntryOptions]`
 
-The Hash of entry to `present` or `absent`.
+The Hash of entry to its options.
 
 ##### `legacy`
 
@@ -2976,6 +3009,13 @@ Alias of `Enum['IGNORE', 'SYSLOG', 'EXEC', 'SUSPEND', 'SINGLE', 'HALT', 'ignore'
 Matches actions to take when disk is full (see auditd.conf)
 
 Alias of `Enum['IGNORE', 'SYSLOG', 'ROTATE', 'EXEC', 'SUSPEND', 'SINGLE', 'HALT', 'ignore', 'syslog', 'rotate', 'exec', 'suspend', 'single', 'halt']`
+
+### <a name="Auditd--EntryOptions"></a>`Auditd::EntryOptions`
+
+An empty Hash means `{ ensure => present }`. New options are added here
+as Optional keys, so existing data keeps validating.
+
+Alias of `Struct[{ Optional['ensure'] => Enum['present', 'absent'] }]`
 
 ### <a name="Auditd--Flush"></a>`Auditd::Flush`
 

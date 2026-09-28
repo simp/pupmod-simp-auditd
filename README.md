@@ -92,7 +92,7 @@ behavior back. If you are not, set what you want explicitly.
   `auditd::default_audit_profiles`.
 * The Array list parameters (`auditd::target_selinux_types`,
   `stig::suid_sgid_cmds`, `simp::audit_auditd_cmds_list`, the root syscall
-  lists, ...) are deprecated in favour of `*_ensure` Hashes that hold the
+  lists, ...) are deprecated in favour of `*_entries` Hashes that hold the
   defaults. The Arrays still apply, and a `--entry` knockout set in a single
   Hiera layer becomes `absent`. A knockout is lost when the Array is set in
   more than one layer, because the merge consumes it; use the Hash to remove
@@ -382,10 +382,10 @@ found by its body, the part before `-k`/`-F key=`, so:
   file does not change whether an event is logged, because neither profile
   writes a `never` or `exclude` rule. It can change the key an event is logged
   under, because the kernel records the key of the first rule that matches.
-* A list is a `*_ensure` Hash of entry to `present` or `absent` (such as
-  `stig::suid_sgid_cmds_ensure` or `simp::audit_suspicious_apps_ensure`),
+* A list is a `*_entries` Hash of entry to its options (such as
+  `stig::suid_sgid_cmds_entries` or `simp::audit_suspicious_apps_entries`),
   merged `deep` into the module's defaults, so a Hiera layer lists only the
-  entries it changes. `absent` removes an entry's rule. An entry deleted from
+  entries it changes. `{ ensure => absent }` removes an entry's rule. An entry deleted from
   the Hash is left in the file. Set the toggle to `false` to remove every rule
   it owns.
 * A rule body two toggles both write (the STIG lists overlap) is found by body

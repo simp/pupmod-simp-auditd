@@ -1,4 +1,0 @@
----
-# Merged deep into the module's defaults, so only the entry to change is listed.
-auditd::config::audit_profiles::simp::audit_auditd_cmds_ensure:
-  /usr/sbin/auvirt: absent

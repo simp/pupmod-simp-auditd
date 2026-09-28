@@ -114,9 +114,9 @@ describe 'auditd' do
         end
       end
 
-      context 'with suid_sgid_cmds_ensure entries set to absent' do
+      context 'with suid_sgid_cmds_entries set to absent' do
         let(:params) { { default_audit_profiles: ['stig'] } }
-        let(:hieradata) { 'stig_audit_profile/absent__suid_sgid_cmds_ensure_entries' }
+        let(:hieradata) { 'stig_audit_profile/absent__suid_sgid_cmds_entries' }
 
         it { expect(rules).not_to include('-F path=/usr/bin/at -F perm=x') }
 

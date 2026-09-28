@@ -330,20 +330,23 @@
 #   set auditd::config::audisp::syslog::enable to false.
 #   If this is set to false the plugin settings are not managed by puppet.
 #
-# @param target_selinux_types_ensure
-#   SELinux types to target, each mapped to `present` or `absent`; all other
-#   types will be dropped
+# @param target_selinux_types_entries
+#   SELinux types to target, each mapped to its options; all other types will
+#   be dropped
 #
 #   For systems that require all users and processes to be in a confined
 #   namespace, you may find that only auditing unconfined types will be
 #   sufficient since all other invalid system actions are already audited.
 #
-#   `present` writes the type's drop rule and `absent` removes it. Merged
-#   `deep` in Hiera. Types that are not listed are left alone.
+#   Merged `deep` in Hiera. Types that are not listed are left alone.
+#
+# @option target_selinux_types_entries [Enum['present', 'absent']] :ensure
+#   `present` writes the type's drop rule and `absent` removes it. Defaults to
+#   `present`.
 #
 # @param target_selinux_types
-#   Deprecated: use `target_selinux_types_ensure`. Each entry is added as
-#   `present`, after `target_selinux_types_ensure`. It will be removed in
+#   Deprecated: use `target_selinux_types_entries`. Each entry is added as
+#   `present`, after `target_selinux_types_entries`. It will be removed in
 #   12.0.0.
 #
 # @param uid_min
@@ -435,7 +438,7 @@ class auditd (
   Optional[Auditd::SpaceLeftAction]                    $space_left_action               = undef,
   Boolean                                              $syslog                          = simplib::lookup('simp_options::syslog', { 'default_value' => false }), # CCE-26933-2
   Optional[Array[Auditd::SelinuxType]]                 $target_selinux_types            = undef,
-  Hash[Auditd::SelinuxType, Enum['present', 'absent']] $target_selinux_types_ensure     = {},
+  Hash[Auditd::SelinuxType, Auditd::EntryOptions] $target_selinux_types_entries     = {},
   Integer[0]                                           $uid_min                         = Integer(pick(fact('uid_min'), 1000)),
   Optional[Boolean]                                    $verify_email                    = undef,
   Optional[Boolean]                                    $write_logs                      = $log_format ? { /^(?i:nolog)$/ => false, default => undef },
@@ -462,7 +465,7 @@ class auditd (
 
   unless empty(pick($target_selinux_types, [])) {
     deprecation('auditd::target_selinux_types',
-      "'auditd::target_selinux_types' is deprecated; use 'target_selinux_types_ensure', a Hash of SELinux type to 'present' or 'absent'. It will be removed in 12.0.0.",
+      "'auditd::target_selinux_types' is deprecated; use 'target_selinux_types_entries', a Hash of SELinux type to its options. It will be removed in 12.0.0.",
     false)
   }
 

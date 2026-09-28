@@ -133,7 +133,7 @@ class auditd::config::audit_profiles {
         default => {},
       })
 
-      $_selinux_types = auditd::entries($auditd::target_selinux_types_ensure, pick($auditd::target_selinux_types, []))
+      $_selinux_types = auditd::entries($auditd::target_selinux_types_entries, pick($auditd::target_selinux_types, []))
 
       $_selinux_rules = $_selinux_types.reduce({}) |$memo, $entry| {
         $memo + {

@@ -20,156 +20,156 @@ lookup_options:
     merge:
       strategy: deep
       knockout_prefix: --
-  auditd::config::audit_profiles::simp::audit_auditd_cmds_ensure:
+  auditd::config::audit_profiles::simp::audit_auditd_cmds_entries:
     merge: deep
-  auditd::config::audit_profiles::simp::basic_root_audit_syscalls_ensure:
+  auditd::config::audit_profiles::simp::basic_root_audit_syscalls_entries:
     merge: deep
-  auditd::config::audit_profiles::simp::aggressive_root_audit_syscalls_ensure:
+  auditd::config::audit_profiles::simp::aggressive_root_audit_syscalls_entries:
     merge: deep
-  auditd::config::audit_profiles::simp::insane_root_audit_syscalls_ensure:
+  auditd::config::audit_profiles::simp::insane_root_audit_syscalls_entries:
     merge: deep
-  auditd::config::audit_profiles::simp::audit_suspicious_apps_ensure:
+  auditd::config::audit_profiles::simp::audit_suspicious_apps_entries:
     merge: deep
-  auditd::config::audit_profiles::stig::suid_sgid_cmds_ensure:
+  auditd::config::audit_profiles::stig::suid_sgid_cmds_entries:
     merge: deep
-  auditd::target_selinux_types_ensure:
+  auditd::target_selinux_types_entries:
     merge: deep
 
 auditd::config::audisp::syslog::pkg_name: 'audispd-plugins'
 
-auditd::config::audit_profiles::simp::basic_root_audit_syscalls_ensure:
-  capset: 'present'
-  mknod: 'present'
-  mknodat: 'present'
-  pivot_root: 'present'
-  quotactl: 'present'
-  setsid: 'present'
-  adjtimex: 'present'
-  settimeofday: 'present'
-  setuid: 'present'
-  swapoff: 'present'
-  swapon: 'present'
+auditd::config::audit_profiles::simp::basic_root_audit_syscalls_entries:
+  capset: {}
+  mknod: {}
+  mknodat: {}
+  pivot_root: {}
+  quotactl: {}
+  setsid: {}
+  adjtimex: {}
+  settimeofday: {}
+  setuid: {}
+  swapoff: {}
+  swapon: {}
 
-auditd::config::audit_profiles::simp::aggressive_root_audit_syscalls_ensure:
-  capset: 'present'
-  mknod: 'present'
-  mknodat: 'present'
-  pivot_root: 'present'
-  quotactl: 'present'
-  setsid: 'present'
-  adjtimex: 'present'
-  settimeofday: 'present'
-  setuid: 'present'
-  swapoff: 'present'
-  swapon: 'present'
-  execve: 'present'
-  rename: 'present'
-  renameat: 'present'
-  rmdir: 'present'
-  unlink: 'present'
-  unlinkat: 'present'
+auditd::config::audit_profiles::simp::aggressive_root_audit_syscalls_entries:
+  capset: {}
+  mknod: {}
+  mknodat: {}
+  pivot_root: {}
+  quotactl: {}
+  setsid: {}
+  adjtimex: {}
+  settimeofday: {}
+  setuid: {}
+  swapoff: {}
+  swapon: {}
+  execve: {}
+  rename: {}
+  renameat: {}
+  rmdir: {}
+  unlink: {}
+  unlinkat: {}
 
-auditd::config::audit_profiles::simp::insane_root_audit_syscalls_ensure:
-  capset: 'present'
-  mknod: 'present'
-  mknodat: 'present'
-  pivot_root: 'present'
-  quotactl: 'present'
-  setsid: 'present'
-  adjtimex: 'present'
-  settimeofday: 'present'
-  setuid: 'present'
-  swapoff: 'present'
-  swapon: 'present'
-  execve: 'present'
-  rename: 'present'
-  renameat: 'present'
-  rmdir: 'present'
-  unlink: 'present'
-  unlinkat: 'present'
-  write: 'present'
-  chown: 'present'
-  fchown: 'present'
-  fchownat: 'present'
-  lchown: 'present'
-  creat: 'present'
-  fork: 'present'
-  vfork: 'present'
-  link: 'present'
-  linkat: 'present'
-  symlink: 'present'
-  symlinkat: 'present'
-  mkdir: 'present'
-  mkdirat: 'present'
+auditd::config::audit_profiles::simp::insane_root_audit_syscalls_entries:
+  capset: {}
+  mknod: {}
+  mknodat: {}
+  pivot_root: {}
+  quotactl: {}
+  setsid: {}
+  adjtimex: {}
+  settimeofday: {}
+  setuid: {}
+  swapoff: {}
+  swapon: {}
+  execve: {}
+  rename: {}
+  renameat: {}
+  rmdir: {}
+  unlink: {}
+  unlinkat: {}
+  write: {}
+  chown: {}
+  fchown: {}
+  fchownat: {}
+  lchown: {}
+  creat: {}
+  fork: {}
+  vfork: {}
+  link: {}
+  linkat: {}
+  symlink: {}
+  symlinkat: {}
+  mkdir: {}
+  mkdirat: {}
 
-auditd::config::audit_profiles::simp::audit_suspicious_apps_ensure:
-  '/usr/bin/nc': 'present'
-  '/usr/bin/ncat': 'present'
-  '/usr/bin/nmap': 'present'
-  '/usr/bin/rawshark': 'present'
-  '/usr/bin/socat': 'present'
-  '/usr/bin/wireshark': 'present'
-  '/usr/sbin/tcpdump': 'present'
-  '/usr/sbin/traceroute': 'present'
-  '/usr/sbin/traceroute6': 'present'
+auditd::config::audit_profiles::simp::audit_suspicious_apps_entries:
+  '/usr/bin/nc': {}
+  '/usr/bin/ncat': {}
+  '/usr/bin/nmap': {}
+  '/usr/bin/rawshark': {}
+  '/usr/bin/socat': {}
+  '/usr/bin/wireshark': {}
+  '/usr/sbin/tcpdump': {}
+  '/usr/sbin/traceroute': {}
+  '/usr/sbin/traceroute6': {}
 
-auditd::config::audit_profiles::simp::audit_auditd_cmds_ensure:
-  '/usr/sbin/aulast': 'present'
-  '/usr/sbin/aulastlogin': 'present'
-  '/usr/sbin/aureport': 'present'
-  '/usr/sbin/ausearch': 'present'
-  '/usr/sbin/auvirt': 'present'
+auditd::config::audit_profiles::simp::audit_auditd_cmds_entries:
+  '/usr/sbin/aulast': {}
+  '/usr/sbin/aulastlogin': {}
+  '/usr/sbin/aureport': {}
+  '/usr/sbin/ausearch': {}
+  '/usr/sbin/auvirt': {}
 
 # The SUID/SGID commands the STIG profile audits by default. These were
 # identical across every supported OS, so they live here rather than in
 # fifteen byte-identical os/*.yaml files.
-auditd::config::audit_profiles::stig::suid_sgid_cmds_ensure:
-  '/usr/bin/at': 'present'
-  '/usr/bin/chage': 'present'
-  '/usr/bin/chcon': 'present'
-  '/usr/bin/chfn': 'present'
-  '/usr/bin/chsh': 'present'
-  '/usr/bin/crontab': 'present'
-  '/usr/bin/fusermount': 'present'
-  '/usr/bin/gpasswd': 'present'
-  '/usr/bin/incrontab': 'present'
-  '/usr/bin/ksu': 'present'
-  '/usr/bin/locate': 'present'
-  '/usr/bin/mount': 'present'
-  '/usr/bin/newgidmap': 'present'
-  '/usr/bin/newgrp': 'present'
-  '/usr/bin/newuidmap': 'present'
-  '/usr/bin/passwd': 'present'
-  '/usr/bin/pkexec': 'present'
-  '/usr/bin/screen': 'present'
-  '/usr/bin/ssh-agent': 'present'
-  '/usr/bin/su': 'present'
-  '/usr/bin/sudo': 'present'
-  '/usr/bin/sudoedit': 'present'
-  '/usr/bin/umount': 'present'
-  '/usr/bin/wall': 'present'
-  '/usr/bin/write': 'present'
-  '/usr/bin/Xorg': 'present'
-  '/usr/lib64/dbus-1/dbus-daemon-launch-helper': 'present'
-  '/usr/libexec/dbus-1/dbus-daemon-launch-helper': 'present'
-  '/usr/libexec/openssh/ssh-keysign': 'present'
-  '/usr/libexec/pt_chown': 'present'
-  '/usr/libexec/sssd/krb5_child': 'present'
-  '/usr/libexec/sssd/ldap_child': 'present'
-  '/usr/libexec/sssd/proxy_child': 'present'
-  '/usr/libexec/sssd/selinux_child': 'present'
-  '/usr/libexec/utempter/utempter': 'present'
-  '/usr/lib/polkit-1/polkit-agent-helper-1': 'present'
-  '/usr/sbin/mount.nfs': 'present'
-  '/usr/sbin/netreport': 'present'
-  '/usr/sbin/pam_timestamp_check': 'present'
-  '/usr/sbin/postdrop': 'present'
-  '/usr/sbin/postqueue': 'present'
-  '/usr/sbin/restorecon': 'present'
-  '/usr/sbin/semanage': 'present'
-  '/usr/sbin/setfiles': 'present'
-  '/usr/sbin/setsebool': 'present'
-  '/usr/sbin/seunshare': 'present'
-  '/usr/sbin/unix_chkpwd': 'present'
-  '/usr/sbin/userhelper': 'present'
-  '/usr/sbin/usernetctl': 'present'
+auditd::config::audit_profiles::stig::suid_sgid_cmds_entries:
+  '/usr/bin/at': {}
+  '/usr/bin/chage': {}
+  '/usr/bin/chcon': {}
+  '/usr/bin/chfn': {}
+  '/usr/bin/chsh': {}
+  '/usr/bin/crontab': {}
+  '/usr/bin/fusermount': {}
+  '/usr/bin/gpasswd': {}
+  '/usr/bin/incrontab': {}
+  '/usr/bin/ksu': {}
+  '/usr/bin/locate': {}
+  '/usr/bin/mount': {}
+  '/usr/bin/newgidmap': {}
+  '/usr/bin/newgrp': {}
+  '/usr/bin/newuidmap': {}
+  '/usr/bin/passwd': {}
+  '/usr/bin/pkexec': {}
+  '/usr/bin/screen': {}
+  '/usr/bin/ssh-agent': {}
+  '/usr/bin/su': {}
+  '/usr/bin/sudo': {}
+  '/usr/bin/sudoedit': {}
+  '/usr/bin/umount': {}
+  '/usr/bin/wall': {}
+  '/usr/bin/write': {}
+  '/usr/bin/Xorg': {}
+  '/usr/lib64/dbus-1/dbus-daemon-launch-helper': {}
+  '/usr/libexec/dbus-1/dbus-daemon-launch-helper': {}
+  '/usr/libexec/openssh/ssh-keysign': {}
+  '/usr/libexec/pt_chown': {}
+  '/usr/libexec/sssd/krb5_child': {}
+  '/usr/libexec/sssd/ldap_child': {}
+  '/usr/libexec/sssd/proxy_child': {}
+  '/usr/libexec/sssd/selinux_child': {}
+  '/usr/libexec/utempter/utempter': {}
+  '/usr/lib/polkit-1/polkit-agent-helper-1': {}
+  '/usr/sbin/mount.nfs': {}
+  '/usr/sbin/netreport': {}
+  '/usr/sbin/pam_timestamp_check': {}
+  '/usr/sbin/postdrop': {}
+  '/usr/sbin/postqueue': {}
+  '/usr/sbin/restorecon': {}
+  '/usr/sbin/semanage': {}
+  '/usr/sbin/setfiles': {}
+  '/usr/sbin/setsebool': {}
+  '/usr/sbin/seunshare': {}
+  '/usr/sbin/unix_chkpwd': {}
+  '/usr/sbin/userhelper': {}
+  '/usr/sbin/usernetctl': {}

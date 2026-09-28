@@ -61,12 +61,14 @@
 - Add `auditd::reload_on_change`. With the service unmanaged, a change to any
   managed file runs `auditctl --signal reload` and `augenrules --load` while
   auditd is running.
-- Add Hash parameters of entry to `present` or `absent`, merged `deep`, for
-  the list parameters: `auditd::target_selinux_types_ensure`,
-  `simp::audit_auditd_cmds_ensure`, `simp::audit_suspicious_apps_ensure`,
-  `simp::{basic,aggressive,insane}_root_audit_syscalls_ensure` and
-  `stig::suid_sgid_cmds_ensure`. They hold the module's defaults, and a Hiera
+- Add `*_entries` Hash parameters for the list parameters, each entry mapped
+  to options such as `ensure => absent` (`{}` means present) and merged
+  `deep`: `auditd::target_selinux_types_entries`,
+  `simp::audit_auditd_cmds_entries`, `simp::audit_suspicious_apps_entries`,
+  `simp::{basic,aggressive,insane}_root_audit_syscalls_entries` and
+  `stig::suid_sgid_cmds_entries`. They hold the module's defaults, and a Hiera
   layer can add or remove one entry.
+- Add the `Auditd::EntryOptions` type.
 - Deprecate `auditd::target_selinux_types`, `simp::audit_auditd_cmds_list`,
   `simp::audit_suspicious_apps_list`, `simp::*_root_audit_syscalls`,
   `stig::default_suid_sgid_cmds` and `stig::suid_sgid_cmds` for removal in

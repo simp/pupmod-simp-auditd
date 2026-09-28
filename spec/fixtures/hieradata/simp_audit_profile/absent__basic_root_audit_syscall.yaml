@@ -1,3 +1,4 @@
 ---
-auditd::config::audit_profiles::simp::basic_root_audit_syscalls_ensure:
-  swapon: absent
+auditd::config::audit_profiles::simp::basic_root_audit_syscalls_entries:
+  swapon:
+    ensure: absent

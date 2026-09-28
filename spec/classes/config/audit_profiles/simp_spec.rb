@@ -169,8 +169,8 @@ describe 'auditd' do
         end
       end
 
-      context 'with an audit_auditd_cmds_ensure entry set to absent' do
-        let(:hieradata) { 'simp_audit_profile/absent__audit_auditd_cmds_ensure_entry' }
+      context 'with an audit_auditd_cmds_entries entry set to absent' do
+        let(:hieradata) { 'simp_audit_profile/absent__audit_auditd_cmds_entry' }
 
         it { expect(rules).not_to include('-w /usr/sbin/auvirt -p x') }
 

@@ -228,9 +228,9 @@ describe 'auditd' do
           end
         end
 
-        context 'with target_selinux_types_ensure' do
+        context 'with target_selinux_types_entries' do
           let(:params) do
-            base_params.merge(target_selinux_types_ensure: { 'unconfined_t' => 'present', 'bob_t' => 'absent' })
+            base_params.merge(target_selinux_types_entries: { 'unconfined_t' => {}, 'bob_t' => { 'ensure' => 'absent' } })
           end
 
           it 'writes present entries and removes absent ones' do
@@ -240,7 +240,7 @@ describe 'auditd' do
         end
 
         context 'with a name that is not an SELinux type' do
-          let(:params) { base_params.merge(target_selinux_types_ensure: { 'foo.*_t' => 'present' }) }
+          let(:params) { base_params.merge(target_selinux_types_entries: { 'foo.*_t' => {} }) }
 
           it { is_expected.not_to compile }
         end
