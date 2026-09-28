@@ -1,0 +1,6 @@
+---
+# Merged deep into the module's defaults, so only the entries to change are
+# listed. /usr/bin/passwd is also written by audit_passwd_cmds, under its own key.
+auditd::config::audit_profiles::stig::suid_sgid_cmds_ensure:
+  /usr/bin/at: absent
+  /usr/bin/passwd: absent

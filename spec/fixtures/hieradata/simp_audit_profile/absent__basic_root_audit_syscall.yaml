@@ -1,14 +1,3 @@
 ---
-auditd::config::audit_profiles::simp::basic_root_audit_syscalls:
-  capset: {}
-  mknod: {}
-  mknodat: {}
-  pivot_root: {}
-  quotactl: {}
-  setsid: {}
-  adjtimex: {}
-  settimeofday: {}
-  setuid: {}
-  swapoff: {}
-  swapon:
-    ensure: absent
+auditd::config::audit_profiles::simp::basic_root_audit_syscalls_ensure:
+  swapon: absent

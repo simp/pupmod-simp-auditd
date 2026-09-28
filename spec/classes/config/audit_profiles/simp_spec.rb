@@ -169,8 +169,8 @@ describe 'auditd' do
         end
       end
 
-      context 'with an audit_auditd_cmds_list entry set to absent' do
-        let(:hieradata) { 'simp_audit_profile/absent__audit_auditd_cmds_list_entry' }
+      context 'with an audit_auditd_cmds_ensure entry set to absent' do
+        let(:hieradata) { 'simp_audit_profile/absent__audit_auditd_cmds_ensure_entry' }
 
         it { expect(rules).not_to include('-w /usr/sbin/auvirt -p x') }
 
@@ -184,6 +184,19 @@ describe 'auditd' do
 
         it 'drops it from the su-root rules in place' do
           expect(upgraded).to eq(basic_10x.gsub(',swapoff,swapon -k su-root-activity', ',swapoff -k su-root-activity'))
+        end
+      end
+
+      # A knockout in a single Hiera layer reaches the deprecated Array
+      # parameter and becomes 'absent'.
+      context 'with 10.x knockouts in the deprecated Array parameters' do
+        let(:hieradata) { 'simp_audit_profile/legacy__knockout_list_entries' }
+
+        it 'removes the knocked-out entries in place' do
+          expect(upgraded).to eq(
+            basic_10x.sub("-w /usr/sbin/auvirt -p x -k access-audit-trail\n", '')
+                     .gsub(',swapoff,swapon -k su-root-activity', ',swapoff -k su-root-activity'),
+          )
         end
       end
 

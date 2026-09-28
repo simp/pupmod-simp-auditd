@@ -133,17 +133,12 @@ class auditd::config::audit_profiles {
         default => {},
       })
 
-      # target_selinux_types: an Array means "present" for each entry; a Hash
-      # also takes ensure => absent, which is the only way to remove one.
-      $_selinux_types = $auditd::target_selinux_types ? {
-        Array   => $auditd::target_selinux_types.reduce({}) |$memo, $type| { $memo + { $type => {} } },
-        default => pick($auditd::target_selinux_types, {}),
-      }
+      $_selinux_types = auditd::entries($auditd::target_selinux_types_ensure, pick($auditd::target_selinux_types, []))
 
       $_selinux_rules = $_selinux_types.reduce({}) |$memo, $entry| {
         $memo + {
           "selinux ${entry[0]}" => {
-            'value' => $entry[1]['ensure'] != 'absent',
+            'value' => $entry[1] == 'present',
             'line'  => "-a never,user -F subj_type!=${entry[0]}",
           },
         }

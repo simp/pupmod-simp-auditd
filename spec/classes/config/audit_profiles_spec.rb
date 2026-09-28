@@ -218,7 +218,7 @@ describe 'auditd' do
       end
 
       context 'targeting specific SELinux types' do
-        context 'as an Array' do
+        context 'with the deprecated Array' do
           let(:params) { base_params.merge(target_selinux_types: ['unconfined_t', 'bob_t']) }
 
           it 'adds a rule to drop types not in the match list' do
@@ -228,9 +228,9 @@ describe 'auditd' do
           end
         end
 
-        context 'as a Hash' do
+        context 'with target_selinux_types_ensure' do
           let(:params) do
-            base_params.merge(target_selinux_types: { 'unconfined_t' => {}, 'bob_t' => { 'ensure' => 'absent' } })
+            base_params.merge(target_selinux_types_ensure: { 'unconfined_t' => 'present', 'bob_t' => 'absent' })
           end
 
           it 'writes present entries and removes absent ones' do
@@ -240,7 +240,7 @@ describe 'auditd' do
         end
 
         context 'with a name that is not an SELinux type' do
-          let(:params) { base_params.merge(target_selinux_types: ['foo.*_t']) }
+          let(:params) { base_params.merge(target_selinux_types_ensure: { 'foo.*_t' => 'present' }) }
 
           it { is_expected.not_to compile }
         end

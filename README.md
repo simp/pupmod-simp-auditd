@@ -90,6 +90,13 @@ behavior back. If you are not, set what you want explicitly.
   `at_boot => false`, but no longer stands the rest of the module down.
   `auditd::default_audit_profile` is likewise deprecated in favour of
   `auditd::default_audit_profiles`.
+* The Array list parameters (`auditd::target_selinux_types`,
+  `stig::suid_sgid_cmds`, `simp::audit_auditd_cmds_list`, the root syscall
+  lists, ...) are deprecated in favour of `*_ensure` Hashes that hold the
+  defaults. The Arrays still apply, and a `--entry` knockout set in a single
+  Hiera layer becomes `absent`. A knockout is lost when the Array is set in
+  more than one layer, because the merge consumes it; use the Hash to remove
+  an entry.
 * Setting one `auditd.conf` parameter now changes exactly that one key. The
   exception is `auditd::admin_space_left`, which also writes the `space_left` derived
   from it unless `auditd::space_left` is set.
@@ -128,7 +135,7 @@ behavior back. If you are not, set what you want explicitly.
 * `auditd::immutable` defaults to `undef` rather than `false`. `simp:defaults`
   sets `false`.
 * `auditd::target_selinux_types` entries must be SELinux type names
-  (`[a-z0-9_]+_t`). A Hash of type to `ensure` can also remove one.
+  (`[a-z0-9_]+_t`).
 * `auditd::root_audit_level: aggressive` or `insane` with a rule profile in
   `auditd::default_audit_profiles` writes `-b` even with `auditd::buffer_size`
   unset: an unset or smaller value is raised to `32788` or `65576`. This is the
@@ -375,10 +382,12 @@ found by its body, the part before `-k`/`-F key=`, so:
   file does not change whether an event is logged, because neither profile
   writes a `never` or `exclude` rule. It can change the key an event is logged
   under, because the kernel records the key of the first rule that matches.
-* A list parameter (such as `stig::suid_sgid_cmds` or
-  `simp::audit_suspicious_apps_list`) also takes a Hash. An entry set to
-  `ensure => absent` removes its rule. An entry deleted from the list is left
-  in the file. Set the toggle to `false` to remove every rule it owns.
+* A list is a `*_ensure` Hash of entry to `present` or `absent` (such as
+  `stig::suid_sgid_cmds_ensure` or `simp::audit_suspicious_apps_ensure`),
+  merged `deep` into the module's defaults, so a Hiera layer lists only the
+  entries it changes. `absent` removes an entry's rule. An entry deleted from
+  the Hash is left in the file. Set the toggle to `false` to remove every rule
+  it owns.
 * A rule body two toggles both write (the STIG lists overlap) is found by body
   and key. Changing one of those keys adds a new line and leaves the old one.
 

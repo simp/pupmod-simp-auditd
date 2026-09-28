@@ -114,9 +114,9 @@ describe 'auditd' do
         end
       end
 
-      context 'with suid_sgid_cmds entries set to absent' do
+      context 'with suid_sgid_cmds_ensure entries set to absent' do
         let(:params) { { default_audit_profiles: ['stig'] } }
-        let(:hieradata) { 'stig_audit_profile/absent__suid_sgid_cmds_entries' }
+        let(:hieradata) { 'stig_audit_profile/absent__suid_sgid_cmds_ensure_entries' }
 
         it { expect(rules).not_to include('-F path=/usr/bin/at -F perm=x') }
 
@@ -127,6 +127,15 @@ describe 'auditd' do
                     .sub("-a always,exit -F path=/usr/bin/passwd -F perm=x -F auid>=1000 -F auid!=unset -F key=setuid/setgid\n", ''),
           )
           expect(upgraded).to include('-a always,exit -F path=/usr/bin/passwd -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged-passwd')
+        end
+      end
+
+      context 'with the deprecated suid_sgid_cmds' do
+        let(:params) { { default_audit_profiles: ['stig'] } }
+        let(:hieradata) { 'stig_audit_profile/legacy__suid_sgid_cmds' }
+
+        it 'adds its commands to the defaults' do
+          expect(upgraded).to eq(base_10x + "-a always,exit -F path=/usr/local/bin/site_tool -F perm=x -F auid>=1000 -F auid!=unset -F key=setuid/setgid\n")
         end
       end
 

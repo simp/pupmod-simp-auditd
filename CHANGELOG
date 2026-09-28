@@ -50,7 +50,7 @@
 - BREAKING: `auditd::immutable` defaults to `undef`; `simp:defaults` sets
   `false`.
 - BREAKING: `auditd::target_selinux_types` entries must match
-  `[a-z0-9_]+_t`; a Hash of type to `ensure` can also remove one.
+  `[a-z0-9_]+_t`.
 - Edit `/etc/audit/auditd.conf` key by key with `ini_setting` instead of
   rendering the whole file. Keys the module doesn't manage keep their vendor
   values. Adds a dependency on `puppetlabs-inifile`.
@@ -61,9 +61,19 @@
 - Add `auditd::reload_on_change`. With the service unmanaged, a change to any
   managed file runs `auditctl --signal reload` and `augenrules --load` while
   auditd is running.
-- The list parameters of the `simp` and `stig` profiles
-  (`stig::suid_sgid_cmds`, `simp::audit_auditd_cmds_list`, the root syscall
-  lists, ...) also take a Hash; `ensure => absent` removes one entry's rule.
+- Add Hash parameters of entry to `present` or `absent`, merged `deep`, for
+  the list parameters: `auditd::target_selinux_types_ensure`,
+  `simp::audit_auditd_cmds_ensure`, `simp::audit_suspicious_apps_ensure`,
+  `simp::{basic,aggressive,insane}_root_audit_syscalls_ensure` and
+  `stig::suid_sgid_cmds_ensure`. They hold the module's defaults, and a Hiera
+  layer can add or remove one entry.
+- Deprecate `auditd::target_selinux_types`, `simp::audit_auditd_cmds_list`,
+  `simp::audit_suspicious_apps_list`, `simp::*_root_audit_syscalls`,
+  `stig::default_suid_sgid_cmds` and `stig::suid_sgid_cmds` for removal in
+  12.0.0. They still apply after the Hash, and a `--entry` knockout becomes
+  `absent`, but only when the Array is set in a single Hiera layer: merging
+  layers consumes the knockout. `stig::default_suid_sgid_cmds` now adds to the
+  defaults rather than replacing them.
 - Add `ensure` to `auditd::rule`; `absent` removes its rules file.
 - Add the `auditd_state` fact: the full `auditctl -s` status, with the raw
   `enabled` flag, plus `version`, `immutable`, `kernel_enforcing` and

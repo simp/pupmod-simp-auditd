@@ -54,34 +54,50 @@
 # @param audit_auditd_cmds_tag
 #   Tag to be added to entries triggered by `audit_auditd_cmds`
 #
-# @param audit_auditd_cmds_list
-#   Commands to be audited if enabled by `audit_auditd_cmds`
+# @param audit_auditd_cmds_ensure
+#   Commands to be audited if enabled by `audit_auditd_cmds`, each mapped to
+#   `present` or `absent`
 #
-#   As a Hash, an entry set to `ensure => absent` removes its rule while the
-#   toggle is `true`. Deleting an entry leaves its rule alone. A Hash in Hiera
-#   replaces the module's default list rather than merging into it, so list
-#   every entry to keep.
+#   Merged `deep` in Hiera, so a layer can add or remove one command. An
+#   entry set to `absent` removes its rule while the toggle is `true`.
+#   Deleting an entry leaves its rule alone.
+#
+# @param audit_auditd_cmds_list
+#   Deprecated: use `audit_auditd_cmds_ensure`. Entries are added as `present`, after `audit_auditd_cmds_ensure`;
+#   an entry written as `--entry` becomes `absent`. It will be removed in 12.0.0.
+#
+# @param basic_root_audit_syscalls_ensure
+#   Basic syscalls to audit for su-root activity, each mapped to `present` or
+#   `absent`
+#
+#   Merged `deep` in Hiera. An entry set to `absent` is left out of the rule's
+#   `-S` list.
 #
 # @param basic_root_audit_syscalls
-#   Basic syscalls to audit for su-root activity
+#   Deprecated: use `basic_root_audit_syscalls_ensure`. Entries are added as `present`, after `basic_root_audit_syscalls_ensure`;
+#   an entry written as `--entry` becomes `absent`. It will be removed in 12.0.0.
 #
-#   As a Hash, an entry set to `ensure => absent` is left out of the rule's
-#   `-S` list. A Hash in Hiera replaces the module's default list rather than
-#   merging into it.
+# @param aggressive_root_audit_syscalls_ensure
+#   Aggressive syscalls to audit for su-root activity, each mapped to
+#   `present` or `absent`
+#
+#   Merged `deep` in Hiera. An entry set to `absent` is left out of the rule's
+#   `-S` list.
 #
 # @param aggressive_root_audit_syscalls
-#   Aggressive syscalls to audit for su-root activity
+#   Deprecated: use `aggressive_root_audit_syscalls_ensure`. Entries are added as `present`, after `aggressive_root_audit_syscalls_ensure`;
+#   an entry written as `--entry` becomes `absent`. It will be removed in 12.0.0.
 #
-#   As a Hash, an entry set to `ensure => absent` is left out of the rule's
-#   `-S` list. A Hash in Hiera replaces the module's default list rather than
-#   merging into it.
+# @param insane_root_audit_syscalls_ensure
+#   Insane syscalls to audit for su-root activity, each mapped to `present` or
+#   `absent`
+#
+#   Merged `deep` in Hiera. An entry set to `absent` is left out of the rule's
+#   `-S` list.
 #
 # @param insane_root_audit_syscalls
-#   Insane syscalls to audit for su-root activity
-#
-#   As a Hash, an entry set to `ensure => absent` is left out of the rule's
-#   `-S` list. A Hash in Hiera replaces the module's default list rather than
-#   merging into it.
+#   Deprecated: use `insane_root_audit_syscalls_ensure`. Entries are added as `present`, after `insane_root_audit_syscalls_ensure`;
+#   an entry written as `--entry` becomes `absent`. It will be removed in 12.0.0.
 #
 # @param audit_unsuccessful_file_operations
 #   Whether to audit unsuccessful file operations.  These are file operations
@@ -376,13 +392,17 @@
 # @param audit_suspicious_apps_tag
 #   Tag to be added to entries triggered by `audit_suspicious_apps`
 #
-# @param audit_suspicious_apps_list
-#   List of applications to be audited when `audit_suspicious_apps` is enabled
+# @param audit_suspicious_apps_ensure
+#   Applications to be audited when `audit_suspicious_apps` is enabled, each
+#   mapped to `present` or `absent`
 #
-#   As a Hash, an entry set to `ensure => absent` removes its rule while the
-#   toggle is `true`. Deleting an entry leaves its rule alone. A Hash in Hiera
-#   replaces the module's default list rather than merging into it, so list
-#   every entry to keep.
+#   Merged `deep` in Hiera, so a layer can add or remove one application. An
+#   entry set to `absent` removes its rule while the toggle is `true`.
+#   Deleting an entry leaves its rule alone.
+#
+# @param audit_suspicious_apps_list
+#   Deprecated: use `audit_suspicious_apps_ensure`. Entries are added as `present`, after `audit_suspicious_apps_ensure`;
+#   an entry written as `--entry` becomes `absent`. It will be removed in 12.0.0.
 #
 # @param audit_systemd
 #   Audit systemd components
@@ -411,7 +431,8 @@ class auditd::config::audit_profiles::simp (
   String[1]                   $audit_32bit_operations_tag                               = '32bit-api',
   Optional[Boolean]           $audit_auditd_cmds                                        = undef,
   String[1]                   $audit_auditd_cmds_tag                                    = 'access-audit-trail',
-  Auditd::EntryList           $audit_auditd_cmds_list,                                  # data in modules
+  Hash[String[1], Enum['present', 'absent']] $audit_auditd_cmds_ensure,                # data in modules
+  Array[String[1]]            $audit_auditd_cmds_list                                   = [],
   Optional[Boolean]           $audit_unsuccessful_file_operations                       = undef,
   String[1]                   $audit_unsuccessful_file_operations_tag                   = 'access',
   Optional[Boolean]           $audit_chown                                              = undef,
@@ -498,18 +519,38 @@ class auditd::config::audit_profiles::simp (
   String[1]                   $audit_ssh_keysign_cmd_tag                                = 'privileged-ssh',
   Optional[Boolean]           $audit_suspicious_apps                                    = undef,
   String[1]                   $audit_suspicious_apps_tag                                = 'suspicious_apps',
-  Auditd::PathList            $audit_suspicious_apps_list,                              # data in modules
+  Hash[Stdlib::Absolutepath, Enum['present', 'absent']] $audit_suspicious_apps_ensure,  # data in modules
+  Array[Stdlib::Absolutepath] $audit_suspicious_apps_list                               = [],
   Optional[Boolean]           $audit_systemd                                            = undef,
   String[1]                   $audit_systemd_tag                                        = 'systemd',
   Optional[Boolean]           $audit_crontab_cmd                                        = undef,
   String[1]                   $audit_crontab_cmd_tag                                    = 'privileged-cron',
   Optional[Boolean]           $audit_pam_timestamp_check_cmd                            = undef,
   String[1]                   $audit_pam_timestamp_check_cmd_tag                        = 'privileged-pam',
-  Auditd::EntryList           $basic_root_audit_syscalls,                               # data in modules
-  Auditd::EntryList           $aggressive_root_audit_syscalls,                          # data in modules
-  Auditd::EntryList           $insane_root_audit_syscalls                               # data in modules
+  Hash[String[1], Enum['present', 'absent']] $basic_root_audit_syscalls_ensure,       # data in modules
+  Hash[String[1], Enum['present', 'absent']] $aggressive_root_audit_syscalls_ensure,  # data in modules
+  Hash[String[1], Enum['present', 'absent']] $insane_root_audit_syscalls_ensure,      # data in modules
+  Array[String[1]]            $basic_root_audit_syscalls                                = [],
+  Array[String[1]]            $aggressive_root_audit_syscalls                           = [],
+  Array[String[1]]            $insane_root_audit_syscalls                               = [],
 ) {
   assert_private()
+
+  $_deprecated_lists = {
+    'audit_auditd_cmds_list'         => $audit_auditd_cmds_list,
+    'audit_suspicious_apps_list'     => $audit_suspicious_apps_list,
+    'basic_root_audit_syscalls'      => $basic_root_audit_syscalls,
+    'aggressive_root_audit_syscalls' => $aggressive_root_audit_syscalls,
+    'insane_root_audit_syscalls'     => $insane_root_audit_syscalls,
+  }
+
+  $_deprecated_lists.each |$param, $value| {
+    unless empty($value) {
+      deprecation("${name}::${param}",
+        "'${name}::${param}' is deprecated; use '${param.regsubst(/_list$/, '')}_ensure', a Hash of entry to 'present' or 'absent'. It will be removed in 12.0.0.",
+      false)
+    }
+  }
 
   if $audit_sudoers != undef {
     deprecation("${name}::audit_sudoers",
@@ -564,11 +605,11 @@ class auditd::config::audit_profiles::simp (
   $_path = "/etc/audit/rules.d/50_${_idx}_${_short_name}_base.rules"
 
   # The syscalls share one rule, so an absent entry is left out of its -S list.
-  $_su_root_syscalls = join(auditd::list_entries({
-    'basic'      => $basic_root_audit_syscalls,
-    'aggressive' => $aggressive_root_audit_syscalls,
-    'insane'     => $insane_root_audit_syscalls,
-  }[$root_audit_level]).filter |$_syscall, $ensure| { $ensure == 'present' }.keys, ',')
+  $_su_root_syscalls = join({
+    'basic'      => auditd::entries($basic_root_audit_syscalls_ensure, $basic_root_audit_syscalls),
+    'aggressive' => auditd::entries($aggressive_root_audit_syscalls_ensure, $aggressive_root_audit_syscalls),
+    'insane'     => auditd::entries($insane_root_audit_syscalls_ensure, $insane_root_audit_syscalls),
+  }[$root_audit_level].filter |$_syscall, $ensure| { $ensure == 'present' }.keys, ',')
 
   $_grub_rules = $facts['grub_version'] ? {
     undef   => [],
@@ -770,11 +811,11 @@ class auditd::config::audit_profiles::simp (
       '-w /etc/sudoers.d/ -p wa',
     ]],
     ['audit_auditd_cmds', $audit_auditd_cmds, $audit_auditd_cmds_tag,
-      auditd::list_entries($audit_auditd_cmds_list).map |$cmd, $ensure| { { 'rule' => "-w ${cmd} -p x", 'ensure' => $ensure } },
+      auditd::entries($audit_auditd_cmds_ensure, $audit_auditd_cmds_list).map |$cmd, $ensure| { { 'rule' => "-w ${cmd} -p x", 'ensure' => $ensure } },
     ],
     ['audit_systemd', $audit_systemd, $audit_systemd_tag, $_systemd_rules],
     ['audit_suspicious_apps', $audit_suspicious_apps, $audit_suspicious_apps_tag,
-      auditd::list_entries($audit_suspicious_apps_list).map |$app, $ensure| { { 'rule' => "-w ${app} -p x", 'ensure' => $ensure } },
+      auditd::entries($audit_suspicious_apps_ensure, $audit_suspicious_apps_list).map |$app, $ensure| { { 'rule' => "-w ${app} -p x", 'ensure' => $ensure } },
     ],
     ['audit_cfg_grub', $_audit_cfg_grub, $_audit_cfg_grub_tag, $_grub_rules],
     ['audit_cfg_sys', $audit_cfg_sys, $audit_cfg_sys_tag, [

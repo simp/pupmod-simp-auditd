@@ -66,18 +66,23 @@
 # @param audit_suid_sgid
 #   Whether to audit `setuid`/`setgid` commands
 #
+# @param suid_sgid_cmds_ensure
+#   The `setuid`/`setgid` commands to be audited, each mapped to `present` or
+#   `absent`
+#
+#   Merged `deep` in Hiera, so a layer can add or remove one command. An
+#   entry set to `absent` removes that command's rule while `audit_suid_sgid`
+#   is `true`. Deleting an entry leaves its rule alone.
+#
 # @param default_suid_sgid_cmds
-#   The default list of `setuid`/`setgid` commands to be audited.
-#   * Should not include commands audited by other rules.
+#   Deprecated: use `suid_sgid_cmds_ensure`, which holds the defaults. Entries
+#   are added as `present`, after `suid_sgid_cmds_ensure`. It will be removed
+#   in 12.0.0.
 #
 # @param suid_sgid_cmds
-#   Additional list of `setuid`/`setgid` commands to be audited.
-#   You can use this to augment the `$default_suid_sgid_cmds`
-#   per your site's needs.
-#
-#   As a Hash, an entry set to `ensure => absent` removes that command's rule,
-#   including one from `$default_suid_sgid_cmds`, while `audit_suid_sgid` is
-#   `true`. Deleting an entry from either list leaves its rule alone.
+#   Deprecated: use `suid_sgid_cmds_ensure`. Entries are added as `present`,
+#   after `suid_sgid_cmds_ensure`; an entry written as `--entry` becomes
+#   `absent`. It will be removed in 12.0.0.
 #
 # @param audit_suid_tag
 #   The tag to identify `setuid` command execution in an audit record
@@ -177,8 +182,9 @@ class auditd::config::audit_profiles::stig (
   Optional[Boolean] $audit_rename_remove                    = undef,
   String[1]         $audit_rename_remove_tag                = 'delete',
   Optional[Boolean] $audit_suid_sgid                        = undef,
-  Auditd::EntryList $default_suid_sgid_cmds,                   #data in modules
-  Auditd::EntryList $suid_sgid_cmds                         = [],
+  Hash[String[1], Enum['present', 'absent']] $suid_sgid_cmds_ensure, # data in modules
+  Array[String[1]]  $default_suid_sgid_cmds                 = [],
+  Array[String[1]]  $suid_sgid_cmds                         = [],
   String[1]         $audit_suid_tag                         = 'setuid',
   String[1]         $audit_sgid_tag                         = 'setgid',
   String[1]         $audit_suid_sgid_tag                    = "${audit_suid_tag}/${audit_sgid_tag}",
@@ -208,8 +214,21 @@ class auditd::config::audit_profiles::stig (
   String[1]         $audit_pam_timestamp_check_cmd_tag      = 'privileged-pam',
 ) {
   assert_private()
-  # An entry in suid_sgid_cmds overrides the same entry in the defaults.
-  $_suid_sgid_cmds = auditd::list_entries($default_suid_sgid_cmds) + auditd::list_entries($suid_sgid_cmds)
+
+  $_deprecated_lists = {
+    'default_suid_sgid_cmds' => $default_suid_sgid_cmds,
+    'suid_sgid_cmds'         => $suid_sgid_cmds,
+  }
+
+  $_deprecated_lists.each |$param, $value| {
+    unless empty($value) {
+      deprecation("${name}::${param}",
+        "'${name}::${param}' is deprecated; use 'suid_sgid_cmds_ensure', a Hash of command to 'present' or 'absent'. It will be removed in 12.0.0.",
+      false)
+    }
+  }
+
+  $_suid_sgid_cmds = auditd::entries($suid_sgid_cmds_ensure, $default_suid_sgid_cmds + $suid_sgid_cmds)
 
   $_short_name = 'stig'
   $_idx = auditd::get_array_index($_short_name, $auditd::config::profiles)
