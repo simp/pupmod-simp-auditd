@@ -2441,9 +2441,14 @@ Default value: `{ '/usr/bin/at' => {}, '/usr/bin/chage' => {}, '/usr/bin/chcon' 
 
 Data type: `Array[String[1]]`
 
-Deprecated: use `suid_sgid_cmds_entries`, which holds the defaults. Entries
-are added as `present`, after `suid_sgid_cmds_entries`. It will be removed
-in 12.0.0.
+Deprecated: use `suid_sgid_cmds_entries`, which holds the defaults. It will
+be removed in 12.0.0.
+
+When set, it is the whole default list, as it was in 10.x: a command in
+`suid_sgid_cmds_entries` that it doesn't list is treated as `absent`, so a
+command a site trimmed from the defaults stays unaudited. List any
+`suid_sgid_cmds_entries` additions here as well, or in `suid_sgid_cmds`.
+Its entries are added as `present`, after `suid_sgid_cmds_entries`.
 
 Default value: `[]`
 

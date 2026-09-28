@@ -77,9 +77,14 @@
 #   Defaults to `present`.
 #
 # @param default_suid_sgid_cmds
-#   Deprecated: use `suid_sgid_cmds_entries`, which holds the defaults. Entries
-#   are added as `present`, after `suid_sgid_cmds_entries`. It will be removed
-#   in 12.0.0.
+#   Deprecated: use `suid_sgid_cmds_entries`, which holds the defaults. It will
+#   be removed in 12.0.0.
+#
+#   When set, it is the whole default list, as it was in 10.x: a command in
+#   `suid_sgid_cmds_entries` that it doesn't list is treated as `absent`, so a
+#   command a site trimmed from the defaults stays unaudited. List any
+#   `suid_sgid_cmds_entries` additions here as well, or in `suid_sgid_cmds`.
+#   Its entries are added as `present`, after `suid_sgid_cmds_entries`.
 #
 # @param suid_sgid_cmds
 #   Deprecated: use `suid_sgid_cmds_entries`. Entries are added as `present`,
@@ -230,7 +235,18 @@ class auditd::config::audit_profiles::stig (
     }
   }
 
-  $_suid_sgid_cmds = auditd::entries($suid_sgid_cmds_entries, $default_suid_sgid_cmds + $suid_sgid_cmds)
+  # In 10.x a site's default_suid_sgid_cmds replaced the module's list (it had
+  # no lookup_options), which is how a site stopped auditing a command. Keep
+  # that meaning while the parameter is deprecated: a default it doesn't list
+  # is absent. On a node upgraded from 10.x, those rules were never written.
+  $_suid_sgid_cmds_entries = empty($default_suid_sgid_cmds) ? {
+    true    => $suid_sgid_cmds_entries,
+    default => Hash($suid_sgid_cmds_entries.map |$cmd, $opts| {
+      [$cmd, ($cmd in $default_suid_sgid_cmds) ? { true => $opts, default => { 'ensure' => 'absent' } }]
+    }),
+  }
+
+  $_suid_sgid_cmds = auditd::entries($_suid_sgid_cmds_entries, $default_suid_sgid_cmds + $suid_sgid_cmds)
 
   $_short_name = 'stig'
   $_idx = auditd::get_array_index($_short_name, $auditd::config::profiles)

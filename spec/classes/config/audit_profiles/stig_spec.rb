@@ -139,6 +139,75 @@ describe 'auditd' do
         end
       end
 
+      # 10.x gave default_suid_sgid_cmds no lookup_options, so a site value
+      # replaced the module's list. The deprecated parameter keeps that meaning.
+      context 'with the deprecated default_suid_sgid_cmds' do
+        let(:params) { { default_audit_profiles: ['stig'] } }
+        let(:at_rule) { "-a always,exit -F path=/usr/bin/at -F perm=x -F auid>=1000 -F auid!=unset -F key=setuid/setgid\n" }
+        let(:passwd_rule) { "-a always,exit -F path=/usr/bin/passwd -F perm=x -F auid>=1000 -F auid!=unset -F key=setuid/setgid\n" }
+        let(:passwd_privileged) { '-a always,exit -F path=/usr/bin/passwd -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged-passwd' }
+        # The file 10.x wrote with the same trimmed list.
+        let(:base_10x_trimmed) { base_10x.sub(at_rule, '').sub(passwd_rule, '') }
+
+        context 'set to the module defaults' do
+          let(:hieradata) { 'stig_audit_profile/legacy__default_suid_sgid_cmds_full' }
+
+          it { is_expected.to compile.with_all_deps }
+
+          it 'leaves the file 10.x wrote unchanged' do
+            expect(upgraded).to eq(base_10x)
+            expect(file_line_changes(catalogue, path, upgraded)).to eq([])
+          end
+        end
+
+        context 'with commands trimmed' do
+          let(:hieradata) { 'stig_audit_profile/legacy__default_suid_sgid_cmds_trimmed' }
+
+          it { is_expected.to compile.with_all_deps }
+
+          it 'writes a fresh file without the trimmed commands' do
+            expect(rules).not_to include(at_rule)
+            expect(rules).not_to include(passwd_rule)
+            expect(rules).to include(passwd_privileged)
+          end
+
+          it 'marks the trimmed commands absent' do
+            is_expected.to contain_file_line('stig audit_suid_sgid_cmds -a always,exit -F path=/usr/bin/at -F perm=x -F auid>=1000 -F auid!=unset')
+              .with_ensure('absent')
+          end
+
+          it 'leaves the file 10.x wrote with the same list unchanged' do
+            expect(apply_file_lines(catalogue, path, base_10x_trimmed)).to eq(base_10x_trimmed)
+            expect(file_line_changes(catalogue, path, base_10x_trimmed)).to eq([])
+          end
+
+          # A node that still audits a trimmed command (e.g. a file from before
+          # the site trimmed it) has that rule removed, as 10.x's rewrite did.
+          it 'removes the trimmed rules from the full 10.x file' do
+            expect(upgraded).to eq(base_10x_trimmed)
+          end
+        end
+
+        context 'with commands trimmed and the deprecated suid_sgid_cmds' do
+          let(:hieradata) { 'stig_audit_profile/legacy__default_suid_sgid_cmds_trimmed_additions' }
+
+          it 'adds the extra commands and keeps the trimmed ones absent' do
+            expect(rules).to include('-a always,exit -F path=/usr/local/bin/site_tool -F perm=x -F auid>=1000 -F auid!=unset -F key=setuid/setgid')
+            expect(rules).not_to include(at_rule)
+          end
+        end
+
+        context 'with commands trimmed and a suid_sgid_cmds_entries addition' do
+          let(:hieradata) { 'stig_audit_profile/legacy__default_suid_sgid_cmds_trimmed_entries' }
+
+          it 'treats an addition the deprecated list does not name as absent' do
+            expect(rules).not_to include('/usr/local/bin/new_tool')
+            is_expected.to contain_file_line('stig audit_suid_sgid_cmds -a always,exit -F path=/usr/local/bin/new_tool -F perm=x -F auid>=1000 -F auid!=unset')
+              .with_ensure('absent')
+          end
+        end
+      end
+
       context 'with chown auditing disabled' do
         let(:params) { { default_audit_profiles: ['stig'] } }
         let(:hieradata) { 'stig_audit_profile/disable__audit_chown' }

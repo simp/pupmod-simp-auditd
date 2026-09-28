@@ -74,8 +74,8 @@
   `stig::default_suid_sgid_cmds` and `stig::suid_sgid_cmds` for removal in
   12.0.0. They still apply after the Hash, and a `--entry` knockout becomes
   `absent`, but only when the Array is set in a single Hiera layer: merging
-  layers consumes the knockout. `stig::default_suid_sgid_cmds` now adds to the
-  defaults rather than replacing them.
+  layers consumes the knockout. `stig::default_suid_sgid_cmds`, when set,
+  still replaces the default list: a default it doesn't name is `absent`.
 - Add `ensure` to `auditd::rule`; `absent` removes its rules file.
 - Add the `auditd_state` fact: the full `auditctl -s` status, with the raw
   `enabled` flag, plus `version`, `immutable`, `kernel_enforcing` and
