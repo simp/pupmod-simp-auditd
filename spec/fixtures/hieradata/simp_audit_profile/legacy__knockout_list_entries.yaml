@@ -1,0 +1,6 @@
+---
+# The deprecated Array parameters, with 10.x knockouts of default entries.
+auditd::config::audit_profiles::simp::audit_auditd_cmds_list:
+  - --/usr/sbin/auvirt
+auditd::config::audit_profiles::simp::basic_root_audit_syscalls:
+  - --swapon

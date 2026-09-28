@@ -1,0 +1,18 @@
+# Alternate hiera config for the rule profile specs, selected with
+# `let(:hiera_config)`. It enforces `simp:defaults` underneath the per-context
+# hieradata, so each context starts from the toggles the profile restores and
+# overrides only what it tests.
+---
+version: 5
+defaults:
+  data_hash: yaml_data
+  datadir: '.'
+hierarchy:
+  - name: "Custom Test Hiera"
+    path: "%{custom_hiera}.yaml"
+  - name: "Enforce simp:defaults"
+    path: simp_defaults_enforced.yaml
+  - name: "Common"
+    path: default.yaml
+  - name: "Compliance Engine"
+    lookup_key: "compliance_engine::enforcement"

@@ -4,15 +4,34 @@ test_name 'auditd class with simp audit profile'
 
 describe 'auditd class with simp audit profile' do
   require_relative('lib/util')
+  include AuditdTestUtil::ComplianceEngine
 
+  # 11.0.0 makes every resource opt-in: a bare `include auditd` installs the
+  # package and nothing else. Each auditd:: key below is a gate this suite
+  # asserts on, and is one of the knobs the `simp:defaults` profile sets.
+  # The simp profile's rule toggles default to undef as well, so the base
+  # rules file is written only because simp:defaults sets them.
   let(:hieradata) do
-    {
+    AuditdTestUtil.profile_toggles('simp').merge(
+      'auditd::service_ensure'               => 'running',
+      'auditd::service_enable'               => true,
+      'auditd::at_boot'                      => true,
+      'auditd::default_audit_profiles'       => ['simp'],
+      'auditd::purge_auditd_rules'           => true,
+      # Generates the auditd-config watch rules (audit-logs, auditconfig,
+      # audittools). Defaulted true before 11.0.0; the SIMP rules assertion
+      # below greps for the /var/log/audit watch this emits.
+      'auditd::audit_auditd_config'          => true,
+      # File['/var/log/audit'] and File['/etc/audit/rules.d'] are declared only
+      # when these are set; the permission tests below depend on both.
+      'auditd::log_group'                    => 'root',
+      'auditd::config_group'                 => 'root',
       'simp_options::syslog'                 => true,
       'pki::cacerts_sources'                 => ['file:///etc/pki/simp-testing/pki/cacerts'],
       'pki::private_key_source'              => 'file:///etc/pki/simp-testing/pki/private/%{facts.networking.fqdn}.pem',
       'pki::public_key_source'               => 'file:///etc/pki/simp-testing/pki/public/%{facts.networking.fqdn}.pub',
       'rsyslog::config::main_msg_queue_size' => 4321,
-    }
+    )
   end
 
   let(:enable_audit_messages) do
@@ -27,7 +46,7 @@ describe 'auditd class with simp audit profile' do
   let(:disable_audit_messages) do
     {
       'auditd::config::audisp::syslog::enable'          => false,
-      'auditd::config::audisp::syslog::syslog_priority' => 'LOG_NOTICE',
+      'auditd::config::audisp::syslog::priority'        => 'LOG_NOTICE',
       'auditd::syslog'                                  => true
     }.merge(hieradata)
   end
@@ -42,17 +61,25 @@ describe 'auditd class with simp audit profile' do
     context "on #{host}" do
       # Exercise noop from a clean state: on a fresh node the Sicura console
       # previews the module with `puppet apply --noop`, which must not error.
-      # This runs before the applies below configure auditd, so it is the
-      # genuine fresh-node preview. A post-convergence noop check is omitted
-      # (`--noop --detailed-exitcodes` always exits 0). No package removal (as
-      # with fips/ssh): a fresh node already has the base `audit` package, so
-      # the honest clean state is "installed but not yet SIMP-managed", which is
-      # exactly what a bare noop of the module's manifest previews. Unlike the
-      # real apply (`catch_failures: false`, since the auditd service cannot be
-      # manually restarted), noop triggers no restart, so failures are real.
+      # A bare include manages only Package[audit], so previewing that proves
+      # nothing; the preview enforces simp:defaults, which is what a SIMP site
+      # would apply. This runs before the applies below configure auditd, so it
+      # is the genuine fresh-node preview. A post-convergence noop check is
+      # omitted (`--noop --detailed-exitcodes` always exits 0). No package
+      # removal (as with fips/ssh): a fresh node already has the base `audit`
+      # package, so the honest clean state is "installed but not yet
+      # SIMP-managed". Unlike the real apply (`catch_failures: false`, since
+      # the auditd service cannot be manually restarted), noop triggers no
+      # restart, so failures are real.
       context 'in noop mode from a clean state' do
-        it 'applies without errors in noop mode' do
-          apply_manifest_on(host, manifest, catch_failures: true, noop: true)
+        it 'previews simp:defaults without errors' do
+          with_simp_defaults_enforced(host) do
+            result = apply_manifest_on(host, manifest, catch_failures: true, noop: true)
+            # Guards against the preview quietly covering Package[audit] alone
+            # if the Compliance Engine layer stops resolving the profile.
+            expect(result.output).to match(%r{File\[/etc/audit/rules\.d/00_head\.rules\]/ensure: .*\(noop\)})
+            expect(result.output).to match(%r{Ini_setting\[auditd\.conf space_left\].*\(noop\)})
+          end
         end
       end
 
@@ -174,9 +201,12 @@ describe 'auditd class with simp audit profile' do
         end
 
         it 'has audit.rules has been generated with SIMP rules' do
-          # spot check that audit.rules has been generated with SIMP rules
+          # ignore_failures is unset, so the simp profile writes -c itself;
+          # ignore_anonymous (the auid=-1 drop) is opt-in and unset, so its
+          # line may not be written.
           on(host, "{ #{AuditdTestUtil::AUDIT_RULES_CMD}; } | grep -qe '^-c$'")
-          on(host, "{ #{AuditdTestUtil::AUDIT_RULES_CMD}; } | grep -qe '\\-a never,exit \\-F auid=-1'")
+          on(host, "{ #{AuditdTestUtil::AUDIT_RULES_CMD}; } | grep -qe '\\-a never,exit \\-F auid=-1'", acceptable_exit_codes: [1])
+          # spot check that audit.rules has been generated with SIMP rules
           on(host, "{ #{AuditdTestUtil::AUDIT_RULES_CMD}; } | grep -qe '\\-a always,exit \\-F perm=a \\-F exit=-EACCES \\-k access'")
           on(host, "{ #{AuditdTestUtil::AUDIT_RULES_CMD}; } | grep -qe '\\-w /var/log/audit -p wa \\-k audit-logs'")
           # spot check that loaded audit rules contain SIMP rules
@@ -185,7 +215,7 @@ describe 'auditd class with simp audit profile' do
           #   - '-a' arguments are reordered to have action,list instead of list,action.
           #   - '-k keyname' arguments are expanded to '-F key=keyname' for '-a' rules
           result = on(host, "#{AuditdTestUtil::AUDITCTL_CMD} -l")
-          expect(result.output).to include('-a never,exit -S all -F auid=-1')
+          expect(result.output).not_to include('-a never,exit -S all -F auid=-1')
           expect(result.output).to include('-a always,exit -S all -F perm=a -F exit=-EACCES -F key=access')
           # On El6 it adds / to the end of directories but not on later versions.
           expect(result.output).to match(%r{-w /var/log/audit[/]* \-p wa \-k audit\-logs})
@@ -200,14 +230,14 @@ describe 'auditd class with simp audit profile' do
           on(host, 'useradd thing2')
           on(host, %q(grep -qe 'acct="thing2".*exe="/usr/sbin/useradd"' /var/log/audit/audit.log))
 
-          if audit_major_version >= 4
-            # auditd 4.x uses builtin syslog plugin; syslog identifier differs from 'audispd'.
-            # Check syslog files first; fall back to journal (captures all syslog traffic on EL10).
-            on(host, 'grep -rqe \'key="audit_account_changes"\' /var/log/secure /var/log/messages 2>/dev/null || ' \
-                     'journalctl --since=-5min --no-pager -q 2>/dev/null | grep -q \'key="audit_account_changes"\'')
-          else
-            on(host, %q(grep -qe 'audispd.*type=SYSCALL msg=audit.*comm="useradd.*key="audit_account_changes"' /var/log/secure))
-          end
+          # Which file the record lands in is the site rsyslog configuration's
+          # business, not this module's, and the syslog identifier differs
+          # between auditd 3 ('audisp-syslog') and 4 (builtin). 11.0.0 also no
+          # longer pulls in the SIMP rsyslog module by default, so the records
+          # are no longer routed to /var/log/secure. Check the syslog files,
+          # then fall back to the journal, which captures all syslog traffic.
+          on(host, 'grep -rqe \'key="audit_account_changes"\' /var/log/secure /var/log/messages 2>/dev/null || ' \
+                   'journalctl --since=-5min --no-pager -q 2>/dev/null | grep -q \'key="audit_account_changes"\'')
         end
 
         it 'restarts the dispatcher if killed' do
@@ -229,11 +259,91 @@ describe 'auditd class with simp audit profile' do
           on(host, 'logrotate --force /etc/logrotate.d/rsyslog')
           on(host, 'useradd notathing')
         end
+        # Knowingly inert: with the SIMP rsyslog module no longer included,
+        # nothing routes audit records to /var/log/secure, so this passes
+        # whether or not the plugin is disabled. Left until the deprecated
+        # rsyslog path is removed, at which point it should check
+        # /var/log/messages and the journal the way the positive test above does.
         describe file('/var/log/secure') do
           its(:content) { is_expected.not_to match %r{audispd.*acct="notathing"} }
         end
         describe file('/var/log/audit/audit.log') do
           its(:content) { is_expected.to match %r{acct="notathing".*exe="/usr/sbin/useradd"} }
+        end
+      end
+
+      # The settings files are edited in place, so a compliance profile that
+      # stops setting a parameter must not revert what an earlier one applied.
+      context 'un-enforcing a drop rule' do
+        let(:drop_file) { '/etc/audit/rules.d/05_default_drop.rules' }
+        let(:crond_rule) { '^-a never,user -F subj_type=crond_t$' }
+
+        it 'writes the line when set' do
+          set_hieradata_on(host, hieradata.merge('auditd::ignore_crond' => true))
+          apply_manifest_on(host, manifest, catch_failures: true)
+          on(host, "grep -qe '#{crond_rule}' #{drop_file}")
+        end
+
+        it 'leaves the line alone when unset' do
+          set_hieradata_on(host, hieradata)
+          apply_manifest_on(host, manifest, catch_changes: true)
+          on(host, "grep -qe '#{crond_rule}' #{drop_file}")
+        end
+
+        it 'removes the line when false' do
+          set_hieradata_on(host, hieradata.merge('auditd::ignore_crond' => false))
+          apply_manifest_on(host, manifest, catch_failures: true)
+          on(host, "grep -qe '#{crond_rule}' #{drop_file}", acceptable_exit_codes: [1])
+        end
+      end
+
+      # The same three states for a base rules toggle, which also drives the
+      # kernel's loaded rule set.
+      context 'un-enforcing a base rules toggle' do
+        let(:base_file) { '/etc/audit/rules.d/50_00_simp_base.rules' }
+        let(:toggle) { 'auditd::config::audit_profiles::simp::audit_chown' }
+        let(:chown_rule) { '^-a always,exit -F arch=b64 -S chown,fchown,fchownat,lchown -k chown$' }
+
+        it 'writes the rule when set' do
+          set_hieradata_on(host, hieradata.merge(toggle => true))
+          apply_manifest_on(host, manifest, catch_failures: true)
+          on(host, "grep -qe '#{chown_rule}' #{base_file}")
+          expect(on(host, "#{AuditdTestUtil::AUDITCTL_CMD} -l").output).to match(%r{^-a always,exit -F arch=b64 -S \S*chown\S* -F key=chown$})
+        end
+
+        it 'leaves the rule alone when unset' do
+          set_hieradata_on(host, hieradata.except(toggle))
+          apply_manifest_on(host, manifest, catch_changes: true)
+          on(host, "grep -qe '#{chown_rule}' #{base_file}")
+        end
+
+        it 'removes the rule when false' do
+          set_hieradata_on(host, hieradata.merge(toggle => false))
+          apply_manifest_on(host, manifest, catch_failures: true)
+          on(host, "grep -qe '#{chown_rule}' #{base_file}", acceptable_exit_codes: [1])
+          expect(on(host, "#{AuditdTestUtil::AUDITCTL_CMD} -l").output).not_to match(%r{key=chown$})
+        end
+      end
+
+      # The purge deletes every rules.d file this module does not declare, so
+      # the base rules file must stay declared once its last toggle is unset.
+      context 'un-enforcing the last base rules toggle with the purge on' do
+        let(:base_file) { '/etc/audit/rules.d/50_00_simp_base.rules' }
+        let(:toggle) { 'auditd::config::audit_profiles::simp::audit_chown' }
+        let(:chown_rule) { '^-a always,exit -F arch=b64 -S chown,fchown,fchownat,lchown -k chown$' }
+        let(:no_toggles) { hieradata.reject { |k, _| k.start_with?('auditd::config::audit_profiles::simp::') } }
+
+        it 'writes the rule when it is the only toggle set' do
+          set_hieradata_on(host, no_toggles.merge(toggle => true))
+          apply_manifest_on(host, manifest, catch_failures: true)
+          on(host, "grep -qe '#{chown_rule}' #{base_file}")
+        end
+
+        it 'leaves the file and the rule alone when unset' do
+          set_hieradata_on(host, no_toggles)
+          apply_manifest_on(host, manifest, catch_changes: true)
+          on(host, "grep -qe '#{chown_rule}' #{base_file}")
+          expect(on(host, "#{AuditdTestUtil::AUDITCTL_CMD} -l").output).to match(%r{^-a always,exit -F arch=b64 -S \S*chown\S* -F key=chown$})
         end
       end
     end

@@ -7,8 +7,7 @@ Facter.add('auditd_version') do
   confine kernel: 'Linux'
 
   setcode do
-    auditd_facts = Facter.value('simplib__auditd')
-    Facter.value('simplib__auditd')['version'] if auditd_facts
+    Facter.value('auditd_state')&.fetch('version', nil)
   end
 end
 

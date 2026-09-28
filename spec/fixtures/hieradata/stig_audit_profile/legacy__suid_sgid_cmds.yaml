@@ -1,0 +1,4 @@
+---
+# The deprecated Array parameter still adds commands.
+auditd::config::audit_profiles::stig::suid_sgid_cmds:
+  - /usr/local/bin/site_tool

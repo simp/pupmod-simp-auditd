@@ -9,6 +9,13 @@ describe 'auditd::config::audit_profiles::custom' do
         <<~EOM
           function assert_private() { }
 
+          class auditd (
+            $package_name = 'audit',
+          ){
+            package { $package_name: }
+          }
+          include auditd
+
           class auditd::config (
             $profiles = ['custom'],
             $rule_file_attributes = { 'owner' => 'root', 'group' => 'root', 'mode' => '0600' },
@@ -113,6 +120,13 @@ describe 'auditd::config::audit_profiles::custom' do
         let(:pre_condition) do
           <<~EOM
             function assert_private() { }
+
+            class auditd (
+              $package_name = 'audit',
+            ){
+              package { $package_name: }
+            }
+            include auditd
 
             class auditd::config (
               $profiles = ['simp', 'custom', 'stig'],

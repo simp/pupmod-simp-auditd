@@ -1,0 +1,117 @@
+# The `simp:defaults` Sicura Compliance Engine profile.
+#
+# Enforcing it (Hiera `compliance_engine::enforcement: [simp:defaults]`) restores
+# the auditd configuration this module managed by default before 11.0.0. Checks
+# are listed directly (no controls indirection) and defined in checks.yaml.
+---
+version: 2.0.0
+profiles:
+  simp:defaults:
+    checks:
+      # Resource gates
+      simp:defaults.auditd.service_ensure: true
+      simp:defaults.auditd.service_enable: true
+      simp:defaults.auditd.at_boot: true
+      simp:defaults.auditd.default_audit_profiles: true
+      simp:defaults.auditd.audit_auditd_config: true
+      simp:defaults.auditd.purge_auditd_rules: true
+      simp:defaults.auditd.log_group: true
+      simp:defaults.auditd.config_group: true
+      # auditd.conf settings
+      simp:defaults.auditd.action_mail_acct: true
+      simp:defaults.auditd.admin_space_left: true
+      simp:defaults.auditd.space_left: true
+      simp:defaults.auditd.admin_space_left_action: true
+      simp:defaults.auditd.space_left_action: true
+      simp:defaults.auditd.disk_error_action: true
+      simp:defaults.auditd.disk_full_action: true
+      simp:defaults.auditd.flush: true
+      simp:defaults.auditd.freq: true
+      simp:defaults.auditd.log_file: true
+      simp:defaults.auditd.log_format: true
+      simp:defaults.auditd.max_log_file: true
+      simp:defaults.auditd.max_log_file_action: true
+      simp:defaults.auditd.name_format: true
+      simp:defaults.auditd.num_logs: true
+      simp:defaults.auditd.priority_boost: true
+      simp:defaults.auditd.q_depth: true
+      simp:defaults.auditd.overflow_action: true
+      simp:defaults.auditd.max_restarts: true
+      simp:defaults.auditd.write_logs: true
+      # Rule preamble and default drops
+      simp:defaults.auditd.buffer_size: true
+      simp:defaults.auditd.failure_mode: true
+      simp:defaults.auditd.rate: true
+      simp:defaults.auditd.loginuid_immutable: true
+      simp:defaults.auditd.ignore_errors: true
+      simp:defaults.auditd.ignore_failures: true
+      simp:defaults.auditd.ignore_anonymous: true
+      simp:defaults.auditd.ignore_system_services: true
+      simp:defaults.auditd.ignore_crond: true
+      simp:defaults.auditd.ignore_time_daemons: true
+      simp:defaults.auditd.ignore_crypto_key_user: true
+      simp:defaults.auditd.immutable: true
+      # Rule profile toggles
+      simp:defaults.auditd.simp.audit_32bit_operations: true
+      simp:defaults.auditd.simp.audit_auditd_cmds: true
+      simp:defaults.auditd.simp.audit_unsuccessful_file_operations: true
+      simp:defaults.auditd.simp.audit_chown: true
+      simp:defaults.auditd.simp.audit_chmod: true
+      simp:defaults.auditd.simp.audit_attr: true
+      simp:defaults.auditd.simp.audit_rename_remove: true
+      simp:defaults.auditd.simp.audit_su_root_activity: true
+      simp:defaults.auditd.simp.audit_suid_sgid: true
+      simp:defaults.auditd.simp.audit_kernel_modules: true
+      simp:defaults.auditd.simp.audit_time: true
+      simp:defaults.auditd.simp.audit_locale: true
+      simp:defaults.auditd.simp.audit_network_ipv4_accept: true
+      simp:defaults.auditd.simp.audit_network_ipv6_accept: true
+      simp:defaults.auditd.simp.audit_network_ipv4_connect: true
+      simp:defaults.auditd.simp.audit_network_ipv6_connect: true
+      simp:defaults.auditd.simp.audit_mount: true
+      simp:defaults.auditd.simp.audit_umask: true
+      simp:defaults.auditd.simp.audit_local_account: true
+      simp:defaults.auditd.simp.audit_selinux_policy: true
+      simp:defaults.auditd.simp.audit_selinux_cmds: true
+      simp:defaults.auditd.simp.audit_login_files: true
+      simp:defaults.auditd.simp.audit_session_files: true
+      simp:defaults.auditd.simp.audit_cfg_sudoers: true
+      simp:defaults.auditd.simp.audit_cfg_grub: true
+      simp:defaults.auditd.simp.audit_cfg_sys: true
+      simp:defaults.auditd.simp.audit_cfg_cron: true
+      simp:defaults.auditd.simp.audit_cfg_shell: true
+      simp:defaults.auditd.simp.audit_cfg_pam: true
+      simp:defaults.auditd.simp.audit_cfg_security: true
+      simp:defaults.auditd.simp.audit_cfg_services: true
+      simp:defaults.auditd.simp.audit_cfg_xinetd: true
+      simp:defaults.auditd.simp.audit_cfg_yum: true
+      simp:defaults.auditd.simp.audit_yum_cmd: true
+      simp:defaults.auditd.simp.audit_rpm_cmd: true
+      simp:defaults.auditd.simp.audit_ptrace: true
+      simp:defaults.auditd.simp.audit_personality: true
+      simp:defaults.auditd.simp.audit_passwd_cmds: true
+      simp:defaults.auditd.simp.audit_priv_cmds: true
+      simp:defaults.auditd.simp.audit_postfix_cmds: true
+      simp:defaults.auditd.simp.audit_ssh_keysign_cmd: true
+      simp:defaults.auditd.simp.audit_suspicious_apps: true
+      simp:defaults.auditd.simp.audit_systemd: true
+      simp:defaults.auditd.simp.audit_crontab_cmd: true
+      simp:defaults.auditd.simp.audit_pam_timestamp_check_cmd: true
+      simp:defaults.auditd.stig.audit_unsuccessful_file_operations: true
+      simp:defaults.auditd.stig.audit_chown: true
+      simp:defaults.auditd.stig.audit_chmod: true
+      simp:defaults.auditd.stig.audit_attr: true
+      simp:defaults.auditd.stig.audit_rename_remove: true
+      simp:defaults.auditd.stig.audit_suid_sgid: true
+      simp:defaults.auditd.stig.audit_kernel_modules: true
+      simp:defaults.auditd.stig.audit_mount: true
+      simp:defaults.auditd.stig.audit_local_account: true
+      simp:defaults.auditd.stig.audit_selinux_cmds: true
+      simp:defaults.auditd.stig.audit_login_files: true
+      simp:defaults.auditd.stig.audit_cfg_sudoers: true
+      simp:defaults.auditd.stig.audit_passwd_cmds: true
+      simp:defaults.auditd.stig.audit_priv_cmds: true
+      simp:defaults.auditd.stig.audit_postfix_cmds: true
+      simp:defaults.auditd.stig.audit_ssh_keysign_cmd: true
+      simp:defaults.auditd.stig.audit_crontab_cmd: true
+      simp:defaults.auditd.stig.audit_pam_timestamp_check_cmd: true

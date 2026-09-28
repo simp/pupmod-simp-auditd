@@ -1,0 +1,5 @@
+---
+# Enforcement explicitly empty: the backend is wired up but returns nothing, so
+# auditd's parameters fall back to their module defaults and the bare include
+# stays a no-op.
+compliance_engine::enforcement: []
