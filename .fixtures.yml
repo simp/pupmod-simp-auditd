@@ -16,6 +16,4 @@ fixtures:
     simplib: https://github.com/simp/pupmod-simp-simplib.git
     stdlib: https://github.com/simp/puppetlabs-stdlib.git
     systemd: https://github.com/simp/puppet-systemd.git
-    augeas_core:
-      repo: https://github.com/simp/pupmod-puppetlabs-augeas_core.git
-      puppet_version: ">= 6.0.0"
+    augeas_core: https://github.com/simp/pupmod-puppetlabs-augeas_core.git
