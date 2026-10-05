@@ -207,12 +207,22 @@ when the parameter named beside it is set:
 | `99_tail.rules` | `auditd::purge_auditd_rules` is `true`, or `auditd::immutable` is set with a profile on |
 | `/etc/audit/rules.d/puppet_auditd.rules` | one of `auditd::buffer_size`, `auditd::failure_mode`, `auditd::rate`, `auditd::backlog_wait_time` or `auditd::loginuid_immutable` is set, or `auditd::purge_auditd_rules` is `true` |
 | Purging unmanaged files from `/etc/audit/rules.d` | `auditd::purge_auditd_rules` is `true` |
+| Owner, group and mode of everything under `/etc/audit/rules.d`, recursively, including files this module did not write | `auditd::manage_rules_d_attributes` or `auditd::purge_auditd_rules` is `true` |
 | `/etc/audit/audit.rules` and `.prev` ownership | one of the `auditd::audit_rules_*` parameters is set |
 | `/var/log/audit` | `auditd::log_group` is set |
 | The audispd `syslog` plugin (`/etc/audit/plugins.d/syslog.conf`) | `auditd::syslog` is `true` |
 
 `/etc/audit` itself is no longer managed at all: the recursive purge that used to run
 over it is gone.
+
+The rule files this module writes always get owner `root`, group `auditd::config_group`
+(`root` when unset) and a mode with no access for others. Other files in
+`/etc/audit/rules.d`, such as the package's `audit.rules` or rules an administrator added,
+are left as they are unless `auditd::manage_rules_d_attributes` is `true`. That gives them,
+and any subdirectories and their contents, the same owner, group and mode without deleting
+anything, which is what CIS 6.3.4.6 and 6.3.4.7 (EL8) and 6.2.4.6 and 6.2.4.7 (EL9) check.
+`auditd::purge_auditd_rules: true` does the same as part of the purge. A run that repairs
+an attribute refreshes the service like any other configuration change.
 
 ### When changes take effect
 

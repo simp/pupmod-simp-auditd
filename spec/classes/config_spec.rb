@@ -45,7 +45,8 @@ describe 'auditd' do
           it { is_expected.not_to contain_file('/etc/audit') }
 
           # rules.d is only declared when it has work to do: purging files this
-          # module does not manage, or setting attributes on ones it writes.
+          # module does not manage, enforcing attributes on them
+          # (manage_rules_d_attributes), or setting attributes on ones it writes.
           it { is_expected.not_to contain_file('/etc/audit/rules.d') }
 
           # augenrules owns these. Unmanaged unless audit_rules_* asks.
@@ -127,6 +128,7 @@ describe 'auditd' do
           }
 
           it { is_expected.to contain_class('auditd::config::audit_profiles') }
+
           # The purge removes the package's -b 8192. The late settings file
           # puts it back, but only while it has no -b line of its own.
           it { is_expected.to contain_file('/etc/audit/rules.d/puppet_auditd.rules') }
@@ -160,6 +162,12 @@ describe 'auditd' do
 
             it { is_expected.to contain_file_line('rule settings buffer_size').with(ensure: 'absent', match: '^-b\s') }
             it { is_expected.not_to contain_file_line('rule settings packaged -b') }
+          end
+
+          context 'and manage_rules_d_attributes => true' do
+            let(:params) { { purge_auditd_rules: true, manage_rules_d_attributes: true } }
+
+            it { is_expected.to contain_file('/etc/audit/rules.d').with(recurse: true, purge: true, force: true) }
           end
         end
 
@@ -203,6 +211,46 @@ describe 'auditd' do
           # The README documents the override; the module does not delete
           # package-created files unless purge_auditd_rules asks it to.
           it { is_expected.not_to contain_file('/etc/audit/rules.d/audit.rules') }
+
+          context 'and manage_rules_d_attributes => true' do
+            let(:params) { RULES_D_PARAMS.merge(default_audit_profiles: ['simp'], manage_rules_d_attributes: true) }
+
+            it { is_expected.to compile.with_all_deps }
+            it { is_expected.to contain_file('/etc/audit/rules.d').with(recurse: true, purge: false, force: false) }
+          end
+        end
+
+        # Enforced alone, ownership on files this module did not write takes
+        # effect without a profile, and without deleting anything.
+        context 'with only manage_rules_d_attributes => true' do
+          let(:params) { { manage_rules_d_attributes: true } }
+
+          it { is_expected.to compile.with_all_deps }
+          it {
+            is_expected.to contain_file('/etc/audit/rules.d').with(
+              ensure: 'directory',
+              owner: 'root',
+              group: 'root',
+              mode: 'u+rwX,g-rwx,o-rwx',
+              recurse: true,
+              purge: false,
+              force: false,
+            )
+          }
+
+          it { is_expected.not_to contain_class('auditd::config::audit_profiles') }
+
+          context 'with a non-root config_group' do
+            let(:params) { { manage_rules_d_attributes: true, config_group: 'rspec' } }
+
+            it { is_expected.to contain_file('/etc/audit/rules.d').with(group: 'rspec', mode: 'u+rwX,g+rX,g-w,o-rwx', recurse: true) }
+          end
+        end
+
+        context 'with manage_rules_d_attributes => false' do
+          let(:params) { { manage_rules_d_attributes: false } }
+
+          it { is_expected.not_to contain_file('/etc/audit/rules.d') }
         end
 
         context 'with a profile and audit_auditd_config => true' do

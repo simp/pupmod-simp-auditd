@@ -145,6 +145,7 @@ The following parameters are available in the `auditd` class:
 * [`verify_email`](#-auditd--verify_email)
 * [`write_logs`](#-auditd--write_logs)
 * [`purge_auditd_rules`](#-auditd--purge_auditd_rules)
+* [`manage_rules_d_attributes`](#-auditd--manage_rules_d_attributes)
 
 ##### <a name="-auditd--enable"></a>`enable`
 
@@ -849,6 +850,28 @@ Default value: `$log_format ? { /^(?i:nolog)$/ => false, default => undef`
 Data type: `Boolean`
 
 Whether or not to purge existing auditd rules under /etc/audit/rules.d
+
+Default value: `false`
+
+##### <a name="-auditd--manage_rules_d_attributes"></a>`manage_rules_d_attributes`
+
+Data type: `Boolean`
+
+Whether to enforce owner `root`, the `$config_group` group (`root` when
+unset) and the matching mode on everything under `/etc/audit/rules.d`,
+recursively, including subdirectories and files this module did not
+write, such as the package's own `audit.rules`.
+
+The rule files this module writes always carry these attributes; this
+extends them to the rest of the directory, which CIS 6.3.4.6/6.3.4.7
+(EL8) and 6.2.4.6/6.2.4.7 (EL9) check. It changes ownership and
+permissions only: nothing is deleted unless `$purge_auditd_rules` is also
+`true`, which applies them on its own.
+
+A run that repairs an attribute refreshes `auditd::service`, which
+restarts `auditd` when the service is managed.
+
+`false` stops enforcing them and leaves the files as they are.
 
 Default value: `false`
 

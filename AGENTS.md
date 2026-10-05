@@ -70,9 +70,9 @@ Both are unset by default.
 
 As of 11.0.0 this is the rule the whole module is built around: a bare `include auditd`
 declares `Package[audit]` and nothing else. Every other resource -- the service, the
-GRUB entry, the rule files, the `rules.d` purge, `auditd.conf` keys, `/var/log/audit`,
-`/etc/audit/auditd.conf` -- appears only because a parameter asked for it, and every
-one of those parameters defaults to `undef`, `false` or `[]`.
+GRUB entry, the rule files, the `rules.d` purge and ownership recursion, `auditd.conf`
+keys, `/var/log/audit`, `/etc/audit/auditd.conf` -- appears only because a parameter
+asked for it, and every one of those parameters defaults to `undef`, `false` or `[]`.
 
 Before adding a resource, find the parameter that gates it. If there isn't one, that is
 the change to make first. `spec/classes/init_spec.rb` and `spec/classes/config_spec.rb`
@@ -147,6 +147,7 @@ Many array parameters (e.g., syscall lists, ignore lists) use `lookup_options: m
 | `$enable` | **Deprecated.** `undef` does nothing; `true` warns; `false` warns and implies a stopped, disabled service and `at_boot => false` where those are unset. It no longer stands the module down |
 | `$service_ensure` / `$service_enable` | Declare `Service['auditd']` at all; unset by default |
 | `$purge_auditd_rules` | Whether `/etc/audit/rules.d` is purged of unmanaged files |
+| `$manage_rules_d_attributes` | Whether owner/group/mode are enforced recursively on everything under `/etc/audit/rules.d`, without purging |
 | `$log_group` | Group owning `/var/log/audit`; also written as the `log_group` key in `auditd.conf` |
 | `$config_group` | Group owning the audit *configuration*. Deliberately independent of `$log_group` |
 | `$default_audit_profiles` | Which rule profiles to apply |

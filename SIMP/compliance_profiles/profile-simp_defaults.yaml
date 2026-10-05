@@ -15,6 +15,7 @@ profiles:
       simp:defaults.auditd.default_audit_profiles: true
       simp:defaults.auditd.audit_auditd_config: true
       simp:defaults.auditd.purge_auditd_rules: true
+      simp:defaults.auditd.manage_rules_d_attributes: true
       simp:defaults.auditd.log_group: true
       simp:defaults.auditd.config_group: true
       # auditd.conf settings
