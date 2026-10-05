@@ -131,6 +131,11 @@ describe 'auditd' do
           is_expected.to contain_file('/etc/audit/rules.d/75.audit_auditd_config.rules')
         end
 
+        # Keeps rules.d ownership enforced if a site turns the purge off.
+        it 'enforces ownership on every rules.d file' do
+          is_expected.to contain_class('auditd').with_manage_rules_d_attributes(true)
+        end
+
         # Opt-in since 11.0.0; the profile restores the old preamble options.
         it 'writes the preamble options' do
           {

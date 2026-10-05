@@ -346,6 +346,45 @@ describe 'auditd class with simp audit profile' do
           expect(on(host, "#{AuditdTestUtil::AUDITCTL_CMD} -l").output).to match(%r{^-a always,exit -F arch=b64 -S \S*chown\S* -F key=chown$})
         end
       end
+
+      # Ownership on rules.d files this module did not write, with the purge
+      # off so the file survives.
+      context 'enforcing ownership on an unmanaged rules.d file' do
+        let(:stray_file) { '/etc/audit/rules.d/zz_rspec_unmanaged.rules' }
+        let(:no_purge) { hieradata.merge('auditd::purge_auditd_rules' => false) }
+
+        before(:context) do
+          on(host, 'groupadd -f auditd_rspec')
+          on(host, "echo '# not written by Puppet' > /etc/audit/rules.d/zz_rspec_unmanaged.rules")
+          on(host, 'chown nobody:auditd_rspec /etc/audit/rules.d/zz_rspec_unmanaged.rules')
+          on(host, 'chmod 0644 /etc/audit/rules.d/zz_rspec_unmanaged.rules')
+        end
+
+        after(:context) do
+          on(host, 'rm -f /etc/audit/rules.d/zz_rspec_unmanaged.rules')
+          set_hieradata_on(host, hieradata)
+        end
+
+        it 'repairs owner, group and mode when set, without deleting the file' do
+          set_hieradata_on(host, no_purge.merge('auditd::manage_rules_d_attributes' => true))
+          apply_manifest_on(host, manifest, catch_failures: true)
+          expect(on(host, "stat -c '%U:%G %a' #{stray_file}").stdout.strip).to eq('root:root 600')
+          apply_manifest_on(host, manifest, catch_changes: true)
+        end
+
+        it 'leaves the repaired attributes alone when unset' do
+          set_hieradata_on(host, no_purge)
+          apply_manifest_on(host, manifest, catch_changes: true)
+          expect(on(host, "stat -c '%U:%G %a' #{stray_file}").stdout.strip).to eq('root:root 600')
+        end
+
+        it 'stops enforcing them when false' do
+          on(host, "chown nobody:auditd_rspec #{stray_file}")
+          set_hieradata_on(host, no_purge.merge('auditd::manage_rules_d_attributes' => false))
+          apply_manifest_on(host, manifest, catch_failures: true)
+          expect(on(host, "stat -c '%U:%G' #{stray_file}").stdout.strip).to eq('nobody:auditd_rspec')
+        end
+      end
     end
   end
 end

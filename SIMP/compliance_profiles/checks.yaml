@@ -62,6 +62,16 @@ checks:
       parameter: auditd::purge_auditd_rules
       value: true
 
+  # Owner/group/mode on every rules.d file, not only the ones this module
+  # writes (CIS 6.3.4.6/6.3.4.7). Before 11.0.0 the purge's recurse applied
+  # these; the purge applies them still, but this keeps them if a site turns
+  # the purge off.
+  simp:defaults.auditd.manage_rules_d_attributes:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::manage_rules_d_attributes
+      value: true
+
   # Both an auditd.conf key and the switch declaring File['/var/log/audit'].
   simp:defaults.auditd.log_group:
     type: puppet-class-parameter

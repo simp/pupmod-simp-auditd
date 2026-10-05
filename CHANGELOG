@@ -1,3 +1,11 @@
+* Mon Oct 05 2026 Mike Riddle <mike@sicura.us> - 11.1.0
+- Add `auditd::manage_rules_d_attributes`. When `true`, owner, group and mode
+  are enforced on every file in `/etc/audit/rules.d`, including files this
+  module did not write, such as the package's `audit.rules`, without purging
+  anything. Since 11.0.0 these files were only covered while
+  `auditd::purge_auditd_rules` was on, which left them failing CIS 6.3.4.6/7
+  (EL8) and 6.2.4.6/7 (EL9). Defaults to `false`; `simp:defaults` sets it.
+
 * Thu Sep 24 2026 Hazel Caballero <hazel@sicura.us> - 11.0.0
 - BREAKING: a bare `include auditd` declares `Package[audit]` and nothing else.
   Every other resource is declared only when a parameter asks for it. The
