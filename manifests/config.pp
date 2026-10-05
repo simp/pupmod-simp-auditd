@@ -61,9 +61,11 @@ class auditd::config {
   # directory, so a bare include of auditd has no reason to touch it.
   #
   # Recursion is what reaches files this module did not write (the package's
-  # audit.rules, an admin's own rules). Without a purge it only changes their
-  # owner/group/mode, but those are still files this module doesn't own, so it
-  # needs a parameter of its own rather than following from a profile.
+  # audit.rules, an admin's own rules), including subdirectories and their
+  # contents. Without a purge it only changes their owner/group/mode, but those
+  # are still files this module doesn't own, so it needs a parameter of its own
+  # rather than following from a profile. A repair refreshes auditd::service,
+  # like any other change in this class.
   $_rules_d_recurse = $auditd::purge_auditd_rules or $auditd::manage_rules_d_attributes
 
   if $_rules_d_recurse or !empty($profiles) {
@@ -261,10 +263,10 @@ class auditd::config {
   # and doesn't depend on a profile: one enforced setting takes effect alone.
   contain 'auditd::config::rule_settings'
 
-  # The same condition that claims /etc/audit/rules.d above. Once this module
-  # is managing that directory, the rule files in it need the preamble
-  # (00_head.rules, 99_tail.rules) this class writes, whether or not any
-  # profile supplies content.
+  # Once a profile or the purge claims /etc/audit/rules.d, the rule files in it
+  # need the preamble (00_head.rules, 99_tail.rules) this class writes, whether
+  # or not any profile supplies content. manage_rules_d_attributes declares the
+  # directory too, but only to set attributes, so it writes no rules.
   if !empty($profiles) or $auditd::purge_auditd_rules {
     # use contain instead of include so that config file changes can
     # notify auditd::service class

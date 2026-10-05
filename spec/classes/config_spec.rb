@@ -45,7 +45,8 @@ describe 'auditd' do
           it { is_expected.not_to contain_file('/etc/audit') }
 
           # rules.d is only declared when it has work to do: purging files this
-          # module does not manage, or setting attributes on ones it writes.
+          # module does not manage, enforcing attributes on them
+          # (manage_rules_d_attributes), or setting attributes on ones it writes.
           it { is_expected.not_to contain_file('/etc/audit/rules.d') }
 
           # augenrules owns these. Unmanaged unless audit_rules_* asks.
@@ -128,11 +129,6 @@ describe 'auditd' do
 
           it { is_expected.to contain_class('auditd::config::audit_profiles') }
 
-          context 'and manage_rules_d_attributes => true' do
-            let(:params) { { purge_auditd_rules: true, manage_rules_d_attributes: true } }
-
-            it { is_expected.to contain_file('/etc/audit/rules.d').with(recurse: true, purge: true, force: true) }
-          end
           # The purge removes the package's -b 8192. The late settings file
           # puts it back, but only while it has no -b line of its own.
           it { is_expected.to contain_file('/etc/audit/rules.d/puppet_auditd.rules') }
@@ -166,6 +162,12 @@ describe 'auditd' do
 
             it { is_expected.to contain_file_line('rule settings buffer_size').with(ensure: 'absent', match: '^-b\s') }
             it { is_expected.not_to contain_file_line('rule settings packaged -b') }
+          end
+
+          context 'and manage_rules_d_attributes => true' do
+            let(:params) { { purge_auditd_rules: true, manage_rules_d_attributes: true } }
+
+            it { is_expected.to contain_file('/etc/audit/rules.d').with(recurse: true, purge: true, force: true) }
           end
         end
 

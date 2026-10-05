@@ -360,9 +360,13 @@ describe 'auditd class with simp audit profile' do
           on(host, 'chmod 0644 /etc/audit/rules.d/zz_rspec_unmanaged.rules')
         end
 
+        # hieradata is a let, which RSpec refuses in after(:context)
+        after(:each) do
+          set_hieradata_on(host, hieradata)
+        end
+
         after(:context) do
           on(host, 'rm -f /etc/audit/rules.d/zz_rspec_unmanaged.rules')
-          set_hieradata_on(host, hieradata)
         end
 
         it 'repairs owner, group and mode when set, without deleting the file' do
