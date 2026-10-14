@@ -1,3 +1,12 @@
+* Wed Oct 14 2026 Mike Riddle <mike@sicura.us> - 11.3.0
+- Add `auditd::manage_plugins_d_attributes`. When `true`, owner, group and
+  mode are enforced on every file in the plugin directory (`plugin_dir`, or
+  `/etc/audit/plugins.d`), including plugin configs this module did not write,
+  such as `sedispatch.conf` from `setroubleshoot-server`, without purging
+  anything. Since 11.0.0 only this module's own `syslog.conf` was covered,
+  which left such files failing CIS 6.3.4.5-6.3.4.7 (EL8, EL10) and
+  6.2.4.5-6.2.4.7 (EL9). Defaults to `false`; `simp:defaults` sets it.
+
 * Thu Oct 08 2026 Steven Pritchard <steve@sicura.us> - 11.2.0
 - Add support for OpenVox 9
 - Update metadata.json dependency ranges from the Forge

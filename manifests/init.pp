@@ -386,6 +386,23 @@
 #
 #   `false` stops enforcing them and leaves the files as they are.
 #
+# @param manage_plugins_d_attributes
+#   Whether to enforce owner `root`, the `$config_group` group (`root` when
+#   unset) and the matching mode on everything in the plugin directory
+#   (`$plugin_dir`, or the package's `/etc/audit/plugins.d`, or
+#   `/etc/audisp/plugins.d` before auditd 3), recursively, including plugin
+#   configs this module did not write, such as `sedispatch.conf` from
+#   `setroubleshoot-server`.
+#
+#   CIS 6.3.4.5-6.3.4.7 (EL8, EL10) and 6.2.4.5-6.2.4.7 (EL9) check every
+#   `*.conf` under `/etc/audit`. It changes ownership and permissions only:
+#   nothing is deleted.
+#
+#   A run that repairs an attribute refreshes `auditd::service`, which
+#   restarts `auditd` when the service is managed.
+#
+#   `false` stops enforcing them and leaves the files as they are.
+#
 # @author https://github.com/simp/pupmod-simp-auditd/graphs/contributors
 #
 class auditd (
@@ -461,6 +478,7 @@ class auditd (
   Optional[Boolean]                                    $write_logs                      = $log_format ? { /^(?i:nolog)$/ => false, default => undef },
   Boolean                                              $purge_auditd_rules              = false,
   Boolean                                              $manage_rules_d_attributes       = false,
+  Boolean                                              $manage_plugins_d_attributes     = false,
 ) {
   simplib::assert_metadata($module_name)
 

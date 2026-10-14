@@ -240,16 +240,29 @@ class auditd::config {
     }
   }
 
-  # Only declared when a site moves the plugin directory. The package ships
-  # and owns the default one. auditd::config::audisp::syslog writes
-  # syslog.conf into whatever plugin_dir resolves to, so a relocated
-  # directory that nothing creates is a File with no parent.
-  if $auditd::plugin_dir {
-    file { $auditd::plugin_dir:
+  # Declared when a site moves the plugin directory, or asks for attributes on
+  # everything in it. The package ships and owns the default one.
+  # auditd::config::audisp::syslog writes syslog.conf into whatever plugin_dir
+  # resolves to, so a relocated directory that nothing creates is a File with
+  # no parent; the path is resolved the same way here.
+  #
+  # Recursion reaches plugin configs other packages install there (such as
+  # setroubleshoot-server's sedispatch.conf). Without a purge it only changes
+  # their owner/group/mode, but those are files this module doesn't own, so it
+  # takes a parameter of its own. syslog.conf keeps its own resource, which
+  # takes precedence over the recursion.
+  $_plugin_dir = pick($auditd::plugin_dir, versioncmp(pick($facts['auditd_version'], '3.0'), '3.0') < 0 ? {
+    true    => '/etc/audisp/plugins.d',
+    default => '/etc/audit/plugins.d',
+  })
+
+  if $auditd::plugin_dir or $auditd::manage_plugins_d_attributes {
+    file { $_plugin_dir:
       ensure  => 'directory',
       owner   => 'root',
       group   => $_config_group,
       mode    => $config_file_mode,
+      recurse => $auditd::manage_plugins_d_attributes,
       require => Package[$auditd::package_name],
     }
   }
