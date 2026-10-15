@@ -146,6 +146,7 @@ The following parameters are available in the `auditd` class:
 * [`write_logs`](#-auditd--write_logs)
 * [`purge_auditd_rules`](#-auditd--purge_auditd_rules)
 * [`manage_rules_d_attributes`](#-auditd--manage_rules_d_attributes)
+* [`manage_plugins_d_attributes`](#-auditd--manage_plugins_d_attributes)
 
 ##### <a name="-auditd--enable"></a>`enable`
 
@@ -867,6 +868,28 @@ extends them to the rest of the directory, which CIS 6.3.4.6/6.3.4.7
 (EL8) and 6.2.4.6/6.2.4.7 (EL9) check. It changes ownership and
 permissions only: nothing is deleted unless `$purge_auditd_rules` is also
 `true`, which applies them on its own.
+
+A run that repairs an attribute refreshes `auditd::service`, which
+restarts `auditd` when the service is managed.
+
+`false` stops enforcing them and leaves the files as they are.
+
+Default value: `false`
+
+##### <a name="-auditd--manage_plugins_d_attributes"></a>`manage_plugins_d_attributes`
+
+Data type: `Boolean`
+
+Whether to enforce owner `root`, the `$config_group` group (`root` when
+unset) and the matching mode on everything in the plugin directory
+(`$plugin_dir`, or the package's `/etc/audit/plugins.d`, or
+`/etc/audisp/plugins.d` before auditd 3), recursively, including plugin
+configs this module did not write, such as `sedispatch.conf` from
+`setroubleshoot-server`.
+
+CIS 6.3.4.5-6.3.4.7 (EL8, EL10) and 6.2.4.5-6.2.4.7 (EL9) check every
+`*.conf` under `/etc/audit`. It changes ownership and permissions only:
+nothing is deleted.
 
 A run that repairs an attribute refreshes `auditd::service`, which
 restarts `auditd` when the service is managed.

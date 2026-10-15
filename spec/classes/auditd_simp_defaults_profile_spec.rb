@@ -136,6 +136,12 @@ describe 'auditd' do
           is_expected.to contain_class('auditd').with_manage_rules_d_attributes(true)
         end
 
+        # Before 11.0.0 the recursion over /etc/audit covered the plugin configs.
+        it 'enforces ownership on every plugin config' do
+          is_expected.to contain_class('auditd').with_manage_plugins_d_attributes(true)
+          is_expected.to contain_file('/etc/audit/plugins.d').with(recurse: true)
+        end
+
         # Opt-in since 11.0.0; the profile restores the old preamble options.
         it 'writes the preamble options' do
           {

@@ -333,6 +333,7 @@ describe 'auditd' do
               owner: 'root',
               group: 'root',
               mode: 'u+rwX,g-rwx,o-rwx',
+              recurse: false,
             )
           }
         end
@@ -342,6 +343,50 @@ describe 'auditd' do
 
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_file('/opt/audit/plugins.d').with_group('rspec') }
+        end
+
+        # Enforced alone, attributes on plugin configs this module did not
+        # write take effect in the package's directory, without deleting
+        # anything.
+        context 'with only manage_plugins_d_attributes => true' do
+          let(:params) { { manage_plugins_d_attributes: true } }
+
+          it { is_expected.to compile.with_all_deps }
+          it {
+            is_expected.to contain_file('/etc/audit/plugins.d').with(
+              ensure: 'directory',
+              owner: 'root',
+              group: 'root',
+              mode: 'u+rwX,g-rwx,o-rwx',
+              recurse: true,
+            )
+          }
+          it { is_expected.to contain_file('/etc/audit/plugins.d').without_purge }
+
+          context 'with a non-root config_group' do
+            let(:params) { { manage_plugins_d_attributes: true, config_group: 'rspec' } }
+
+            it { is_expected.to contain_file('/etc/audit/plugins.d').with(group: 'rspec', mode: 'u+rwX,g+rX,g-w,o-rwx', recurse: true) }
+          end
+
+          context 'with plugin_dir set' do
+            let(:params) { { manage_plugins_d_attributes: true, plugin_dir: '/opt/audit/plugins.d' } }
+
+            it { is_expected.to contain_file('/opt/audit/plugins.d').with(ensure: 'directory', recurse: true) }
+            it { is_expected.not_to contain_file('/etc/audit/plugins.d') }
+          end
+
+          context 'with auditd 2' do
+            let(:facts) { os_facts.merge(auditd_version: '2.8.5') }
+
+            it { is_expected.to contain_file('/etc/audisp/plugins.d').with(ensure: 'directory', recurse: true) }
+          end
+        end
+
+        context 'with manage_plugins_d_attributes => false' do
+          let(:params) { { manage_plugins_d_attributes: false } }
+
+          it { is_expected.not_to contain_file('/etc/audit/plugins.d') }
         end
 
         # An empty string is truthy in Puppet and would reach the File
