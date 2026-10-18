@@ -1,7 +1,8 @@
 require 'spec_helper'
+require 'support/supported_os_facts'
 
 describe 'auditd::config::audit_profiles::custom' do
-  on_supported_os.each do |os, os_facts|
+  supported_os_facts.each do |os, os_facts|
     context "on #{os}" do
       let(:facts) { os_facts }
 

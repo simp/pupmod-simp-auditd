@@ -13,7 +13,10 @@
 #   max_restarts     undef     10
 #   overflow_action  undef     'SYSLOG'
 #
-# No `confine:` keys: every per-OS and per-auditd-major data file was identical.
+# Every per-OS and per-auditd-major data file was identical. The only
+# `confine:` keys are on `ignore_crond` and `ignore_time_daemons`, whose drop
+# rules match SELinux types (`crond_t`, `chronyd_t`) and EL's `chrony` user;
+# they are confined to EL (`os.family: RedHat`), which they were written for.
 #
 # Not restored: the /etc/audit purge and mode, `enable`. `syslog`,
 # `package_ensure` and `config::audisp::syslog::rsyslog` still default from
@@ -247,11 +250,15 @@ checks:
     settings:
       parameter: auditd::ignore_crond
       value: true
+    confine:
+      os.family: RedHat
   simp:defaults.auditd.ignore_time_daemons:
     type: puppet-class-parameter
     settings:
       parameter: auditd::ignore_time_daemons
       value: true
+    confine:
+      os.family: RedHat
   simp:defaults.auditd.ignore_crypto_key_user:
     type: puppet-class-parameter
     settings:

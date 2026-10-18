@@ -1,0 +1,6 @@
+---
+# Debian and Ubuntu ship the daemon, auditctl, augenrules, /etc/audit/rules.d
+# and the syslog plugin (audisp-syslog and plugins.d/syslog.conf) in one
+# package, `auditd`. `audispd-plugins` there only carries the remote plugins.
+auditd::package_name: 'auditd'
+auditd::config::audisp::syslog::pkg_name: 'auditd'

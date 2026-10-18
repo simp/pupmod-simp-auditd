@@ -1,12 +1,17 @@
 require 'spec_helper'
+require 'support/supported_os_facts'
 
 describe 'auditd::config::audisp::syslog' do
   context 'supported operating systems' do
-    on_supported_os.each do |os, os_facts|
+    supported_os_facts.each do |os, os_facts|
       context "on #{os}" do
         let(:pre_condition) do
           'include "auditd"'
         end
+
+        # The plugin package from the module data. Ubuntu ships the syslog
+        # plugin in auditd, which auditd::install already declares.
+        let(:plugin_pkg) { os.start_with?('ubuntu') ? 'auditd' : 'audispd-plugins' }
 
         # Test if auditd version is not defined that it finds defaults.
         # This will be the case first time it is run if auditd is not installed
@@ -24,7 +29,11 @@ describe 'auditd::config::audisp::syslog' do
           let(:facts) { os_facts.reject { |k, _v| [:auditd_version, :auditd_major_version, :simplib__auditd].include?(k) } }
 
           it { is_expected.to compile.with_all_deps }
-          it { is_expected.to contain_package('audispd-plugins') }
+          it { is_expected.to contain_package(plugin_pkg) }
+
+          if os.start_with?('ubuntu')
+            it { is_expected.not_to contain_package('audispd-plugins') }
+          end
         end
 
         context 'for all versions of auditd' do
@@ -87,8 +96,8 @@ describe 'auditd::config::audisp::syslog' do
                   if auditd2
                     is_expected.not_to contain_package('audispd-plugins')
                   else
-                    is_expected.to contain_package('audispd-plugins')
-                    is_expected.to contain_file(plugin_conf).that_requires('Package[audispd-plugins]')
+                    is_expected.to contain_package(plugin_pkg)
+                    is_expected.to contain_file(plugin_conf).that_requires("Package[#{plugin_pkg}]")
                   end
                 }
                 it { is_expected.to contain_ini_setting('syslog.conf active').that_requires("File[#{plugin_conf}]") }

@@ -35,6 +35,13 @@ lookup_options:
   auditd::target_selinux_types_entries:
     merge: deep
 
+# The newest supported EL release. From EL10, auditctl, augenrules and
+# /etc/audit/rules.d are in `audit-rules`, which `audit` does not require.
+# Older releases override this in data/os/.
+auditd::package_name:
+  - 'audit'
+  - 'audit-rules'
+
 auditd::config::audisp::syslog::pkg_name: 'audispd-plugins'
 
 auditd::config::audit_profiles::simp::basic_root_audit_syscalls_entries:

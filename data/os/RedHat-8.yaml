@@ -1,0 +1,4 @@
+---
+# Before EL10, the `audit` package also ships auditctl, augenrules and
+# /etc/audit/rules.d.
+auditd::package_name: 'audit'

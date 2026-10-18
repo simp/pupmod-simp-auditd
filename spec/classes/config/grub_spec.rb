@@ -1,8 +1,9 @@
 require 'spec_helper'
+require 'support/supported_os_facts'
 
 describe 'auditd::config::grub' do
   context 'supported operating systems' do
-    on_supported_os.each do |os, facts|
+    supported_os_facts.each do |os, facts|
       context "on #{os}" do
         let(:facts) do
           if ['RedHat', 'CentOS'].include?(facts[:os][:name]) && facts[:os][:release][:major].to_i < 7

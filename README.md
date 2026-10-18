@@ -14,6 +14,7 @@
 * [Module Description](#module-description)
 * [Setup](#setup)
   * [Setup Requirements](#setup-requirements)
+  * [Operating system notes](#operating-system-notes)
   * [What Auditd Affects](#what-auditd-affects)
   * [When changes take effect](#when-changes-take-effect)
 * [Usage](#usage)
@@ -187,14 +188,40 @@ rest of the module using the `::auditd::config::grub` class.
 If `auditd::syslog` is `true`, you will need to install
 [simp/rsyslog](https://forge.puppet.com/simp/rsyslog) as a dependency.
 
+### Operating system notes
+
+This module supports EL 8, 9 and 10 and Ubuntu 22.04 and 24.04. The packages
+come from the module data:
+
+| | `auditd::package_name` | Syslog plugin (`auditd::config::audisp::syslog::pkg_name`) |
+|---|---|---|
+| EL 8 and 9 | `audit` | `audispd-plugins` |
+| EL 10 | `audit` and `audit-rules` | `audispd-plugins` |
+| Ubuntu | `auditd` | `auditd` |
+
+On Ubuntu the syslog plugin (`audisp-syslog` and `/etc/audit/plugins.d/syslog.conf`)
+ships in the `auditd` package, which is not declared a second time. Ubuntu's
+`audispd-plugins` package only holds the remote plugins.
+
+Ubuntu's `auditd.conf` ships with `log_group = adm`. Set `auditd::log_group` to
+change it.
+
+Ubuntu uses AppArmor rather than SELinux, so the drop rules written by
+`auditd::ignore_crond`, `auditd::ignore_time_daemons` and
+`auditd::target_selinux_types_entries`, which match SELinux types, match nothing
+there. The `simp:defaults` profile sets the first two on EL only. The `simp` and
+`stig` rule profiles also audit EL paths such as the `yum` configuration and the
+SELinux tools. On Ubuntu those rules watch paths that don't exist; a rule the
+kernel rejects is skipped because of the `-c` those profiles imply.
+
 ### What Auditd Affects
 
-Only the `audit` package is installed unconditionally. Everything below happens only
-when the parameter named beside it is set:
+Only the packages in `auditd::package_name` are installed unconditionally.
+Everything below happens only when the parameter named beside it is set:
 
 | What | Managed when |
 |---|---|
-| The `audit` package | always |
+| The `auditd::package_name` packages | always |
 | The `audit` kernel parameter (applied to *all* kernels in your grub configuration) | `auditd::at_boot` is set |
 | The `auditd` service | `auditd::service_ensure` or `auditd::service_enable` is set |
 | Loading changes into a running `auditd` the module does not manage | `auditd::reload_on_change` is `true` |
@@ -256,7 +283,7 @@ manages the service.
 ### Basic Usage
 
 ```puppet
-# Installs the audit package. Nothing else: no rules, no service state, no
+# Installs the audit package(s). Nothing else: no rules, no service state, no
 # auditd.conf edits, no kernel command line change.
 include 'auditd'
 ```
