@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'support/supported_os_facts'
 require 'yaml'
 
 # Tests the `simp:defaults` Sicura Compliance Engine profile end to end: with
@@ -95,7 +96,7 @@ describe 'auditd' do
   # config_spec.rb; what is under test here is the profile, not the derivation.
   # ---------------------------------------------------------------------------
   context 'when enforcing simp:defaults' do
-    on_supported_os.each do |os, os_facts|
+    supported_os_facts.each do |os, os_facts|
       context "on #{os}" do
         # $auditd::lname defaults to the FQDN, which Puppet resolves from the
         # node rather than from os_facts. Naming the node makes the `name` key
@@ -113,7 +114,7 @@ describe 'auditd' do
         it { is_expected.to compile.with_all_deps }
 
         it 'installs the package' do
-          is_expected.to contain_package('audit')
+          is_expected.to contain_package(os.start_with?('ubuntu') ? 'auditd' : 'audit')
         end
 
         it 'runs and enables the service' do
@@ -157,8 +158,15 @@ describe 'auditd' do
         it 'writes the default drop rules' do
           is_expected.to contain_file_line('05_default_drop anonymous').with_line('-a never,exit -F auid=-1')
           is_expected.to contain_file_line('05_default_drop system_services').with_line(%r{^-a never,exit -F auid!=0 -F auid<\d+$})
-          is_expected.to contain_file_line('05_default_drop crond').with_line('-a never,user -F subj_type=crond_t')
-          is_expected.to contain_file_line('05_default_drop chrony b32').with_line(%r{subj_type=chronyd_t$})
+          if os.start_with?('ubuntu')
+            # SELinux type drops; their checks are confined to EL.
+            is_expected.not_to contain_file_line('05_default_drop crond')
+            is_expected.not_to contain_file_line('05_default_drop chrony b32')
+            is_expected.not_to contain_file_line('05_default_drop chrony b64')
+          else
+            is_expected.to contain_file_line('05_default_drop crond').with_line('-a never,user -F subj_type=crond_t')
+            is_expected.to contain_file_line('05_default_drop chrony b32').with_line(%r{subj_type=chronyd_t$})
+          end
           is_expected.to contain_file_line('05_default_drop crypto_key_user').with_line('-a always,exclude -F msgtype=CRYPTO_KEY_USER')
         end
 
@@ -210,7 +218,7 @@ describe 'auditd' do
   # ---------------------------------------------------------------------------
   context 'without enforcement' do
     let(:facts) do
-      on_supported_os.first[1].merge(
+      supported_os_facts.first[1].merge(
         custom_hiera: 'simp_defaults_disabled',
         auditd_version: '3.0',
         auditd_major_version: '3',
@@ -239,7 +247,7 @@ describe 'auditd' do
   # ---------------------------------------------------------------------------
   context 'when an explicit Hiera value overrides the profile' do
     let(:facts) do
-      on_supported_os.first[1].merge(
+      supported_os_facts.first[1].merge(
         custom_hiera: 'simp_defaults_with_override',
         auditd_version: '3.0',
         auditd_major_version: '3',

@@ -1,6 +1,21 @@
 require 'spec_helper'
+require 'support/supported_os_facts'
 
 describe 'auditd' do
+  # The packages auditd::package_name defaults to in the module data.
+  def audit_packages(facts)
+    family = facts.dig(:os, :family) || facts.dig(:os, 'family')
+    return ['auditd'] if family == 'Debian'
+
+    major = facts.dig(:os, :release, :major) || facts.dig(:os, 'release', 'major')
+    (major.to_i >= 10) ? ['audit', 'audit-rules'] : ['audit']
+  end
+
+  # The package that provides the daemon itself.
+  def audit_package(facts)
+    audit_packages(facts).first
+  end
+
   shared_examples_for 'a structured module' do
     it { is_expected.to compile.with_all_deps }
     it { is_expected.to create_class('auditd') }
@@ -18,7 +33,7 @@ describe 'auditd' do
   # default, for any reason, fails here and has to be argued for on purpose.
   shared_examples_for 'a package-only catalogue' do
     it { is_expected.to compile.with_all_deps }
-    it { is_expected.to contain_package('audit') }
+    it { is_expected.to contain_package(audit_package(facts)) }
 
     it { is_expected.not_to contain_service('auditd') }
     it { is_expected.not_to contain_kernel_parameter('audit') }
@@ -44,14 +59,13 @@ describe 'auditd' do
                          .map(&:to_s)
                          .sort
       # EL10 splits the rule tools into audit-rules; see auditd::package_name.
-      os_major = (facts.dig(:os, :release, :major) || facts.dig(:os, 'release', 'major')).to_i
-      packages = (os_major >= 10) ? ['Package[audit-rules]', 'Package[audit]'] : ['Package[audit]']
+      packages = audit_packages(facts).map { |p| "Package[#{p}]" }.sort
       expect(managed).to eq(packages)
     end
   end
 
   context 'supported operating systems' do
-    on_supported_os.each do |os, os_facts|
+    supported_os_facts.each do |os, os_facts|
       context "on #{os}" do
         let(:base_facts) do
           os_facts.merge(
@@ -106,7 +120,7 @@ describe 'auditd' do
           let(:hieradata) { 'simp_options' }
 
           it { is_expected.to compile.with_all_deps }
-          it { is_expected.to contain_package('audit').with(ensure: 'latest') }
+          it { is_expected.to contain_package(audit_package(facts)).with(ensure: 'latest') }
           it { is_expected.to contain_class('auditd').with_syslog(true) }
           it { is_expected.to contain_class('auditd::config::logging') }
         end
@@ -123,7 +137,7 @@ describe 'auditd' do
           end
 
           it { is_expected.to compile.with_all_deps }
-          it { is_expected.to contain_package('audit').with(ensure: 'latest') }
+          it { is_expected.to contain_package(audit_package(facts)).with(ensure: 'latest') }
           it { is_expected.to contain_class('auditd').with_syslog(true) }
           it { is_expected.to contain_class('auditd::config::logging') }
         end
@@ -165,12 +179,16 @@ describe 'auditd' do
 
           # EL10 moved auditctl, augenrules and rules.d into audit-rules, which
           # audit does not require, so the default adds it from EL10 on and leaves
-          # audit alone on EL8 and EL9.
-          it { is_expected.to contain_package('audit') }
-          if os.split('-')[1].to_i >= 10
+          # audit alone on EL8 and EL9. Ubuntu ships all of it in auditd.
+          it { is_expected.to contain_package(audit_package(facts)) }
+          if !os.start_with?('ubuntu') && os.split('-')[1].to_i >= 10
             it { is_expected.to contain_package('audit-rules') }
           else
             it { is_expected.not_to contain_package('audit-rules') }
+          end
+          if os.start_with?('ubuntu')
+            it { is_expected.to contain_package('auditd') }
+            it { is_expected.not_to contain_package('audit') }
           end
 
           context 'on a host without grub' do
@@ -450,7 +468,7 @@ describe 'auditd' do
           # where the whole module stood down and the package went unmanaged.
           it { is_expected.to contain_class('auditd::install') }
           it { is_expected.to contain_class('auditd::config') }
-          it { is_expected.to contain_package('audit') }
+          it { is_expected.to contain_package(audit_package(facts)) }
 
           it { is_expected.to contain_service('auditd').with_ensure('stopped').with_enable(false) }
           it { is_expected.to contain_class('auditd::config::grub').with_enable(false) }

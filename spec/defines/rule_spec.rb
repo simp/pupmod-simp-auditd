@@ -1,8 +1,9 @@
 require 'spec_helper'
+require 'support/supported_os_facts'
 
 describe 'auditd::rule' do
   context 'supported operating systems' do
-    on_supported_os.each do |os, os_facts|
+    supported_os_facts.each do |os, os_facts|
       context "on #{os}" do
         let(:title) { 'test' }
         let(:params) { { content: 'rspec_audit_message' } }

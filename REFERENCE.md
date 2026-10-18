@@ -582,12 +582,12 @@ Data type: `Variant[String[1],Array[String[1],1]]`
 
 The package or packages that provide auditd and its rule tools.
 
-Defaults to `['audit', 'audit-rules']` on EL10 and later, and `audit`
-alone before that. On EL10, `auditctl`, `augenrules` and
-`/etc/audit/rules.d` are in a separate `audit-rules` package that `audit`
-does not require.
+Set in the module data: `['audit', 'audit-rules']` on EL10, `audit`
+alone on EL8 and EL9, and `auditd` on Ubuntu. On EL10, `auditctl`,
+`augenrules` and `/etc/audit/rules.d` are in a separate `audit-rules`
+package that `audit` does not require.
 
-Default value: `(versioncmp($facts['os']['release']['major'], '10') >= 0) ? { true => ['audit', 'audit-rules'], default => 'audit'`
+Default value: `['audit', 'audit-rules']`
 
 ##### <a name="-auditd--package_ensure"></a>`package_ensure`
 
@@ -1074,8 +1074,10 @@ Data type: `String[1]`
 The name of the plugin package to install.  Only needed for
 auditd version 3 and later.
 
-`audispd-plugins` from the module data. The package is always managed
-on auditd 3 and later when the plugin is enabled.
+Set in the module data: `audispd-plugins` on EL, and `auditd` on
+Ubuntu, where the syslog plugin ships with the daemon. The package is
+always managed on auditd 3 and later when the plugin is enabled. When
+it is one of `auditd::package_name`, it is not declared a second time.
 
 Default value: `'audispd-plugins'`
 

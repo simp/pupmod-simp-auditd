@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'support/supported_os_facts'
 
 # We have to test auditd::config via auditd, because auditd::config is
 # private.  To take advantage of hooks built into puppet-rspec, the
@@ -26,7 +27,7 @@ describe 'auditd' do
   AUDITD_CONFIG_RULES = '/etc/audit/rules.d/75.audit_auditd_config.rules'.freeze
 
   context 'supported operating systems' do
-    on_supported_os.each do |os, os_facts|
+    supported_os_facts.each do |os, os_facts|
       context "on #{os}" do
         let(:facts) { os_facts }
 

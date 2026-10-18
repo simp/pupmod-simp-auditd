@@ -1,3 +1,14 @@
+* Sun Oct 18 2026 Steven Pritchard <steve@sicura.us> - 11.3.0
+- Add support for Ubuntu 22.04 and 24.04
+- `auditd::package_name` now defaults from the module data: `auditd` on
+  Ubuntu, `audit` on EL8 and EL9, and `['audit', 'audit-rules']` otherwise
+- On Ubuntu the syslog plugin ships in the `auditd` package, so
+  `auditd::config::audisp::syslog::pkg_name` is `auditd` there. A `pkg_name`
+  that is one of `auditd::package_name` is not declared a second time.
+- The `simp:defaults` checks for `auditd::ignore_crond` and
+  `auditd::ignore_time_daemons`, whose drop rules match SELinux types, apply
+  only on EL
+
 * Thu Oct 08 2026 Steven Pritchard <steve@sicura.us> - 11.2.0
 - Add support for OpenVox 9
 - Update metadata.json dependency ranges from the Forge

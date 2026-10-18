@@ -65,8 +65,10 @@
 #     The name of the plugin package to install.  Only needed for
 #     auditd version 3 and later.
 #
-#     `audispd-plugins` from the module data. The package is always managed
-#     on auditd 3 and later when the plugin is enabled.
+#     Set in the module data: `audispd-plugins` on EL, and `auditd` on
+#     Ubuntu, where the syslog plugin ships with the daemon. The package is
+#     always managed on auditd 3 and later when the plugin is enabled. When
+#     it is one of `auditd::package_name`, it is not declared a second time.
 #
 # @param package_ensure
 #     The `ensure` for the plugin package. Defaults to
@@ -86,8 +88,12 @@ class auditd::config::audisp::syslog (
 ) {
   # See auditd::config::logging for why a missing auditd_version means 3.0.
   if versioncmp(pick($facts['auditd_version'], '3.0'), '3.0') >= 0 and $enable {
-    package { $pkg_name :
-      ensure => $package_ensure,
+    # Where the plugin ships in an auditd package, auditd::install already
+    # declares it.
+    unless $pkg_name in [$auditd::package_name].flatten {
+      package { $pkg_name :
+        ensure => $package_ensure,
+      }
     }
 
     # The edits below rely on the file the plugin package ships. Written

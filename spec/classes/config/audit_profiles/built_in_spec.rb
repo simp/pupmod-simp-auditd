@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'support/supported_os_facts'
 
 # We have to test auditd::config::audit_profiles::built_in via auditd,
 # because auditd::config::audit_profiles::built_in is private.  To take
@@ -6,7 +7,7 @@ require 'spec_helper'
 # to be the class instantiated, i.e., auditd. Then, to adjust the
 # private class's parameters, we will use hieradata.
 describe 'auditd' do
-  on_supported_os.each do |os, os_facts|
+  supported_os_facts.each do |os, os_facts|
     context "on #{os}" do
       # see $auditd::config::rule_file_attributes
       let(:rule_file_attrs) do

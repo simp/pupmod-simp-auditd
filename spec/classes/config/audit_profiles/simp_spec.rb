@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'support/supported_os_facts'
 require_relative '../../../support/file_lines'
 
 # We have to test auditd::config::audit_profiles::simp via auditd,
@@ -24,7 +25,7 @@ describe 'auditd' do
   let(:rules) { apply_file_lines(catalogue, path) }
   let(:upgraded) { apply_file_lines(catalogue, path, basic_10x) }
 
-  on_supported_os.each do |os, os_facts|
+  supported_os_facts.each do |os, os_facts|
     context "on #{os}" do
       let(:facts) do
         os_facts

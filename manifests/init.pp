@@ -215,10 +215,10 @@
 # @param package_name
 #   The package or packages that provide auditd and its rule tools.
 #
-#   Defaults to `['audit', 'audit-rules']` on EL10 and later, and `audit`
-#   alone before that. On EL10, `auditctl`, `augenrules` and
-#   `/etc/audit/rules.d` are in a separate `audit-rules` package that `audit`
-#   does not require.
+#   Set in the module data: `['audit', 'audit-rules']` on EL10, `audit`
+#   alone on EL8 and EL9, and `auditd` on Ubuntu. On EL10, `auditctl`,
+#   `augenrules` and `/etc/audit/rules.d` are in a separate `audit-rules`
+#   package that `audit` does not require.
 #
 # @param package_ensure
 #   The `ensure` for the auditd packages. Defaults to
@@ -435,7 +435,7 @@ class auditd (
   Optional[Auditd::NameFormat]                         $name_format                     = undef,
   Optional[Integer[0]]                                 $num_logs                        = undef,
   Optional[Auditd::Overflowaction]                     $overflow_action                 = undef,
-  Variant[String[1],Array[String[1],1]]                $package_name                    = (versioncmp($facts['os']['release']['major'], '10') >= 0) ? { true => ['audit', 'audit-rules'], default => 'audit' },
+  Variant[String[1],Array[String[1],1]]                $package_name,                   # data in module
   Simplib::PackageEnsure                               $package_ensure                  = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' }),
   Optional[Stdlib::Absolutepath]                       $plugin_dir                      = undef,
   Optional[Integer[0]]                                 $priority_boost                  = undef,
