@@ -107,18 +107,22 @@ the old rendered files, and convergence.
 Two custom facts in `lib/facter/auditd_version.rb` drive version-dependent behavior:
 
 - `auditd_version` — full version string, gates code paths via `versioncmp`
-  (`init.pp`, `config/logging.pp`, `config/audisp.pp`, `config/audisp/syslog.pp`)
 - `auditd_major_version` — major number only. It used to select a
   `data/auditd/version-N.yaml` Hiera layer; that layer is gone, so the fact now only
   matters to specs and to anything that reads it directly
 
 Both derive from the `simplib__auditd` structured fact, which does not resolve until
 auditing is enabled in the kernel, and on EL10 until `audit-rules` provides `auditctl`,
-so either can be `undef`. `init.pp` tests the fact before using it. `config/logging.pp`
-and `config/audisp/syslog.pp` treat a missing fact as 3.0 with `pick()`, so the syslog
-plugin is configured on the first run. `config/audisp.pp` calls `versioncmp` unguarded;
-that is safe only because `config/logging.pp` declares it only when the fact is present
-and below 3.0. Keep that guard in mind before declaring it elsewhere.
+so either can be `undef`.
+
+The auditd 2 plugin layout is resolved once, in `manifests/config.pp`: `$_auditd2`
+treats a missing fact as 3.0 with `pick()`, so the syslog plugin is configured on the
+first run, and `$_package_plugin_dir` / `$_plugin_dir` follow from it.
+`config/logging.pp`, `config/audisp.pp` and `config/audisp/syslog.pp` read
+`$auditd::config::_auditd2` (and the plugin dirs) rather than testing the fact
+themselves; use those variables in new code too. `init.pp` still tests the fact
+directly, guarded, for the `write_logs`/`NOLOG` split at 2.5.2 and 2.6.0, because it
+runs before `auditd::config`.
 
 ### auditd.conf
 

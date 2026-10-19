@@ -106,8 +106,8 @@ class auditd::config::audisp::syslog (
     # The package ships configs into the plugin directory. Recursion only sees
     # files that exist when the directory's File is evaluated, so install it
     # first, or its configs wait a second run for their attributes.
-    if $auditd::config::_manage_plugin_dir {
-      Package[$pkg_name] -> File[$_plugin_dir]
+    unless empty($auditd::config::_managed_plugin_dirs) {
+      Package[$pkg_name] -> File[$auditd::config::_managed_plugin_dirs]
     }
 
     # The edits below rely on the file the plugin package ships. Written
@@ -141,13 +141,23 @@ class auditd::config::audisp::syslog (
   # packaged file ($_full), it creates it, so the ini_settings below never
   # create it with the umask mode.
   #
-  # The group is set here too: this explicit resource shadows the recursion
-  # auditd::manage_plugins_d_attributes runs over the plugin directory.
+  # This explicit resource shadows the recursion
+  # auditd::manage_plugins_d_attributes runs over the plugin directory, so it
+  # takes the same mode and group as its siblings. The group is enforced only
+  # when a site opts in, through that parameter or config_group; otherwise it
+  # is left as it is, as before 11.3.0.
+  if $auditd::manage_plugins_d_attributes or $auditd::config_group =~ NotUndef {
+    $_syslog_conf_group = $auditd::config::_config_group
+  }
+  else {
+    $_syslog_conf_group = undef
+  }
+
   file { $_syslog_conf:
     ensure  => $_syslog_conf_ensure,
     owner   => 'root',
-    group   => $auditd::config::_config_group,
-    mode    => $auditd::config::config_file_mode,
+    group   => $_syslog_conf_group,
+    mode    => $auditd::config::_plugin_file_mode,
     require => $_syslog_conf_require,
   }
 
