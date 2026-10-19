@@ -66,7 +66,7 @@ describe 'auditd::config::audisp::syslog' do
                 # replaced: the File carries attributes only. auditd 2 has no
                 # packaged file, so the File creates it before the ini_settings.
                 it {
-                  is_expected.to contain_file(plugin_conf).with(owner: 'root', content: nil, source: nil, ensure: auditd2 ? 'file' : nil)
+                  is_expected.to contain_file(plugin_conf).with(owner: 'root', group: 'root', content: nil, source: nil, ensure: auditd2 ? 'file' : nil)
                 }
 
                 # On auditd 3+ the packaged file already has direction, path,

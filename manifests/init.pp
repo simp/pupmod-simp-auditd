@@ -387,16 +387,19 @@
 #   `false` stops enforcing them and leaves the files as they are.
 #
 # @param manage_plugins_d_attributes
-#   Whether to enforce owner `root`, the `$config_group` group (`root` when
-#   unset) and the matching mode on everything in the plugin directory
-#   (`$plugin_dir`, or the package's `/etc/audit/plugins.d`, or
-#   `/etc/audisp/plugins.d` before auditd 3), recursively, including plugin
-#   configs this module did not write, such as `sedispatch.conf` from
-#   `setroubleshoot-server`.
+#   Whether to enforce owner `root` and the `$config_group` group (`root` when
+#   unset) on everything in the plugin directory (`$plugin_dir`, or the
+#   package's `/etc/audit/plugins.d`, or `/etc/audisp/plugins.d` before
+#   auditd 3), recursively, including plugin configs this module did not
+#   write, such as `sedispatch.conf` from `setroubleshoot-server`.
+#
+#   With a `root` group the mode only removes group write and all access for
+#   others, so the packaged `0750` directory and `0640` configs are left as
+#   rpm ships them. A non-root `$config_group` gets group read as well.
 #
 #   CIS 6.3.4.5-6.3.4.7 (EL8, EL10) and 6.2.4.5-6.2.4.7 (EL9) check every
 #   `*.conf` under `/etc/audit`. It changes ownership and permissions only:
-#   nothing is deleted.
+#   nothing is deleted, and the package's directory is never created.
 #
 #   A run that repairs an attribute refreshes `auditd::service`, which
 #   restarts `auditd` when the service is managed.

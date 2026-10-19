@@ -323,6 +323,8 @@ describe 'auditd' do
           it { is_expected.not_to contain_file('/etc/audit/plugins.d') }
         end
 
+        # With a root group the mode only strips what CIS forbids, so the
+        # packaged 0750/0640 are left as rpm ships them.
         context 'with plugin_dir set' do
           let(:params) { { plugin_dir: '/opt/audit/plugins.d' } }
 
@@ -332,7 +334,7 @@ describe 'auditd' do
               ensure: 'directory',
               owner: 'root',
               group: 'root',
-              mode: 'u+rwX,g-rwx,o-rwx',
+              mode: 'u+rwX,g-w,o-rwx',
               recurse: false,
             )
           }
@@ -342,22 +344,23 @@ describe 'auditd' do
           let(:params) { { plugin_dir: '/opt/audit/plugins.d', config_group: 'rspec' } }
 
           it { is_expected.to compile.with_all_deps }
-          it { is_expected.to contain_file('/opt/audit/plugins.d').with_group('rspec') }
+          it { is_expected.to contain_file('/opt/audit/plugins.d').with(group: 'rspec', mode: 'u+rwX,g+rX,g-w,o-rwx') }
         end
 
         # Enforced alone, attributes on plugin configs this module did not
         # write take effect in the package's directory, without deleting
-        # anything.
+        # anything. The package owns that directory, so the File never
+        # creates it.
         context 'with only manage_plugins_d_attributes => true' do
           let(:params) { { manage_plugins_d_attributes: true } }
 
           it { is_expected.to compile.with_all_deps }
           it {
             is_expected.to contain_file('/etc/audit/plugins.d').with(
-              ensure: 'directory',
+              ensure: nil,
               owner: 'root',
               group: 'root',
-              mode: 'u+rwX,g-rwx,o-rwx',
+              mode: 'u+rwX,g-w,o-rwx',
               recurse: true,
             )
           }
@@ -379,7 +382,28 @@ describe 'auditd' do
           context 'with auditd 2' do
             let(:facts) { os_facts.merge(auditd_version: '2.8.5') }
 
-            it { is_expected.to contain_file('/etc/audisp/plugins.d').with(ensure: 'directory', recurse: true) }
+            it { is_expected.to contain_file('/etc/audisp/plugins.d').with(ensure: nil, recurse: true) }
+          end
+
+          # Kernel auditing off leaves auditd_version unset, and the path falls
+          # back to auditd 3's. On an auditd 2 host that directory doesn't
+          # exist, and an ensure would create a stray one.
+          context 'without the auditd_version fact' do
+            let(:facts) { os_facts.reject { |k, _v| [:auditd_version, :auditd_major_version, :simplib__auditd].include?(k) } }
+
+            it { is_expected.to compile.with_all_deps }
+            it { is_expected.to contain_file('/etc/audit/plugins.d').with(ensure: nil, recurse: true) }
+          end
+
+          # syslog.conf's own resource shadows the recursion, so it must carry
+          # the group itself. The plugin package goes in first, so the files it
+          # ships exist when the recursion is generated.
+          context 'with the syslog plugin and a non-root config_group' do
+            let(:params) { { manage_plugins_d_attributes: true, syslog: true, config_group: 'rspec' } }
+
+            it { is_expected.to compile.with_all_deps }
+            it { is_expected.to contain_file('/etc/audit/plugins.d/syslog.conf').with(owner: 'root', group: 'rspec') }
+            it { is_expected.to contain_package('audispd-plugins').that_comes_before('File[/etc/audit/plugins.d]') }
           end
         end
 

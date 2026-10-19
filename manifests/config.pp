@@ -240,28 +240,53 @@ class auditd::config {
     }
   }
 
+  # auditd 2 (EL7, unsupported since 9.0.0) kept its plugins under /etc/audisp.
+  # A missing auditd_version means 3.0; see auditd::config::logging. Resolved
+  # once here: auditd::config::logging and auditd::config::audisp::syslog read
+  # both, so the layout has one definition to drop in 12.0.0.
+  $_auditd2 = versioncmp(pick($facts['auditd_version'], '3.0'), '3.0') < 0
+
+  # auditd::plugin_dir is unset unless a site moves the directory; fall back to
+  # the path the package ships and auditd compiles in.
+  $_plugin_dir = pick($auditd::plugin_dir, $_auditd2 ? {
+    true    => '/etc/audisp/plugins.d',
+    default => '/etc/audit/plugins.d',
+  })
+
+  # The packages ship the plugin directory 0750 and its configs 0640, and rpm
+  # puts those modes back on every upgrade. With a root group that already
+  # meets CIS (0640 or tighter), so the mode only removes what CIS forbids
+  # rather than tightening to 0600/0700. Tightening would be undone by the
+  # next upgrade, and repairing it again refreshes auditd::service.
+  $_plugin_file_mode = $_config_group ? {
+    'root'  => 'u+rwX,g-w,o-rwx',
+    default => $config_file_mode,
+  }
+
   # Declared when a site moves the plugin directory, or asks for attributes on
-  # everything in it. The package ships and owns the default one.
-  # auditd::config::audisp::syslog writes syslog.conf into whatever plugin_dir
-  # resolves to, so a relocated directory that nothing creates is a File with
-  # no parent; the path is resolved the same way here.
+  # everything in it. auditd::config::audisp::syslog writes syslog.conf into
+  # $_plugin_dir, so a relocated directory that nothing creates is a File with
+  # no parent; only then is it created. The package ships and owns the default
+  # one, so there the File sets attributes only and never creates it (and on
+  # an auditd 2 host with no auditd_version fact yet, never creates a stray
+  # /etc/audit/plugins.d).
   #
   # Recursion reaches plugin configs other packages install there (such as
   # setroubleshoot-server's sedispatch.conf). Without a purge it only changes
   # their owner/group/mode, but those are files this module doesn't own, so it
   # takes a parameter of its own. syslog.conf keeps its own resource, which
-  # takes precedence over the recursion.
-  $_plugin_dir = pick($auditd::plugin_dir, versioncmp(pick($facts['auditd_version'], '3.0'), '3.0') < 0 ? {
-    true    => '/etc/audisp/plugins.d',
-    default => '/etc/audit/plugins.d',
-  })
+  # takes precedence over the recursion, so it carries the same owner and
+  # group itself. auditd::config::audisp::syslog orders the plugin package it
+  # installs before this File, so the recursion sees the files it ships.
+  $_manage_plugin_dir = $auditd::plugin_dir =~ NotUndef or $auditd::manage_plugins_d_attributes
+  $_plugin_dir_ensure = $auditd::plugin_dir ? { undef => undef, default => 'directory' }
 
-  if $auditd::plugin_dir or $auditd::manage_plugins_d_attributes {
+  if $_manage_plugin_dir {
     file { $_plugin_dir:
-      ensure  => 'directory',
+      ensure  => $_plugin_dir_ensure,
       owner   => 'root',
       group   => $_config_group,
-      mode    => $config_file_mode,
+      mode    => $_plugin_file_mode,
       recurse => $auditd::manage_plugins_d_attributes,
       require => Package[$auditd::package_name],
     }

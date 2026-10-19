@@ -1,11 +1,17 @@
-* Wed Oct 14 2026 Mike Riddle <mike@sicura.us> - 11.3.0
-- Add `auditd::manage_plugins_d_attributes`. When `true`, owner, group and
-  mode are enforced on every file in the plugin directory (`plugin_dir`, or
+* Mon Oct 19 2026 Mike Riddle <mike@sicura.us> - 11.3.0
+- Add `auditd::manage_plugins_d_attributes`. When `true`, owner and group
+  are enforced on every file in the plugin directory (`plugin_dir`, or
   `/etc/audit/plugins.d`), including plugin configs this module did not write,
   such as `sedispatch.conf` from `setroubleshoot-server`, without purging
   anything. Since 11.0.0 only this module's own `syslog.conf` was covered,
   which left such files failing CIS 6.3.4.5-6.3.4.7 (EL8, EL10) and
-  6.2.4.5-6.2.4.7 (EL9). Defaults to `false`; `simp:defaults` sets it.
+  6.2.4.5-6.2.4.7 (EL9). The mode strips group write and other access, so
+  the packaged `0750`/`0640` modes are kept. The package's directory is never
+  created. Defaults to `false`; `simp:defaults` sets it.
+- `syslog.conf` gets the `config_group` group (`root` when unset); it was
+  missing from that file's resource.
+- With `plugin_dir` set, the relocated directory now uses the same mode, so
+  an existing `0750` directory is no longer tightened to `0700`.
 
 * Thu Oct 08 2026 Steven Pritchard <steve@sicura.us> - 11.2.0
 - Add support for OpenVox 9
