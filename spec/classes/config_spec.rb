@@ -361,9 +361,10 @@ describe 'auditd' do
 
         # Enforced alone, attributes on plugin configs this module did not
         # write take effect in the package's directory, without deleting
-        # anything. The package owns that directory, so the File never
-        # creates it. The mode is the packaged 0640, numeric so it clears
-        # execute bits on files (directories get 0750).
+        # anything. The package owns that directory, so the File doesn't
+        # create it unless plugin_dir names it. The mode is numeric so it clears execute bits on files:
+        # 0600 with a root group, as before 11.0.0 (directories 0700), and
+        # 0640 with any other.
         context 'with only manage_plugins_d_attributes => true' do
           let(:params) { { manage_plugins_d_attributes: true } }
 
@@ -373,7 +374,7 @@ describe 'auditd' do
               ensure: nil,
               owner: 'root',
               group: 'root',
-              mode: '0640',
+              mode: '0600',
               recurse: true,
               links: nil,
             )
@@ -393,8 +394,26 @@ describe 'auditd' do
             let(:params) { { manage_plugins_d_attributes: true, plugin_dir: '/opt/audit/plugins.d' } }
 
             it { is_expected.to compile.with_all_deps }
-            it { is_expected.to contain_file('/opt/audit/plugins.d').with(ensure: 'directory', mode: '0640', recurse: true) }
-            it { is_expected.to contain_file('/etc/audit/plugins.d').with(ensure: nil, mode: '0640', recurse: true) }
+            it { is_expected.to contain_file('/opt/audit/plugins.d').with(ensure: 'directory', mode: '0600', recurse: true) }
+            it { is_expected.to contain_file('/etc/audit/plugins.d').with(ensure: nil, mode: '0600', recurse: true) }
+          end
+
+          # A trailing slash names the same directory; Puppet strips it from
+          # File paths, so it must not become a second title.
+          context 'with plugin_dir set to the package directory with a trailing slash' do
+            let(:params) { { manage_plugins_d_attributes: true, syslog: true, plugin_dir: '/etc/audit/plugins.d/' } }
+
+            it { is_expected.to compile.with_all_deps }
+            it { is_expected.to contain_file('/etc/audit/plugins.d').with(ensure: 'directory', recurse: true) }
+            it { is_expected.to contain_file('/etc/audit/plugins.d/syslog.conf') }
+          end
+
+          context 'with a relocated plugin_dir with a trailing slash' do
+            let(:params) { { manage_plugins_d_attributes: true, syslog: true, plugin_dir: '/opt/audit/plugins.d/' } }
+
+            it { is_expected.to compile.with_all_deps }
+            it { is_expected.to contain_file('/opt/audit/plugins.d').with(ensure: 'directory', recurse: true) }
+            it { is_expected.to contain_file('/opt/audit/plugins.d/syslog.conf') }
           end
 
           context 'with plugin_dir set to the package directory' do
@@ -436,7 +455,7 @@ describe 'auditd' do
             let(:params) { { manage_plugins_d_attributes: true, syslog: true, plugin_dir: '/opt/audit/plugins.d' } }
 
             it { is_expected.to compile.with_all_deps }
-            it { is_expected.to contain_file('/opt/audit/plugins.d/syslog.conf').with(group: 'root', mode: '0640') }
+            it { is_expected.to contain_file('/opt/audit/plugins.d/syslog.conf').with(group: 'root', mode: '0600') }
             it { is_expected.to contain_package('audispd-plugins').that_comes_before('File[/etc/audit/plugins.d]') }
             it { is_expected.to contain_package('audispd-plugins').that_comes_before('File[/opt/audit/plugins.d]') }
           end

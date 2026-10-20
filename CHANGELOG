@@ -1,18 +1,20 @@
-* Mon Oct 19 2026 Mike Riddle <mike@sicura.us> - 11.3.0
+* Tue Oct 20 2026 Mike Riddle <mike@sicura.us> - 11.3.0
 - Add `auditd::manage_plugins_d_attributes`. When `true`, owner `root`, the
-  `config_group` group and mode `0640` (`0750` for directories) are enforced
-  on every file in the package's plugin directory (`/etc/audit/plugins.d`)
-  and in `plugin_dir` when it is set, including plugin configs this module
-  did not write, such as `sedispatch.conf` from `setroubleshoot-server`,
-  without purging anything. Since 11.0.0 only this module's own `syslog.conf`
-  was covered, which left such files failing CIS 6.3.4.5-6.3.4.7 (EL8, EL10)
-  and 6.2.4.5-6.2.4.7 (EL9). `0640` is the packaged mode, so rpm upgrades
-  leave nothing to repair; execute bits are cleared, and a `0600` file gets
-  group read. The package's directory is never created. Defaults to
-  `false`; `simp:defaults` sets it.
+  `config_group` group and an exact mode are enforced on every file in the
+  package's plugin directory (`/etc/audit/plugins.d`) and in `plugin_dir`
+  when it is set, including plugin configs this module did not write, such
+  as `sedispatch.conf` from `setroubleshoot-server`, without purging
+  anything. Since 11.0.0 only this module's own `syslog.conf` was covered,
+  which left such files failing CIS 6.3.4.5-6.3.4.7 (EL8, EL10) and
+  6.2.4.5-6.2.4.7 (EL9). The mode is `0600` (directories `0700`) with a
+  `root` group, as before 11.0.0, and `0640` (`0750`) otherwise; execute
+  bits are cleared. An rpm upgrade can restore the packaged `root:root 0640`,
+  which the next run repairs. Defaults to `false`; `simp:defaults` sets it.
 - `syslog.conf` takes the same group and mode under that parameter. Its group
   is also enforced when `config_group` is set; it was missing from that
   file's resource.
+- A `plugin_dir` with a trailing slash no longer yields a second title for
+  the same directory.
 
 * Thu Oct 08 2026 Steven Pritchard <steve@sicura.us> - 11.2.0
 - Add support for OpenVox 9

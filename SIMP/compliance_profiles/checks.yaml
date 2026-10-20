@@ -73,7 +73,8 @@ checks:
 
   # Owner/group/mode on every plugin config in the plugin directory, not only
   # the syslog.conf this module writes (CIS 6.3.4.5-6.3.4.7). Before 11.0.0
-  # the recursion over /etc/audit covered it.
+  # the recursion over /etc/audit covered it; with config_group root below,
+  # the modes are the 0600 files and 0700 directories it gave.
   simp:defaults.auditd.manage_plugins_d_attributes:
     type: puppet-class-parameter
     settings:

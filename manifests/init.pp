@@ -388,21 +388,27 @@
 #
 # @param manage_plugins_d_attributes
 #   Whether to enforce owner `root`, the `$config_group` group (`root` when
-#   unset) and mode `0640` (`0750` for directories) on everything in the
-#   plugin directories, recursively, including plugin configs this module did
-#   not write, such as `sedispatch.conf` from `setroubleshoot-server`.
+#   unset) and an exact mode on everything in the plugin directories,
+#   recursively, including plugin configs this module did not write, such as
+#   `sedispatch.conf` from `setroubleshoot-server`.
 #
 #   That covers the package's `/etc/audit/plugins.d` (`/etc/audisp/plugins.d`
 #   before auditd 3), which packages install into whatever `$plugin_dir` says,
-#   and `$plugin_dir` too when it is set. `0640` is what the packages ship,
-#   so an rpm upgrade leaves nothing to repair; it also clears execute bits,
-#   and a file that was tighter, such as `0600`, gets group read.
+#   and `$plugin_dir` too when it is set. The mode is `0600` (directories
+#   `0700`) with a `root` group, as the `/etc/audit` recursion gave before
+#   11.0.0, and `0640` (`0750`) with any other group. Execute bits are
+#   cleared either way.
+#
+#   The packages ship these files `root:root 0640`, and an rpm upgrade can put
+#   that back. The next run then repairs the mode (with a `root` group) or the
+#   group (with any other), which refreshes `auditd::service`.
 #
 #   CIS 6.3.4.5-6.3.4.7 (EL8, EL10) and 6.2.4.5-6.2.4.7 (EL9) check every
 #   `*.conf` under `/etc/audit`. It changes ownership and permissions only:
-#   nothing is deleted, and the package's directory is never created.
-#   Symlinks are not followed, so a plugin directory that is itself a symlink
-#   is left alone; set `$plugin_dir` to the real directory instead.
+#   nothing is deleted, and the package's directory is created only when
+#   `$plugin_dir` names it. Symlinks are not followed, so a plugin directory
+#   that is itself a symlink is left alone; set `$plugin_dir` to the real
+#   directory instead.
 #
 #   A run that repairs an attribute refreshes `auditd::service`, which
 #   restarts `auditd` when the service is managed.

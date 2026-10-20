@@ -211,7 +211,7 @@ when the parameter named beside it is set:
 | `/etc/audit/audit.rules` and `.prev` ownership | one of the `auditd::audit_rules_*` parameters is set |
 | `/var/log/audit` | `auditd::log_group` is set |
 | The audispd `syslog` plugin (`/etc/audit/plugins.d/syslog.conf`) | `auditd::syslog` is `true` |
-| Owner, group and mode (`0640`, directories `0750`) of everything in `/etc/audit/plugins.d` and `auditd::plugin_dir`, recursively, including plugin configs this module did not write | `auditd::manage_plugins_d_attributes` is `true` |
+| Owner, group and mode (`0600`/`0700` with a `root` group, else `0640`/`0750`) of everything in `/etc/audit/plugins.d` and `auditd::plugin_dir`, recursively, including plugin configs this module did not write | `auditd::manage_plugins_d_attributes` is `true` |
 
 `/etc/audit` itself is no longer managed at all: the recursive purge that used to run
 over it is gone.

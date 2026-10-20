@@ -142,23 +142,12 @@ class auditd::config::audisp::syslog (
   # create it with the umask mode.
   #
   # This explicit resource shadows the recursion
-  # auditd::manage_plugins_d_attributes runs over the plugin directory, so it
-  # takes the same mode and group as its siblings. The group is enforced only
-  # when a site opts in, through that parameter or config_group; otherwise it
-  # is left as it is, as before 11.3.0.
-  if $auditd::manage_plugins_d_attributes or $auditd::config_group =~ NotUndef {
-    $_syslog_conf_group = $auditd::config::_config_group
-  }
-  else {
-    $_syslog_conf_group = undef
-  }
-
+  # auditd::manage_plugins_d_attributes runs over the plugin directory, so its
+  # owner, group and mode come from auditd::config, shared with that recursion.
   file { $_syslog_conf:
     ensure  => $_syslog_conf_ensure,
-    owner   => 'root',
-    group   => $_syslog_conf_group,
-    mode    => $auditd::config::_plugin_file_mode,
     require => $_syslog_conf_require,
+    *       => $auditd::config::plugin_file_attributes,
   }
 
   # Only the keys this module has an opinion about are edited. The packaged

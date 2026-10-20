@@ -242,9 +242,9 @@ class auditd::config {
 
   # auditd 2 (EL7, unsupported since 9.0.0) kept its plugins under /etc/audisp.
   # A missing auditd_version means 3.0; see auditd::config::logging. Resolved
-  # once here and read by auditd::config::logging, auditd::config::audisp and
-  # auditd::config::audisp::syslog, so the auditd 2 plugin layout has one
-  # definition to drop in 12.0.0.
+  # once here and read by the private auditd::config::logging and
+  # auditd::config::audisp::syslog. auditd::config::audisp is public and can be
+  # declared before this class, so it keeps its own guarded test.
   $_auditd2 = versioncmp(pick($facts['auditd_version'], '3.0'), '3.0') < 0
 
   # The directory the package ships and auditd compiles in. Plugin packages
@@ -255,31 +255,64 @@ class auditd::config {
   }
 
   # auditd::plugin_dir is unset unless a site moves the directory.
-  $_plugin_dir = pick($auditd::plugin_dir, $_package_plugin_dir)
+  # Stdlib::Absolutepath accepts a trailing slash, which Puppet strips from a
+  # File's path, so strip it here too: otherwise '/etc/audit/plugins.d/' and
+  # the package's directory are two titles for one path.
+  $_relocated_plugin_dir = $auditd::plugin_dir ? {
+    undef   => undef,
+    default => regsubst($auditd::plugin_dir, '(.)/+$', '\1'),
+  }
+  $_plugin_dir = pick($_relocated_plugin_dir, $_package_plugin_dir)
 
   # The mode for everything in the plugin directories, syslog.conf included.
   #
-  # Under manage_plugins_d_attributes it is exactly 0640, which is what the
-  # packages ship, and directories get 0750 (Puppet adds search wherever read
-  # is set on a directory, for numeric modes only). It has to be numeric: CIS
-  # 6.3.4.5 fails a plugin config with any execute bit, and no symbolic mode
-  # can clear execute on files while keeping it on directories, since X
-  # re-adds it to any file that had it. Matching the package also means an
-  # rpm upgrade, which puts the packaged modes back, has nothing to repair.
+  # Under manage_plugins_d_attributes it is numeric, so directories get search
+  # wherever read is set (Puppet does that for numeric modes only) and files
+  # lose every execute bit. CIS 6.3.4.5 fails a plugin config with any
+  # execute bit, and no symbolic mode can clear execute on files while keeping
+  # it on directories, since X re-adds it to any file that had it. With a root
+  # group it is 0600 (directories 0700), what the /etc/audit recursion gave
+  # before 11.0.0 and syslog.conf has had since; a non-root group gets 0640
+  # (0750) to read them.
+  #
+  # The packages ship root:root 0640, and an rpm upgrade can put that back on
+  # any of these files, after which the next run repairs it and refreshes
+  # auditd::service. Matching the package instead is a module-wide change to
+  # $config_file_mode, tracked separately.
   #
   # Otherwise it stays $config_file_mode, as before 11.3.0.
-  $_plugin_file_mode = $auditd::manage_plugins_d_attributes ? {
-    true    => '0640',
-    default => $config_file_mode,
+  if $auditd::manage_plugins_d_attributes {
+    $_plugin_file_mode = $_config_group ? {
+      'root'  => '0600',
+      default => '0640',
+    }
+  }
+  else {
+    $_plugin_file_mode = $config_file_mode
   }
 
-  # Declared for a relocated plugin_dir, which nothing else creates (and
+  # Owner, group and mode for syslog.conf, the one plugin config this module
+  # writes. Its explicit resource shadows the recursion below, so it splats
+  # these rather than repeating them, as the rule files do
+  # $rule_file_attributes. The group is enforced only when a site opts in,
+  # through manage_plugins_d_attributes or config_group; otherwise it is left
+  # as it is, as before 11.3.0.
+  $plugin_file_attributes = {
+    'owner' => 'root',
+    'group' => ($auditd::manage_plugins_d_attributes or $auditd::config_group =~ NotUndef) ? {
+      true    => $_config_group,
+      default => undef,
+    },
+    'mode'  => $_plugin_file_mode,
+  }
+
+  # Declared for a plugin_dir a site sets, which is created if missing (and
   # auditd::config::audisp::syslog writes syslog.conf into it), and, under
   # manage_plugins_d_attributes, for the package's directory as well, since
-  # packages keep installing configs there after a site moves plugin_dir.
-  # Only a relocated directory is created. The package owns its own, so that
-  # File sets attributes only and never creates it (and on an auditd 2 host
-  # with no auditd_version fact yet, never creates a stray
+  # packages keep installing configs there after a site moves plugin_dir. The
+  # package's directory is created only when plugin_dir names it, as before
+  # 11.3.0; otherwise that File sets attributes only (so on an auditd 2 host
+  # with no auditd_version fact yet it never creates a stray
   # /etc/audit/plugins.d).
   #
   # Recursion reaches plugin configs other packages install (such as
@@ -288,22 +321,20 @@ class auditd::config {
   # takes a parameter of its own. It does not follow symlinks (links =>
   # manage), so it never changes a file outside these directories, and a
   # plugin directory that is itself a symlink is left alone; point plugin_dir
-  # at the real directory instead. syslog.conf keeps its own resource, which
-  # takes precedence over the recursion, so it carries the same attributes
-  # itself. auditd::config::audisp::syslog orders the plugin package it
-  # installs before these Files, so the recursion sees the files it ships.
-  if $auditd::manage_plugins_d_attributes {
-    $_managed_plugin_dirs = unique([$_plugin_dir, $_package_plugin_dir])
-  }
-  elsif $auditd::plugin_dir {
-    $_managed_plugin_dirs = [$auditd::plugin_dir]
-  }
-  else {
-    $_managed_plugin_dirs = []
-  }
+  # at the real directory instead. syslog.conf keeps its own resource (see
+  # $plugin_file_attributes). auditd::config::audisp::syslog orders the plugin
+  # package it installs before these Files, so the recursion sees the files
+  # it ships.
+  #
+  # The directories always get $_config_group: a relocated plugin_dir has had
+  # it since 11.0.0.
+  $_managed_plugin_dirs = unique(
+    ([$_relocated_plugin_dir] + ($auditd::manage_plugins_d_attributes ? { true => [$_package_plugin_dir], default => [] }))
+    .filter |$dir| { $dir =~ NotUndef }
+  )
 
   $_managed_plugin_dirs.each |$dir| {
-    $_plugin_dir_ensure = $dir == $auditd::plugin_dir ? { true => 'directory', default => undef }
+    $_plugin_dir_ensure = $dir == $_relocated_plugin_dir ? { true => 'directory', default => undef }
 
     file { $dir:
       ensure  => $_plugin_dir_ensure,
