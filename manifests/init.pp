@@ -399,19 +399,25 @@
 #   11.0.0, and `0640` (`0750`) with any other group. Execute bits are
 #   cleared either way.
 #
-#   The packages ship these files `root:root 0640`, and an rpm upgrade can put
-#   that back. The next run then repairs the mode (with a `root` group) or the
-#   group (with any other), which refreshes `auditd::service`.
+#   Only the plugin directories are covered. CIS 6.3.4.5-6.3.4.7 (EL8, EL10)
+#   and 6.2.4.5-6.2.4.7 (EL9) check every `*.conf` and `*.rules` under
+#   `/etc/audit`, so files elsewhere in it that the pre-11.0.0 recursion
+#   reached, such as `audisp-remote.conf`, `zos-remote.conf` or
+#   `audit-stop.rules`, stay unmanaged.
 #
-#   CIS 6.3.4.5-6.3.4.7 (EL8, EL10) and 6.2.4.5-6.2.4.7 (EL9) check every
-#   `*.conf` under `/etc/audit`. It changes ownership and permissions only:
-#   nothing is deleted, and the package's directory is created only when
-#   `$plugin_dir` names it. Symlinks are not followed, so a plugin directory
-#   that is itself a symlink is left alone; set `$plugin_dir` to the real
-#   directory instead.
+#   It changes ownership and permissions only: nothing is deleted, and the
+#   package's directory is created only when `$plugin_dir` names it.
+#   Symlinks are not followed, so a plugin directory that is itself a symlink
+#   is left alone; set `$plugin_dir` to the real directory instead.
 #
-#   A run that repairs an attribute refreshes `auditd::service`, which
-#   restarts `auditd` when the service is managed.
+#   A repair does not restart `auditd`, which needs no restart for an
+#   ownership or mode change; only a repair to the `syslog.conf` this module
+#   writes refreshes `auditd::service`. The packages ship these files
+#   `root:root 0640`, and an rpm upgrade can put that back, for the next run
+#   to repair. The `audispd-plugins` package this module installs goes in
+#   before the recursion; another plugin package installed in the same run,
+#   such as `setroubleshoot-server`, has its configs repaired on the next run
+#   unless its `Package` is tagged `auditd_plugin`.
 #
 #   `false` stops enforcing them and leaves the files as they are.
 #

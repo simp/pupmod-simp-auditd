@@ -23,6 +23,7 @@ audit package to be used to configure a system.
 * [`auditd::config::grub`](#auditd--config--grub): Enables/disables auditing at boot time.
 * [`auditd::config::logging`](#auditd--config--logging): Ensures that plugin for syslog is installed so audit events
 can be sent to syslog in addition the audit partition.
+* [`auditd::config::plugins_d`](#auditd--config--plugins_d): Declares the auditd plugin directories
 * [`auditd::install`](#auditd--install): Install the auditd packages
 * [`auditd::service`](#auditd--service): Ensure that the auditd service is running
 
@@ -44,9 +45,11 @@ audit package's own rules
 
 ### Functions
 
+* [`auditd::auditd2`](#auditd--auditd2): Whether the host runs auditd 2 (EL7, unsupported since 9.0.0)
 * [`auditd::calculate_space_left`](#auditd--calculate_space_left): Calculates the correct default value for 'space_left' based on the value of 'admin_space_left'.
 * [`auditd::entries`](#auditd--entries): Combine a list's `*_entries` Hash with its deprecated Array parameter
 * [`auditd::get_array_index`](#auditd--get_array_index): Returns a string that represents the first index of the specified element within the Array.
+* [`auditd::plugin_dir`](#auditd--plugin_dir): The auditd plugin directory
 * [`auditd::rule_match`](#auditd--rule_match): Returns the `file_line` match for one rule in a profile's base rules file
 * [`auditd::validate_init_params`](#auditd--validate_init_params): Validates selected params from the main auditd class.
 
@@ -892,19 +895,25 @@ and `$plugin_dir` too when it is set. The mode is `0600` (directories
 11.0.0, and `0640` (`0750`) with any other group. Execute bits are
 cleared either way.
 
-The packages ship these files `root:root 0640`, and an rpm upgrade can put
-that back. The next run then repairs the mode (with a `root` group) or the
-group (with any other), which refreshes `auditd::service`.
+Only the plugin directories are covered. CIS 6.3.4.5-6.3.4.7 (EL8, EL10)
+and 6.2.4.5-6.2.4.7 (EL9) check every `*.conf` and `*.rules` under
+`/etc/audit`, so files elsewhere in it that the pre-11.0.0 recursion
+reached, such as `audisp-remote.conf`, `zos-remote.conf` or
+`audit-stop.rules`, stay unmanaged.
 
-CIS 6.3.4.5-6.3.4.7 (EL8, EL10) and 6.2.4.5-6.2.4.7 (EL9) check every
-`*.conf` under `/etc/audit`. It changes ownership and permissions only:
-nothing is deleted, and the package's directory is created only when
-`$plugin_dir` names it. Symlinks are not followed, so a plugin directory
-that is itself a symlink is left alone; set `$plugin_dir` to the real
-directory instead.
+It changes ownership and permissions only: nothing is deleted, and the
+package's directory is created only when `$plugin_dir` names it.
+Symlinks are not followed, so a plugin directory that is itself a symlink
+is left alone; set `$plugin_dir` to the real directory instead.
 
-A run that repairs an attribute refreshes `auditd::service`, which
-restarts `auditd` when the service is managed.
+A repair does not restart `auditd`, which needs no restart for an
+ownership or mode change; only a repair to the `syslog.conf` this module
+writes refreshes `auditd::service`. The packages ship these files
+`root:root 0640`, and an rpm upgrade can put that back, for the next run
+to repair. The `audispd-plugins` package this module installs goes in
+before the recursion; another plugin package installed in the same run,
+such as `setroubleshoot-server`, has its configs repaired on the next run
+unless its `Package` is tagged `auditd_plugin`.
 
 `false` stops enforcing them and leaves the files as they are.
 
@@ -2777,6 +2786,31 @@ Default value: `load_module_metadata('augeasproviders_grub')['version']`
 
 NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
 
+### <a name="auditd--config--plugins_d"></a>`auditd::config::plugins_d`
+
+NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
+
+A relocated `auditd::plugin_dir`, and under
+`auditd::manage_plugins_d_attributes` the package's plugin directory,
+recursively.
+
+Recursion reaches plugin configs other packages install (such as
+setroubleshoot-server's sedispatch.conf). Without a purge it only changes
+their owner/group/mode, but those are files this module doesn't own, so it
+takes a parameter of its own.
+
+This class is included by auditd::config rather than contained, so a repair
+here does not refresh auditd::service: auditd reads its plugin configs as
+root and needs no restart for an ownership or mode change, and a restart
+leaves a gap in audit collection. syslog.conf, which this module writes,
+keeps its own resource (see $auditd::config::plugin_file_attributes), which
+takes precedence over the recursion.
+
+The recursion does not follow symlinks (links => manage), so it never
+changes a file outside these directories, and a plugin directory that is
+itself a symlink is left alone; point plugin_dir at the real directory
+instead.
+
 ### <a name="auditd--install"></a>`auditd::install`
 
 NOTE: THIS IS A [PRIVATE](https://github.com/puppetlabs/puppetlabs-stdlib#assert_private) CLASS**
@@ -2904,6 +2938,26 @@ Default value: `false`
 
 ## Functions
 
+### <a name="auditd--auditd2"></a>`auditd::auditd2`
+
+Type: Puppet Language
+
+A missing `auditd_version` fact counts as 3.0. The fact needs `auditctl`,
+which on EL10 comes from the `audit-rules` package this module installs in
+the same run, and every supported release ships audit 3 or later.
+
+The auditd 2 layout goes away in 12.0.0, along with this function.
+
+#### `auditd::auditd2()`
+
+A missing `auditd_version` fact counts as 3.0. The fact needs `auditctl`,
+which on EL10 comes from the `audit-rules` package this module installs in
+the same run, and every supported release ships audit 3 or later.
+
+The auditd 2 layout goes away in 12.0.0, along with this function.
+
+Returns: `Boolean`
+
 ### <a name="auditd--calculate_space_left"></a>`auditd::calculate_space_left`
 
 Type: Puppet Language
@@ -2987,6 +3041,34 @@ Data type: `Optional[Integer]`
 
 The minimum number of digits the index should be.
 It will be '0'-padded to meet this number.
+
+### <a name="auditd--plugin_dir"></a>`auditd::plugin_dir`
+
+Type: Puppet Language
+
+Without an argument, the directory the package ships and auditd compiles in:
+`/etc/audit/plugins.d`, or `/etc/audisp/plugins.d` on auditd 2.
+
+With one, that path normalized the way Puppet normalizes a File's path:
+repeated slashes collapsed and a trailing slash stripped. Two spellings of
+one directory would otherwise be two File titles for the same path.
+
+#### `auditd::plugin_dir(Optional[Stdlib::Absolutepath] $plugin_dir = undef)`
+
+Without an argument, the directory the package ships and auditd compiles in:
+`/etc/audit/plugins.d`, or `/etc/audisp/plugins.d` on auditd 2.
+
+With one, that path normalized the way Puppet normalizes a File's path:
+repeated slashes collapsed and a trailing slash stripped. Two spellings of
+one directory would otherwise be two File titles for the same path.
+
+Returns: `Stdlib::Absolutepath`
+
+##### `plugin_dir`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+A plugin directory a site set, such as `auditd::plugin_dir`.
 
 ### <a name="auditd--rule_match"></a>`auditd::rule_match`
 

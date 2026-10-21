@@ -1,7 +1,8 @@
 require 'spec_helper'
 
 # auditd::config::audisp is public, so a profile can declare it before
-# auditd::config has resolved $_auditd2. It tests the fact itself.
+# auditd::config has been evaluated. It tests the version with
+# auditd::auditd2(), which reads only the fact.
 describe 'auditd::config::audisp' do
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do

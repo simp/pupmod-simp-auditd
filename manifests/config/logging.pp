@@ -14,7 +14,7 @@ class auditd::config::logging {
   # audit-rules package this module installs in the same run. Every supported
   # release ships audit 3 or later, so assume that until the fact says
   # otherwise rather than skipping the syslog plugin until the next run.
-  if $auditd::config::_auditd2 {
+  if auditd::auditd2() {
     contain 'auditd::config::audisp'
   }
   contain 'auditd::config::audisp::syslog'

@@ -37,9 +37,7 @@ class auditd::config::audisp (
   Auditd::NameFormat     $name_format      = 'USER',
   String                 $specific_name    = $facts['networking']['fqdn']
 ) {
-  # A public class, so it may be evaluated before auditd::config and cannot
-  # read $auditd::config::_auditd2. A missing fact means 3.0, as there.
-  if versioncmp(pick($facts['auditd_version'], '3.0'), '3.0') < 0 {
+  if auditd::auditd2() {
     include auditd::config::audisp_service
 
     file { '/etc/audisp/audispd.conf':
