@@ -314,15 +314,18 @@ describe 'auditd' do
           it { is_expected.not_to contain_class('auditd::config::audit_profiles') }
         end
 
-        # The package ships and owns the default plugin directory, so this is
-        # declared only when a site moves it. auditd::config::audisp::syslog
-        # writes syslog.conf into whatever plugin_dir resolves to, and a
-        # relocated directory nothing creates is a File with no parent.
+        # The package ships and owns the default plugin directory, so with
+        # manage_plugins_d_attributes off it is declared only when a site moves
+        # it: auditd::config::audisp::syslog writes syslog.conf into whatever
+        # plugin_dir resolves to, and a relocated directory nothing creates is
+        # a File with no parent.
         context 'with plugin_dir unset' do
           it { is_expected.to compile.with_all_deps }
           it { is_expected.not_to contain_file('/etc/audit/plugins.d') }
         end
 
+        # Without manage_plugins_d_attributes the relocated directory keeps
+        # $config_file_mode, as before 11.3.0, and the package's is untouched.
         context 'with plugin_dir set' do
           let(:params) { { plugin_dir: '/opt/audit/plugins.d' } }
 
@@ -333,15 +336,164 @@ describe 'auditd' do
               owner: 'root',
               group: 'root',
               mode: 'u+rwX,g-rwx,o-rwx',
+              recurse: false,
             )
           }
+          it { is_expected.not_to contain_file('/etc/audit/plugins.d') }
         end
 
         context 'with plugin_dir and config_group set' do
           let(:params) { { plugin_dir: '/opt/audit/plugins.d', config_group: 'rspec' } }
 
           it { is_expected.to compile.with_all_deps }
-          it { is_expected.to contain_file('/opt/audit/plugins.d').with_group('rspec') }
+          it { is_expected.to contain_file('/opt/audit/plugins.d').with(group: 'rspec', mode: 'u+rwX,g+rX,g-w,o-rwx') }
+        end
+
+        # config_group alone leaves syslog.conf's group alone, as before
+        # 11.3.0; only manage_plugins_d_attributes opts it in. The mode is
+        # the one it always had.
+        context 'with the syslog plugin and config_group set' do
+          let(:params) { { syslog: true, config_group: 'rspec' } }
+
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_file('/etc/audit/plugins.d/syslog.conf').with(group: nil, mode: 'u+rwX,g+rX,g-w,o-rwx') }
+          it { is_expected.not_to contain_file('/etc/audit/plugins.d') }
+        end
+
+        # Enforced alone, attributes on plugin configs this module did not
+        # write take effect in the package's directory, without deleting
+        # anything. The package owns that directory, so the File doesn't
+        # create it unless plugin_dir names it. The mode is numeric so it clears execute bits on files:
+        # 0600 with a root group, as before 11.0.0 (directories 0700), and
+        # 0640 with any other.
+        context 'with only manage_plugins_d_attributes => true' do
+          let(:params) { { manage_plugins_d_attributes: true } }
+
+          it { is_expected.to compile.with_all_deps }
+          it {
+            is_expected.to contain_file('/etc/audit/plugins.d').with(
+              ensure: nil,
+              owner: 'root',
+              group: 'root',
+              mode: '0600',
+              recurse: true,
+              links: nil,
+            )
+          }
+          it { is_expected.to contain_file('/etc/audit/plugins.d').without_purge }
+
+          # auditd needs no restart for an ownership or mode change, so the
+          # directories stay out of the auditd::config ~> auditd::service
+          # chain, unlike the rule files.
+          context 'next to the rules.d recursion' do
+            let(:params) { { manage_plugins_d_attributes: true, manage_rules_d_attributes: true } }
+
+            it { is_expected.to contain_class('auditd::config::plugins_d') }
+            it { is_expected.not_to contain_file('/etc/audit/plugins.d').that_notifies('Class[auditd::service]') }
+            it { is_expected.to contain_file('/etc/audit/rules.d').that_notifies('Class[auditd::service]') }
+          end
+
+          context 'with a non-root config_group' do
+            let(:params) { { manage_plugins_d_attributes: true, config_group: 'rspec' } }
+
+            it { is_expected.to contain_file('/etc/audit/plugins.d').with(group: 'rspec', mode: '0640', recurse: true) }
+          end
+
+          # Packages keep installing into the package's directory after a site
+          # moves plugin_dir, so both are covered; only the relocated one is
+          # created.
+          context 'with plugin_dir set' do
+            let(:params) { { manage_plugins_d_attributes: true, plugin_dir: '/opt/audit/plugins.d' } }
+
+            it { is_expected.to compile.with_all_deps }
+            it { is_expected.to contain_file('/opt/audit/plugins.d').with(ensure: 'directory', mode: '0600', recurse: true) }
+            it { is_expected.to contain_file('/etc/audit/plugins.d').with(ensure: nil, mode: '0600', recurse: true) }
+          end
+
+          # A trailing slash names the same directory; Puppet strips it from
+          # File paths, so it must not become a second title.
+          context 'with plugin_dir set to the package directory with a trailing slash' do
+            let(:params) { { manage_plugins_d_attributes: true, syslog: true, plugin_dir: '/etc/audit/plugins.d/' } }
+
+            it { is_expected.to compile.with_all_deps }
+            it { is_expected.to contain_file('/etc/audit/plugins.d').with(ensure: 'directory', recurse: true) }
+            it { is_expected.to contain_file('/etc/audit/plugins.d/syslog.conf') }
+          end
+
+          context 'with a relocated plugin_dir with a trailing slash' do
+            let(:params) { { manage_plugins_d_attributes: true, syslog: true, plugin_dir: '/opt/audit/plugins.d/' } }
+
+            it { is_expected.to compile.with_all_deps }
+            it { is_expected.to contain_file('/opt/audit/plugins.d').with(ensure: 'directory', recurse: true) }
+            it { is_expected.to contain_file('/opt/audit/plugins.d/syslog.conf') }
+          end
+
+          # Puppet also collapses repeated slashes in a File's path.
+          context 'with plugin_dir set to the package directory with repeated slashes' do
+            let(:params) { { manage_plugins_d_attributes: true, syslog: true, plugin_dir: '/etc/audit//plugins.d' } }
+
+            it { is_expected.to compile.with_all_deps }
+            it { is_expected.to contain_file('/etc/audit/plugins.d').with(ensure: 'directory', recurse: true) }
+            it { is_expected.to contain_file('/etc/audit/plugins.d/syslog.conf') }
+          end
+
+          context 'with plugin_dir set to the package directory' do
+            let(:params) { { manage_plugins_d_attributes: true, plugin_dir: '/etc/audit/plugins.d' } }
+
+            it { is_expected.to compile.with_all_deps }
+            it { is_expected.to contain_file('/etc/audit/plugins.d').with(ensure: 'directory', recurse: true) }
+          end
+
+          context 'with auditd 2' do
+            let(:facts) { os_facts.merge(auditd_version: '2.8.5') }
+
+            it { is_expected.to contain_file('/etc/audisp/plugins.d').with(ensure: nil, recurse: true) }
+            it { is_expected.not_to contain_file('/etc/audit/plugins.d') }
+          end
+
+          # Kernel auditing off leaves auditd_version unset, and the path falls
+          # back to auditd 3's. On an auditd 2 host that directory doesn't
+          # exist, and an ensure would create a stray one.
+          context 'without the auditd_version fact' do
+            let(:facts) { os_facts.reject { |k, _v| [:auditd_version, :auditd_major_version, :simplib__auditd].include?(k) } }
+
+            it { is_expected.to compile.with_all_deps }
+            it { is_expected.to contain_file('/etc/audit/plugins.d').with(ensure: nil, recurse: true) }
+          end
+
+          # syslog.conf's own resource shadows the recursion, so it must carry
+          # the group and mode itself. The plugin package goes in first, so the
+          # files it ships exist when the recursion is generated.
+          context 'with the syslog plugin and a non-root config_group' do
+            let(:params) { { manage_plugins_d_attributes: true, syslog: true, config_group: 'rspec' } }
+
+            it { is_expected.to compile.with_all_deps }
+            it { is_expected.to contain_file('/etc/audit/plugins.d/syslog.conf').with(owner: 'root', group: 'rspec', mode: '0640') }
+            it { is_expected.to contain_package('audispd-plugins').with_tag('auditd_plugin').that_comes_before('File[/etc/audit/plugins.d]') }
+          end
+
+          # Another module's plugin package opts into the ordering with the tag.
+          context 'with another plugin package tagged auditd_plugin' do
+            let(:pre_condition) { "package { 'setroubleshoot-server': tag => 'auditd_plugin' }" }
+
+            it { is_expected.to compile.with_all_deps }
+            it { is_expected.to contain_package('setroubleshoot-server').that_comes_before('File[/etc/audit/plugins.d]') }
+          end
+
+          context 'with the syslog plugin and plugin_dir set' do
+            let(:params) { { manage_plugins_d_attributes: true, syslog: true, plugin_dir: '/opt/audit/plugins.d' } }
+
+            it { is_expected.to compile.with_all_deps }
+            it { is_expected.to contain_file('/opt/audit/plugins.d/syslog.conf').with(group: 'root', mode: '0600') }
+            it { is_expected.to contain_package('audispd-plugins').that_comes_before('File[/etc/audit/plugins.d]') }
+            it { is_expected.to contain_package('audispd-plugins').that_comes_before('File[/opt/audit/plugins.d]') }
+          end
+        end
+
+        context 'with manage_plugins_d_attributes => false' do
+          let(:params) { { manage_plugins_d_attributes: false } }
+
+          it { is_expected.not_to contain_file('/etc/audit/plugins.d') }
         end
 
         # An empty string is truthy in Puppet and would reach the File

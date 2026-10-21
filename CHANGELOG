@@ -1,3 +1,25 @@
+* Wed Oct 21 2026 Mike Riddle <mike@sicura.us> - 11.3.0
+- Add `auditd::manage_plugins_d_attributes`. When `true`, owner `root`, the
+  `config_group` group and an exact mode are enforced on every file in the
+  package's plugin directory (`/etc/audit/plugins.d`) and in `plugin_dir`
+  when it is set, including plugin configs this module did not write, such
+  as `sedispatch.conf` from `setroubleshoot-server`, without purging
+  anything. Since 11.0.0 only this module's own `syslog.conf` was covered,
+  which left such files failing CIS 6.3.4.5-6.3.4.7 (EL8, EL10) and
+  6.2.4.5-6.2.4.7 (EL9). Files elsewhere under `/etc/audit` stay unmanaged.
+  The mode is `0600` (directories `0700`) with a `root` group, as before
+  11.0.0, and `0640` (`0750`) otherwise; execute bits are cleared. A repair
+  does not restart `auditd`. An rpm upgrade can restore the packaged
+  `root:root 0640`, which the next run repairs. A plugin package tagged
+  `auditd_plugin` is installed before the recursion. Defaults to `false`;
+  `simp:defaults` sets it.
+- `syslog.conf` takes the same group and mode under that parameter; its
+  group was missing from that file's resource.
+- Add the `auditd::auditd2()` and `auditd::plugin_dir()` functions, so
+  public and private classes share the auditd 2 test and plugin paths.
+  `plugin_dir` is normalized (repeated and trailing slashes), so another
+  spelling of the package's directory is not a second title for it.
+
 * Thu Oct 08 2026 Steven Pritchard <steve@sicura.us> - 11.2.0
 - Add support for OpenVox 9
 - Update metadata.json dependency ranges from the Forge

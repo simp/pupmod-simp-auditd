@@ -106,19 +106,31 @@ the old rendered files, and convergence.
 
 Two custom facts in `lib/facter/auditd_version.rb` drive version-dependent behavior:
 
-- `auditd_version` — full version string, gates code paths via `versioncmp`
-  (`init.pp`, `config/logging.pp`, `config/audisp.pp`, `config/audisp/syslog.pp`)
+- `auditd_version` — full version string. The auditd 2 test lives in the
+  `auditd::auditd2()` function; `init.pp` also gates the `write_logs`/`NOLOG` split
+  on it with `versioncmp`
 - `auditd_major_version` — major number only. It used to select a
   `data/auditd/version-N.yaml` Hiera layer; that layer is gone, so the fact now only
   matters to specs and to anything that reads it directly
 
 Both derive from the `simplib__auditd` structured fact, which does not resolve until
 auditing is enabled in the kernel, and on EL10 until `audit-rules` provides `auditctl`,
-so either can be `undef`. `init.pp` tests the fact before using it. `config/logging.pp`
-and `config/audisp/syslog.pp` treat a missing fact as 3.0 with `pick()`, so the syslog
-plugin is configured on the first run. `config/audisp.pp` calls `versioncmp` unguarded;
-that is safe only because `config/logging.pp` declares it only when the fact is present
-and below 3.0. Keep that guard in mind before declaring it elsewhere.
+so either can be `undef`.
+
+The auditd 2 plugin layout is resolved by two functions, so public and private classes
+share it without depending on evaluation order: `auditd::auditd2()` treats a missing
+fact as 3.0 with `pick()`, so the syslog plugin is configured on the first run, and
+`auditd::plugin_dir()` returns the package's plugin directory, or a given path
+normalized the way Puppet normalizes a File's path. `config.pp`, `config/logging.pp`,
+`config/audisp.pp` and `config/audisp/syslog.pp` all call them; use them in new code
+rather than testing the fact. `init.pp` tests the fact directly, guarded, for the
+`write_logs`/`NOLOG` split at 2.5.2 and 2.6.0.
+
+`config/audisp/syslog.pp` (public, with Hiera parameters) still reads
+`$auditd::config::plugin_file_attributes`, as it read `config_file_mode` before 11.3.0,
+so it has to be evaluated through `auditd`. The plugin directories are declared in
+`config/plugins_d.pp`, which `auditd::config` includes rather than contains, to keep
+ownership repairs out of the `auditd::config ~> auditd::service` chain.
 
 ### auditd.conf
 
@@ -148,6 +160,7 @@ Many array parameters (e.g., syscall lists, ignore lists) use `lookup_options: m
 | `$service_ensure` / `$service_enable` | Declare `Service['auditd']` at all; unset by default |
 | `$purge_auditd_rules` | Whether `/etc/audit/rules.d` is purged of unmanaged files |
 | `$manage_rules_d_attributes` | Whether owner/group/mode are enforced recursively on everything under `/etc/audit/rules.d`, without purging |
+| `$manage_plugins_d_attributes` | Whether owner/group/mode are enforced recursively on everything in the plugin directories (the package's and `$plugin_dir`), without purging or restarting auditd |
 | `$log_group` | Group owning `/var/log/audit`; also written as the `log_group` key in `auditd.conf` |
 | `$config_group` | Group owning the audit *configuration*. Deliberately independent of `$log_group` |
 | `$default_audit_profiles` | Which rule profiles to apply |

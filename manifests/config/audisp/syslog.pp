@@ -84,10 +84,26 @@ class auditd::config::audisp::syslog (
   Boolean                         $rsyslog         = simplib::lookup('simp_options::syslog', { 'default_value' => false }), #deprecated see @param
   String                          $package_ensure  = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' }),
 ) {
-  # See auditd::config::logging for why a missing auditd_version means 3.0.
-  if versioncmp(pick($facts['auditd_version'], '3.0'), '3.0') >= 0 and $enable {
+  # auditd 2 (EL7, unsupported since 9.0.0) ran the syslog plugin inside
+  # audispd, from /etc/audisp. The defaults follow the detected version so a
+  # host still on it keeps working; this path goes away in 12.0.0. The third
+  # argument keeps deprecation() a warning under 'strict => error'.
+  $_auditd2 = auditd::auditd2()
+  if $_auditd2 {
+    deprecation('auditd::auditd2',
+    'auditd < 3.0 is not a supported platform; its plugin layout will no longer be selected in 12.0.0',
+    false)
+  }
+
+  # auditd::plugin_dir is unset unless a site moves the directory.
+  $_plugin_dir = auditd::plugin_dir($auditd::plugin_dir)
+
+  if !$_auditd2 and $enable {
+    # It ships configs into the plugin directory; the tag orders it before
+    # the recursion in auditd::config::plugins_d.
     package { $pkg_name :
       ensure => $package_ensure,
+      tag    => 'auditd_plugin',
     }
 
     # The edits below rely on the file the plugin package ships. Written
@@ -98,23 +114,6 @@ class auditd::config::audisp::syslog (
     $_syslog_conf_require = [Package[$auditd::package_name]]
   }
 
-  # auditd 2 (EL7, unsupported since 9.0.0) ran the syslog plugin inside
-  # audispd, from /etc/audisp. The defaults follow the detected version so a
-  # host still on it keeps working; this path goes away in 12.0.0. The third
-  # argument keeps deprecation() a warning under 'strict => error'.
-  $_auditd2 = versioncmp(pick($facts['auditd_version'], '3.0'), '3.0') < 0
-  if $_auditd2 {
-    deprecation('auditd::auditd2',
-    'auditd < 3.0 is not a supported platform; its plugin layout will no longer be selected in 12.0.0',
-    false)
-  }
-
-  # auditd::plugin_dir is unset unless a site moves the directory; fall back to
-  # the path the package ships and auditd compiles in.
-  $_plugin_dir = pick($auditd::plugin_dir, $_auditd2 ? {
-    true    => '/etc/audisp/plugins.d',
-    default => '/etc/audit/plugins.d',
-  })
   $_syslog_path = pick($syslog_path, $_auditd2 ? {
     true    => 'builtin_syslog',
     default => '/sbin/audisp-syslog',
@@ -137,11 +136,14 @@ class auditd::config::audisp::syslog (
   # there; with no ensure it does not create the file. Where there is no
   # packaged file ($_full), it creates it, so the ini_settings below never
   # create it with the umask mode.
+  #
+  # This explicit resource shadows the recursion
+  # auditd::manage_plugins_d_attributes runs over the plugin directory, so its
+  # owner, group and mode come from auditd::config, shared with that recursion.
   file { $_syslog_conf:
     ensure  => $_syslog_conf_ensure,
-    owner   => 'root',
-    mode    => $auditd::config::config_file_mode,
     require => $_syslog_conf_require,
+    *       => $auditd::config::plugin_file_attributes,
   }
 
   # Only the keys this module has an opinion about are edited. The packaged

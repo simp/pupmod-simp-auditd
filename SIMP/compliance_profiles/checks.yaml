@@ -71,6 +71,17 @@ checks:
       parameter: auditd::manage_rules_d_attributes
       value: true
 
+  # Owner/group/mode on every plugin config in the plugin directory, not only
+  # the syslog.conf this module writes (CIS 6.3.4.5-6.3.4.7). Before 11.0.0
+  # the recursion over /etc/audit covered them; with config_group root below,
+  # the modes are the 0600 files and 0700 directories it gave. Files
+  # elsewhere under /etc/audit that it reached stay unmanaged.
+  simp:defaults.auditd.manage_plugins_d_attributes:
+    type: puppet-class-parameter
+    settings:
+      parameter: auditd::manage_plugins_d_attributes
+      value: true
+
   # Both an auditd.conf key and the switch declaring File['/var/log/audit'].
   simp:defaults.auditd.log_group:
     type: puppet-class-parameter
