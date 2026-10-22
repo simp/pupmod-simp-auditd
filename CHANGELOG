@@ -6,6 +6,10 @@
   next reboot. The `reboot_notify` is again declared only while the kernel is
   not enforcing auditing (`auditd_state.kernel_enforcing` is not `true`);
   otherwise the service and `reload_on_change` settings apply as usual.
+- With the service managed and the kernel rule set immutable (`-e 2`), a
+  change now registers a `reboot_notify` that rule changes need a reboot, as
+  `auditd::reload_on_change` already did. A restart cannot load rules into
+  a locked kernel.
 
 * Wed Oct 21 2026 Mike Riddle <mike@sicura.us> - 11.3.0
 - Add `auditd::manage_plugins_d_attributes`. When `true`, owner `root`, the

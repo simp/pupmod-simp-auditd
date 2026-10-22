@@ -285,6 +285,12 @@
 #   ``true``. On a kernel that is enforcing auditing this has no effect, and
 #   the service and `reload_on_change` settings apply as usual.
 #
+#   A rule set the kernel has locked (`-e 2`, reported by the `auditd_state`
+#   fact as `immutable`) cannot be reloaded by a service restart either. In
+#   that state, whenever the service is managed or `$reload_on_change` is
+#   set, a separate ``reboot_notify`` says that rule changes need a reboot,
+#   whatever this parameter is set to.
+#
 # @param reload_on_change
 #   Load rule and `auditd.conf` changes into the running system when the
 #   `auditd` service is not managed by this module (neither `$service_ensure`

@@ -28,6 +28,10 @@ class auditd::service (
 ) {
   assert_private()
 
+  # The fact reflects the running kernel at the start of the run, which is what
+  # decides whether a rule load can take effect.
+  $_immutable = fact('auditd_state.immutable') == true
+
   # auditd cannot be started until the kernel enforces auditing, which may
   # take a reboot. Only then does a warning replace managing the service: on a
   # kernel that is auditing, the service and reload branches below are what
@@ -69,14 +73,8 @@ class auditd::service (
 
     # augenrules itself exits 0 without loading anything when the kernel is
     # immutable, so the load would report success while changing nothing. The
-    # fact reflects the running kernel at the start of the run, which is what
-    # decides whether a load can take effect.
-    if fact('auditd_state.immutable') == true {
-      reboot_notify { "${auditd::service_name} rules":
-        reason => 'The audit rules are immutable (-e 2); a reboot is required to load rule changes',
-      }
-    }
-    else {
+    # reboot_notify below takes its place.
+    unless $_immutable {
       exec { 'auditd load rules':
         command     => '/usr/sbin/augenrules --load',
         onlyif      => $_if_running,
@@ -85,6 +83,18 @@ class auditd::service (
         returns     => [0, 1],
         refreshonly => true,
       }
+    }
+  }
+
+  # Whether rule changes are loaded by a service restart or by the reload
+  # execs, an immutable rule set (-e 2) ignores them until the next boot. Say
+  # so rather than let the restart or reload report success. This is not part
+  # of the chain above: the kernel is enforcing auditing, so the
+  # warn_if_reboot_required branch never applies, and a site that has asked
+  # for neither the service nor reload_on_change has asked for no load.
+  if $_immutable and ($ensure =~ NotUndef or $enable =~ NotUndef or $reload_on_change) {
+    reboot_notify { "${auditd::service_name} rules":
+      reason => 'The audit rules are immutable (-e 2); a reboot is required to load rule changes',
     }
   }
 }
