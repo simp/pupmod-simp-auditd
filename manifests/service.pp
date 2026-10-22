@@ -9,8 +9,10 @@
 #   ``enable`` state from the service resource
 #
 # @param warn_if_reboot_required
-#   Add a ``reboot_notify`` warning if the system requires a reboot before the
-#   service can be managed.
+#   Add a ``reboot_notify`` warning, instead of managing the service or
+#   reloading rules, when the kernel is not enforcing auditing
+#   (``auditd_state.kernel_enforcing`` is not ``true``). On a kernel that is
+#   enforcing auditing this has no effect.
 #
 # @param reload_on_change
 #   Load changes into the running system when the service is not managed.
@@ -26,7 +28,12 @@ class auditd::service (
 ) {
   assert_private()
 
-  if $warn_if_reboot_required {
+  # auditd cannot be started until the kernel enforces auditing, which may
+  # take a reboot. Only then does a warning replace managing the service: on a
+  # kernel that is auditing, the service and reload branches below are what
+  # load changed rules. An unknown kernel state (no auditctl yet, or facts
+  # gathered as non-root) counts as not enforcing.
+  if $warn_if_reboot_required and fact('auditd_state.kernel_enforcing') != true {
     reboot_notify { "${auditd::service_name} service":
       reason => "The ${auditd::service_name} service cannot be started when the kernel is not enforcing auditing",
     }
