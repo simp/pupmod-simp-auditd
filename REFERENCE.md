@@ -712,6 +712,12 @@ enforce auditing: that is, when ``auditd_state.kernel_enforcing`` is not
 ``true``. On a kernel that is enforcing auditing this has no effect, and
 the service and `reload_on_change` settings apply as usual.
 
+A rule set the kernel has locked (`-e 2`, reported by the `auditd_state`
+fact as `immutable`) cannot be reloaded by a service restart either. In
+that state, whenever the service is managed or `$reload_on_change` is
+set, a separate ``reboot_notify`` says that rule changes need a reboot,
+whatever this parameter is set to.
+
 Default value: `false`
 
 ##### <a name="-auditd--reload_on_change"></a>`reload_on_change`
@@ -3227,3 +3233,4 @@ Alias of `Pattern[/\A[a-z0-9_]+_t\z/]`
 Matches spaceleftaction for auditd.conf
 
 Alias of `Enum['IGNORE', 'SYSLOG', 'ROTATE', 'EMAIL', 'EXEC', 'SUSPEND', 'SINGLE', 'HALT', 'ignore', 'syslog', 'rotate', 'email', 'exec', 'suspend', 'single', 'halt']`
+

@@ -231,6 +231,18 @@ describe 'auditd' do
             it { is_expected.to compile.with_all_deps }
             it { is_expected.not_to contain_reboot_notify('auditd service') }
             it { is_expected.to contain_service('auditd').with_enable(true) }
+            it { is_expected.not_to contain_reboot_notify('auditd rules') }
+
+            # A restart cannot load rules into an immutable kernel, so the
+            # reboot is still announced.
+            context 'with an immutable rule set' do
+              let(:facts) { super().merge(auditd_state: { 'enabled' => 2, 'kernel_enforcing' => true, 'immutable' => true }) }
+
+              it { is_expected.to compile.with_all_deps }
+              it { is_expected.to contain_service('auditd').with_enable(true) }
+              it { is_expected.to contain_reboot_notify('auditd rules') }
+              it { is_expected.not_to contain_reboot_notify('auditd service') }
+            end
 
             # A rule file refreshes Class['auditd::service'], which restarts
             # the service and so loads the rules.
@@ -246,6 +258,12 @@ describe 'auditd' do
 
               it { is_expected.not_to contain_reboot_notify('auditd service') }
               it { is_expected.not_to contain_service('auditd') }
+
+              context 'with an immutable rule set' do
+                let(:facts) { super().merge(auditd_state: { 'enabled' => 2, 'kernel_enforcing' => true, 'immutable' => true }) }
+
+                it { is_expected.not_to contain_reboot_notify('auditd rules') }
+              end
             end
           end
         end
@@ -316,6 +334,13 @@ describe 'auditd' do
             it { is_expected.to contain_service('auditd') }
             it { is_expected.not_to contain_exec('auditd reload config') }
             it { is_expected.not_to contain_exec('auditd load rules') }
+
+            context 'when the kernel rule set is immutable' do
+              let(:facts) { super().merge(auditd_state: { 'enabled' => 2, 'immutable' => true }) }
+
+              it { is_expected.to contain_service('auditd') }
+              it { is_expected.to contain_reboot_notify('auditd rules') }
+            end
           end
 
           context 'with warn_if_reboot_required => true' do
