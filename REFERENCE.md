@@ -3233,4 +3233,3 @@ Alias of `Pattern[/\A[a-z0-9_]+_t\z/]`
 Matches spaceleftaction for auditd.conf
 
 Alias of `Enum['IGNORE', 'SYSLOG', 'ROTATE', 'EMAIL', 'EXEC', 'SUSPEND', 'SINGLE', 'HALT', 'ignore', 'syslog', 'rotate', 'email', 'exec', 'suspend', 'single', 'halt']`
-
