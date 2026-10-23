@@ -281,7 +281,15 @@
 # @param warn_if_reboot_required
 #   Add a ``reboot_notify`` warning, instead of managing the `auditd`
 #   service, if the system requires a reboot before the kernel will
-#   enforce auditing.
+#   enforce auditing: that is, when ``auditd_state.kernel_enforcing`` is not
+#   ``true``. On a kernel that is enforcing auditing this has no effect, and
+#   the service and `reload_on_change` settings apply as usual.
+#
+#   A rule set the kernel has locked (`-e 2`, reported by the `auditd_state`
+#   fact as `immutable`) cannot be reloaded by a service restart either. In
+#   that state, whenever the service is managed or `$reload_on_change` is
+#   set, a separate ``reboot_notify`` says that rule changes need a reboot,
+#   whatever this parameter is set to.
 #
 # @param reload_on_change
 #   Load rule and `auditd.conf` changes into the running system when the
@@ -306,7 +314,8 @@
 #   setting describes the rules on disk rather than what is loaded.
 #
 #   Has no effect when the service is managed, whose restart already
-#   reloads both, or when `$warn_if_reboot_required` is set.
+#   reloads both, or when `$warn_if_reboot_required` is set and the kernel is
+#   not enforcing auditing.
 #
 # @param space_left
 #   Must be larger than `$admin_space_left`.

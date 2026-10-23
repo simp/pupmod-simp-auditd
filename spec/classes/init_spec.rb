@@ -201,17 +201,71 @@ describe 'auditd' do
           it { is_expected.to contain_class('auditd::config::grub').with_enable(false) }
         end
 
-        # manifests/service.pp branches on $warn_if_reboot_required: when true it
-        # emits a reboot_notify (warning that auditd cannot be (re)started until
-        # the kernel is enforcing auditing) INSTEAD of managing the service
-        # resource. Every other context exercises only the false branch, so this
-        # pins the true branch -- otherwise the reboot path has no unit coverage.
+        # manifests/service.pp: $warn_if_reboot_required replaces managing the
+        # service with a reboot_notify only while the kernel is not enforcing
+        # auditing, since auditd cannot be (re)started until then. On a kernel
+        # that is auditing, the service is managed as usual, which is what
+        # loads changed rules.
         context 'with warn_if_reboot_required => true' do
-          let(:params) { { warn_if_reboot_required: true } }
+          let(:params) { { warn_if_reboot_required: true, service_enable: true } }
 
-          it { is_expected.to compile.with_all_deps }
-          it { is_expected.to contain_reboot_notify('auditd service') }
-          it { is_expected.not_to contain_service('auditd') }
+          context 'when the kernel is not enforcing auditing' do
+            let(:facts) { super().merge(auditd_state: { 'enabled' => 0, 'kernel_enforcing' => false }) }
+
+            it { is_expected.to compile.with_all_deps }
+            it { is_expected.to contain_reboot_notify('auditd service') }
+            it { is_expected.not_to contain_service('auditd') }
+          end
+
+          context 'without the auditd_state fact' do
+            let(:facts) { super().reject { |k, _v| k == :auditd_state } }
+
+            it { is_expected.to compile.with_all_deps }
+            it { is_expected.to contain_reboot_notify('auditd service') }
+            it { is_expected.not_to contain_service('auditd') }
+          end
+
+          context 'when the kernel is enforcing auditing' do
+            let(:facts) { super().merge(auditd_state: { 'enabled' => 1, 'kernel_enforcing' => true }) }
+
+            it { is_expected.to compile.with_all_deps }
+            it { is_expected.not_to contain_reboot_notify('auditd service') }
+            it { is_expected.to contain_service('auditd').with_enable(true) }
+            it { is_expected.not_to contain_reboot_notify('auditd rules') }
+
+            # A restart cannot load rules into an immutable kernel, so the
+            # reboot is still announced.
+            context 'with an immutable rule set' do
+              let(:facts) { super().merge(auditd_state: { 'enabled' => 2, 'kernel_enforcing' => true, 'immutable' => true }) }
+
+              it { is_expected.to compile.with_all_deps }
+              it { is_expected.to contain_service('auditd').with_enable(true) }
+              it { is_expected.to contain_reboot_notify('auditd rules') }
+              it { is_expected.not_to contain_reboot_notify('auditd service') }
+            end
+
+            # A rule file refreshes Class['auditd::service'], which restarts
+            # the service and so loads the rules.
+            context 'with a profile writing rule files' do
+              let(:params) { super().merge(default_audit_profiles: ['simp']) }
+
+              it { is_expected.to contain_file('/etc/audit/rules.d/00_head.rules') }
+              it { is_expected.to contain_class('auditd::service').that_subscribes_to('Class[auditd::config]') }
+            end
+
+            context 'without service parameters' do
+              let(:params) { { warn_if_reboot_required: true } }
+
+              it { is_expected.not_to contain_reboot_notify('auditd service') }
+              it { is_expected.not_to contain_service('auditd') }
+
+              context 'with an immutable rule set' do
+                let(:facts) { super().merge(auditd_state: { 'enabled' => 2, 'kernel_enforcing' => true, 'immutable' => true }) }
+
+                it { is_expected.not_to contain_reboot_notify('auditd rules') }
+              end
+            end
+          end
         end
 
         # manifests/service.pp: with the service unmanaged, reload_on_change
@@ -280,13 +334,33 @@ describe 'auditd' do
             it { is_expected.to contain_service('auditd') }
             it { is_expected.not_to contain_exec('auditd reload config') }
             it { is_expected.not_to contain_exec('auditd load rules') }
+
+            context 'when the kernel rule set is immutable' do
+              let(:facts) { super().merge(auditd_state: { 'enabled' => 2, 'immutable' => true }) }
+
+              it { is_expected.to contain_service('auditd') }
+              it { is_expected.to contain_reboot_notify('auditd rules') }
+            end
           end
 
           context 'with warn_if_reboot_required => true' do
             let(:params) { super().merge(warn_if_reboot_required: true) }
 
-            it { is_expected.to contain_reboot_notify('auditd service') }
-            it { is_expected.not_to contain_exec('auditd reload config') }
+            context 'when the kernel is not enforcing auditing' do
+              let(:facts) { super().merge(auditd_state: { 'enabled' => 0, 'kernel_enforcing' => false }) }
+
+              it { is_expected.to contain_reboot_notify('auditd service') }
+              it { is_expected.not_to contain_exec('auditd reload config') }
+              it { is_expected.not_to contain_exec('auditd load rules') }
+            end
+
+            context 'when the kernel is enforcing auditing' do
+              let(:facts) { super().merge(auditd_state: { 'enabled' => 1, 'kernel_enforcing' => true, 'immutable' => false }) }
+
+              it { is_expected.not_to contain_reboot_notify('auditd service') }
+              it { is_expected.to contain_exec('auditd reload config') }
+              it { is_expected.to contain_exec('auditd load rules') }
+            end
           end
         end
 
