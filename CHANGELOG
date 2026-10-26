@@ -1,3 +1,16 @@
+* Thu Oct 22 2026 Steven Pritchard <steve@sicura.us> - 11.3.1
+- Fix `auditd::warn_if_reboot_required` taking effect on a kernel that is
+  already enforcing auditing. Since 9.0.0 it replaced managing the service,
+  and since 11.0.0 also `auditd::reload_on_change`, unconditionally, so a
+  changed rule was written to `/etc/audit/rules.d` but not loaded until the
+  next reboot. The `reboot_notify` is again declared only while the kernel is
+  not enforcing auditing (`auditd_state.kernel_enforcing` is not `true`);
+  otherwise the service and `reload_on_change` settings apply as usual.
+- With the service managed and the kernel rule set immutable (`-e 2`), a
+  change now registers a `reboot_notify` that rule changes need a reboot, as
+  `auditd::reload_on_change` already did. A restart cannot load rules into
+  a locked kernel.
+
 * Wed Oct 21 2026 Mike Riddle <mike@sicura.us> - 11.3.0
 - Add `auditd::manage_plugins_d_attributes`. When `true`, owner `root`, the
   `config_group` group and an exact mode are enforced on every file in the
