@@ -137,10 +137,10 @@ describe 'auditd' do
           end
 
           let(:stop) do
-            '_pid=$(/usr/bin/systemctl show --value -p MainPID auditd); ' \
+            '_pid=$(/usr/bin/systemctl show --value -p MainPID auditd) || exit 1; ' \
               'if [ "$_pid" != 0 ]; then /usr/bin/timeout 30 /bin/sh -c ' \
               '\'/usr/sbin/auditctl --signal stop || exit 3; ' \
-              'while [ "$(/usr/bin/systemctl show --value -p MainPID auditd)" = "$1" ]; do sleep 0.1; done\' sh "$_pid"; ' \
+              'until _p=$(/usr/bin/systemctl show --value -p MainPID auditd) && [ "$_p" != "$1" ]; do sleep 0.1; done\' sh "$_pid"; ' \
               'case $? in 0) ;; ' \
               '3) echo \'Could not signal auditd to stop\' >&2; exit 1 ;; ' \
               '*) echo \'auditd did not exit within 30 seconds\' >&2; exit 1 ;; esac; fi'

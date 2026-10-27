@@ -59,7 +59,10 @@ class auditd::service (
     # Wait until systemd's MainPID for the unit is no longer the old daemon's.
     # It changes when systemd has reaped that process, which is when a start
     # can take effect, and a daemon systemd itself restarted counts as gone.
-    # When nothing is running there is nothing to stop or wait for.
+    # A MainPID query that fails counts as not yet exited, so a transient
+    # systemctl error cannot end the wait early, and the stop fails if the
+    # first query does, having no old PID to wait on. When nothing is running
+    # there is nothing to stop or wait for.
     #
     # The stop, and so the restart, fails rather than carrying on if the
     # running daemon cannot be signalled (a start would find it running and
@@ -68,15 +71,16 @@ class auditd::service (
     # stop` itself waits, without a limit, for the daemon to exit. The
     # timeout only stops a hung daemon from hanging the run. The restart
     # succeeds only if auditd is running at the end.
+    $_stop_timeout = 30
     $_main_pid = "/usr/bin/systemctl show --value -p MainPID ${auditd::service_name}"
     $_stop_and_wait = join([
-        "/usr/bin/timeout 30 /bin/sh -c '${auditd::auditctl_command} --signal stop || exit 3",
-        "while [ \"\$(${_main_pid})\" = \"\$1\" ]; do sleep 0.1; done' sh \"\$_pid\"",
+        "/usr/bin/timeout ${_stop_timeout} /bin/sh -c '${auditd::auditctl_command} --signal stop || exit 3",
+        "until _p=\$(${_main_pid}) && [ \"\$_p\" != \"\$1\" ]; do sleep 0.1; done' sh \"\$_pid\"",
     ], '; ')
     $_no_signal = "Could not signal ${auditd::service_name} to stop"
-    $_no_exit = "${auditd::service_name} did not exit within 30 seconds"
+    $_no_exit = "${auditd::service_name} did not exit within ${_stop_timeout} seconds"
     $_stop = join([
-        "_pid=\$(${_main_pid})",
+        "_pid=\$(${_main_pid}) || exit 1",
         "if [ \"\$_pid\" != 0 ]; then ${_stop_and_wait}",
         "case \$? in 0) ;; 3) echo '${_no_signal}' >&2; exit 1 ;; *) echo '${_no_exit}' >&2; exit 1 ;; esac",
         'fi',
