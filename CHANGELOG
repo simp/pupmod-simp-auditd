@@ -5,6 +5,10 @@
   exit before starting it. The restart now fails, instead of reporting
   success without loading anything, if the running daemon cannot be
   signalled, has not exited after 30 seconds, or is not running afterwards.
+- Stopping the managed `auditd` service now waits for the daemon to exit,
+  and fails if it cannot be signalled or has not exited after 30 seconds.
+  Before, a stop on EL8 returned before the daemon had exited, and on EL9
+  and EL10 a daemon that never exited blocked the Puppet run indefinitely.
 
 * Thu Oct 22 2026 Steven Pritchard <steve@sicura.us> - 11.3.1
 - Fix `auditd::warn_if_reboot_required` taking effect on a kernel that is
