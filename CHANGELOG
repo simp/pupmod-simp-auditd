@@ -1,3 +1,9 @@
+* Tue Oct 27 2026 Mike Riddle <mike@sicura.us> - 11.3.2
+- Fix a restart of the managed `auditd` service leaving auditd stopped. The
+  restart started the service before the old daemon had finished exiting, so
+  the start did nothing. It now waits, for up to 30 seconds, for the daemon
+  to exit first.
+
 * Thu Oct 22 2026 Steven Pritchard <steve@sicura.us> - 11.3.1
 - Fix `auditd::warn_if_reboot_required` taking effect on a kernel that is
   already enforcing auditing. Since 9.0.0 it replaced managing the service,

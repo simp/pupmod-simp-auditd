@@ -142,7 +142,9 @@ describe 'auditd' do
               ensure: 'running',
               enable: true,
               stop: '/usr/sbin/auditctl --signal stop',
-              restart: '/usr/sbin/auditctl --signal stop; /usr/bin/systemctl start auditd',
+              restart: '/usr/sbin/auditctl --signal stop; ' \
+                       'i=0; while /usr/bin/systemctl is-active --quiet auditd && [ $i -lt 300 ]; do sleep 0.1; i=$((i+1)); done; ' \
+                       '/usr/bin/systemctl start auditd',
             )
           }
         end

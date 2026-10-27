@@ -49,12 +49,18 @@ class auditd::service (
     # that only wanted the package. Either attribute may be left undef, which
     # leaves that half of the service unmanaged.
     #
+    # `auditctl --signal stop` only sends the daemon SIGTERM and returns. A
+    # start issued before the daemon has exited finds the unit still active
+    # and does nothing, and the daemon then exits, leaving auditd stopped.
+    # Wait up to 30 seconds for it to go before starting it again.
+    $_wait_for_exit = "i=0; while /usr/bin/systemctl is-active --quiet ${auditd::service_name} && [ \$i -lt 300 ]; do sleep 0.1; i=\$((i+1)); done"
+
     # CCE-27058-7
     service { $auditd::service_name:
       ensure  => $ensure,
       enable  => $enable,
       stop    => "${auditd::auditctl_command} --signal stop",
-      restart => "${auditd::auditctl_command} --signal stop; /usr/bin/systemctl start ${auditd::service_name}",
+      restart => "${auditd::auditctl_command} --signal stop; ${_wait_for_exit}; /usr/bin/systemctl start ${auditd::service_name}",
     }
   }
   elsif $reload_on_change {
