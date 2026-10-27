@@ -273,8 +273,8 @@
 #   unit, not the `audit=1` kernel parameter -- that one is `$at_boot`.
 #
 # @param auditctl_command
-#   The path to the `auditctl` command to use when stopping or restarting
-#   the `auditd` service.
+#   The path to the `auditctl` command to use when reloading the `auditd`
+#   configuration. See `$reload_on_change`.
 #   * Defaults to the ``auditd_auditctl_cmd`` fact when present, otherwise
 #     falls back to ``/usr/sbin/auditctl``.
 #

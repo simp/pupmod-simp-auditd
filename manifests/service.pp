@@ -51,30 +51,35 @@ class auditd::service (
     # that only wanted the package. Either attribute may be left undef, which
     # leaves that half of the service unmanaged.
     #
-    # `auditctl --signal stop` only sends the daemon SIGTERM and returns. A
-    # start issued before the daemon has exited finds the unit still active
-    # and does nothing, and the daemon then exits, leaving auditd stopped.
-    # (The unit sets RefuseManualStop, so systemd cannot stop it for us.)
+    # The unit sets RefuseManualStop, so systemd cannot stop auditd for us.
+    # Instead, send SIGTERM to the unit's MainPID, the daemon systemd started,
+    # rather than through `auditctl --signal stop`, which finds the daemon by
+    # the PID it registered with the kernel and so cannot reach one that
+    # never registered (`local_events = no`). As root, kill only fails if the
+    # process has already gone, so a failed kill is an error only while that
+    # PID is still the unit's MainPID.
     #
-    # Wait until systemd's MainPID for the unit is no longer the old daemon's.
-    # It changes when systemd has reaped that process, which is when a start
-    # can take effect, and a daemon systemd itself restarted counts as gone.
-    # A MainPID query that fails counts as not yet exited, so a transient
+    # The signal returns before the daemon has exited, and a start issued
+    # before then finds the unit still active and does nothing, after which
+    # the daemon exits and leaves auditd stopped. So wait until systemd's
+    # MainPID for the unit is no longer the old daemon's. It changes when
+    # systemd has reaped that process, which is when a start can take
+    # effect, and a daemon systemd itself restarted counts as gone. A
+    # MainPID query that fails counts as not yet exited, so a transient
     # systemctl error cannot end the wait early, and the stop fails if the
     # first query does, having no old PID to wait on. When nothing is running
     # there is nothing to stop or wait for.
     #
     # The stop, and so the restart, fails rather than carrying on if the
     # running daemon cannot be signalled (a start would find it running and
-    # load nothing) or has not exited after 30 seconds. The timeout covers
-    # the signal as well as the wait: from audit 3.1.5 `auditctl --signal
-    # stop` itself waits, without a limit, for the daemon to exit. The
-    # timeout only stops a hung daemon from hanging the run. The restart
-    # succeeds only if auditd is running at the end.
+    # load nothing) or has not exited after the timeout. The timeout only
+    # stops a hung daemon from hanging the run. The restart succeeds only if
+    # auditd is running at the end.
     $_stop_timeout = 30
     $_main_pid = "/usr/bin/systemctl show --value -p MainPID ${auditd::service_name}"
+    $_signal = "kill -s TERM \"\$1\" 2>/dev/null || { _p=\$(${_main_pid}) && [ \"\$_p\" != \"\$1\" ]; } || exit 3"
     $_stop_and_wait = join([
-        "/usr/bin/timeout ${_stop_timeout} /bin/sh -c '${auditd::auditctl_command} --signal stop || exit 3",
+        "/usr/bin/timeout ${_stop_timeout} /bin/sh -c '${_signal}",
         "until _p=\$(${_main_pid}) && [ \"\$_p\" != \"\$1\" ]; do sleep 0.1; done' sh \"\$_pid\"",
     ], '; ')
     $_no_signal = "Could not signal ${auditd::service_name} to stop"

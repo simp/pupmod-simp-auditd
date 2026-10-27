@@ -695,8 +695,8 @@ Default value: `undef`
 
 Data type: `String[1]`
 
-The path to the `auditctl` command to use when stopping or restarting
-the `auditd` service.
+The path to the `auditctl` command to use when reloading the `auditd`
+configuration. See `$reload_on_change`.
 * Defaults to the ``auditd_auditctl_cmd`` fact when present, otherwise
   falls back to ``/usr/sbin/auditctl``.
 
