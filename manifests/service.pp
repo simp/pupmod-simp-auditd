@@ -73,21 +73,25 @@ class auditd::service (
     # The stop, and so the restart, fails rather than carrying on if the
     # running daemon cannot be signalled (a start would find it running and
     # load nothing) or has not exited after the timeout. The timeout only
-    # stops a hung daemon from hanging the run. The restart succeeds only if
-    # auditd is running at the end.
-    $_stop_timeout = 30
+    # stops a hung daemon from hanging the run, and is systemd's default stop
+    # timeout, which the auditd unit does not override. The daemon has
+    # already been signalled when it expires, so it may still exit later and
+    # then has to be started again; the message says so. The restart
+    # succeeds only if auditd is running at the end.
+    $_stop_timeout = 90
     $_main_pid = "/usr/bin/systemctl show --value -p MainPID ${auditd::service_name}"
     $_signal = "kill -s TERM \"\$1\" 2>/dev/null || { _p=\$(${_main_pid}) && [ \"\$_p\" != \"\$1\" ]; } || exit 3"
     $_stop_and_wait = join([
         "/usr/bin/timeout ${_stop_timeout} /bin/sh -c '${_signal}",
         "until _p=\$(${_main_pid}) && [ \"\$_p\" != \"\$1\" ]; do sleep 0.1; done' sh \"\$_pid\"",
     ], '; ')
+    $_no_pid = "Could not read the MainPID of ${auditd::service_name}"
     $_no_signal = "Could not signal ${auditd::service_name} to stop"
-    $_no_exit = "${auditd::service_name} did not exit within ${_stop_timeout} seconds"
+    $_no_exit = "${auditd::service_name} did not exit within ${_stop_timeout} seconds; it may still exit later, and will then need to be started"
     $_stop = join([
-        "_pid=\$(${_main_pid}) || exit 1",
+        "_pid=\$(${_main_pid}) || { echo '${_no_pid}' >&2; exit 1; }",
         "if [ \"\$_pid\" != 0 ]; then ${_stop_and_wait}",
-        "case \$? in 0) ;; 3) echo '${_no_signal}' >&2; exit 1 ;; *) echo '${_no_exit}' >&2; exit 1 ;; esac",
+        "_rc=\$?; case \$_rc in 0) ;; 3) echo '${_no_signal}' >&2; exit 1 ;; 124) echo '${_no_exit}' >&2; exit 1 ;; *) echo \"Could not stop ${auditd::service_name} (exit \$_rc)\" >&2; exit 1 ;; esac",
         'fi',
     ], '; ')
 
