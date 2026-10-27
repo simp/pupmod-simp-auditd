@@ -59,12 +59,22 @@ class auditd::service (
     # Wait until systemd's MainPID for the unit is no longer the old daemon's.
     # It changes when systemd has reaped that process, which is when a start
     # can take effect, and a daemon systemd itself restarted counts as gone.
-    # If the signal could not be sent, or nothing was running, there is
-    # nothing to wait for. The timeout only stops a hung daemon from hanging
-    # the run: when it expires the restart fails rather than carrying on, and
-    # the restart succeeds only if auditd is running at the end.
+    # When nothing is running there is nothing to stop or wait for.
+    #
+    # The restart fails, rather than carrying on, if the running daemon
+    # cannot be signalled (a start would find it running and load nothing)
+    # or has not exited after 30 seconds. The timeout covers the signal as
+    # well as the wait: from audit 3.1.5 `auditctl --signal stop` itself
+    # waits, without a limit, for the daemon to exit. The timeout only stops
+    # a hung daemon from hanging the run. The restart succeeds only if auditd
+    # is running at the end.
     $_main_pid = "/usr/bin/systemctl show --value -p MainPID ${auditd::service_name}"
-    $_wait_for_exit = "/usr/bin/timeout 30 /bin/sh -c 'while [ \"\$(${_main_pid})\" = \"\$1\" ]; do sleep 0.1; done' sh \"\$_pid\""
+    $_stop_and_wait = join([
+        "/usr/bin/timeout 30 /bin/sh -c '${auditd::auditctl_command} --signal stop || exit 3",
+        "while [ \"\$(${_main_pid})\" = \"\$1\" ]; do sleep 0.1; done' sh \"\$_pid\"",
+    ], '; ')
+    $_no_signal = "Could not signal ${auditd::service_name} to stop"
+    $_no_exit = "${auditd::service_name} did not exit within 30 seconds"
 
     # CCE-27058-7
     service { $auditd::service_name:
@@ -73,7 +83,11 @@ class auditd::service (
       stop    => "${auditd::auditctl_command} --signal stop",
       restart => join([
           "_pid=\$(${_main_pid})",
-          "if ${auditd::auditctl_command} --signal stop && [ \"\$_pid\" != 0 ]; then ${_wait_for_exit} || { echo '${auditd::service_name} did not exit within 30 seconds' >&2; exit 1; }; fi",
+          join([
+              "if [ \"\$_pid\" != 0 ]; then ${_stop_and_wait}",
+              "case \$? in 0) ;; 3) echo '${_no_signal}' >&2; exit 1 ;; *) echo '${_no_exit}' >&2; exit 1 ;; esac",
+              'fi',
+          ], '; '),
           "/usr/bin/systemctl start ${auditd::service_name} && ${_if_running}",
       ], '; '),
     }

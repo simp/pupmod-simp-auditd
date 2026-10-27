@@ -2,8 +2,9 @@
 - Fix a restart of the managed `auditd` service leaving auditd stopped. The
   restart started the service before the old daemon had finished exiting, so
   the start did nothing. It now waits for systemd to see the old daemon
-  exit before starting it, and fails if auditd has not exited after 30
-  seconds or is not running afterwards.
+  exit before starting it. The restart now fails, instead of reporting
+  success without loading anything, if the running daemon cannot be
+  signalled, has not exited after 30 seconds, or is not running afterwards.
 
 * Thu Oct 22 2026 Steven Pritchard <steve@sicura.us> - 11.3.1
 - Fix `auditd::warn_if_reboot_required` taking effect on a kernel that is
