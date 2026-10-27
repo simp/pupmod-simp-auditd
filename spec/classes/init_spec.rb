@@ -142,9 +142,12 @@ describe 'auditd' do
               ensure: 'running',
               enable: true,
               stop: '/usr/sbin/auditctl --signal stop',
-              restart: '/usr/sbin/auditctl --signal stop; ' \
-                       'i=0; while /usr/bin/systemctl is-active --quiet auditd && [ $i -lt 300 ]; do sleep 0.1; i=$((i+1)); done; ' \
-                       '/usr/bin/systemctl start auditd',
+              restart: '_pid=$(/usr/bin/systemctl show --value -p MainPID auditd); ' \
+                       'if /usr/sbin/auditctl --signal stop && [ "$_pid" != 0 ]; then ' \
+                       '/usr/bin/timeout 30 /bin/sh -c ' \
+                       '\'while [ "$(/usr/bin/systemctl show --value -p MainPID auditd)" = "$1" ]; do sleep 0.1; done\' sh "$_pid" ' \
+                       '|| { echo \'auditd did not exit within 30 seconds\' >&2; exit 1; }; fi; ' \
+                       '/usr/bin/systemctl start auditd && /usr/bin/systemctl is-active --quiet auditd',
             )
           }
         end
