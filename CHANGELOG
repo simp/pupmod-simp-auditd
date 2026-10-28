@@ -1,3 +1,12 @@
+* Tue Oct 27 2026 Mike Riddle <mike@sicura.us> - 11.3.2
+- Fix a restart of the managed `auditd` service leaving auditd stopped on
+  EL8, and a restart doing nothing when `auditd.conf` sets
+  `local_events = no`. A stop or restart now fails, instead of reporting
+  success, if auditd cannot be signalled or has not exited after 90 seconds.
+- `auditd::auditctl_command` is now only used to reload the configuration;
+  the managed service's stop and restart signal the unit's main process
+  directly.
+
 * Thu Oct 22 2026 Steven Pritchard <steve@sicura.us> - 11.3.1
 - Fix `auditd::warn_if_reboot_required` taking effect on a kernel that is
   already enforcing auditing. Since 9.0.0 it replaced managing the service,

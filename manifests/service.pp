@@ -32,6 +32,8 @@ class auditd::service (
   # decides whether a rule load can take effect.
   $_immutable = fact('auditd_state.immutable') == true
 
+  $_if_running = "/usr/bin/systemctl is-active --quiet ${auditd::service_name}"
+
   # auditd cannot be started until the kernel enforces auditing, which may
   # take a reboot. Only then does a warning replace managing the service: on a
   # kernel that is auditing, the service and reload branches below are what
@@ -49,12 +51,56 @@ class auditd::service (
     # that only wanted the package. Either attribute may be left undef, which
     # leaves that half of the service unmanaged.
     #
+    # The unit sets RefuseManualStop, so systemd cannot stop auditd for us.
+    # Instead, send SIGTERM to the unit's MainPID, the daemon systemd started,
+    # rather than through `auditctl --signal stop`, which finds the daemon by
+    # the PID it registered with the kernel and so cannot reach one that
+    # never registered (`local_events = no`). As root, kill only fails if the
+    # process has already gone, so a failed kill is an error only while that
+    # PID is still the unit's MainPID.
+    #
+    # The signal returns before the daemon has exited, and a start issued
+    # before then finds the unit still active and does nothing, after which
+    # the daemon exits and leaves auditd stopped. So wait until systemd's
+    # MainPID for the unit is no longer the old daemon's. It changes when
+    # systemd has reaped that process, which is when a start can take
+    # effect, and a daemon systemd itself restarted counts as gone. A
+    # MainPID query that fails counts as not yet exited, so a transient
+    # systemctl error cannot end the wait early, and the stop fails if the
+    # first query does, having no old PID to wait on. When nothing is running
+    # there is nothing to stop or wait for.
+    #
+    # The stop, and so the restart, fails rather than carrying on if the
+    # running daemon cannot be signalled (a start would find it running and
+    # load nothing) or has not exited after the timeout. The timeout only
+    # stops a hung daemon from hanging the run, and is systemd's default stop
+    # timeout, which the auditd unit does not override. The daemon has
+    # already been signalled when it expires, so it may still exit later and
+    # then has to be started again; the message says so. The restart
+    # succeeds only if auditd is running at the end.
+    $_stop_timeout = 90
+    $_main_pid = "/usr/bin/systemctl show --value -p MainPID ${auditd::service_name}"
+    $_signal = "kill -s TERM \"\$1\" 2>/dev/null || { _p=\$(${_main_pid}) && [ \"\$_p\" != \"\$1\" ]; } || exit 3"
+    $_stop_and_wait = join([
+        "/usr/bin/timeout ${_stop_timeout} /bin/sh -c '${_signal}",
+        "until _p=\$(${_main_pid}) && [ \"\$_p\" != \"\$1\" ]; do sleep 0.1; done' sh \"\$_pid\"",
+    ], '; ')
+    $_no_pid = "Could not read the MainPID of ${auditd::service_name}"
+    $_no_signal = "Could not signal ${auditd::service_name} to stop"
+    $_no_exit = "${auditd::service_name} did not exit within ${_stop_timeout} seconds; it may still exit later, and will then need to be started"
+    $_stop = join([
+        "_pid=\$(${_main_pid}) || { echo '${_no_pid}' >&2; exit 1; }",
+        "if [ \"\$_pid\" != 0 ]; then ${_stop_and_wait}",
+        "_rc=\$?; case \$_rc in 0) ;; 3) echo '${_no_signal}' >&2; exit 1 ;; 124) echo '${_no_exit}' >&2; exit 1 ;; *) echo \"Could not stop ${auditd::service_name} (exit \$_rc)\" >&2; exit 1 ;; esac",
+        'fi',
+    ], '; ')
+
     # CCE-27058-7
     service { $auditd::service_name:
       ensure  => $ensure,
       enable  => $enable,
-      stop    => "${auditd::auditctl_command} --signal stop",
-      restart => "${auditd::auditctl_command} --signal stop; /usr/bin/systemctl start ${auditd::service_name}",
+      stop    => $_stop,
+      restart => "${_stop}; /usr/bin/systemctl start ${auditd::service_name} && ${_if_running}",
     }
   }
   elsif $reload_on_change {
@@ -63,8 +109,6 @@ class auditd::service (
     # change to what is already running without taking ownership of the
     # service's state: nothing is started, stopped or enabled, and both
     # commands are skipped while auditd is not running.
-    $_if_running = "/usr/bin/systemctl is-active --quiet ${auditd::service_name}"
-
     exec { 'auditd reload config':
       command     => "${auditd::auditctl_command} --signal reload",
       onlyif      => $_if_running,
