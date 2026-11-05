@@ -1,3 +1,8 @@
+* Thu Nov 05 2026 Steven Pritchard <steve@sicura.us> - 11.3.3
+- Fixed an OpenVox 9 (OpenFact 6) deprecation warning from the
+  `auditd_auditctl_cmd` fact by using `Facter::Core::Execution.which` instead
+  of `Facter::Util::Resolution.which`
+
 * Tue Oct 27 2026 Mike Riddle <mike@sicura.us> - 11.3.2
 - Fix a restart of the managed `auditd` service leaving auditd stopped on
   EL8, and a restart doing nothing when `auditd.conf` sets
