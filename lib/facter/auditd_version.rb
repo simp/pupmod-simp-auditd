@@ -24,6 +24,6 @@ Facter.add('auditd_auditctl_cmd') do
   confine kernel: 'Linux'
 
   setcode do
-    Facter::Util::Resolution.which('auditctl')
+    Facter::Core::Execution.which('auditctl')
   end
 end
