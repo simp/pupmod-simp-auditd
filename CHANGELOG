@@ -1,3 +1,6 @@
+* Fri Nov 13 2026 Steven Pritchard <steve@sicura.us> - 11.3.4
+- Allow `simp/rsyslog` 11.x
+
 * Thu Nov 05 2026 Steven Pritchard <steve@sicura.us> - 11.3.3
 - Fixed an OpenVox 9 (OpenFact 6) deprecation warning from the
   `auditd_auditctl_cmd` fact by using `Facter::Core::Execution.which` instead
