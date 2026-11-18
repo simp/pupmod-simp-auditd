@@ -201,7 +201,7 @@ when the parameter named beside it is set:
 | Individual keys in `/etc/audit/auditd.conf` | the matching parameter is set, one key each |
 | Ownership and mode of `/etc/audit/auditd.conf` | `auditd::config_group` is set |
 | The `auditd::plugin_dir` directory | `auditd::plugin_dir` is set |
-| Rule files in `/etc/audit/rules.d` | `auditd::default_audit_profiles` is non-empty, or `auditd::rule` is used |
+| Rule files in `/etc/audit/rules.d` | `auditd::default_audit_profiles` is non-empty, `auditd::rules` has entries, or `auditd::rule` is used |
 | `00_head.rules` | `auditd::default_audit_profiles` is non-empty, or `auditd::purge_auditd_rules` is `true` |
 | `05_default_drop.rules` | a `simp` or `stig` profile is on, and one of the `auditd::ignore_*` drops or `auditd::target_selinux_types` is set or `auditd::purge_auditd_rules` is `true` |
 | `99_tail.rules` | `auditd::purge_auditd_rules` is `true`, or `auditd::immutable` is set with a profile on |
@@ -562,6 +562,35 @@ auditd::rule { 'pre_drop_user_5000':
   prepend => true
 }
 ```
+
+#### Adding Rules from Hiera
+
+``auditd::rules`` declares one ``auditd::rule`` per entry, with the entry's
+options as its parameters:
+
+```yaml
+auditd::rules:
+  passwd_file_watches:
+    content:
+      - '-w /etc/passwd -wa -k passwd_files'
+      - '-w /etc/shadow -wa -k passwd_files'
+  pre_drop_user_5000:
+    content: '-a exit,never -F auid=5000'
+    prepend: true
+  old_watch:
+    ensure: absent
+```
+
+Each entry is its own file, and the parameter merges per entry (``deep``).
+A Hiera layer or a compliance profile that sets some entries adds or replaces
+only those files and leaves the others in place. That differs from
+``auditd::config::audit_profiles::custom::rules``, which writes every rule
+into one file: there, a layer that sets a shorter list rewrites the file
+without the rules it left out.
+
+An entry that is no longer set leaves its file where it is. Set its
+``ensure`` to ``absent`` to remove the file. With
+``auditd::purge_auditd_rules`` on, the purge removes the file instead.
 
 ## Development
 

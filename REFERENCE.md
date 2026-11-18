@@ -67,6 +67,7 @@ audit package's own rules
 * [`Auditd::NameFormat`](#Auditd--NameFormat): Matche s available name formats in audotd.conf
 * [`Auditd::OverflowAction`](#Auditd--OverflowAction): Matches overflow_action settings in auditd.conf or audisp.conf
 * [`Auditd::RootAuditLevel`](#Auditd--RootAuditLevel): Matches root audit level settings in auditd.conf
+* [`Auditd::RuleOptions`](#Auditd--RuleOptions): Options for one entry of `auditd::rules`
 * [`Auditd::SelinuxType`](#Auditd--SelinuxType): An SELinux type name. Restricted to the characters SELinux allows so the name can be interpolated into a file_line `match` regex unescaped.
 * [`Auditd::SpaceLeftAction`](#Auditd--SpaceLeftAction): Matches spaceleftaction for auditd.conf
 
@@ -148,6 +149,7 @@ The following parameters are available in the `auditd` class:
 * [`verify_email`](#-auditd--verify_email)
 * [`write_logs`](#-auditd--write_logs)
 * [`purge_auditd_rules`](#-auditd--purge_auditd_rules)
+* [`rules`](#-auditd--rules)
 * [`manage_rules_d_attributes`](#-auditd--manage_rules_d_attributes)
 * [`manage_plugins_d_attributes`](#-auditd--manage_plugins_d_attributes)
 
@@ -865,6 +867,47 @@ Data type: `Boolean`
 Whether or not to purge existing auditd rules under /etc/audit/rules.d
 
 Default value: `false`
+
+##### <a name="-auditd--rules"></a>`rules`
+
+Data type: `Hash[String[1], Auditd::RuleOptions]`
+
+Audit rules to write, each mapped to its options. Every entry declares an
+`auditd::rule` of that name, which writes its own file under
+`/etc/audit/rules.d`, so the parameter merges per entry (`deep`) and a
+layer that sets some entries leaves the others in place.
+
+An entry that is no longer set leaves its file alone; set its `ensure` to
+`absent` to remove the file. With `$purge_auditd_rules` on, the purge
+removes the files of entries that are no longer set, as it does for any
+`auditd::rule` that is no longer declared.
+
+Unlike `auditd::config::audit_profiles::custom::rules`, which writes all
+of its rules into one file, this does not need an audit profile.
+
+@example Two rule files, and the removal of a third
+  auditd::rules:
+    identity:
+      content:
+        - '-w /etc/group -p wa -k identity'
+        - '-w /etc/passwd -p wa -k identity'
+    time_change:
+      content: '-w /etc/localtime -p wa -k time-change'
+      order: '60'
+    old_watch:
+      ensure: absent
+
+Options:
+
+* **:content** `Variant[Array[String[1]], String[1]]`: The rules, as `auditd::rule` takes them. Required unless `ensure` is
+`absent`.
+* **:ensure** `Enum['present', 'absent']`: `absent` removes the entry's file. Defaults to `present`.
+* **:order** `String[1]`: See `auditd::rule`.
+* **:first** `Boolean`: See `auditd::rule`.
+* **:absolute** `Boolean`: See `auditd::rule`.
+* **:prepend** `Boolean`: See `auditd::rule`.
+
+Default value: `{}`
 
 ##### <a name="-auditd--manage_rules_d_attributes"></a>`manage_rules_d_attributes`
 
@@ -3220,6 +3263,25 @@ Alias of `Enum['IGNORE', 'SYSLOG', 'SUSPEND', 'SINGLE', 'HALT', 'ignore', 'syslo
 Matches root audit level settings in auditd.conf
 
 Alias of `Enum['basic', 'aggressive', 'insane']`
+
+### <a name="Auditd--RuleOptions"></a>`Auditd::RuleOptions`
+
+The keys are the parameters of `auditd::rule`. `content` is required unless
+`ensure` is `absent`. New options are added here as Optional keys, so
+existing data keeps validating.
+
+Alias of
+
+```puppet
+Struct[{
+    Optional['ensure']   => Enum['present', 'absent'],
+    Optional['content']  => Variant[Array[String[1]], String[1]],
+    Optional['order']    => String[1],
+    Optional['first']    => Boolean,
+    Optional['absolute'] => Boolean,
+    Optional['prepend']  => Boolean,
+}]
+```
 
 ### <a name="Auditd--SelinuxType"></a>`Auditd::SelinuxType`
 

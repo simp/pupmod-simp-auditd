@@ -378,6 +378,46 @@
 # @param purge_auditd_rules
 #   Whether or not to purge existing auditd rules under /etc/audit/rules.d
 #
+# @param rules
+#   Audit rules to write, each mapped to its options. Every entry declares an
+#   `auditd::rule` of that name, which writes its own file under
+#   `/etc/audit/rules.d`, so the parameter merges per entry (`deep`) and a
+#   layer that sets some entries leaves the others in place.
+#
+#   An entry that is no longer set leaves its file alone; set its `ensure` to
+#   `absent` to remove the file. With `$purge_auditd_rules` on, the purge
+#   removes the files of entries that are no longer set, as it does for any
+#   `auditd::rule` that is no longer declared.
+#
+#   Unlike `auditd::config::audit_profiles::custom::rules`, which writes all
+#   of its rules into one file, this does not need an audit profile.
+#
+#   @example Two rule files, and the removal of a third
+#     auditd::rules:
+#       identity:
+#         content:
+#           - '-w /etc/group -p wa -k identity'
+#           - '-w /etc/passwd -p wa -k identity'
+#       time_change:
+#         content: '-w /etc/localtime -p wa -k time-change'
+#         order: '60'
+#       old_watch:
+#         ensure: absent
+#
+# @option rules [Variant[Array[String[1]], String[1]]] :content
+#   The rules, as `auditd::rule` takes them. Required unless `ensure` is
+#   `absent`.
+# @option rules [Enum['present', 'absent']] :ensure
+#   `absent` removes the entry's file. Defaults to `present`.
+# @option rules [String[1]] :order
+#   See `auditd::rule`.
+# @option rules [Boolean] :first
+#   See `auditd::rule`.
+# @option rules [Boolean] :absolute
+#   See `auditd::rule`.
+# @option rules [Boolean] :prepend
+#   See `auditd::rule`.
+#
 # @param manage_rules_d_attributes
 #   Whether to enforce owner `root`, the `$config_group` group (`root` when
 #   unset) and the matching mode on everything under `/etc/audit/rules.d`,
@@ -504,6 +544,7 @@ class auditd (
   Optional[Boolean]                                    $verify_email                    = undef,
   Optional[Boolean]                                    $write_logs                      = $log_format ? { /^(?i:nolog)$/ => false, default => undef },
   Boolean                                              $purge_auditd_rules              = false,
+  Hash[String[1], Auditd::RuleOptions]                 $rules                           = {},
   Boolean                                              $manage_rules_d_attributes       = false,
   Boolean                                              $manage_plugins_d_attributes     = false,
 ) {

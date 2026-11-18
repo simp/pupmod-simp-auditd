@@ -1,3 +1,10 @@
+* Wed Nov 18 2026 Mike Riddle <mike@sicura.us> - 11.4.0
+- Add `auditd::rules`, a Hash of rule name to `auditd::rule` options
+  (`Auditd::RuleOptions`), merged `deep`. Each entry writes its own file in
+  `/etc/audit/rules.d` and needs no audit profile, so a layer that sets some
+  entries leaves the files of the others in place, unlike
+  `auditd::config::audit_profiles::custom::rules`.
+
 * Fri Nov 13 2026 Steven Pritchard <steve@sicura.us> - 11.3.4
 - Allow `simp/rsyslog` 11.x
 
