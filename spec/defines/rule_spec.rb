@@ -128,6 +128,21 @@ describe 'auditd::rule' do
           }
         end
 
+        context 'with ensure => absent and no content' do
+          let(:params) { { ensure: 'absent' } }
+
+          it {
+            is_expected.to compile.with_all_deps
+            is_expected.to contain_file("/etc/audit/rules.d/75.#{title}.rules").with(ensure: 'absent', content: nil)
+          }
+        end
+
+        context 'with no content' do
+          let(:params) { {} }
+
+          it { is_expected.to compile.and_raise_error(%r{auditd::rule\[#{title}\]: 'content' is required unless 'ensure' is 'absent'}) }
+        end
+
         context 'when set to :prepend' do
           let(:params) do
             {

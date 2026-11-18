@@ -82,6 +82,23 @@ auditctl(8).
   * auditd.conf(5)
   * auditctl(8)
 
+#### Examples
+
+##### `auditd::rules` in Hiera: two rule files, and the removal of a third
+
+```puppet
+auditd::rules:
+  identity:
+    content:
+      - '-w /etc/group -p wa -k identity'
+      - '-w /etc/passwd -p wa -k identity'
+  time_change:
+    content: '-w /etc/localtime -p wa -k time-change'
+    order: '60'
+  old_watch:
+    ensure: absent
+```
+
 #### Parameters
 
 The following parameters are available in the `auditd` class:
@@ -874,35 +891,35 @@ Data type: `Hash[String[1], Auditd::RuleOptions]`
 
 Audit rules to write, each mapped to its options. Every entry declares an
 `auditd::rule` of that name, which writes its own file under
-`/etc/audit/rules.d`, so the parameter merges per entry (`deep`) and a
-layer that sets some entries leaves the others in place.
+`/etc/audit/rules.d`. The parameter is merged with `hash`: a higher layer
+that sets an entry replaces that entry as a whole, and leaves the other
+entries, and their files, in place.
 
 An entry that is no longer set leaves its file alone; set its `ensure` to
-`absent` to remove the file. With `$purge_auditd_rules` on, the purge
+`absent` to remove the file. The file name comes from the entry's name and
+its `order`, `prepend` and `first`, so an `absent` entry must carry the
+same ordering options as the entry it removes. To change an entry's order,
+remove the old file with an `absent` entry under the old options and write
+the rules under a new name. With `$purge_auditd_rules` on, the purge
 removes the files of entries that are no longer set, as it does for any
 `auditd::rule` that is no longer declared.
 
+The entry names share the `auditd::rule` namespace with other modules that
+declare rules, such as `aide`, `pki`, `sssd` and `puppet_master`, and
+reusing one of those names fails compilation with a duplicate declaration.
+Names that differ only in `/` or whitespace (`a b` and `a/b`) are written
+to the same file and fail the same way.
+
 Unlike `auditd::config::audit_profiles::custom::rules`, which writes all
 of its rules into one file, this does not need an audit profile.
-
-@example Two rule files, and the removal of a third
-  auditd::rules:
-    identity:
-      content:
-        - '-w /etc/group -p wa -k identity'
-        - '-w /etc/passwd -p wa -k identity'
-    time_change:
-      content: '-w /etc/localtime -p wa -k time-change'
-      order: '60'
-    old_watch:
-      ensure: absent
 
 Options:
 
 * **:content** `Variant[Array[String[1]], String[1]]`: The rules, as `auditd::rule` takes them. Required unless `ensure` is
 `absent`.
 * **:ensure** `Enum['present', 'absent']`: `absent` removes the entry's file. Defaults to `present`.
-* **:order** `String[1]`: See `auditd::rule`.
+* **:order** `Pattern[/\A[0-9A-Za-z_-]+\z/]`: See `auditd::rule`. Limited to letters, digits, `_` and `-`, since it is
+part of the file name.
 * **:first** `Boolean`: See `auditd::rule`.
 * **:absolute** `Boolean`: See `auditd::rule`.
 * **:prepend** `Boolean`: See `auditd::rule`.
@@ -2943,11 +2960,14 @@ A unique identifier for the audit rules.
 
 ##### <a name="-auditd--rule--content"></a>`content`
 
-Data type: `Variant[Array[String[1]],String[1]]`
+Data type: `Optional[Variant[Array[String[1]],String[1]]]`
 
 The content of the rules that should be added.
 
 * Arrays will be joined with a newline
+* Required unless `ensure` is `absent`
+
+Default value: `undef`
 
 ##### <a name="-auditd--rule--ensure"></a>`ensure`
 
@@ -3267,8 +3287,9 @@ Alias of `Enum['basic', 'aggressive', 'insane']`
 ### <a name="Auditd--RuleOptions"></a>`Auditd::RuleOptions`
 
 The keys are the parameters of `auditd::rule`. `content` is required unless
-`ensure` is `absent`. New options are added here as Optional keys, so
-existing data keeps validating.
+`ensure` is `absent`. `order` becomes part of the file name, so it is limited
+to letters, digits, `_` and `-`. New options are added here as Optional
+keys, so existing data keeps validating.
 
 Alias of
 
@@ -3276,7 +3297,7 @@ Alias of
 Struct[{
     Optional['ensure']   => Enum['present', 'absent'],
     Optional['content']  => Variant[Array[String[1]], String[1]],
-    Optional['order']    => String[1],
+    Optional['order']    => Pattern[/\A[0-9A-Za-z_-]+\z/],
     Optional['first']    => Boolean,
     Optional['absolute'] => Boolean,
     Optional['prepend']  => Boolean,

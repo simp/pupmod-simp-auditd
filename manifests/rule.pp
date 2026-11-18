@@ -10,6 +10,7 @@
 #   The content of the rules that should be added.
 #
 #   * Arrays will be joined with a newline
+#   * Required unless `ensure` is `absent`
 #
 # @param ensure
 #   `absent` removes the rules file this resource would write.
@@ -32,13 +33,17 @@
 # @author https://github.com/simp/pupmod-simp-auditd/graphs/contributors
 #
 define auditd::rule (
-  Variant[Array[String[1]],String[1]] $content,
-  Enum['present', 'absent']           $ensure   = 'present',
-  Optional[String[1]]                 $order    = undef,
-  Boolean                             $first    = false,
-  Boolean                             $absolute = false,
-  Boolean                             $prepend  = false
+  Optional[Variant[Array[String[1]],String[1]]] $content  = undef,
+  Enum['present', 'absent']                     $ensure   = 'present',
+  Optional[String[1]]                           $order    = undef,
+  Boolean                                       $first    = false,
+  Boolean                                       $absolute = false,
+  Boolean                                       $prepend  = false
 ) {
+  if $ensure == 'present' and $content =~ Undef {
+    fail("auditd::rule[${name}]: 'content' is required unless 'ensure' is 'absent'")
+  }
+
   include 'auditd'
 
   # Rules are written unless the deprecated auditd::enable says not to. Writing

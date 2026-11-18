@@ -555,13 +555,21 @@ describe 'auditd' do
         context 'with a rules entry that has no content' do
           let(:params) { { rules: { 'empty' => {} } } }
 
-          it { is_expected.to compile.and_raise_error(%r{auditd::rules: 'empty' needs 'content' unless its 'ensure' is 'absent'}) }
+          it { is_expected.to compile.and_raise_error(%r{auditd::rule\[empty\]: 'content' is required unless 'ensure' is 'absent'}) }
         end
 
         context 'with a rules entry that has an unknown option' do
           let(:params) { { rules: { 'typo' => { 'content' => '-w /etc/hosts -p wa', 'ensrue' => 'absent' } } } }
 
           it { is_expected.to compile.and_raise_error(%r{unrecognized key 'ensrue'}) }
+        end
+
+        ['../x', 'a/b'].each do |order|
+          context "with a rules entry whose order is #{order}" do
+            let(:params) { { rules: { 'bad_order' => { 'content' => '-w /etc/hosts -p wa', 'order' => order } } } }
+
+            it { is_expected.to compile.and_raise_error(%r{rules.*bad_order.*order}) }
+          end
         end
 
         context 'with rules and enable => false' do

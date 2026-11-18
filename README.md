@@ -439,8 +439,8 @@ You can easily do this via Hiera as shown in the following example:
 
 ```yaml
 auditd::config::audit_profiles::custom::rules:
-  - '-w /etc/passwd -wa -k passwd_files'
-  - '-w /etc/shadow -wa -k passwd_files'
+  - '-w /etc/passwd -p wa -k passwd_files'
+  - '-w /etc/shadow -p wa -k passwd_files'
 ```
 
 To activate the custom profile, you will need to set the
@@ -545,8 +545,8 @@ auditd::rule { 'failed_file_creation':
 
 auditd::rule { 'passwd_file_watches':
   content => [
-    '-w /etc/passwd -wa -k passwd_files',
-    '-w /etc/shadow -wa -k passwd_files'
+    '-w /etc/passwd -p wa -k passwd_files',
+    '-w /etc/shadow -p wa -k passwd_files'
   ]
 }
 ```
@@ -572,8 +572,8 @@ options as its parameters:
 auditd::rules:
   passwd_file_watches:
     content:
-      - '-w /etc/passwd -wa -k passwd_files'
-      - '-w /etc/shadow -wa -k passwd_files'
+      - '-w /etc/passwd -p wa -k passwd_files'
+      - '-w /etc/shadow -p wa -k passwd_files'
   pre_drop_user_5000:
     content: '-a exit,never -F auid=5000'
     prepend: true
@@ -581,16 +581,35 @@ auditd::rules:
     ensure: absent
 ```
 
-Each entry is its own file, and the parameter merges per entry (``deep``).
-A Hiera layer or a compliance profile that sets some entries adds or replaces
-only those files and leaves the others in place. That differs from
-``auditd::config::audit_profiles::custom::rules``, which writes every rule
-into one file: there, a layer that sets a shorter list rewrites the file
-without the rules it left out.
+Each entry is its own file, and the parameter is merged with ``hash``: a
+higher Hiera layer that sets an entry replaces that entry as a whole, so it
+can shorten or change its ``content``. A layer or a compliance profile that
+sets some entries adds or replaces only those files and leaves the others in
+place. That differs from ``auditd::config::audit_profiles::custom::rules``,
+which writes every rule into one file: there, a layer that sets a shorter list
+rewrites the file without the rules it left out.
 
 An entry that is no longer set leaves its file where it is. Set its
 ``ensure`` to ``absent`` to remove the file. With
 ``auditd::purge_auditd_rules`` on, the purge removes the file instead.
+
+The file name is built from the entry's name and its ``order``, ``prepend``
+and ``first`` options, the way ``auditd::rule`` builds it:
+
+* An ``absent`` entry removes only the file its own options name, so it must
+  carry the same ``order``, ``prepend`` or ``first`` as the entry it removes.
+  ``old_watch: {ensure: absent}`` removes ``75.old_watch.rules``, not a
+  ``00.old_watch.rules`` written with ``prepend: true``.
+* Changing an entry's order leaves the file written under the old order in
+  place, so its rules load twice. Remove it with an ``absent`` entry under the
+  old options, and write the rules under a new name.
+* ``order`` is limited to letters, digits, ``_`` and ``-``.
+
+The entry names share the ``auditd::rule`` namespace with the rules other
+modules declare, such as ``aide``, ``pki``, ``sssd`` and ``puppet_master``.
+An entry with one of those names fails compilation with a duplicate
+declaration. So do two names that differ only in ``/`` or whitespace, such as
+``a b`` and ``a/b``, since both are written to ``75.a__b.rules``.
 
 ## Development
 

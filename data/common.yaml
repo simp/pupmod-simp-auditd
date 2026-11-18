@@ -35,7 +35,7 @@ lookup_options:
   auditd::target_selinux_types_entries:
     merge: deep
   auditd::rules:
-    merge: deep
+    merge: hash
 
 auditd::config::audisp::syslog::pkg_name: 'audispd-plugins'
 
