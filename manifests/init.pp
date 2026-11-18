@@ -6,6 +6,18 @@
 # @see auditd.conf(5)
 # @see auditctl(8)
 #
+# @example `auditd::rules` in Hiera: two rule files, and the removal of a third
+#   auditd::rules:
+#     identity:
+#       content:
+#         - '-w /etc/group -p wa -k identity'
+#         - '-w /etc/passwd -p wa -k identity'
+#     time_change:
+#       content: '-w /etc/localtime -p wa -k time-change'
+#       order: '60'
+#     old_watch:
+#       ensure: absent
+#
 # @param enable
 #   If true, enable auditing.
 #
@@ -378,6 +390,46 @@
 # @param purge_auditd_rules
 #   Whether or not to purge existing auditd rules under /etc/audit/rules.d
 #
+# @param rules
+#   Audit rules to write, each mapped to its options. Every entry declares an
+#   `auditd::rule` of that name, which writes its own file under
+#   `/etc/audit/rules.d`. The parameter is merged with `hash`: a higher layer
+#   that sets an entry replaces that entry as a whole, and leaves the other
+#   entries, and their files, in place.
+#
+#   An entry that is no longer set leaves its file alone; set its `ensure` to
+#   `absent` to remove the file. The file name comes from the entry's name and
+#   its `order`, `prepend` and `first`, so an `absent` entry must carry the
+#   same ordering options as the entry it removes. To change an entry's order,
+#   remove the old file with an `absent` entry under the old options and write
+#   the rules under a new name. With `$purge_auditd_rules` on, the purge
+#   removes the files of entries that are no longer set, as it does for any
+#   `auditd::rule` that is no longer declared.
+#
+#   The entry names share the `auditd::rule` namespace with other modules that
+#   declare rules, such as `aide`, `pki`, `sssd` and `puppet_master`, and
+#   reusing one of those names fails compilation with a duplicate declaration.
+#   Names that differ only in `/` or whitespace (`a b` and `a/b`) are written
+#   to the same file and fail the same way.
+#
+#   Unlike `auditd::config::audit_profiles::custom::rules`, which writes all
+#   of its rules into one file, this does not need an audit profile.
+#
+# @option rules [Variant[Array[String[1]], String[1]]] :content
+#   The rules, as `auditd::rule` takes them. Required unless `ensure` is
+#   `absent`.
+# @option rules [Enum['present', 'absent']] :ensure
+#   `absent` removes the entry's file. Defaults to `present`.
+# @option rules [Pattern[/\A[0-9A-Za-z_-]+\z/]] :order
+#   See `auditd::rule`. Limited to letters, digits, `_` and `-`, since it is
+#   part of the file name.
+# @option rules [Boolean] :first
+#   See `auditd::rule`.
+# @option rules [Boolean] :absolute
+#   See `auditd::rule`.
+# @option rules [Boolean] :prepend
+#   See `auditd::rule`.
+#
 # @param manage_rules_d_attributes
 #   Whether to enforce owner `root`, the `$config_group` group (`root` when
 #   unset) and the matching mode on everything under `/etc/audit/rules.d`,
@@ -504,6 +556,7 @@ class auditd (
   Optional[Boolean]                                    $verify_email                    = undef,
   Optional[Boolean]                                    $write_logs                      = $log_format ? { /^(?i:nolog)$/ => false, default => undef },
   Boolean                                              $purge_auditd_rules              = false,
+  Hash[String[1], Auditd::RuleOptions]                 $rules                           = {},
   Boolean                                              $manage_rules_d_attributes       = false,
   Boolean                                              $manage_plugins_d_attributes     = false,
 ) {

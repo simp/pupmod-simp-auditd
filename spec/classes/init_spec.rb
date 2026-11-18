@@ -514,6 +514,70 @@ describe 'auditd' do
           end
         end
 
+        context 'with rules' do
+          let(:params) do
+            {
+              rules: {
+                'identity' => {
+                  'content' => ['-w /etc/group -p wa -k identity', '-w /etc/passwd -p wa -k identity'],
+                },
+                'time_change' => {
+                  'content' => '-w /etc/localtime -p wa -k time-change',
+                  'order'   => '60',
+                },
+                'old_watch' => { 'ensure' => 'absent' },
+              },
+            }
+          end
+
+          it { is_expected.to compile.with_all_deps }
+
+          it 'writes each entry to its own file' do
+            is_expected.to contain_auditd__rule('identity').with_ensure('present')
+            is_expected.to contain_file('/etc/audit/rules.d/75.identity.rules')
+              .with_content("-w /etc/group -p wa -k identity\n-w /etc/passwd -p wa -k identity\n")
+              .that_requires('Package[audit]')
+              .that_notifies('Class[auditd::service]')
+            is_expected.to contain_file('/etc/audit/rules.d/60.time_change.rules')
+              .with_content("-w /etc/localtime -p wa -k time-change\n")
+          end
+
+          it 'removes an absent entry' do
+            is_expected.to contain_file('/etc/audit/rules.d/75.old_watch.rules').with_ensure('absent')
+          end
+
+          # The entries need no audit profile, so nothing else in rules.d is
+          # declared alongside them.
+          it { is_expected.not_to contain_class('auditd::config::audit_profiles') }
+          it { is_expected.not_to contain_file('/etc/audit/rules.d') }
+        end
+
+        context 'with a rules entry that has no content' do
+          let(:params) { { rules: { 'empty' => {} } } }
+
+          it { is_expected.to compile.and_raise_error(%r{auditd::rule\[empty\]: 'content' is required unless 'ensure' is 'absent'}) }
+        end
+
+        context 'with a rules entry that has an unknown option' do
+          let(:params) { { rules: { 'typo' => { 'content' => '-w /etc/hosts -p wa', 'ensrue' => 'absent' } } } }
+
+          it { is_expected.to compile.and_raise_error(%r{unrecognized key 'ensrue'}) }
+        end
+
+        ['../x', 'a/b'].each do |order|
+          context "with a rules entry whose order is #{order}" do
+            let(:params) { { rules: { 'bad_order' => { 'content' => '-w /etc/hosts -p wa', 'order' => order } } } }
+
+            it { is_expected.to compile.and_raise_error(%r{rules.*bad_order.*order}) }
+          end
+        end
+
+        context 'with rules and enable => false' do
+          let(:params) { { enable: false, rules: { 'identity' => { 'content' => '-w /etc/group -p wa -k identity' } } } }
+
+          it { is_expected.not_to contain_file('/etc/audit/rules.d/75.identity.rules') }
+        end
+
         # D6: 'enable' is deprecated, not removed.
         #
         # It used to mean three things at once -- run the service, audit at

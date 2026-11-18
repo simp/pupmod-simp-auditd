@@ -330,4 +330,13 @@ class auditd::config {
     # notify auditd::service class
     contain 'auditd::config::audit_profiles'
   }
+
+  # One auditd::rule, and so one file, per entry, with no profile needed. The
+  # rules are declared here rather than in init.pp because Class['auditd']
+  # comes after Class['auditd::service'], which each rule file notifies.
+  $auditd::rules.each |String[1] $rule_name, Auditd::RuleOptions $options| {
+    auditd::rule { $rule_name:
+      * => $options,
+    }
+  }
 }
