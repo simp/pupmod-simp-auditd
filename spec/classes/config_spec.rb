@@ -480,6 +480,15 @@ describe 'auditd' do
             it { is_expected.to contain_package('setroubleshoot-server').that_comes_before('File[/etc/audit/plugins.d]') }
           end
 
+          # The collector adds edges for a feature the site did not turn on.
+          context 'with another plugin package tagged auditd_plugin and manage_plugins_d_attributes => false' do
+            let(:params) { { manage_plugins_d_attributes: false, plugin_dir: '/opt/audit/plugins.d' } }
+            let(:pre_condition) { "package { 'setroubleshoot-server': tag => 'auditd_plugin' }" }
+
+            it { is_expected.to compile.with_all_deps }
+            it { is_expected.not_to contain_package('setroubleshoot-server').that_comes_before('File[/opt/audit/plugins.d]') }
+          end
+
           context 'with the syslog plugin and plugin_dir set' do
             let(:params) { { manage_plugins_d_attributes: true, syslog: true, plugin_dir: '/opt/audit/plugins.d' } }
 

@@ -1,3 +1,10 @@
+* Mon Nov 23 2026 Hazel Caballero <hazel@sicura.us> - 11.4.1
+- Fixed `auditd_plugin`-tagged packages being ordered before, and virtual ones
+  realized for, a relocated `auditd::plugin_dir` when
+  `auditd::manage_plugins_d_attributes` is `false`
+- Corrected the `auditd::manage_plugins_d_attributes` documentation on
+  symlinked plugin directories
+
 * Wed Nov 18 2026 Mike Riddle <mike@sicura.us> - 11.4.0
 - Add `auditd::rules`, a Hash of rule name to `auditd::rule` options
   (`Auditd::RuleOptions`), merged `hash`, so a higher layer replaces an entry

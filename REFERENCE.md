@@ -972,8 +972,10 @@ reached, such as `audisp-remote.conf`, `zos-remote.conf` or
 
 It changes ownership and permissions only: nothing is deleted, and the
 package's directory is created only when `$plugin_dir` names it.
-Symlinks are not followed, so a plugin directory that is itself a symlink
-is left alone; set `$plugin_dir` to the real directory instead.
+Symlinks are not followed. A plugin directory that is itself a symlink
+has the link's own owner and group set, and its target is left alone.
+Never set `$plugin_dir` to a symlink: Puppet replaces the link with an
+empty directory. Set it to the real directory instead.
 
 A repair does not restart `auditd`, which needs no restart for an
 ownership or mode change; only a repair to the `syslog.conf` this module
@@ -2876,9 +2878,10 @@ keeps its own resource (see $auditd::config::plugin_file_attributes), which
 takes precedence over the recursion.
 
 The recursion does not follow symlinks (links => manage), so it never
-changes a file outside these directories, and a plugin directory that is
-itself a symlink is left alone; point plugin_dir at the real directory
-instead.
+changes a file outside these directories. A plugin directory that is
+itself a symlink is not followed, but the link's own owner and group are
+set. Do not point plugin_dir at a symlink: its File has ensure =>
+directory, which replaces the link with an empty directory.
 
 ### <a name="auditd--install"></a>`auditd::install`
 
