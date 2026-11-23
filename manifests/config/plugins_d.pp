@@ -19,9 +19,10 @@
 # takes precedence over the recursion.
 #
 # The recursion does not follow symlinks (links => manage), so it never
-# changes a file outside these directories, and a plugin directory that is
-# itself a symlink is left alone; point plugin_dir at the real directory
-# instead.
+# changes a file outside these directories. A plugin directory that is
+# itself a symlink is not followed, but the link's own owner and group are
+# set. Do not point plugin_dir at a symlink: its File has ensure =>
+# directory, which replaces the link with an empty directory.
 #
 # @author https://github.com/simp/pupmod-simp-auditd/graphs/contributors
 #
@@ -48,7 +49,7 @@ class auditd::config::plugins_d {
   # package in the same run, such as setroubleshoot-server, can tag it
   # 'auditd_plugin' too. The collector also realizes a virtual package with
   # that tag.
-  unless empty($auditd::config::_plugin_dirs) {
+  if $auditd::manage_plugins_d_attributes and !empty($auditd::config::_plugin_dirs) {
     Package <| tag == 'auditd_plugin' |> -> File[keys($auditd::config::_plugin_dirs)]
   }
 }
