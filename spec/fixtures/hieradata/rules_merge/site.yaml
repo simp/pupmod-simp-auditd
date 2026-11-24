@@ -1,0 +1,7 @@
+---
+auditd::rules:
+  shared:
+    content:
+      - '-w /etc/site-one -p wa -k shared'
+  site_only:
+    content: '-w /etc/site-only -p wa -k site'

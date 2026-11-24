@@ -552,6 +552,25 @@ describe 'auditd' do
           it { is_expected.not_to contain_file('/etc/audit/rules.d') }
         end
 
+        # auditd::rules has `merge: hash` in data/common.yaml: a higher layer
+        # replaces an entry as a whole, and entries from every layer are kept.
+        context 'with rules merged from two hiera layers' do
+          let(:hiera_config) { File.expand_path(File.join(__dir__, '..', 'fixtures', 'hieradata', 'rules_merge', 'hiera.yaml')) }
+          let(:params) { {} }
+
+          it { is_expected.to compile.with_all_deps }
+
+          it 'takes a shared entry from the higher layer only' do
+            is_expected.to contain_file('/etc/audit/rules.d/75.shared.rules')
+              .with_content("-w /etc/site-one -p wa -k shared\n")
+          end
+
+          it 'keeps the entries only one layer defines' do
+            is_expected.to contain_file('/etc/audit/rules.d/75.profile_only.rules')
+            is_expected.to contain_file('/etc/audit/rules.d/75.site_only.rules')
+          end
+        end
+
         context 'with a rules entry that has no content' do
           let(:params) { { rules: { 'empty' => {} } } }
 

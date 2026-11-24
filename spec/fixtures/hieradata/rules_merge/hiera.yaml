@@ -1,0 +1,10 @@
+---
+version: 5
+defaults:
+  datadir: .
+  data_hash: yaml_data
+hierarchy:
+  - name: Site
+    path: site.yaml
+  - name: Profile
+    path: profile.yaml
