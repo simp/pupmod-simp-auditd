@@ -1,0 +1,8 @@
+---
+auditd::rules:
+  shared:
+    content:
+      - '-w /etc/profile-one -p wa -k shared'
+      - '-w /etc/profile-two -p wa -k shared'
+  profile_only:
+    content: '-w /etc/profile-only -p wa -k profile'
